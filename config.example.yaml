@@ -1,0 +1,38 @@
+#The application host name
+http_config:
+  host: localhost
+  port: 7788
+  expose_port: 7788
+  expose_db_port: 33060
+
+#Parameters for getting the access to the database
+db_config:
+  user: local_user
+  password: password
+  driver: mysql
+  name: test
+  host: localhost
+  port: 3306
+
+#Secret keys for the access token and refresh token signing
+auth_config:
+  access_secret: access_secret
+  refresh_secret: refresh_secret
+
+log:
+  level: debug
+  console:
+    encoding: json
+
+session:
+  cookie_name: webauthn
+  secure: yes
+  domain: example.com
+
+listen_address: "0.0.0.0:8080"
+external_url: https://auth.example.com
+
+display_name: Webauthn
+conveyance_preference: indirect
+authenticator_attachment: cross-platform
+user_verification_requirement: preferred

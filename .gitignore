@@ -1,0 +1,6 @@
+main
+.yaml
+.env
+.env.testing
+/.idea
+docs

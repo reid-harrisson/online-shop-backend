@@ -1,0 +1,5 @@
+package config
+
+func EnvironmentProviderWithValueCallback(key, value string) (finalKey string, finalValue interface{}) {
+	return key, value
+}
