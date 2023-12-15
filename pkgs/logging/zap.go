@@ -1,14 +1,24 @@
 package logging
 
 import (
+	"OnlineStoreBackend/pkgs/config"
 	"fmt"
 	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"PockitGolangBoilerplate/config"
 )
+
+func NewLogger() (logger *zap.Logger, err error) {
+	cfg, cfgErr := config.Load([]string{"config.yaml"}, true, nil)
+	if cfgErr != nil {
+		panic(cfgErr)
+	}
+
+	logger, loggerErr := Configure(&cfg.Log)
+
+	return logger, loggerErr
+}
 
 func Configure(cfg *config.Log) (logger *zap.Logger, err error) {
 	if cfg == nil {

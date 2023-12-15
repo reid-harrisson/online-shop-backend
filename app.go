@@ -1,9 +1,9 @@
 package application
 
 import (
-	"PockitGolangBoilerplate/config"
-	"PockitGolangBoilerplate/server"
-	"PockitGolangBoilerplate/server/routes"
+	"OnlineStoreBackend/pkgs/config"
+	"OnlineStoreBackend/server"
+	"OnlineStoreBackend/server/routes"
 	"log"
 )
 

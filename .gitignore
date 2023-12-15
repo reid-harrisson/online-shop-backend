@@ -4,3 +4,9 @@ main
 .env.testing
 /.idea
 docs
+
+# Configuration
+config.yaml
+
+# build
+main.exe

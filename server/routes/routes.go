@@ -1,39 +1,58 @@
 package routes
 
 import (
-	s "PockitGolangBoilerplate/server"
-	"PockitGolangBoilerplate/server/handlers"
-	"PockitGolangBoilerplate/services/token"
-	"fmt"
+	s "OnlineStoreBackend/server"
+	"OnlineStoreBackend/server/handlers"
+	"strconv"
+	"strings"
 
+	"github.com/golang-jwt/jwt"
+	echojwt "github.com/labstack/echo-jwt"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-func ConfigureRoutes(server *s.Server) {
-	postHandler := handlers.NewPostHandlers(server)
-	authHandler := handlers.NewAuthHandler(server)
-	registerHandler := handlers.NewRegisterHandler(server)
+func AuthMiddleware(server *s.Server) echo.MiddlewareFunc {
+	authMiddleware := echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte(server.Config.Auth.AccessSecret),
+		SuccessHandler: func(c echo.Context) {
+			secretKey := []byte(server.Config.Auth.AccessSecret)
+			claims := jwt.MapClaims{}
+			jwt.ParseWithClaims(strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer "), claims, func(token *jwt.Token) (interface{}, error) {
+				return secretKey, nil
+			})
 
+			id := int(uint64(claims["id"].(float64)))
+
+			c.Request().Header.Set("id", strconv.Itoa(id))
+		},
+	})
+
+	return authMiddleware
+}
+func ConfigureRoutes(server *s.Server) {
 	server.Echo.Use(middleware.Logger())
 
-	server.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
+	server.Echo.GET("/docs/*", echoSwagger.WrapHandler)
 
-	server.Echo.POST("/login", authHandler.Login)
-	server.Echo.POST("/register", registerHandler.Register)
-	server.Echo.POST("/refresh", authHandler.RefreshToken)
+	apiV1 := server.Echo.Group("/api/v1")
 
-	fmt.Println(server.Config.Auth.AccessSecret)
+	apiV1.Use(middleware.Logger())
+	apiV1.Use(middleware.Recover())
 
-	r := server.Echo.Group("")
-	config := middleware.JWTConfig{
-		Claims:     &token.JwtCustomClaims{},
-		SigningKey: []byte(server.Config.Auth.AccessSecret),
-	}
-	r.Use(middleware.JWTWithConfig(config))
+	groupProductManagement := apiV1.Group("/product")
+	GroupProductManagement(server, groupProductManagement)
+}
 
-	r.GET("/posts", postHandler.GetPosts)
-	r.POST("/posts", postHandler.CreatePost)
-	r.DELETE("/posts/:id", postHandler.DeletePost)
-	r.PUT("/posts/:id", postHandler.UpdatePost)
+func GroupProductManagement(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersProduct(server)
+	e.POST("", handler.Create)
+	e.GET("", handler.ReadAll)
+	e.GET("/:id", handler.ReadOne)
+	e.GET("/active", handler.ReadActive)
+	e.GET("/paging", handler.ReadPaging)
+	e.GET("/search", handler.ReadSearch)
+	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
 }

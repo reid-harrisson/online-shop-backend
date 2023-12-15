@@ -1,10 +1,17 @@
 package main
 
 import (
-	application "PockitGolangBoilerplate"
-	"PockitGolangBoilerplate/config"
-	"PockitGolangBoilerplate/logging"
+	application "OnlineStoreBackend"
+	"OnlineStoreBackend/pkgs/config"
+	"OnlineStoreBackend/pkgs/logging"
 )
+
+// @Title PockitTV Online Store
+// @Version 1.0
+// @SecurityDefinitions.apikey ApiKeyAuth
+// @Type apiKey
+// @In header
+// @Name Authorization
 
 func main() {
 	cfg, err := config.Load([]string{"config.yaml"}, true, nil)
@@ -18,8 +25,6 @@ func main() {
 	}
 
 	logger.Info("server is starting")
-
-	// docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.ExposePort)
 
 	application.Start(cfg)
 }

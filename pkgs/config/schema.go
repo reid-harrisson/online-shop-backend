@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	Auth AuthConfig `koanf:"auth_config"`
-	DB   DBConfig   `koanf:"db_config"`
-	HTTP HTTPConfig `koanf:"http_config"`
+	Auth  AuthConfig  `koanf:"auth_config"`
+	DB    DBConfig    `koanf:"db_config"`
+	HTTP  HTTPConfig  `koanf:"http_config"`
+	Audit AuditConfig `koanf:"audit_config"`
 
 	Log Log `koanf:"log"`
 
@@ -83,8 +84,8 @@ type Session struct {
 
 // ////////////////////////////////////////////////
 type AuthConfig struct {
-	AccessSecret  string `koanf:"access_securet"`
-	RefreshSecret string `koanf:"refresh_securet"`
+	AccessSecret  string `koanf:"access_secret"`
+	RefreshSecret string `koanf:"refresh_secret"`
 }
 
 type DBConfig struct {
@@ -100,4 +101,8 @@ type HTTPConfig struct {
 	Host       string `koanf:"host"`
 	Port       string `koanf:"port"`
 	ExposePort string `koanf:"expose_port"`
+}
+
+type AuditConfig struct {
+	Url string `koanf:"url"`
 }
