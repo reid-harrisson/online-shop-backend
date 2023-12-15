@@ -1,9 +1,11 @@
 package server
 
 import (
-	"PockitGolangBoilerplate/config"
-	"PockitGolangBoilerplate/db"
+	"OnlineStoreBackend/db"
+	"OnlineStoreBackend/pkgs/config"
 	"net/http"
+
+	_ "OnlineStoreBackend/docs"
 
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"

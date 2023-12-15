@@ -1,8 +1,7 @@
 package db
 
 import (
-	"PockitGolangBoilerplate/config"
-	"PockitGolangBoilerplate/db/seeders"
+	"OnlineStoreBackend/pkgs/config"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql" // nolint
@@ -23,9 +22,6 @@ func Init(cfg *config.Config) *gorm.DB {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	userSeeder := seeders.NewUserSeeder(db)
-	userSeeder.SetUsers()
 
 	return db
 }

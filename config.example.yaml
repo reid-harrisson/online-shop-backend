@@ -1,9 +1,7 @@
 #The application host name
 http_config:
   host: localhost
-  port: 7788
-  expose_port: 7788
-  expose_db_port: 33060
+  port: 8014
 
 #Parameters for getting the access to the database
 db_config:
