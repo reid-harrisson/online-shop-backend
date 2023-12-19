@@ -43,6 +43,8 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupProductManagement := apiV1.Group("/product")
 	GroupProductManagement(server, groupProductManagement)
+	groupShoppingCart := apiV1.Group("/cart")
+	GroupShoppingCart(server, groupShoppingCart)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {
@@ -55,4 +57,14 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/search", handler.ReadSearch)
 	e.PUT("/:id", handler.Update)
 	e.DELETE("/:id", handler.Delete)
+}
+
+func GroupShoppingCart(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCartItem(server)
+	e.POST("", handler.Create)
+	e.GET("", handler.Read)
+	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
+	e.DELETE("", handler.DeleteAll)
+	e.DELETE("/buy", handler.DeleteBuy)
 }

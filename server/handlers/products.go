@@ -147,25 +147,23 @@ func (h *HandlersProduct) ReadPaging(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read Products by earching
-// @Description Perform read products by pagination
+// @Summary Read Products by searching
+// @Description Perform read products by searching
 // @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param company_id query int false "Company ID"
-// @Param user_id query int false "User ID"
+// @Param franchisee_id query int false "Franchisee ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/search [get]
 func (h *HandlersProduct) ReadSearch(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
-	companyID, _ := strconv.ParseUint(c.QueryParam("page"), 10, 64)
-	userID, _ := strconv.ParseUint(c.QueryParam("page"), 10, 64)
+	companyID, _ := strconv.ParseUint(c.QueryParam("franchisee_id"), 10, 64)
 	modelProductDetails := make([]models.ProductDetails, 0)
 	repositoryProduct := repositories.NewRepositoryProduct(h.server.DB)
-	repositoryProduct.ReadSearch(&modelProductDetails, companyID, userID, keyword)
+	repositoryProduct.ReadSearch(&modelProductDetails, companyID, keyword)
 	return responses.NewResponseProducts(c, http.StatusCreated, modelProductDetails)
 }
 

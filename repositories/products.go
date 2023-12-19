@@ -244,12 +244,12 @@ func (repository *RepositoryProduct) ReadPaging(modelProductDetails *[]models.Pr
 	return nil
 }
 
-func (repository *RepositoryProduct) ReadSearch(modelProductDetails *[]models.ProductDetails, companyID uint64, userID uint64, keyword string) error {
+func (repository *RepositoryProduct) ReadSearch(modelProductDetails *[]models.ProductDetails, franchiseeID uint64, keyword string) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	modelProducts := make([]models.Products, 0)
-	repository.DB.Where("? = 0 Or company_id = ?", companyID, companyID).
-		Where("? = 0 Or user_id = ?", userID, userID).
-		Where("Lower(name) Like ? Or Lower(brief) Like ? Or Lower(description) Like ?", keyword, keyword, keyword).
+	repository.DB.Where("active = 1").
+		Where("? = 0 Or company_id = ?", franchiseeID, franchiseeID).
+		Where("Lower(name) Like ? Or Lower(brief) Like ? Or Lower(description) Like ? Or Lower(tags) Like ?", keyword, keyword, keyword, keyword).
 		Find(&modelProducts)
 
 	for _, modelProduct := range modelProducts {
