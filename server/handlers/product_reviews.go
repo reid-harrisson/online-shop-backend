@@ -28,9 +28,10 @@ func NewHandlersProductReviews(server *s.Server) *HandlersProductReviews {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
+// @Param params body requests.RequestProductRate true "Product Rate Info"
 // @Success 201 {object} responses.ResponseProductCustomerRate
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/rate [post]
+// @Router /api/v1/review/rate [post]
 func (h *HandlersProductReviews) CreateRate(c echo.Context) error {
 	req := new(requests.RequestProductRate)
 	if err := c.Bind(req); err != nil {
