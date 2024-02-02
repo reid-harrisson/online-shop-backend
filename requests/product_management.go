@@ -42,11 +42,6 @@ type RequestProductPrice struct {
 	Price float64 `json:"price" example:"57"`
 }
 
-type RequestProductReview struct {
-	CustomerID uint64 `json:"customer_id" example:"1080"`
-	Comment    string `json:"comment" example:"These are very good delicious apple but anyone can't eat them, because there are made of binary."`
-}
-
 type RequestShippingData struct {
 	Weight         float64 `json:"weight" example:"1.35"`
 	Dimension      string  `json:"dimension" example:"58mm*118mm*8mm"`

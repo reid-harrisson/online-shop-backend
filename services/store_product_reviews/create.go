@@ -5,9 +5,9 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(productID uint64, req *requests.RequestProductReview, modelReview *models.ProductReviews) error {
+func (service *Service) Create(modelReview *models.ProductReviews, req *requests.RequestProductReview) error {
 	modelReview.Comment = req.Comment
-	modelReview.ProductID = productID
+	modelReview.ProductID = req.ProductID
 	modelReview.CustomerID = req.CustomerID
 	modelReview.Status = "archieved"
 	service.DB.Create(modelReview)

@@ -10,8 +10,6 @@ import (
 	prodAttr "OnlineStoreBackend/services/store_product_attributes"
 	prodChan "OnlineStoreBackend/services/store_product_related_channels"
 	prodCont "OnlineStoreBackend/services/store_product_related_contents"
-
-	prodRev "OnlineStoreBackend/services/store_product_reviews"
 	prodTg "OnlineStoreBackend/services/store_product_tags"
 	prod "OnlineStoreBackend/services/store_products"
 	"net/http"
@@ -318,32 +316,6 @@ func (h *HandlersProductManagement) UpdateLinkedProduct(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
-}
-
-// Refresh godoc
-// @Summary Add review
-// @Tags product management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Product ID"
-// @Param params body requests.RequestProductReview true "Review"
-// @Success 201 {object} responses.ResponseProductReview
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/product/review/{id} [post]
-func (h *HandlersProductManagement) CreateReview(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductReview)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelReview := models.ProductReviews{}
-	reviewService := prodRev.CreateService(h.server.DB)
-	if err := reviewService.Create(id, req, &modelReview); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseReview(c, http.StatusOK, modelReview)
 }
 
 // Refresh godoc

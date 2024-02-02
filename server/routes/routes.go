@@ -62,7 +62,6 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.POST("/tag/:id", handler.CreateTags)
 	e.POST("/channel/:id", handler.CreateRelatedChannels)
 	e.POST("/content/:id", handler.CreateRelatedContents)
-	e.POST("/review/:id", handler.CreateReview)
 	e.POST("/shipping/:id", handler.CreateShippingData)
 	e.GET("", handler.ReadAll)
 	e.GET("/:id", handler.Read)
@@ -88,6 +87,7 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 func GroupProductReviews(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductReviews(server)
 	e.POST("/rate", handler.CreateRate)
+	e.POST("/:id", handler.CreateReview)
 	e.GET("/rate", handler.ReadRate)
 	e.GET("", handler.ReadReview)
 	e.GET("/publish", handler.ReadPublishReview)

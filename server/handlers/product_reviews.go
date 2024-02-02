@@ -23,6 +23,30 @@ func NewHandlersProductReviews(server *s.Server) *HandlersProductReviews {
 }
 
 // Refresh godoc
+// @Summary Add review
+// @Tags product reviews
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param params body requests.RequestProductReview true "Review"
+// @Success 201 {object} responses.ResponseProductReview
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/review [post]
+func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
+	req := new(requests.RequestProductReview)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelReview := models.ProductReviews{}
+	reviewService := prodRev.CreateService(h.server.DB)
+	if err := reviewService.Create(&modelReview, req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+	return responses.NewResponseReview(c, http.StatusOK, modelReview)
+}
+
+// Refresh godoc
 // @Summary Add rate
 // @Tags product reviews
 // @Accept json

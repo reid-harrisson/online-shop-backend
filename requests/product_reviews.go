@@ -8,6 +8,12 @@ type RequestProductRate struct {
 	Rate       float64 `json:"rate" example:"1.0"`
 }
 
+type RequestProductReview struct {
+	ProductID  uint64 `json:"product_id" example:"11"`
+	CustomerID uint64 `json:"customer_id" example:"1080"`
+	Comment    string `json:"comment" example:"These are very good delicious apple but anyone can't eat them, because there are made of binary."`
+}
+
 type RequestProductReviewStatus struct {
 	Status string `json:"status" example:"Published"`
 }
