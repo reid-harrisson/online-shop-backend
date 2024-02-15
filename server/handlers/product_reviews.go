@@ -6,8 +6,8 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	prodRate "OnlineStoreBackend/services/store_product_rates"
-	prodRev "OnlineStoreBackend/services/store_product_reviews"
+	ratesvc "OnlineStoreBackend/services/rates"
+	revsvc "OnlineStoreBackend/services/reviews"
 	"net/http"
 	"strconv"
 
@@ -39,7 +39,7 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 	}
 
 	modelReview := models.ProductReviews{}
-	reviewService := prodRev.CreateService(h.server.DB)
+	reviewService := revsvc.CreateService(h.server.DB)
 	if err := reviewService.Create(&modelReview, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -63,7 +63,7 @@ func (h *HandlersProductReviews) CreateRate(c echo.Context) error {
 	}
 
 	modelRate := models.ProductCustomerRates{}
-	rateService := prodRate.CreateService(h.server.DB)
+	rateService := ratesvc.CreateService(h.server.DB)
 	if err := rateService.Create(&modelRate, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -152,7 +152,7 @@ func (h *HandlersProductReviews) Update(c echo.Context) error {
 	}
 
 	modelReview := models.ProductReviews{}
-	reviewService := prodRev.CreateService(h.server.DB)
+	reviewService := revsvc.CreateService(h.server.DB)
 	if err := reviewService.UpdateStatus(id, &modelReview, "published"); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -172,7 +172,7 @@ func (h *HandlersProductReviews) Update(c echo.Context) error {
 func (h *HandlersProductReviews) Delete(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	reviewService := prodRev.CreateService(h.server.DB)
+	reviewService := revsvc.CreateService(h.server.DB)
 	if err := reviewService.Delete(id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

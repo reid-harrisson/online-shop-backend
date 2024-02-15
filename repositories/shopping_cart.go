@@ -19,7 +19,7 @@ func (repository *RepositoryCart) ReadAll(modelCarts *[]models.CartItemWithPrice
 		Select(`store_cart_items.*,
 			store_products.unit_price_sale * store_cart_items.quantity As price, 
 			store_products.unit_price_sale As unit_price_sale`).
-		Joins("Left Join store_products On store_products.id = store_cart_items.store_product_id").
+		Joins("Left Join store_products On store_products.id = store_cart_items.product_id").
 		Where("customer_id = ?", customerID).
 		Where("? = 0 Or store_cart_items.store_id = ?", storeID, storeID).
 		Scan(modelCarts).Error
@@ -30,7 +30,7 @@ func (repository *RepositoryCart) ReadPreview(modelCarts *[]models.CartItemWithP
 		Select(`store_cart_items.*,
 			store_products.unit_price_sale * store_cart_items.quantity As price, 
 			store_products.unit_price_sale As unit_price_sale`).
-		Joins("Left Join store_products On store_products.id = store_cart_items.store_product_id").
+		Joins("Left Join store_products On store_products.id = store_cart_items.product_id").
 		Where("customer_id = ?", customerID).
 		Scan(modelCarts).Error; err != nil {
 		return err

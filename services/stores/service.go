@@ -1,4 +1,4 @@
-package store
+package storesvc
 
 import "github.com/jinzhu/gorm"
 

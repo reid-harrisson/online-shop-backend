@@ -6,12 +6,12 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
+	prodAttr "OnlineStoreBackend/services/product_attributes"
+	prodtag "OnlineStoreBackend/services/product_tags"
+	prod "OnlineStoreBackend/services/products"
+	prodChan "OnlineStoreBackend/services/related_channels"
+	prodCont "OnlineStoreBackend/services/related_contents"
 	shipData "OnlineStoreBackend/services/shipping_data"
-	prodAttr "OnlineStoreBackend/services/store_product_attributes"
-	prodChan "OnlineStoreBackend/services/store_product_related_channels"
-	prodCont "OnlineStoreBackend/services/store_product_related_contents"
-	prodTg "OnlineStoreBackend/services/store_product_tags"
-	prod "OnlineStoreBackend/services/store_products"
 	"net/http"
 	"strconv"
 
@@ -60,37 +60,15 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Success 200 {object} responses.ResponseProduct
+// @Success 200 {object} responses.ResponseProductWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/{id} [get]
-func (h *HandlersProductManagement) Read(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	modelProduct := models.Products{}
+func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	modelProduct := models.ProductsWithDetail{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	if err := prodRepo.Read(&modelProduct, id); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProduct(c, http.StatusCreated, modelProduct)
-}
-
-// Refresh godoc
-// @Summary Get detailed product by ID
-// @Tags product management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Product ID"
-// @Success 200 {object} responses.ResponseProductDetail
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/product/detail/{id} [get]
-func (h *HandlersProductManagement) ReadDetail(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	modelProduct := models.ProductDetails{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	if err := prodRepo.ReadDetail(&modelProduct, id); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductDetail(c, http.StatusOK, modelProduct)
+	prodRepo.ReadDetail(&modelProduct, productID)
+	return responses.NewResponseProductWithDetail(c, http.StatusOK, modelProduct)
 }
 
 // Refresh godoc
@@ -247,23 +225,25 @@ func (h *HandlersProductManagement) CreateRelatedContents(c echo.Context) error 
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Param params body requests.RequestProductTag true "Tags"
-// @Success 201 {object} []responses.ResponseProductTag
+// @Param params body requests.RequestTags true "Tags"
+// @Success 201 {object} []responses.ResponseTag
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/tag/{id} [post]
 func (h *HandlersProductManagement) CreateTags(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductTag)
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestTag)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelTags := make([]models.Tags, 0)
-	tagService := prodTg.CreateService(h.server.DB)
-	if err := tagService.Create(id, req, &modelTags); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductTags(c, http.StatusOK, modelTags)
+	modelTags := make([]models.ProductTags, 0)
+	tagService := prodtag.CreateService(h.server.DB)
+	tagService.Create(productID, req, &modelTags)
+
+	modelTagsWithName := make([]models.ProductTagsWithName, 0)
+	tagRepo := repositories.NewRepositoryTag(h.server.DB)
+	tagRepo.ReadByProductID(&modelTagsWithName, productID)
+	return responses.NewResponseProductTags(c, http.StatusOK, modelTagsWithName)
 }
 
 // Refresh godoc
@@ -273,49 +253,25 @@ func (h *HandlersProductManagement) CreateTags(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Param params body requests.RequestProductAttribute true "Attributes"
-// @Success 201 {object} responses.ResponseProductAttribute
+// @Param params body requests.RequestAttributes true "Attributes"
+// @Success 201 {object} []responses.ResponseProductAttribute
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/attribute/{id} [post]
 func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductAttribute)
+	req := new(requests.RequestAttribute)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelAttrs := make([]models.Attributes, 0)
+	modelAttrs := make([]models.ProductAttributes, 0)
 	attrService := prodAttr.CreateService(h.server.DB)
-	if err := attrService.Create(id, req, &modelAttrs); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductAttributes(c, http.StatusCreated, modelAttrs)
-}
+	attrService.Create(id, req, &modelAttrs)
 
-// Refresh godoc
-// @Summary Edit linked product
-// @Tags product management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Product ID"
-// @Param params body requests.RequestProductLinked true "Linked Product"
-// @Success 201 {object} responses.ResponseProduct
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/product/linked/{id} [put]
-func (h *HandlersProductManagement) UpdateLinkedProduct(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductLinked)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelProduct := models.Products{}
-	prodService := prod.CreateService(h.server.DB)
-	if err := prodService.UpdateLinkedProduct(id, req, &modelProduct); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
+	modelAttrsWithName := make([]models.ProductAttributesWithName, 0)
+	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
+	attrRepo.ReadByProductID(&modelAttrsWithName, id)
+	return responses.NewResponseProductAttributes(c, http.StatusCreated, modelAttrsWithName)
 }
 
 // Refresh godoc

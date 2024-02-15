@@ -17,11 +17,11 @@ func NewRepositorySales(db *gorm.DB) *RepositorySales {
 func (repository *RepositorySales) ReadSalesByProduct(modelSales *[]models.ProductSales, storeID uint64) error {
 	return repository.DB.Model(models.ProductOrders{}).Where("store_id = ?", storeID).
 		Select(`
-			store_product_id As product_id,
+			product_id As product_id,
 			Sum(quantity) As quantity,
 			Sum(total) As total
 		`).
-		Group("store_product_id").Order("total Desc").Scan(modelSales).Error
+		Group("product_id").Order("total Desc").Scan(modelSales).Error
 }
 
 func (repository *RepositorySales) ReadSalesByCategory(modelSales *[]models.CategorySales, storeID uint64) error {
@@ -32,7 +32,7 @@ func (repository *RepositorySales) ReadSalesByCategory(modelSales *[]models.Cate
 			Sum(prodOdrs.quantity) As quantity,
 			Sum(prodOdrs.total) As total
 		`).
-		Joins("Right Join store_product_tags As prodTags On prodTags.deleted_at Is Null And prodOdrs.store_product_id = prodTags.store_product_id").
+		Joins("Right Join store_product_tags As prodTags On prodTags.deleted_at Is Null And prodOdrs.product_id = prodTags.product_id").
 		Group("prodTags.tag").Order("total Desc").Scan(modelSales).Error
 }
 

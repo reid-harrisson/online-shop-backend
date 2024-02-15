@@ -53,6 +53,10 @@ func ConfigureRoutes(server *s.Server) {
 	GroupInventoryManagement(server, groupInventoryManagement)
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
 	GroupSalesMetrices(server, groupSalesMetrics)
+	groupTaxSettings := apiV1.Group("/tax")
+	GroupTaxSettings(server, groupTaxSettings)
+	groupShippingOption := apiV1.Group("/shipping-option")
+	GroupShippingOption(server, groupShippingOption)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {
@@ -64,11 +68,9 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.POST("/content/:id", handler.CreateRelatedContents)
 	e.POST("/shipping/:id", handler.CreateShippingData)
 	e.GET("", handler.ReadAll)
-	e.GET("/:id", handler.Read)
-	e.GET("/detail/:id", handler.ReadDetail)
+	e.GET("/detail/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
 	e.PUT("/:id", handler.Update)
-	e.PUT("/linked/:id", handler.UpdateLinkedProduct)
 	e.PUT("/price/:id", handler.UpdatePrice)
 	e.PUT("/quantity/:id", handler.UpdateStockQuantity)
 	e.DELETE("/:id", handler.Delete)
@@ -98,6 +100,8 @@ func GroupProductReviews(server *s.Server, e *echo.Group) {
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersOrderManagement(server)
 	e.POST("", handler.Create)
+	e.GET("/:id", handler.ReadByID)
+	e.GET("", handler.Read)
 	e.PUT("/status/:id", handler.UpdateStatus)
 }
 
@@ -115,4 +119,14 @@ func GroupSalesMetrices(server *s.Server, e *echo.Group) {
 	e.GET("/product", handler.ReadSalesByProduct)
 	e.GET("/category", handler.ReadSalesByCategory)
 	e.GET("/clv", handler.ReadCLV)
+}
+
+func GroupTaxSettings(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersTaxSettings(server)
+	e.GET("", handler.ReadTaxSetting)
+}
+
+func GroupShippingOption(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersTaxSettings(server)
+	e.GET("", handler.ReadTaxSetting)
 }

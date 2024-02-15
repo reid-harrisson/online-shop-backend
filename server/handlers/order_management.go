@@ -6,7 +6,8 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	prodOdr "OnlineStoreBackend/services/store_product_orders"
+	prodOdr "OnlineStoreBackend/services/orders"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -43,6 +44,49 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	if err := orderService.Create(&modelOrders, modelCarts, modelTaxSet, customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+}
+
+// Refresh godoc
+// @Summary View orders by ID
+// @Tags order manangement
+// @Accept json
+// @Produce json
+// @Param id path int true "Order ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} responses.ResponseCustomerOrder
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/order/{id} [get]
+func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	fmt.Println(id)
+	modelOrders := make([]models.ProductOrders, 0)
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByID(&modelOrders, id)
+	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+}
+
+// Refresh godoc
+// @Summary View orders
+// @Tags order manangement
+// @Accept json
+// @Produce json
+// @Param store_id query int false "Store ID"
+// @Param customer_id query int false "Customer ID"
+// @Param product_id query int false "Product ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} responses.ResponseCustomerOrder
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/order [get]
+func (h *HandlersOrderManagement) Read(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+
+	modelOrders := make([]models.ProductOrders, 0)
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.Read(&modelOrders, customerID, productID, storeID)
 	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
 }
 

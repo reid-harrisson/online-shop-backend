@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	cart "OnlineStoreBackend/services/store_cart_items"
+	cart "OnlineStoreBackend/services/cart_items"
 	"net/http"
 	"strconv"
 
@@ -117,7 +117,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Remove cart
+// @Summary Remove cart by Cart ID
 // @Tags shopping cart
 // @Accept json
 // @Produce json

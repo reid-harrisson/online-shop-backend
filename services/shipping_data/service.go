@@ -1,4 +1,4 @@
-package shipData
+package shipsvc
 
 import "github.com/jinzhu/gorm"
 

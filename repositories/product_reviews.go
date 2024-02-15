@@ -17,7 +17,7 @@ func NewRepositoryReview(db *gorm.DB) *RepositoryReview {
 
 func (repository *RepositoryReview) ReadRate(modelProdRate *models.ProductRates, productID uint64) error {
 	modelRates := make([]models.ProductCustomerRates, 0)
-	repository.DB.Where("store_product_id = ?", productID).Find(&modelRates)
+	repository.DB.Where("product_id = ?", productID).Find(&modelRates)
 	modelProdRate.Customers = 0
 	modelProdRate.Rate = 0.0
 	for _, modelRate := range modelRates {
@@ -33,9 +33,9 @@ func (repository *RepositoryReview) ReadRate(modelProdRate *models.ProductRates,
 }
 
 func (repository *RepositoryReview) ReadReviews(modelReviews *[]models.ProductReviews, productID uint64) error {
-	return repository.DB.Where("store_product_id = ?", productID).Find(modelReviews).Error
+	return repository.DB.Where("product_id = ?", productID).Find(modelReviews).Error
 }
 
 func (repository *RepositoryReview) ReadPublishReviews(modelReviews *[]models.ProductReviews, productID uint64) error {
-	return repository.DB.Where("store_product_id = ? And status = ?", productID, "published").Find(modelReviews).Error
+	return repository.DB.Where("product_id = ? And status = ?", productID, "published").Find(modelReviews).Error
 }

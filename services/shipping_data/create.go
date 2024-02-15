@@ -1,4 +1,4 @@
-package shipData
+package shipsvc
 
 import (
 	"OnlineStoreBackend/models"
@@ -6,10 +6,12 @@ import (
 )
 
 func (service *Service) Create(productID uint64, req *requests.RequestShippingData, modelShipData *models.ShippingData) error {
-	service.DB.Where("store_product_id = ?", productID).Delete(models.ShippingData{})
+	service.DB.Where("product_id = ?", productID).Delete(models.ShippingData{})
 	modelShipData.Classification = req.Classification
-	modelShipData.Dimension = req.Dimension
 	modelShipData.Weight = req.Weight
+	modelShipData.Width = req.Width
+	modelShipData.Height = req.Height
+	modelShipData.Depth = req.Depth
 	modelShipData.ProductID = productID
 	service.DB.Create(&modelShipData)
 	return nil

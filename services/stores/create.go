@@ -1,4 +1,4 @@
-package store
+package storesvc
 
 import (
 	"OnlineStoreBackend/models"
