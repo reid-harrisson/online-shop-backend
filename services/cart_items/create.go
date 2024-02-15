@@ -1,26 +1,30 @@
-package cart
+package cartsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(model *models.CartItems, request *requests.RequestCartItem) error {
-	if err := service.DB.Where("user_id = ? And store_product_id = ?", request.UserID, request.ProductID).First(model).Error; err != nil {
-		model.UserID = request.UserID
-		model.ProductID = request.ProductID
-		model.Quantity = request.Quantity
-		if err = service.DB.Create(model).Error; err != nil {
-			return err
-		}
-	} else {
-		model.Quantity += request.Quantity
-	}
+func (service *Service) Create(modelCart *models.CartItems, req *requests.RequestCartItem) error {
 	modelProduct := models.Products{}
-	if err := service.DB.First(&modelProduct, model.ProductID).Error; err != nil {
+	prodRepo := repositories.NewRepositoryProduct(service.DB)
+	if err := prodRepo.ReadByID(&modelProduct, req.ProductID); err != nil {
 		return err
-	} else if modelProduct.StockQuantity < model.Quantity {
-		model.Quantity = modelProduct.StockQuantity
 	}
-	return service.DB.Save(model).Error
+	if err := service.DB.Where("customer_id = ? And product_id = ?", req.CustomerID, req.ProductID).First(modelCart).Error; err != nil {
+		modelCart.CustomerID = req.CustomerID
+		modelCart.ProductID = req.ProductID
+		modelCart.Quantity = req.Quantity
+		modelCart.StoreID = modelProduct.StoreID
+		if modelCart.Quantity > modelProduct.StockQuantity {
+			modelCart.Quantity = modelProduct.StockQuantity
+		}
+		return service.DB.Create(modelCart).Error
+	}
+	modelCart.Quantity += req.Quantity
+	if modelCart.Quantity > modelProduct.StockQuantity {
+		modelCart.Quantity = modelProduct.StockQuantity
+	}
+	return service.DB.Save(modelCart).Error
 }

@@ -1,20 +1,23 @@
-package cart
+package cartsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(model *models.CartItems, id uint64, request *requests.RequestCartItem) error {
-	if err := service.DB.First(model, id).Error; err != nil {
-		return err
-	}
-	model.Quantity = request.Quantity
+func (service *Service) UpdateQuantity(cartID uint64, modelCart *models.CartItems, req *requests.RequestProductQuantity) error {
 	modelProduct := models.Products{}
-	if err := service.DB.First(&modelProduct, model.ProductID).Error; err != nil {
+	prodRepo := repositories.NewRepositoryProduct(service.DB)
+	if err := service.DB.First(modelCart, cartID).Error; err != nil {
 		return err
-	} else if modelProduct.StockQuantity < model.Quantity {
-		model.Quantity = modelProduct.StockQuantity
 	}
-	return service.DB.Save(model).Error
+	if err := prodRepo.ReadByID(&modelProduct, modelCart.ProductID); err != nil {
+		return err
+	}
+	modelCart.Quantity = req.Quantity
+	if modelCart.Quantity > modelProduct.StockQuantity {
+		modelCart.Quantity = modelProduct.StockQuantity
+	}
+	return service.DB.Save(modelCart).Error
 }
