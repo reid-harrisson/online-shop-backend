@@ -84,7 +84,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 
 	attributes := make([]string, 0)
 	for _, modelAttr := range modelDetail.Attributes {
-		attributes = append(attributes, modelAttr.AttributeName)
+		attributes = append(attributes, modelAttr.Name)
 	}
 
 	variations := make([]map[string]string, 0)

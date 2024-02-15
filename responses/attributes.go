@@ -7,20 +7,29 @@ import (
 )
 
 type ResponseProductAttribute struct {
-	ID            uint64 `json:"id"`
-	ProductID     uint64 `json:"product_id"`
-	AttributeID   uint64 `json:"attribute_id"`
-	AttributeName string `json:"attribute_name"`
+	ID        uint64 `json:"id"`
+	ProductID uint64 `json:"product_id"`
+	Name      string `json:"name"`
+	Unit      string `json:"unit"`
 }
 
-func NewResponseProductAttributes(c echo.Context, statusCode int, modelAttrs []models.ProductAttributesWithName) error {
+func NewResponseProductAttribute(c echo.Context, statusCode int, modelAttr models.ProductAttributes) error {
+	return Response(c, statusCode, ResponseProductAttribute{
+		ID:        uint64(modelAttr.ID),
+		ProductID: modelAttr.ProductID,
+		Name:      modelAttr.Name,
+		Unit:      modelAttr.Unit,
+	})
+}
+
+func NewResponseProductAttributes(c echo.Context, statusCode int, modelAttrs []models.ProductAttributes) error {
 	responseAttrs := make([]ResponseProductAttribute, 0)
 	for _, modelAttr := range modelAttrs {
 		responseAttrs = append(responseAttrs, ResponseProductAttribute{
-			ID:            uint64(modelAttr.ID),
-			ProductID:     modelAttr.ProductID,
-			AttributeID:   modelAttr.AttributeID,
-			AttributeName: modelAttr.AttributeName,
+			ID:        uint64(modelAttr.ID),
+			ProductID: modelAttr.ProductID,
+			Name:      modelAttr.Name,
+			Unit:      modelAttr.Unit,
 		})
 	}
 	return Response(c, statusCode, responseAttrs)

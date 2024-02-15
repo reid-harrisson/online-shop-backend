@@ -68,6 +68,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
 	e.PUT("/:id", handler.Update)
+	e.PUT("/attribute/:id", handler.UpdateAttributes)
 	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
@@ -75,6 +76,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
 	e.PUT("/tag/:id", handler.UpdateTags)
 	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/attribute/:id", handler.UpdateAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)
 }
 

@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(req requests.RequestAttributeItem, modelAttr *models.BaseAttributes) {
+func (service *Service) Create(req requests.RequestAttribute, modelAttr *models.ProductAttributes) {
 	service.DB.Where("name = ?", req.Name).First(modelAttr)
 	if modelAttr.ID == 0 {
 		modelAttr.Name = req.Name

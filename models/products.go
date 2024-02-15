@@ -26,7 +26,7 @@ type ProductsWithDetail struct {
 	RelatedContents []ProductContentsWithTitle  `gorm:"column:related_contents"`
 	Tags            []ProductTagsWithName       `gorm:"column:tags"`
 	Categories      []ProductCategoriesWithName `gorm:"column:categories"`
-	Attributes      []ProductAttributesWithName `gorm:"column:attributes"`
+	Attributes      []ProductAttributes         `gorm:"column:attributes"`
 	Variations      []ProductVariationsWithName `gorm:"column:variations"`
 	ShippingData    ShippingData                `gorm:"column:shipping_data"`
 }
