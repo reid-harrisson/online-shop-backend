@@ -10,7 +10,7 @@ import (
 type ResponseProduct struct {
 	ID                uint64   `json:"id"`
 	StoreID           uint64   `json:"store_id"`
-	Name              string   `json:"name"`
+	Title             string   `json:"title"`
 	ShortDescription  string   `json:"short_description"`
 	LongDescription   string   `json:"long_description"`
 	ImageUrls         []string `json:"image_urls"`
@@ -45,7 +45,7 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 	responseProduct := ResponseProduct{
 		ID:               uint64(modelProduct.ID),
 		StoreID:          modelProduct.StoreID,
-		Name:             modelProduct.Name,
+		Title:            modelProduct.Title,
 		ShortDescription: modelProduct.ShortDescription,
 		LongDescription:  modelProduct.LongDescription,
 		SKU:              modelProduct.SKU,
@@ -109,7 +109,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		ResponseProduct: ResponseProduct{
 			ID:                uint64(modelDetail.ID),
 			StoreID:           modelDetail.StoreID,
-			Name:              modelDetail.Name,
+			Title:             modelDetail.Title,
 			ShortDescription:  modelDetail.ShortDescription,
 			LongDescription:   modelDetail.LongDescription,
 			ImageUrls:         imageUrls,
@@ -117,7 +117,6 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 			UnitPriceRegular:  modelDetail.UnitPriceRegular,
 			UnitPriceSale:     modelDetail.UnitPriceSale,
 			MinimumStockLevel: modelDetail.MinimumStockLevel,
-			MaximumStockLevel: modelDetail.MaximumStockLevel,
 			StockQuantity:     modelDetail.StockQuantity,
 			Active:            modelDetail.Active,
 		},
@@ -146,7 +145,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 		responseProducts = append(responseProducts, ResponseProduct{
 			ID:               uint64(modelProduct.ID),
 			StoreID:          modelProduct.StoreID,
-			Name:             modelProduct.Name,
+			Title:            modelProduct.Title,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
 			SKU:              modelProduct.SKU,
@@ -168,7 +167,7 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 		responseProducts = append(responseProducts, ResponseProduct{
 			ID:               uint64(modelProduct.ID),
 			StoreID:          modelProduct.StoreID,
-			Name:             modelProduct.Name,
+			Title:            modelProduct.Title,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
 			SKU:              modelProduct.SKU,

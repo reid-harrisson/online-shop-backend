@@ -207,6 +207,13 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProdut := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProdut, productID)
+	if modelProdut.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+
 	modelChannels := make([]models.ProductChannelsWithName, 0)
 	chanRepo := repositories.NewRepositoryProductChannel(h.server.DB)
 	chanRepo.ReadByProductID(&modelChannels, productID)
@@ -232,6 +239,13 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 	req := new(requests.RequestProductContent)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelProdut := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProdut, productID)
+	if modelProdut.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
 
 	modelContents := make([]models.ProductContentsWithTitle, 0)
