@@ -8,25 +8,25 @@ import (
 
 func (service *Service) Update(modelCategories *[]models.ProductCategoriesWithName, req *requests.RequestProductCategory, productID uint64) {
 	filterKeys := make(map[uint64]int)
-	for _, categoryID := range req.CategoryIDs {
-		filterKeys[categoryID] = 1
-	}
 	for _, modelCategory := range *modelCategories {
-		categoryID := modelCategory.CategoryID
-		if filterKeys[categoryID] == 0 {
-			filterKeys[categoryID] = 2
-		} else {
+		filterKeys[modelCategory.CategoryID] = 1
+	}
+	for _, categoryID := range req.CategoryIDs {
+		if filterKeys[categoryID] == 1 {
 			filterKeys[categoryID] = 3
+		} else {
+			filterKeys[categoryID] = 2
 		}
 	}
+
 	for categoryID, key := range filterKeys {
-		switch key {
-		case 1:
-			service.Create(categoryID, productID)
-		case 2:
+		if key == 1 {
 			service.Delete(categoryID)
+		} else if key == 2 {
+			service.Create(categoryID, productID)
 		}
 	}
+
 	cateRepo := repositories.NewRepositoryCategory(service.DB)
 	cateRepo.ReadByProductID(modelCategories, productID)
 }
