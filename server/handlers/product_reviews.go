@@ -46,7 +46,7 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 
 	modelProductReview := models.ProductReviews{}
 
-	serviceProductReview := revsvc.CreateService(h.server.DB)
+	serviceProductReview := revsvc.NewServiceProductReview(h.server.DB)
 
 	if err := serviceProductReview.Create(&modelProductReview, requestProductReview, customerID, productID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -55,6 +55,28 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 	return responses.NewResponseReview(c, http.StatusCreated, modelProductReview)
 }
 
-// func (h *HandlersProductReviews) ModerateReview(c echo.Context) error {
+// Refresh godoc
+// @Summary Moderate product review
+// @Tags Product Review
+// @Accept json
+// @Produce json
+// /@Security ApiKeyAuth
+// @Param id path int true "Product Review ID"
+// @Param status query string true "Status"
+// @Success 200 {object} responses.ResponseProductReview
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/review/moderate/{id} [put]
+func (h *HandlersProductReviews) ModerateReview(c echo.Context) error {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	status := c.QueryParam("status")
 
-// }
+	modelProductReview := models.ProductReviews{}
+
+	serviceProductReview := revsvc.NewServiceProductReview(h.server.DB)
+
+	if err := serviceProductReview.UpdateStatus(id, &modelProductReview, status); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	return responses.NewResponseReview(c, http.StatusCreated, modelProductReview)
+}
