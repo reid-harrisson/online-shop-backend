@@ -96,7 +96,7 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 func GroupProductReviews(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductReviews(server)
 	e.POST("", handler.CreateReview)
-	// e.PUT("/moderate", handler.ModerateReview)
+	e.PUT("/moderate", handler.ModerateReview)
 }
 
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
