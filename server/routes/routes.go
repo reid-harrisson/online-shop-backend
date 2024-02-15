@@ -96,7 +96,7 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 func GroupProductReviews(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductReviews(server)
 	e.POST("", handler.CreateReview)
-	e.GET("/publish/:id", handler.ReadPublishedReview)
+	e.GET("/publish/:id", handler.ReadPublishedReviews)
 	e.GET("/:id", handler.ReadAll)
 	e.PUT("/moderate/:id", handler.ModerateReview)
 }

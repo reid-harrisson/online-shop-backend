@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
@@ -54,6 +55,29 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 
 	return responses.NewResponseReview(c, http.StatusCreated, modelProductReview)
 }
+
+// Refresh godoc
+// @Summary Moderate product review
+// @Tags Product Review
+// @Accept json
+// @Produce json
+// /@Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} responses.ResponseProductReviews
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/review/publish/{id} [put]
+func (h *HandlersProductReviews) ReadPublishedReviews(c echo.Context) error {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	var modelProductPublishedReviews []models.ProductReviews
+
+	repositoryProductReview := repositories.NewRepositoryReview(h.server.DB)
+	repositoryProductReview.ReadPublishReviews(&modelProductPublishedReviews, id)
+
+	return responses.NewResponseProductReviews(c, http.StatusOK, modelProductPublishedReviews)
+}
+
+func (h *HandlersProductReviews) ReadAll(c echo.Context) error {}
 
 // Refresh godoc
 // @Summary Moderate product review
