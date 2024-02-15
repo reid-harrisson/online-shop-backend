@@ -63,17 +63,18 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductManagement(server)
 	e.POST("", handler.Create)
 	e.POST("/attribute/:id", handler.CreateAttributes)
-	e.POST("/tag/:id", handler.CreateTags)
-	e.POST("/channel/:id", handler.CreateRelatedChannels)
-	e.POST("/content/:id", handler.CreateRelatedContents)
 	e.POST("/shipping/:id", handler.CreateShippingData)
 	e.GET("", handler.ReadAll)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
 	e.PUT("/:id", handler.Update)
-	e.PUT("/price/:id", handler.UpdatePrice)
+	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
+	e.PUT("/content/:id", handler.UpdateRelatedContents)
 	e.PUT("/quantity/:id", handler.UpdateStockQuantity)
+	e.PUT("/shipping/:id", handler.UpdateShippingData)
+	e.PUT("/tag/:id", handler.UpdateTags)
 	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/shipping/:id", handler.DeleteShippingData)
 }
 
 func GroupShoppingCart(server *s.Server, e *echo.Group) {

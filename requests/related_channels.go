@@ -1,5 +1,5 @@
 package requests
 
 type RequestProductChannel struct {
-	Channels []string `json:"channels" example:"Factional (CPT),Finance,Coach Ally"`
+	ChannelIDs []uint64 `json:"channels" example:"173,174,175"`
 }

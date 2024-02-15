@@ -7,6 +7,10 @@ type RequestCategory struct {
 	Name    string `json:"name" example:"clothes, shirt"`
 }
 
+type RequestProductCategory struct {
+	CategoryIDs []uint64 `json:"category_ids" example:"1,2,3"`
+}
+
 func (request RequestCategory) Validate() error {
 	return validation.ValidateStruct(&request,
 		validation.Field(&request.StoreID, validation.Required),

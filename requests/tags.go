@@ -1,5 +1,5 @@
 package requests
 
 type RequestTag struct {
-	Tags []string `json:"tags" example:"fruit,apple,agricultural products,grocery,food"`
+	TagIDs []uint64 `json:"tag_ids" example:"1,3,5"`
 }

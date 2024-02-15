@@ -1,5 +1,5 @@
 package requests
 
 type RequestProductContent struct {
-	Contents []string `json:"contents" example:"My Life,Drumming Away,Winter Fashion"`
+	ContentIDs []uint64 `json:"contents" example:"271,272,273"`
 }

@@ -7,7 +7,6 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	ordsvc "OnlineStoreBackend/services/product_orders"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -60,7 +59,6 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	fmt.Println(id)
 	modelOrders := make([]models.ProductOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByID(&modelOrders, id)
