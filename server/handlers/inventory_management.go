@@ -37,7 +37,7 @@ func (h *HandlersInventoryManagement) Create(c echo.Context) error {
 	}
 
 	modelStore := models.Stores{}
-	storeService := storesvc.CreateService(h.server.DB)
+	storeService := storesvc.NewServiceStore(h.server.DB)
 	if err := storeService.Create(&modelStore, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -58,7 +58,7 @@ func (h *HandlersInventoryManagement) UpdateBackOrder(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelStore := models.Stores{}
-	storeService := storesvc.CreateService(h.server.DB)
+	storeService := storesvc.NewServiceStore(h.server.DB)
 	if err := storeService.UpdateBackOrder(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -79,7 +79,7 @@ func (h *HandlersInventoryManagement) UpdateStockTracking(c echo.Context) error 
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelStore := models.Stores{}
-	storeService := storesvc.CreateService(h.server.DB)
+	storeService := storesvc.NewServiceStore(h.server.DB)
 	if err := storeService.UpdateStockTracking(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

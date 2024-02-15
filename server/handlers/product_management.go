@@ -46,7 +46,7 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	serviceProduct := prodsvc.CreateService(h.server.DB)
+	serviceProduct := prodsvc.NewServiceProduct(h.server.DB)
 	serviceProduct.Create(&modelProduct, req)
 	return responses.NewResponseProduct(c, http.StatusCreated, modelProduct)
 }
@@ -133,7 +133,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 	}
 	modelProduct := models.Products{}
 	modelProduct.ID = uint(productID)
-	service := prodsvc.CreateService(h.server.DB)
+	service := prodsvc.NewServiceProduct(h.server.DB)
 	if err := service.Update(&modelProduct, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -154,7 +154,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 func (h *HandlersProductManagement) Delete(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	service := prodsvc.CreateService(h.server.DB)
+	service := prodsvc.NewServiceProduct(h.server.DB)
 	if err := service.Delete(productID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -218,7 +218,7 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 	chanRepo := repositories.NewRepositoryProductChannel(h.server.DB)
 	chanRepo.ReadByProductID(&modelChannels, productID)
 
-	chanService := chansvc.CreateService(h.server.DB)
+	chanService := chansvc.NewServiceProductChannel(h.server.DB)
 	chanService.Update(&modelChannels, req, productID)
 	return responses.NewResponseProductChannels(c, http.StatusOK, modelChannels)
 }
@@ -252,7 +252,7 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 	contRepo := repositories.NewRepositoryProductContent(h.server.DB)
 	contRepo.ReadByProductID(&modelContents, productID)
 
-	contService := contsvc.CreateService(h.server.DB)
+	contService := contsvc.NewServiceProductContent(h.server.DB)
 	contService.Update(&modelContents, req, productID)
 	return responses.NewResponseProductContents(c, http.StatusOK, modelContents)
 }
@@ -279,7 +279,7 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
 	tagRepo.ReadByProductID(&modelTags, productID)
 
-	tagService := prodtagsvc.CreateService(h.server.DB)
+	tagService := prodtagsvc.NewServiceProductTag(h.server.DB)
 	tagService.Update(&modelTags, req, productID)
 	return responses.NewResponseProductTags(c, http.StatusOK, modelTags)
 }
@@ -303,7 +303,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	}
 
 	modelAttrs := make([]models.ProductAttributes, 0)
-	attrService := prodattrsvc.CreateService(h.server.DB)
+	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
 	attrService.Create(productID, req, &modelAttrs)
 
 	modelAttrsWithName := make([]models.ProductAttributesWithName, 0)
@@ -313,26 +313,32 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Edit stock quantity of product
+// @Summary Set minimum stock level of product
 // @Tags Product Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Param params body requests.RequestProductQuantity true "Stock Quantity"
+// @Param params body requests.RequestMinimumStockLevel true "Minimum Stock Level"
 // @Success 201 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/quantity/{id} [put]
-func (h *HandlersProductManagement) UpdateStockQuantity(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductQuantity)
+// @Router /api/v1/product/min-stock-level/{id} [put]
+func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestMinimumStockLevel)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	modelProduct := models.Products{}
-	prodService := prodsvc.CreateService(h.server.DB)
-	if err := prodService.UpdateStockQuantity(id, req, &modelProduct); err != nil {
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	if err := prodService.UpdateMinimumStockLevel(productID, req, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
@@ -362,7 +368,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 	if modelShipData.ID != 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data already exists in this product.")
 	}
-	shipService := shipsvc.CreateService(h.server.DB)
+	shipService := shipsvc.NewServiceShippingData(h.server.DB)
 	if err := shipService.Create(productID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -394,8 +400,8 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
 	}
 
-	shipService := shipsvc.CreateService(h.server.DB)
-	if err := shipService.UpdateShippingData(productID, req, &modelShipData); err != nil {
+	shipService := shipsvc.NewServiceShippingData(h.server.DB)
+	if err := shipService.Update(productID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseShippingData(c, http.StatusOK, modelShipData)
@@ -422,7 +428,7 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
 	}
 
-	shipService := shipsvc.CreateService(h.server.DB)
+	shipService := shipsvc.NewServiceShippingData(h.server.DB)
 	if err := shipService.Delete(productID); err != nil {
 		return responses.MessageResponse(c, http.StatusOK, "Failed to delete shipping data")
 	}

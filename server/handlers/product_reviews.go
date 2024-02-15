@@ -39,7 +39,7 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 	}
 
 	modelReview := models.ProductReviews{}
-	reviewService := revsvc.CreateService(h.server.DB)
+	reviewService := revsvc.NewServiceProductReview(h.server.DB)
 	if err := reviewService.Create(&modelReview, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -63,7 +63,7 @@ func (h *HandlersProductReviews) CreateRate(c echo.Context) error {
 	}
 
 	modelRate := models.ProductCustomerRates{}
-	rateService := ratesvc.CreateService(h.server.DB)
+	rateService := ratesvc.NewServiceProductRate(h.server.DB)
 	if err := rateService.Create(&modelRate, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -152,7 +152,7 @@ func (h *HandlersProductReviews) Update(c echo.Context) error {
 	}
 
 	modelReview := models.ProductReviews{}
-	reviewService := revsvc.CreateService(h.server.DB)
+	reviewService := revsvc.NewServiceProductReview(h.server.DB)
 	if err := reviewService.UpdateStatus(id, &modelReview, "published"); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -172,7 +172,7 @@ func (h *HandlersProductReviews) Update(c echo.Context) error {
 func (h *HandlersProductReviews) Delete(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	reviewService := revsvc.CreateService(h.server.DB)
+	reviewService := revsvc.NewServiceProductReview(h.server.DB)
 	if err := reviewService.Delete(id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

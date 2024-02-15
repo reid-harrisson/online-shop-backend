@@ -13,8 +13,8 @@ type RequestProduct struct {
 	Active           int8     `json:"active" example:"1"`
 }
 
-type RequestProductQuantity struct {
-	Quantity float64 `json:"stock_quantity" example:"57"`
+type RequestMinimumStockLevel struct {
+	Level float64 `json:"level" example:"57"`
 }
 
 type RequestProductPrice struct {

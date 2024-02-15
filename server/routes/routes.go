@@ -70,7 +70,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/:id", handler.Update)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
-	e.PUT("/quantity/:id", handler.UpdateStockQuantity)
+	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
 	e.PUT("/tag/:id", handler.UpdateTags)
 	e.DELETE("/:id", handler.Delete)

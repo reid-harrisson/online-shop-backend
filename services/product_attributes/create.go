@@ -7,7 +7,7 @@ import (
 )
 
 func (service *Service) Create(productID uint64, req *requests.RequestAttribute, modelPAttrs *[]models.ProductAttributes) {
-	attrService := attrsvc.CreateService(service.DB)
+	attrService := attrsvc.NewServiceAttribute(service.DB)
 	for _, attribute := range req.Attributes {
 		modelAttr := models.BaseAttributes{}
 		attrService.Create(attribute, &modelAttr)

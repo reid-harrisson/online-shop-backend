@@ -35,9 +35,9 @@ func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	shipDataService := shipData.CreateService(h.server.DB)
+	shipDataService := shipData.NewServiceShippingData(h.server.DB)
 	modelShipData := models.ShippingData{}
-	if err := shipDataService.Update(req, &modelShipData); err != nil {
+	if err := shipDataService.UpdateShippingMethod(req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseShippingData(c, http.StatusOK, modelShipData)

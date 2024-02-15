@@ -26,11 +26,8 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	return service.DB.Save(modelProduct).Error
 }
 
-func (service *Service) UpdateStockQuantity(productID uint64, req *requests.RequestProductQuantity, modelProduct *models.Products) error {
-	if err := service.DB.First(modelProduct, productID).Error; err != nil {
-		return err
-	}
-	modelProduct.StockQuantity = req.Quantity
+func (service *Service) UpdateMinimumStockLevel(productID uint64, req *requests.RequestMinimumStockLevel, modelProduct *models.Products) error {
+	modelProduct.StockQuantity = req.Level
 	return service.DB.Save(modelProduct).Error
 }
 
