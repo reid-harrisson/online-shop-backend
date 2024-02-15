@@ -62,7 +62,7 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param id path int true "Product Review ID"
-// @Param status query string true "Status"
+// @Param status query string true "Status" default(Approved)
 // @Success 200 {object} responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/review/moderate/{id} [put]

@@ -17,6 +17,6 @@ func (service *Service) UpdateStatus(id uint64, modelReview *models.ProductRevie
 	}
 
 	modelReview.Status = status
-	service.DB.Save(&modelReview)
-	return nil
+
+	return service.DB.Save(&modelReview).Error
 }

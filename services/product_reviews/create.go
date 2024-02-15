@@ -5,12 +5,13 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelReview *models.ProductReviews, requestProductReview *requests.RequestProductReview, customerID uint64, productID uint64) error {
-	modelReview.CustomerID = customerID
-	modelReview.ProductID = productID
-	modelReview.Comment = requestProductReview.Comment
-	modelReview.Rate = requestProductReview.Rate
-	modelReview.Status = 0
-	service.DB.Create(modelReview)
-	return nil
+func (service *Service) Create(modelProductReview *models.ProductReviews, requestProductReview *requests.RequestProductReview, customerID uint64, productID uint64) error {
+	modelProductReview.CustomerID = customerID
+	modelProductReview.ProductID = productID
+
+	modelProductReview.Comment = requestProductReview.Comment
+	modelProductReview.Rate = requestProductReview.Rate
+	modelProductReview.Status = 0
+
+	return service.DB.Create(modelProductReview).Error
 }
