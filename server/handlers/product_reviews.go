@@ -6,8 +6,8 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	ratesvc "OnlineStoreBackend/services/rates"
-	revsvc "OnlineStoreBackend/services/reviews"
+	ratesvc "OnlineStoreBackend/services/product_rates"
+	revsvc "OnlineStoreBackend/services/product_reviews"
 	"net/http"
 	"strconv"
 

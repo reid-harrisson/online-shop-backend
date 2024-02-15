@@ -68,7 +68,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.POST("/content/:id", handler.CreateRelatedContents)
 	e.POST("/shipping/:id", handler.CreateShippingData)
 	e.GET("", handler.ReadAll)
-	e.GET("/detail/:id", handler.ReadByID)
+	e.GET("/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/price/:id", handler.UpdatePrice)

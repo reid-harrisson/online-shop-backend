@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	cart "OnlineStoreBackend/services/cart_items"
+	cartsvc "OnlineStoreBackend/services/cart_items"
 	"net/http"
 	"strconv"
 
@@ -38,7 +38,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	}
 
 	modelCart := models.CartItems{}
-	cartService := cart.CreateService(h.server.DB)
+	cartService := cartsvc.CreateService(h.server.DB)
 	if err := cartService.Create(&modelCart, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -109,7 +109,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 	}
 
 	modelCart := models.CartItems{}
-	cartService := cart.CreateService(h.server.DB)
+	cartService := cartsvc.CreateService(h.server.DB)
 	if err := cartService.UpdateQuantity(id, &modelCart, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -129,7 +129,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	cartService := cart.CreateService(h.server.DB)
+	cartService := cartsvc.CreateService(h.server.DB)
 	if err := cartService.Delete(id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -149,7 +149,7 @@ func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 func (h *HandlersShoppingCart) DeleteAll(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
-	cartService := cart.CreateService(h.server.DB)
+	cartService := cartsvc.CreateService(h.server.DB)
 	if err := cartService.DeleteAll(customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

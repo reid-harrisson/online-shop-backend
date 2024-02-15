@@ -1,4 +1,4 @@
-package ptagsvc
+package prodtagsvc
 
 import "github.com/jinzhu/gorm"
 
