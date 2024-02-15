@@ -2,11 +2,20 @@ package prodtagsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
+	tagsvc "OnlineStoreBackend/services/tags"
 )
 
-func (service *Service) Create(tagID uint64, productID uint64) {
-	service.DB.Create(models.ProductTags{
-		TagID:     tagID,
+func (service *Service) Create(tag string, productID uint64) {
+	modelTag := models.BaseTags{}
+	tagRepo := repositories.NewRepositoryTag(service.DB)
+	tagRepo.ReadByName(&modelTag, tag)
+	if modelTag.ID == 0 {
+		tagService := tagsvc.NewServiceTag(service.DB)
+		tagService.Create(tag, &modelTag)
+	}
+	service.DB.Create(&models.ProductTags{
+		TagID:     uint64(modelTag.ID),
 		ProductID: productID,
 	})
 }

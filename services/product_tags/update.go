@@ -7,26 +7,26 @@ import (
 )
 
 func (service *Service) Update(modelTags *[]models.ProductTagsWithName, req *requests.RequestTag, productID uint64) {
-	filterKeys := make(map[uint64]int)
-	for _, tagID := range req.TagIDs {
-		filterKeys[tagID] = 1
-	}
+	filterKeys := make(map[string]int)
 	for _, modelTag := range *modelTags {
-		tagID := modelTag.TagID
-		if filterKeys[tagID] == 0 {
-			filterKeys[tagID] = 2
+		filterKeys[modelTag.TagName] = 1
+	}
+	for _, tag := range req.Tags {
+		if filterKeys[tag] == 1 {
+			filterKeys[tag] = 3
 		} else {
-			filterKeys[tagID] = 3
+			filterKeys[tag] = 2
 		}
 	}
-	for tagID, key := range filterKeys {
-		switch key {
-		case 1:
-			service.Create(tagID, productID)
-		case 2:
-			service.Delete(tagID)
+
+	for tag, key := range filterKeys {
+		if key == 1 {
+			service.Delete(tag)
+		} else if key == 2 {
+			service.Create(tag, productID)
 		}
 	}
+
 	tagRepo := repositories.NewRepositoryTag(service.DB)
 	tagRepo.ReadByProductID(modelTags, productID)
 }

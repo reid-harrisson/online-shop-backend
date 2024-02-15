@@ -97,7 +97,7 @@ func (h *HandlersShoppingCart) ReadPreview(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Cart ID"
-// @Param params body requests.RequestProductQuantity true "Product Quantity"
+// @Param params body requests.RequestMinimumStockLevel true "Product Quantity"
 // @Success 200 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/cart/{id} [put]
