@@ -63,9 +63,9 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Success 200 {object} responses.ResponseProductReviews
+// @Success 200 {object} []responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/review/publish/{id} [put]
+// @Router /api/v1/review/publish/{id} [get]
 func (h *HandlersProductReviews) ReadPublishedReviews(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -77,7 +77,26 @@ func (h *HandlersProductReviews) ReadPublishedReviews(c echo.Context) error {
 	return responses.NewResponseProductReviews(c, http.StatusOK, modelProductPublishedReviews)
 }
 
-func (h *HandlersProductReviews) ReadAll(c echo.Context) error {}
+// Refresh godoc
+// @Summary Read all product reviews
+// @Tags Product Review
+// @Accept json
+// @Produce json
+// /@Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} []responses.ResponseProductReview
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/review/{id} [get]
+func (h *HandlersProductReviews) ReadAll(c echo.Context) error {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	var modelProductReviews []models.ProductReviews
+
+	repositoryProductReview := repositories.NewRepositoryReview(h.server.DB)
+	repositoryProductReview.ReadReviews(&modelProductReviews, id)
+
+	return responses.NewResponseProductReviews(c, http.StatusOK, modelProductReviews)
+}
 
 // Refresh godoc
 // @Summary Moderate product review
