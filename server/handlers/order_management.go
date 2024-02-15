@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	prodOdr "OnlineStoreBackend/services/orders"
+	ordsvc "OnlineStoreBackend/services/product_orders"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -40,7 +40,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	modelTaxSet := models.TaxSettings{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	cartRepo.ReadPreview(&modelCarts, &modelTaxSet, customerID)
-	orderService := prodOdr.CreateService(h.server.DB)
+	orderService := ordsvc.CreateService(h.server.DB)
 	if err := orderService.Create(&modelOrders, modelCarts, modelTaxSet, customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -109,7 +109,7 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 	}
 
 	modelOrders := make([]models.ProductOrders, 0)
-	orderService := prodOdr.CreateService(h.server.DB)
+	orderService := ordsvc.CreateService(h.server.DB)
 	if err := orderService.UpdateStatus(&modelOrders, req, id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

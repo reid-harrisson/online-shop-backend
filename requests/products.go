@@ -13,41 +13,12 @@ type RequestProduct struct {
 	Active           int8     `json:"active" example:"1"`
 }
 
-type RequestProductChannel struct {
-	Channels []string `json:"channels" example:"Factional (CPT),Finance,Coach Ally"`
-}
-
-type RequestProductContent struct {
-	Contents []string `json:"contents" example:"My Life,Drumming Away,Winter Fashion"`
-}
-
 type RequestProductQuantity struct {
 	Quantity float64 `json:"stock_quantity" example:"57"`
 }
 
 type RequestProductPrice struct {
 	Price float64 `json:"price" example:"57"`
-}
-
-type RequestShippingData struct {
-	Weight         float64 `json:"weight" example:"1.35"`
-	Width          float64 `json:"width" example:"58"`
-	Height         float64 `json:"height" example:"118"`
-	Depth          float64 `json:"depth" example:"8"`
-	Classification string  `json:"classification" example:"food"`
-}
-
-type RequestTag struct {
-	Tags []string `json:"tags" example:"fruit,apple,agricultural products,grocery,food"`
-}
-
-type RequestAttributeItem struct {
-	Name string `json:"name" example:"size"`
-	Unit string `json:"unit" example:""`
-}
-
-type RequestAttribute struct {
-	Attributes []RequestAttributeItem `json:"attributes"`
 }
 
 func (request RequestProduct) Validate() error {

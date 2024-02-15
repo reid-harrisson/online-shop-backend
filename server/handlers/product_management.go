@@ -6,12 +6,12 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	prodAttr "OnlineStoreBackend/services/product_attributes"
-	prodtag "OnlineStoreBackend/services/product_tags"
-	prod "OnlineStoreBackend/services/products"
-	prodChan "OnlineStoreBackend/services/related_channels"
-	prodCont "OnlineStoreBackend/services/related_contents"
-	shipData "OnlineStoreBackend/services/shipping_data"
+	prodattrsvc "OnlineStoreBackend/services/product_attributes"
+	prodtagsvc "OnlineStoreBackend/services/product_tags"
+	prodsvc "OnlineStoreBackend/services/products"
+	chansvc "OnlineStoreBackend/services/related_channels"
+	contsvc "OnlineStoreBackend/services/related_contents"
+	shipsvc "OnlineStoreBackend/services/shipping_data"
 	"net/http"
 	"strconv"
 
@@ -45,7 +45,7 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	serviceProduct := prod.CreateService(h.server.DB)
+	serviceProduct := prodsvc.CreateService(h.server.DB)
 	if err := serviceProduct.Create(&modelProduct, requestProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -138,7 +138,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 	}
 	modelProduct := models.Products{}
 	modelProduct.ID = uint(id)
-	service := prod.CreateService(h.server.DB)
+	service := prodsvc.CreateService(h.server.DB)
 	if err := service.Update(&modelProduct, requestProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -159,7 +159,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 func (h *HandlersProductManagement) Delete(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	service := prod.CreateService(h.server.DB)
+	service := prodsvc.CreateService(h.server.DB)
 	if err := service.Delete(id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -185,7 +185,7 @@ func (h *HandlersProductManagement) CreateRelatedChannels(c echo.Context) error 
 	}
 
 	modelChannels := make([]models.ProductChannels, 0)
-	chanService := prodChan.CreateService(h.server.DB)
+	chanService := chansvc.CreateService(h.server.DB)
 	if err := chanService.Create(id, req, &modelChannels); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -211,7 +211,7 @@ func (h *HandlersProductManagement) CreateRelatedContents(c echo.Context) error 
 	}
 
 	modelContents := make([]models.ProductContents, 0)
-	contService := prodCont.CreateService(h.server.DB)
+	contService := contsvc.CreateService(h.server.DB)
 	if err := contService.Create(id, req, &modelContents); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -225,7 +225,7 @@ func (h *HandlersProductManagement) CreateRelatedContents(c echo.Context) error 
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Param params body requests.RequestTags true "Tags"
+// @Param params body requests.RequestTag true "Tags"
 // @Success 201 {object} []responses.ResponseTag
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/tag/{id} [post]
@@ -237,7 +237,7 @@ func (h *HandlersProductManagement) CreateTags(c echo.Context) error {
 	}
 
 	modelTags := make([]models.ProductTags, 0)
-	tagService := prodtag.CreateService(h.server.DB)
+	tagService := prodtagsvc.CreateService(h.server.DB)
 	tagService.Create(productID, req, &modelTags)
 
 	modelTagsWithName := make([]models.ProductTagsWithName, 0)
@@ -253,7 +253,7 @@ func (h *HandlersProductManagement) CreateTags(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Param params body requests.RequestAttributes true "Attributes"
+// @Param params body requests.RequestAttribute true "Attributes"
 // @Success 201 {object} []responses.ResponseProductAttribute
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/attribute/{id} [post]
@@ -265,7 +265,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	}
 
 	modelAttrs := make([]models.ProductAttributes, 0)
-	attrService := prodAttr.CreateService(h.server.DB)
+	attrService := prodattrsvc.CreateService(h.server.DB)
 	attrService.Create(id, req, &modelAttrs)
 
 	modelAttrsWithName := make([]models.ProductAttributesWithName, 0)
@@ -293,7 +293,7 @@ func (h *HandlersProductManagement) UpdateStockQuantity(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodService := prod.CreateService(h.server.DB)
+	prodService := prodsvc.CreateService(h.server.DB)
 	if err := prodService.UpdateStockQuantity(id, req, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -319,7 +319,7 @@ func (h *HandlersProductManagement) UpdatePrice(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodService := prod.CreateService(h.server.DB)
+	prodService := prodsvc.CreateService(h.server.DB)
 	if err := prodService.UpdatePrice(id, req, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -345,7 +345,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 	}
 
 	modelShipData := models.ShippingData{}
-	shipDataService := shipData.CreateService(h.server.DB)
+	shipDataService := shipsvc.CreateService(h.server.DB)
 	if err := shipDataService.Create(id, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

@@ -1,4 +1,4 @@
-package pattrsvc
+package prodattrsvc
 
 import "github.com/jinzhu/gorm"
 

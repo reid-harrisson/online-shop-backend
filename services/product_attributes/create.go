@@ -1,13 +1,13 @@
-package pattrsvc
+package prodattrsvc
 
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/requests"
-	baseattr "OnlineStoreBackend/services/attributes"
+	attrsvc "OnlineStoreBackend/services/attributes"
 )
 
 func (service *Service) Create(productID uint64, req *requests.RequestAttribute, modelPAttrs *[]models.ProductAttributes) {
-	attrService := baseattr.CreateService(service.DB)
+	attrService := attrsvc.CreateService(service.DB)
 	for _, attribute := range req.Attributes {
 		modelAttr := models.BaseAttributes{}
 		attrService.Create(attribute, &modelAttr)
