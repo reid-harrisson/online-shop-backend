@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	ratesvc "OnlineStoreBackend/services/product_rates"
 	revsvc "OnlineStoreBackend/services/product_reviews"
 	"net/http"
 	"strconv"
@@ -23,158 +21,40 @@ func NewHandlersProductReviews(server *s.Server) *HandlersProductReviews {
 }
 
 // Refresh godoc
-// @Summary Add review
-// @Tags product reviews
+// @Summary Create product review
+// @Tags Product Review
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
-// @Param params body requests.RequestProductReview true "Review"
+// /@Security ApiKeyAuth
+// @Param product_id query int true "Product ID"
+// @Param customer_id query int true "Customer ID"
+// @Param params body requests.RequestProductReview true "Review Info"
 // @Success 201 {object} responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/review [post]
 func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
-	req := new(requests.RequestProductReview)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelReview := models.ProductReviews{}
-	reviewService := revsvc.CreateService(h.server.DB)
-	if err := reviewService.Create(&modelReview, req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseReview(c, http.StatusOK, modelReview)
-}
-
-// Refresh godoc
-// @Summary Add rate
-// @Tags product reviews
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param params body requests.RequestProductRate true "Product Rate Info"
-// @Success 201 {object} responses.ResponseProductCustomerRate
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/review/rate [post]
-func (h *HandlersProductReviews) CreateRate(c echo.Context) error {
-	req := new(requests.RequestProductRate)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelRate := models.ProductCustomerRates{}
-	rateService := ratesvc.CreateService(h.server.DB)
-	if err := rateService.Create(&modelRate, req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductCustomerRate(c, http.StatusCreated, modelRate)
-}
-
-// Refresh godoc
-// @Summary View rate
-// @Tags product reviews
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param product_id query int true "Product ID"
-// @Success 200 {object} responses.ResponseProductRate
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/review/rate [get]
-func (h *HandlersProductReviews) ReadRate(c echo.Context) error {
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
-	revRepo := repositories.NewRepositoryReview(h.server.DB)
-	modelRate := models.ProductRates{}
-	if err := revRepo.ReadRate(&modelRate, productID); err != nil {
+	requestProductReview := new(requests.RequestProductReview)
+
+	if err := c.Bind(requestProductReview); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	} else if err := requestProductReview.Validate(); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseProductRate(c, http.StatusOK, modelRate)
+
+	modelProductReview := models.ProductReviews{}
+
+	serviceProductReview := revsvc.CreateService(h.server.DB)
+
+	if err := serviceProductReview.Create(&modelProductReview, requestProductReview, customerID, productID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	return responses.NewResponseReview(c, http.StatusCreated, modelProductReview)
 }
 
-// Refresh godoc
-// @Summary View reviews
-// @Tags product reviews
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param product_id query int true "Product ID"
-// @Success 200 {object} []responses.ResponseProductReview
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/review [get]
-func (h *HandlersProductReviews) ReadReview(c echo.Context) error {
-	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+// func (h *HandlersProductReviews) ModerateReview(c echo.Context) error {
 
-	revRepo := repositories.NewRepositoryReview(h.server.DB)
-	modelReviews := make([]models.ProductReviews, 0)
-	if err := revRepo.ReadReviews(&modelReviews, productID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductReviews(c, http.StatusOK, modelReviews)
-}
-
-// Refresh godoc
-// @Summary View published reviews
-// @Tags product reviews
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param product_id query int true "Product ID"
-// @Success 200 {object} []responses.ResponseProductReview
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/review/publish [get]
-func (h *HandlersProductReviews) ReadPublishReview(c echo.Context) error {
-	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
-
-	revRepo := repositories.NewRepositoryReview(h.server.DB)
-	modelReviews := make([]models.ProductReviews, 0)
-	if err := revRepo.ReadPublishReviews(&modelReviews, productID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductReviews(c, http.StatusOK, modelReviews)
-}
-
-// Refresh godoc
-// @Summary Publish review
-// @Tags product reviews
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Review ID"
-// @Param params body requests.RequestProductReviewStatus true "Status"
-// @Success 200 {object} responses.ResponseProductReview
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/review/publish/{id} [put]
-func (h *HandlersProductReviews) Update(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductReviewStatus)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelReview := models.ProductReviews{}
-	reviewService := revsvc.CreateService(h.server.DB)
-	if err := reviewService.UpdateStatus(id, &modelReview, "published"); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseReview(c, http.StatusOK, modelReview)
-}
-
-// Refresh godoc
-// @Summary Delete review
-// @Tags product reviews
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Review ID"
-// @Success 200 {object} responses.Data
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/review/{id} [delete]
-func (h *HandlersProductReviews) Delete(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	reviewService := revsvc.CreateService(h.server.DB)
-	if err := reviewService.Delete(id); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.MessageResponse(c, http.StatusOK, "Review successfully deleted.")
-}
+// }

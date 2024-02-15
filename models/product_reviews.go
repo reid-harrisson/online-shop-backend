@@ -9,7 +9,7 @@ type ProductReviews struct {
 	CustomerID uint64  `gorm:"column:customer_id; type:bigint(20) unsigned"`
 	Comment    string  `gorm:"column:comment; type:text"`
 	Rate       float64 `gorm:"column:rate; type:decimal(20,6)"`
-	Status     string  `gorm:"column:status; type:varchar(20)"`
+	Status     int8    `gorm:"column:status; type:tinyint(4)"`
 }
 
 func (ProductReviews) TableName() string {

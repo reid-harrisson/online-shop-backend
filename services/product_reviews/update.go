@@ -6,7 +6,7 @@ func (service *Service) UpdateStatus(id uint64, modelReview *models.ProductRevie
 	if err := service.DB.First(&modelReview, id).Error; err != nil {
 		return err
 	}
-	modelReview.Status = status
+	// modelReview.Status = status
 	service.DB.Save(&modelReview)
 	return nil
 }
