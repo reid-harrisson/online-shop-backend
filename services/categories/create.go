@@ -5,11 +5,9 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(req requests.RequestAttribute, modelAttr *models.ProductAttributes) {
-	service.DB.Where("name = ?", req.Name).First(modelAttr)
-	if modelAttr.ID == 0 {
-		modelAttr.Name = req.Name
-		modelAttr.Unit = req.Unit
-		service.DB.Create(modelAttr)
-	}
+func (service *Service) Create(modelCategory *models.BaseCategories, req *requests.RequestCategory, storeID uint64) {
+	modelCategory.Name = req.Name
+	modelCategory.StoreID = storeID
+	modelCategory.ParentID = req.ParentID
+	service.DB.Create(modelCategory)
 }

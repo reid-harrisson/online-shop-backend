@@ -13,14 +13,36 @@ type ResponseCategory struct {
 	CategoryName string `json:"category_name"`
 }
 
+type ResponseStoreCategory struct {
+	ID          uint64   `json:"id"`
+	StoreID     uint64   `json:"store_id"`
+	Name        string   `json:"name"`
+	ParentID    uint64   `json:"parent_id"`
+	ChildrenIDs []uint64 `json:"children_ids"`
+}
+
 func NewResponseProductCategories(c echo.Context, statusCode int, modelCategories []models.ProductCategoriesWithName) error {
-	responseTags := make([]ResponseCategory, 0)
-	for _, modelTag := range modelCategories {
-		responseTags = append(responseTags, ResponseCategory{
-			ID:           uint64(modelTag.ID),
-			ProductID:    modelTag.ProductID,
-			CategoryID:   modelTag.CategoryID,
-			CategoryName: modelTag.CategoryName,
+	responseCategories := make([]ResponseCategory, 0)
+	for _, modelCategory := range modelCategories {
+		responseCategories = append(responseCategories, ResponseCategory{
+			ID:           uint64(modelCategory.ID),
+			ProductID:    modelCategory.ProductID,
+			CategoryID:   modelCategory.CategoryID,
+			CategoryName: modelCategory.CategoryName,
+		})
+	}
+	return Response(c, statusCode, responseCategories)
+}
+
+func NewResponseStoreCategories(c echo.Context, statusCode int, modelCategories []models.StoreCategoriesWithChildren) error {
+	responseTags := make([]ResponseStoreCategory, 0)
+	for _, modelCategory := range modelCategories {
+		responseTags = append(responseTags, ResponseStoreCategory{
+			ID:          uint64(modelCategory.ID),
+			StoreID:     modelCategory.StoreID,
+			Name:        modelCategory.Name,
+			ParentID:    modelCategory.ParentID,
+			ChildrenIDs: modelCategory.ChildrenIDs,
 		})
 	}
 	return Response(c, statusCode, responseTags)

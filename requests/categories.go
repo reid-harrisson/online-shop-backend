@@ -3,8 +3,8 @@ package requests
 import validation "github.com/go-ozzo/ozzo-validation"
 
 type RequestCategory struct {
-	StoreID uint64 `json:"store_id" example:"1"`
-	Name    string `json:"name" example:"clothes, shirt"`
+	Name     string `json:"name" example:"pear"`
+	ParentID uint64 `json:"parent_id" example:"2"`
 }
 
 type RequestProductCategory struct {
@@ -13,7 +13,7 @@ type RequestProductCategory struct {
 
 func (request RequestCategory) Validate() error {
 	return validation.ValidateStruct(&request,
-		validation.Field(&request.StoreID, validation.Required),
 		validation.Field(&request.Name, validation.Required),
+		validation.Field(&request.ParentID, validation.Required),
 	)
 }
