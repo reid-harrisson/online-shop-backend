@@ -7,7 +7,6 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	catesvc "OnlineStoreBackend/services/categories"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -70,7 +69,6 @@ func (h *HandlersCategories) ReadCategory(c echo.Context) error {
 	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByStoreID(&modelCategories, storeID)
-	fmt.Println(modelCategories)
 	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
 }
 

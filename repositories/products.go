@@ -15,8 +15,8 @@ func NewRepositoryProduct(db *gorm.DB) *RepositoryProduct {
 	return &RepositoryProduct{DB: db}
 }
 
-func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) error {
-	return repository.DB.First(&modelProduct, productID).Error
+func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) {
+	repository.DB.First(&modelProduct, productID)
 }
 
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {

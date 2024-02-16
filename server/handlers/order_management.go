@@ -34,11 +34,11 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
-	modelCarts := make([]models.CartItemsWithPrice, 0)
+	modelCarts := make([]models.CartItemsWithDetail, 0)
 	modelOrders := make([]models.ProductOrders, 0)
 	modelTaxSet := models.TaxSettings{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadPreview(&modelCarts, &modelTaxSet, customerID)
+	cartRepo.ReadDetail(&modelCarts, customerID)
 	orderService := ordsvc.NewServiceProductOrder(h.server.DB)
 	if err := orderService.Create(&modelOrders, modelCarts, modelTaxSet, customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())

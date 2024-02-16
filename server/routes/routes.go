@@ -102,10 +102,10 @@ func GroupCategory(server *s.Server, e *echo.Group) {
 func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.ReadAll)
-	e.GET("/preview", handler.ReadPreview)
+	e.GET("", handler.Read)
+	e.GET("/preview", handler.PreviewOrder)
 	e.PUT("/:id", handler.UpdateQuantity)
-	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/:id", handler.DeleteByID)
 	e.DELETE("", handler.DeleteAll)
 }
 

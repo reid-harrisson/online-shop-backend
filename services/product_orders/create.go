@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/repositories"
 )
 
-func (service *Service) Create(modelOrders *[]models.ProductOrders, modelCarts []models.CartItemsWithPrice, modelTaxSet models.TaxSettings, customerID uint64) error {
+func (service *Service) Create(modelOrders *[]models.ProductOrders, modelCarts []models.CartItemsWithDetail, modelTaxSet models.TaxSettings, customerID uint64) error {
 	id := uint(0)
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
 	modelProduct := models.Products{}
@@ -14,12 +14,12 @@ func (service *Service) Create(modelOrders *[]models.ProductOrders, modelCarts [
 			StoreID:       modelCart.StoreID,
 			CustomerID:    modelCart.CustomerID,
 			ProductID:     modelCart.ProductID,
-			UnitPriceSale: modelCart.UnitPriceSale,
+			UnitPriceSale: modelCart.UnitPrice,
 			Quantity:      modelCart.Quantity,
-			SubTotal:      modelCart.Price,
+			SubTotal:      modelCart.UnitPrice,
 			TaxRate:       modelTaxSet.TaxRate,
-			TaxAmount:     modelTaxSet.TaxRate * modelCart.Price / 100,
-			Total:         modelTaxSet.TaxRate*modelCart.Price/100 + modelCart.Price,
+			TaxAmount:     modelTaxSet.TaxRate * modelCart.UnitPrice / 100,
+			Total:         modelTaxSet.TaxRate*modelCart.UnitPrice/100 + modelCart.UnitPrice,
 			Status:        "Pending",
 		}
 		if i == 0 {

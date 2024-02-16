@@ -2,92 +2,133 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 )
 
 type ResponseCartItem struct {
-	ID         uint64  `json:"id"`
-	CustomerID uint64  `json:"customer_id"`
-	ProductID  uint64  `json:"product_id"`
-	Quantity   float64 `json:"quantity"`
+	ID          uint64  `json:"id"`
+	ProductID   uint64  `json:"product_id"`
+	ProductName string  `json:"product_name"`
+	ImageUrl    string  `json:"image_url"`
+	UnitPrice   float64 `json:"unit_price"`
+	Quantity    float64 `json:"quantity"`
+	Category    string  `json:"category"`
+	TotalPrice  float64 `json:"total_price"`
 }
 
-type ResponseCartItemsWithPrice struct {
-	ResponseCartItem
-	StoreID       uint64  `json:"store_id"`
-	UnitPriceSale float64 `json:"unit_price_sale"`
-	Price         float64 `json:"price"`
+type ResponseStoreCart struct {
+	Items     []ResponseCartItem `json:"items"`
+	TotalCost float64            `json:"total_cost"`
 }
 
-type ResponseCartWithTotal struct {
-	Items    []ResponseCartItemsWithPrice `json:"items"`
-	SubTotal float64                      `json:"sub_total"`
+type ResponseStoreCartWithDetail struct {
+	Items        []ResponseCartItem `json:"items"`
+	TotalCost    float64            `json:"total_cost"`
+	Taxes        float64            `json:"taxes"`
+	ShippingCost float64            `json:"shipping_cost"`
+	TotalPrice   float64            `json:"total_price"`
 }
 
-type ResponseCartWithTax struct {
-	Items     []ResponseCartItemsWithPrice `json:"items"`
-	SubTotal  float64                      `json:"sub_total"`
-	TaxRate   float64                      `json:"tax_rate"`
-	TaxAmount float64                      `json:"tax_amount"`
-	Total     float64                      `json:"total"`
+type ResponseCart struct {
+	Stores     []ResponseStoreCart `json:"stores"`
+	TotalPrice float64             `json:"total_price"`
 }
 
-func NewResponseCartItem(c echo.Context, statusCode int, modelCart models.CartItems) error {
-	responseCartItem := ResponseCartItem{
-		ID:         uint64(modelCart.ID),
-		ProductID:  modelCart.ProductID,
-		CustomerID: modelCart.CustomerID,
-		Quantity:   modelCart.Quantity,
+type ResponseOrderPreview struct {
+	Stores     []ResponseStoreCartWithDetail `json:"stores"`
+	TotalPrice float64                       `json:"total_price"`
+}
+
+func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.CartItemsWithDetail) error {
+	allCartItems := make(map[uint64][]models.CartItemsWithDetail)
+	responseStoreCarts := make([]ResponseStoreCart, 0)
+
+	for _, modelCartItem := range modelCartItems {
+		allCartItems[modelCartItem.StoreID] = append(allCartItems[modelCartItem.StoreID], modelCartItem)
 	}
-	return Response(c, statusCode, responseCartItem)
-}
 
-func NewResponseCarts(c echo.Context, statusCode int, modelCarts []models.CartItemsWithPrice) error {
-	responseCartItems := make([]ResponseCartItemsWithPrice, 0)
-	total := float64(0.0)
-	for _, modelCart := range modelCarts {
-		responseCartItems = append(responseCartItems, ResponseCartItemsWithPrice{
-			ResponseCartItem: ResponseCartItem{
-				ID:         uint64(modelCart.ID),
-				ProductID:  modelCart.ProductID,
-				CustomerID: modelCart.CustomerID,
-				Quantity:   modelCart.Quantity,
-			},
-			StoreID:       modelCart.StoreID,
-			Price:         modelCart.Price,
-			UnitPriceSale: modelCart.UnitPriceSale,
+	totalPrice := float64(0)
+	for _, modelCartItems := range allCartItems {
+		responseCartItems := make([]ResponseCartItem, 0)
+		totalCost := float64(0)
+		for _, cartItem := range modelCartItems {
+			imageUrls := make([]string, 0)
+			imageUrl := ""
+			json.Unmarshal([]byte(cartItem.ImageUrl), &imageUrls)
+			if len(imageUrls) > 0 {
+				imageUrl = string(imageUrls[0])
+			}
+			responseCartItems = append(responseCartItems, ResponseCartItem{
+				ID:          uint64(cartItem.ID),
+				ProductID:   cartItem.ProductID,
+				ProductName: cartItem.ProductName,
+				ImageUrl:    imageUrl,
+				UnitPrice:   cartItem.UnitPrice,
+				Quantity:    cartItem.Quantity,
+				Category:    cartItem.Category,
+				TotalPrice:  cartItem.TotalPrice,
+			})
+			totalCost += cartItem.TotalPrice
+		}
+		responseStoreCarts = append(responseStoreCarts, ResponseStoreCart{
+			Items:     responseCartItems,
+			TotalCost: totalCost,
 		})
-		total += modelCart.Price
+		totalPrice += totalCost
 	}
-	return Response(c, statusCode, ResponseCartWithTotal{
-		SubTotal: total,
-		Items:    responseCartItems,
+
+	return Response(c, statusCode, ResponseCart{
+		Stores:     responseStoreCarts,
+		TotalPrice: totalPrice,
 	})
 }
 
-func NewResponseCartsPreview(c echo.Context, statusCode int, modelCarts []models.CartItemsWithPrice, modelTaxSet models.TaxSettings) error {
-	responseCartItems := make([]ResponseCartItemsWithPrice, 0)
-	total := float64(0.0)
-	for _, modelCart := range modelCarts {
-		responseCartItems = append(responseCartItems, ResponseCartItemsWithPrice{
-			ResponseCartItem: ResponseCartItem{
-				ID:         uint64(modelCart.ID),
-				ProductID:  modelCart.ProductID,
-				CustomerID: modelCart.CustomerID,
-				Quantity:   modelCart.Quantity,
-			},
-			StoreID:       modelCart.StoreID,
-			Price:         modelCart.Price,
-			UnitPriceSale: modelCart.UnitPriceSale,
-		})
-		total += modelCart.Price
+func NewResponseOrderPreview(c echo.Context, statusCode int, modelItems []models.CartItemsWithDetail, modelTax models.TaxSettings) error {
+	allItems := make(map[uint64][]models.CartItemsWithDetail)
+	responseStores := make([]ResponseStoreCartWithDetail, 0)
+
+	for _, modelItem := range modelItems {
+		allItems[modelItem.StoreID] = append(allItems[modelItem.StoreID], modelItem)
 	}
-	return Response(c, statusCode, ResponseCartWithTax{
-		SubTotal:  total,
-		TaxRate:   modelTaxSet.TaxRate,
-		TaxAmount: modelTaxSet.TaxRate * total / 100,
-		Total:     total + modelTaxSet.TaxRate*total/100,
-		Items:     responseCartItems,
+
+	totalPrice := float64(0)
+	for _, modelItems := range allItems {
+		responseItems := make([]ResponseCartItem, 0)
+		totalCost := float64(0)
+		for _, modelItem := range modelItems {
+			imageUrls := make([]string, 0)
+			imageUrl := ""
+			json.Unmarshal([]byte(modelItem.ImageUrl), &imageUrls)
+			if len(imageUrls) > 0 {
+				imageUrl = string(imageUrls[0])
+			}
+			responseItems = append(responseItems, ResponseCartItem{
+				ID:          uint64(modelItem.ID),
+				ProductID:   modelItem.ProductID,
+				ProductName: modelItem.ProductName,
+				ImageUrl:    imageUrl,
+				UnitPrice:   modelItem.UnitPrice,
+				Quantity:    modelItem.Quantity,
+				Category:    modelItem.Category,
+				TotalPrice:  modelItem.TotalPrice,
+			})
+			totalCost += modelItem.TotalPrice
+		}
+		taxes := totalCost * modelTax.TaxRate / 100
+		responseStores = append(responseStores, ResponseStoreCartWithDetail{
+			Items:        responseItems,
+			TotalCost:    totalCost,
+			Taxes:        taxes,
+			ShippingCost: 0,
+			TotalPrice:   totalCost + taxes,
+		})
+		totalPrice += totalCost + taxes
+	}
+
+	return Response(c, statusCode, ResponseOrderPreview{
+		Stores:     responseStores,
+		TotalPrice: totalPrice,
 	})
 }
