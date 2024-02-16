@@ -9,6 +9,7 @@ import (
 	prodattrsvc "OnlineStoreBackend/services/product_attributes"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
+	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	prodsvc "OnlineStoreBackend/services/products"
 	chansvc "OnlineStoreBackend/services/related_channels"
 	contsvc "OnlineStoreBackend/services/related_contents"
@@ -381,6 +382,45 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attrService.Delete(attributeID)
 
 	return responses.NewResponseProductAttribute(c, http.StatusCreated, modelAttr)
+}
+
+// Refresh godoc
+// @Summary Edit variations
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Param attribute_id query int true "Attribute ID"
+// @Param params body requests.RequestProductVariation true "Attributes"
+// @Success 200 {object} []responses.ResponseProductVariation
+// @Failure 400 {object} responses.Error
+// @Router /api/v1/product/variation/{id} [put]
+func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
+	req := new(requests.RequestProductVariation)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelAttr := models.ProductAttributes{}
+	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
+	attrRepo.ReadByID(&modelAttr, attributeID)
+
+	if modelAttr.ID == 0 || modelAttr.ProductID != productID {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute doesn't exists in the product.")
+	}
+
+	modelVars := make([]models.ProductVariationsWithName, 0)
+	varRepo := repositories.NewRepositoryProductVariation(h.server.DB)
+	varRepo.ReadByID(&modelVars, attributeID)
+
+	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService.Update(attributeID, productID, &modelVars, req)
+
+	varRepo.ReadByProductID(&modelVars, productID)
+	return responses.NewResponseProductVariations(c, http.StatusCreated, modelVars)
 }
 
 // Refresh godoc

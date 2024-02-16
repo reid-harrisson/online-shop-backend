@@ -94,7 +94,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 	}
 	variation := make(map[string]string)
 	for _, modelVar := range modelDetail.Variations {
-		variation[modelVar.AttributeName] = modelVar.Value
+		variation[modelVar.AttributeName] = modelVar.Variant
 		if uint64(modelVar.ID) != variationID {
 			variations = append(variations, variation)
 			variation = make(map[string]string)

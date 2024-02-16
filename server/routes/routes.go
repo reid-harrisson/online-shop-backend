@@ -75,6 +75,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
 	e.PUT("/tag/:id", handler.UpdateTags)
+	e.PUT("/variation/:id", handler.UpdateVariations)
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/attribute/:id", handler.UpdateAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)

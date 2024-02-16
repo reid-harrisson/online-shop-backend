@@ -7,7 +7,7 @@ type ProductVariations struct {
 
 	ProductID   uint64 `gorm:"column:product_id; type:bigint(20) unsigned"`
 	AttributeID uint64 `gorm:"column:attribute_id; type:bigint(20) unsigned"`
-	Value       string `gorm:"column:value type:varchar(50)"`
+	Variant     string `gorm:"column:variant; type:varchar(50)"`
 }
 
 func (ProductVariations) TableName() string {
