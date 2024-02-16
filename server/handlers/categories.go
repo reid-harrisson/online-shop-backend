@@ -61,7 +61,7 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Success 201 {object} []responses.ResponseStoreCategory
+// @Success 200 {object} []responses.ResponseStoreCategory
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/category [get]
 func (h *HandlersCategories) ReadCategory(c echo.Context) error {
@@ -71,7 +71,7 @@ func (h *HandlersCategories) ReadCategory(c echo.Context) error {
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByStoreID(&modelCategories, storeID)
 	fmt.Println(modelCategories)
-	return responses.NewResponseStoreCategories(c, http.StatusCreated, modelCategories)
+	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
 }
 
 // Refresh godoc

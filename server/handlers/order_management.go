@@ -34,7 +34,7 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
-	modelCarts := make([]models.CartItemWithPrice, 0)
+	modelCarts := make([]models.CartItemsWithPrice, 0)
 	modelOrders := make([]models.ProductOrders, 0)
 	modelTaxSet := models.TaxSettings{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
@@ -62,7 +62,7 @@ func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
 	modelOrders := make([]models.ProductOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByID(&modelOrders, id)
-	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+	return responses.NewResponseProductOrders(c, http.StatusOK, modelOrders)
 }
 
 // Refresh godoc
@@ -85,7 +85,7 @@ func (h *HandlersOrderManagement) Read(c echo.Context) error {
 	modelOrders := make([]models.ProductOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.Read(&modelOrders, customerID, productID, storeID)
-	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+	return responses.NewResponseProductOrders(c, http.StatusOK, modelOrders)
 }
 
 // Refresh godoc

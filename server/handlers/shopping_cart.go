@@ -61,11 +61,11 @@ func (h *HandlersShoppingCart) ReadAll(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	modelCarts := make([]models.CartItemWithPrice, 0)
+	modelCarts := make([]models.CartItemsWithPrice, 0)
 	if err := cartRepo.ReadAll(&modelCarts, customerID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseCarts(c, http.StatusCreated, modelCarts)
+	return responses.NewResponseCarts(c, http.StatusOK, modelCarts)
 }
 
 // Refresh godoc
@@ -82,12 +82,12 @@ func (h *HandlersShoppingCart) ReadPreview(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	modelCarts := make([]models.CartItemWithPrice, 0)
+	modelCarts := make([]models.CartItemsWithPrice, 0)
 	modelTaxSet := models.TaxSettings{}
 	if err := cartRepo.ReadPreview(&modelCarts, &modelTaxSet, customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseCartsPreview(c, http.StatusCreated, modelCarts, modelTaxSet)
+	return responses.NewResponseCartsPreview(c, http.StatusOK, modelCarts, modelTaxSet)
 }
 
 // Refresh godoc
@@ -113,7 +113,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 	if err := cartService.UpdateQuantity(id, &modelCart, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseCartItem(c, http.StatusCreated, modelCart)
+	return responses.NewResponseCartItem(c, http.StatusOK, modelCart)
 }
 
 // Refresh godoc
@@ -133,7 +133,7 @@ func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 	if err := cartService.Delete(id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.MessageResponse(c, http.StatusCreated, "Successfully deleted")
+	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
 }
 
 // Refresh godoc
@@ -153,5 +153,5 @@ func (h *HandlersShoppingCart) DeleteAll(c echo.Context) error {
 	if err := cartService.DeleteAll(customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.MessageResponse(c, http.StatusCreated, "Successfully deleted")
+	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
 }

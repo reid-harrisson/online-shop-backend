@@ -8,35 +8,34 @@ import (
 
 type ResponseCartItem struct {
 	ID         uint64  `json:"id"`
-	StoreID    uint64  `json:"store_id"`
 	CustomerID uint64  `json:"customer_id"`
 	ProductID  uint64  `json:"product_id"`
 	Quantity   float64 `json:"quantity"`
 }
 
-type ResponseCartItemWithPrice struct {
+type ResponseCartItemsWithPrice struct {
 	ResponseCartItem
+	StoreID       uint64  `json:"store_id"`
 	UnitPriceSale float64 `json:"unit_price_sale"`
 	Price         float64 `json:"price"`
 }
 
 type ResponseCartWithTotal struct {
-	Items    []ResponseCartItemWithPrice `json:"items"`
-	SubTotal float64                     `json:"sub_total"`
+	Items    []ResponseCartItemsWithPrice `json:"items"`
+	SubTotal float64                      `json:"sub_total"`
 }
 
 type ResponseCartWithTax struct {
-	Items     []ResponseCartItemWithPrice `json:"items"`
-	SubTotal  float64                     `json:"sub_total"`
-	TaxRate   float64                     `json:"tax_rate"`
-	TaxAmount float64                     `json:"tax_amount"`
-	Total     float64                     `json:"total"`
+	Items     []ResponseCartItemsWithPrice `json:"items"`
+	SubTotal  float64                      `json:"sub_total"`
+	TaxRate   float64                      `json:"tax_rate"`
+	TaxAmount float64                      `json:"tax_amount"`
+	Total     float64                      `json:"total"`
 }
 
 func NewResponseCartItem(c echo.Context, statusCode int, modelCart models.CartItems) error {
 	responseCartItem := ResponseCartItem{
 		ID:         uint64(modelCart.ID),
-		StoreID:    modelCart.StoreID,
 		ProductID:  modelCart.ProductID,
 		CustomerID: modelCart.CustomerID,
 		Quantity:   modelCart.Quantity,
@@ -44,18 +43,18 @@ func NewResponseCartItem(c echo.Context, statusCode int, modelCart models.CartIt
 	return Response(c, statusCode, responseCartItem)
 }
 
-func NewResponseCarts(c echo.Context, statusCode int, modelCarts []models.CartItemWithPrice) error {
-	responseCartItems := make([]ResponseCartItemWithPrice, 0)
+func NewResponseCarts(c echo.Context, statusCode int, modelCarts []models.CartItemsWithPrice) error {
+	responseCartItems := make([]ResponseCartItemsWithPrice, 0)
 	total := float64(0.0)
 	for _, modelCart := range modelCarts {
-		responseCartItems = append(responseCartItems, ResponseCartItemWithPrice{
+		responseCartItems = append(responseCartItems, ResponseCartItemsWithPrice{
 			ResponseCartItem: ResponseCartItem{
 				ID:         uint64(modelCart.ID),
-				StoreID:    modelCart.StoreID,
 				ProductID:  modelCart.ProductID,
 				CustomerID: modelCart.CustomerID,
 				Quantity:   modelCart.Quantity,
 			},
+			StoreID:       modelCart.StoreID,
 			Price:         modelCart.Price,
 			UnitPriceSale: modelCart.UnitPriceSale,
 		})
@@ -67,18 +66,18 @@ func NewResponseCarts(c echo.Context, statusCode int, modelCarts []models.CartIt
 	})
 }
 
-func NewResponseCartsPreview(c echo.Context, statusCode int, modelCarts []models.CartItemWithPrice, modelTaxSet models.TaxSettings) error {
-	responseCartItems := make([]ResponseCartItemWithPrice, 0)
+func NewResponseCartsPreview(c echo.Context, statusCode int, modelCarts []models.CartItemsWithPrice, modelTaxSet models.TaxSettings) error {
+	responseCartItems := make([]ResponseCartItemsWithPrice, 0)
 	total := float64(0.0)
 	for _, modelCart := range modelCarts {
-		responseCartItems = append(responseCartItems, ResponseCartItemWithPrice{
+		responseCartItems = append(responseCartItems, ResponseCartItemsWithPrice{
 			ResponseCartItem: ResponseCartItem{
 				ID:         uint64(modelCart.ID),
-				StoreID:    modelCart.StoreID,
 				ProductID:  modelCart.ProductID,
 				CustomerID: modelCart.CustomerID,
 				Quantity:   modelCart.Quantity,
 			},
+			StoreID:       modelCart.StoreID,
 			Price:         modelCart.Price,
 			UnitPriceSale: modelCart.UnitPriceSale,
 		})

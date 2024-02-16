@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/repositories"
 )
 
-func (service *Service) Create(modelOrders *[]models.ProductOrders, modelCarts []models.CartItemWithPrice, modelTaxSet models.TaxSettings, customerID uint64) error {
+func (service *Service) Create(modelOrders *[]models.ProductOrders, modelCarts []models.CartItemsWithPrice, modelTaxSet models.TaxSettings, customerID uint64) error {
 	id := uint(0)
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
 	modelProduct := models.Products{}

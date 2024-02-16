@@ -354,7 +354,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 	modelAttrs := make([]models.ProductAttributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
-	return responses.NewResponseProductAttributes(c, http.StatusCreated, modelAttrs)
+	return responses.NewResponseProductAttributes(c, http.StatusOK, modelAttrs)
 }
 
 // Refresh godoc
@@ -364,7 +364,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param attribute_id query int true "Attribute ID"
-// @Success 201 {object} []responses.Data
+// @Success 200 {object} []responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/attribute [delete]
 func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
@@ -381,7 +381,7 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
 	attrService.Delete(attributeID)
 
-	return responses.NewResponseProductAttribute(c, http.StatusCreated, modelAttr)
+	return responses.NewResponseProductAttribute(c, http.StatusOK, modelAttr)
 }
 
 // Refresh godoc
@@ -420,7 +420,7 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 	varService.Update(attributeID, productID, &modelVars, req)
 
 	varRepo.ReadByProductID(&modelVars, productID)
-	return responses.NewResponseProductVariations(c, http.StatusCreated, modelVars)
+	return responses.NewResponseProductVariations(c, http.StatusOK, modelVars)
 }
 
 // Refresh godoc
@@ -431,7 +431,7 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Param params body requests.RequestMinimumStockLevel true "Minimum Stock Level"
-// @Success 201 {object} responses.ResponseProduct
+// @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/product/min-stock-level/{id} [put]
 func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) error {

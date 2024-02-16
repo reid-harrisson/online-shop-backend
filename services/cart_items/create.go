@@ -16,7 +16,6 @@ func (service *Service) Create(modelCart *models.CartItems, req *requests.Reques
 		modelCart.CustomerID = req.CustomerID
 		modelCart.ProductID = req.ProductID
 		modelCart.Quantity = req.Quantity
-		modelCart.StoreID = modelProduct.StoreID
 		if modelCart.Quantity > modelProduct.StockQuantity {
 			modelCart.Quantity = modelProduct.StockQuantity
 		}

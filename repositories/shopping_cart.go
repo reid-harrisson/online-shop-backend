@@ -14,9 +14,10 @@ func NewRepositoryCart(db *gorm.DB) *RepositoryCart {
 	return &RepositoryCart{DB: db}
 }
 
-func (repository *RepositoryCart) ReadAll(modelCarts *[]models.CartItemWithPrice, customerID uint64, storeID uint64) error {
+func (repository *RepositoryCart) ReadAll(modelCarts *[]models.CartItemsWithPrice, customerID uint64, storeID uint64) error {
 	return repository.DB.Model(models.CartItems{}).
 		Select(`store_cart_items.*,
+			store_products.store_id As store_id,
 			store_products.unit_price_sale * store_cart_items.quantity As price, 
 			store_products.unit_price_sale As unit_price_sale`).
 		Joins("Left Join store_products On store_products.id = store_cart_items.product_id").
@@ -25,9 +26,10 @@ func (repository *RepositoryCart) ReadAll(modelCarts *[]models.CartItemWithPrice
 		Scan(modelCarts).Error
 }
 
-func (repository *RepositoryCart) ReadPreview(modelCarts *[]models.CartItemWithPrice, modelTaxSet *models.TaxSettings, customerID uint64) error {
+func (repository *RepositoryCart) ReadPreview(modelCarts *[]models.CartItemsWithPrice, modelTaxSet *models.TaxSettings, customerID uint64) error {
 	if err := repository.DB.Model(models.CartItems{}).
 		Select(`store_cart_items.*,
+			store_products.store_id As store_id,
 			store_products.unit_price_sale * store_cart_items.quantity As price, 
 			store_products.unit_price_sale As unit_price_sale`).
 		Joins("Left Join store_products On store_products.id = store_cart_items.product_id").
