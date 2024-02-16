@@ -8,7 +8,7 @@ type Products struct {
 	gorm.Model
 
 	StoreID           uint64  `gorm:"column:store_id; type:bigint(20) unsigned"`
-	Name              string  `gorm:"column:name; type:varchar(100)"`
+	Title             string  `gorm:"column:title; type:varchar(100)"`
 	ShortDescription  string  `gorm:"column:short_description; type:varchar(100)"`
 	LongDescription   string  `gorm:"column:long_description; type:varchar(500)"`
 	ImageUrls         string  `gorm:"column:image_urls; type:varchar(1000)"`
@@ -17,7 +17,6 @@ type Products struct {
 	UnitPriceSale     float64 `gorm:"column:unit_price_sale; type:decimal(20,6)"`
 	StockQuantity     float64 `gorm:"column:stock_quantity; type:decimal(20,6)"`
 	MinimumStockLevel float64 `gorm:"column:minimum_stock_level; type:decimal(20,6)"`
-	MaximumStockLevel float64 `gorm:"column:maximum_stock_level; type:decimal(20,6)"`
 	Active            int8    `gorm:"column:active; type:tinyint(4)"`
 }
 
@@ -27,7 +26,7 @@ type ProductsWithDetail struct {
 	RelatedContents []ProductContentsWithTitle  `gorm:"column:related_contents"`
 	Tags            []ProductTagsWithName       `gorm:"column:tags"`
 	Categories      []ProductCategoriesWithName `gorm:"column:categories"`
-	Attributes      []ProductAttributesWithName `gorm:"column:attributes"`
+	Attributes      []ProductAttributes         `gorm:"column:attributes"`
 	Variations      []ProductVariationsWithName `gorm:"column:variations"`
 	ShippingData    ShippingData                `gorm:"column:shipping_data"`
 }

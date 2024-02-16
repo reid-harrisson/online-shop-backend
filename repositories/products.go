@@ -45,7 +45,7 @@ func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.Model(models.Products{}).
 		Where("? = 0 Or store_id = ?", storeID, storeID).
-		Where("Lower(name) Like ?", keyword).
+		Where("Lower(title) Like ?", keyword).
 		Count(totalCount).Offset(page).Limit(count).Find(&modelProducts).Error
 }
 
@@ -53,6 +53,6 @@ func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, s
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.
 		Where("? = 0 Or store_id = ?", storeID, storeID).
-		Where("Lower(name) Like ?", keyword).
+		Where("Lower(title) Like ?", keyword).
 		Find(&modelProducts).Error
 }

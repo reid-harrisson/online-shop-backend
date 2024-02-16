@@ -47,6 +47,9 @@ func ConfigureRoutes(server *s.Server) {
 	groupShoppingCart := apiV1.Group("/cart")
 	GroupShoppingCart(server, groupShoppingCart)
 
+	groupCategory := apiV1.Group("/category")
+	GroupCategory(server, groupCategory)
+
 	groupProductReviews := apiV1.Group("/review")
 	GroupProductReviews(server, groupProductReviews)
 
@@ -70,17 +73,30 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductManagement(server)
 	e.POST("", handler.Create)
 	e.POST("/attribute/:id", handler.CreateAttributes)
-	e.POST("/tag/:id", handler.CreateTags)
-	e.POST("/channel/:id", handler.CreateRelatedChannels)
-	e.POST("/content/:id", handler.CreateRelatedContents)
 	e.POST("/shipping/:id", handler.CreateShippingData)
 	e.GET("", handler.ReadAll)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
 	e.PUT("/:id", handler.Update)
-	e.PUT("/price/:id", handler.UpdatePrice)
-	e.PUT("/quantity/:id", handler.UpdateStockQuantity)
+	e.PUT("/attribute/:id", handler.UpdateAttributes)
+	e.PUT("/category/:id", handler.UpdateCategories)
+	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
+	e.PUT("/content/:id", handler.UpdateRelatedContents)
+	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
+	e.PUT("/shipping/:id", handler.UpdateShippingData)
+	e.PUT("/tag/:id", handler.UpdateTags)
+	e.PUT("/variation/:id", handler.UpdateVariations)
 	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/attribute/:id", handler.UpdateAttributes)
+	e.DELETE("/shipping/:id", handler.DeleteShippingData)
+}
+
+func GroupCategory(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCategories(server)
+	e.POST("", handler.CreateCategory)
+	e.GET("", handler.ReadCategory)
+	e.PUT("/:id", handler.UpdateCategory)
+	e.DELETE("/:id", handler.DeleteCategory)
 }
 
 func GroupShoppingCart(server *s.Server, e *echo.Group) {

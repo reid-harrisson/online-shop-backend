@@ -13,11 +13,12 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 		return err
 	}
 	modelProduct.StoreID = req.StoreID
-	modelProduct.Name = req.Name
+	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
-	modelProduct.SKU = utils.GenerateSKU(req.Name, req.StoreID)
+	modelProduct.SKU = utils.GenerateSKU(req.Title, req.StoreID)
 	modelProduct.UnitPriceRegular = req.UnitPriceRegular
+	modelProduct.UnitPriceSale = req.UnitPriceRegular
 	modelProduct.StockQuantity = req.StockQuantity
 	modelProduct.Active = req.Active
 	imageUrls, _ := json.Marshal(req.ImageUrls)
@@ -25,11 +26,8 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	return service.DB.Save(modelProduct).Error
 }
 
-func (service *Service) UpdateStockQuantity(productID uint64, req *requests.RequestProductQuantity, modelProduct *models.Products) error {
-	if err := service.DB.First(modelProduct, productID).Error; err != nil {
-		return err
-	}
-	modelProduct.StockQuantity = req.Quantity
+func (service *Service) UpdateMinimumStockLevel(productID uint64, req *requests.RequestMinimumStockLevel, modelProduct *models.Products) error {
+	modelProduct.StockQuantity = req.Level
 	return service.DB.Save(modelProduct).Error
 }
 

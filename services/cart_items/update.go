@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) UpdateQuantity(cartID uint64, modelCart *models.CartItems, req *requests.RequestProductQuantity) error {
+func (service *Service) UpdateQuantity(cartID uint64, modelCart *models.CartItems, req *requests.RequestMinimumStockLevel) error {
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
 	if err := service.DB.First(modelCart, cartID).Error; err != nil {
@@ -15,7 +15,7 @@ func (service *Service) UpdateQuantity(cartID uint64, modelCart *models.CartItem
 	if err := prodRepo.ReadByID(&modelProduct, modelCart.ProductID); err != nil {
 		return err
 	}
-	modelCart.Quantity = req.Quantity
+	modelCart.Quantity = req.Level
 	if modelCart.Quantity > modelProduct.StockQuantity {
 		modelCart.Quantity = modelProduct.StockQuantity
 	}

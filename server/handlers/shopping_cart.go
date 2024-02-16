@@ -38,7 +38,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	}
 
 	modelCart := models.CartItems{}
-	cartService := cartsvc.CreateService(h.server.DB)
+	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	if err := cartService.Create(&modelCart, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -97,19 +97,19 @@ func (h *HandlersShoppingCart) ReadPreview(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Cart ID"
-// @Param params body requests.RequestProductQuantity true "Product Quantity"
+// @Param params body requests.RequestMinimumStockLevel true "Product Quantity"
 // @Success 200 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
 // @Router /api/v1/cart/{id} [put]
 func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
-	req := new(requests.RequestProductQuantity)
+	req := new(requests.RequestMinimumStockLevel)
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	modelCart := models.CartItems{}
-	cartService := cartsvc.CreateService(h.server.DB)
+	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	if err := cartService.UpdateQuantity(id, &modelCart, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -129,7 +129,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	cartService := cartsvc.CreateService(h.server.DB)
+	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	if err := cartService.Delete(id); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -149,7 +149,7 @@ func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 func (h *HandlersShoppingCart) DeleteAll(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
-	cartService := cartsvc.CreateService(h.server.DB)
+	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	if err := cartService.DeleteAll(customerID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
