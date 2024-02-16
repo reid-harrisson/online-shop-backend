@@ -5,10 +5,11 @@ import "github.com/jinzhu/gorm"
 type ProductReviews struct {
 	gorm.Model
 
-	ProductID  uint64 `gorm:"column:product_id; type:bigint(20) unsigned"`
-	CustomerID uint64 `gorm:"column:customer_id; type:bigint(20) unsigned"`
-	Comment    string `gorm:"column:comment; type:varchar(500)"`
-	Status     string `gorm:"column:status; type:varchar(20)"`
+	ProductID  uint64  `gorm:"column:product_id; type:bigint(20) unsigned"`
+	CustomerID uint64  `gorm:"column:customer_id; type:bigint(20) unsigned"`
+	Comment    string  `gorm:"column:comment; type:text"`
+	Rate       float64 `gorm:"column:rate; type:decimal(20,6)"`
+	Status     int8    `gorm:"column:status; type:tinyint(4)"`
 }
 
 func (ProductReviews) TableName() string {
