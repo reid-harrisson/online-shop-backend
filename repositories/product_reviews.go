@@ -33,9 +33,15 @@ func (repository *RepositoryReview) ReadRate(modelProdRate *models.ProductRates,
 }
 
 func (repository *RepositoryReview) ReadReviews(modelReviews *[]models.ProductReviews, productID uint64) error {
-	return repository.DB.Where("product_id = ?", productID).Find(modelReviews).Error
+	return repository.DB.
+		Where("product_id = ?", productID).
+		Find(modelReviews).
+		Error
 }
 
 func (repository *RepositoryReview) ReadPublishReviews(modelReviews *[]models.ProductReviews, productID uint64) error {
-	return repository.DB.Where("product_id = ? And status = ?", productID, "published").Find(modelReviews).Error
+	return repository.DB.
+		Where("product_id = ? And status = ?", productID, 1).
+		Find(modelReviews).
+		Error
 }

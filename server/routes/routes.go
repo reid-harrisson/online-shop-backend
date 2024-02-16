@@ -43,20 +43,28 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupProductManagement := apiV1.Group("/product")
 	GroupProductManagement(server, groupProductManagement)
+
 	groupShoppingCart := apiV1.Group("/cart")
 	GroupShoppingCart(server, groupShoppingCart)
+
 	groupCategory := apiV1.Group("/category")
 	GroupCategory(server, groupCategory)
+
 	groupProductReviews := apiV1.Group("/review")
 	GroupProductReviews(server, groupProductReviews)
+
 	groupOrderManagement := apiV1.Group("/order")
 	GroupOrderManagement(server, groupOrderManagement)
+
 	groupInventoryManagement := apiV1.Group("/store")
 	GroupInventoryManagement(server, groupInventoryManagement)
+
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
 	GroupSalesMetrices(server, groupSalesMetrics)
+
 	groupTaxSettings := apiV1.Group("/tax")
 	GroupTaxSettings(server, groupTaxSettings)
+
 	groupShippingOption := apiV1.Group("/shipping-option")
 	GroupShippingOption(server, groupShippingOption)
 }
@@ -103,13 +111,10 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 
 func GroupProductReviews(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductReviews(server)
-	e.POST("/rate", handler.CreateRate)
-	e.POST("/:id", handler.CreateReview)
-	e.GET("/rate", handler.ReadRate)
-	e.GET("", handler.ReadReview)
-	e.GET("/publish", handler.ReadPublishReview)
-	e.PUT("/publish/:id", handler.Update)
-	e.DELETE("/:id", handler.Delete)
+	e.POST("", handler.CreateReview)
+	e.GET("/publish/:id", handler.ReadPublishedReviews)
+	e.GET("/:id", handler.ReadAll)
+	e.PUT("/moderate/:id", handler.ModerateReview)
 }
 
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
