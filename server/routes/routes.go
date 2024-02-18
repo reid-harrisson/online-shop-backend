@@ -31,6 +31,7 @@ func AuthMiddleware(server *s.Server) echo.MiddlewareFunc {
 
 	return authMiddleware
 }
+
 func ConfigureRoutes(server *s.Server) {
 	storeServer := server.Echo.Group("/store")
 
