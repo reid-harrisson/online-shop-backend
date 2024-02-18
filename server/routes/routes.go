@@ -32,11 +32,13 @@ func AuthMiddleware(server *s.Server) echo.MiddlewareFunc {
 	return authMiddleware
 }
 func ConfigureRoutes(server *s.Server) {
+	storeServer := server.Echo.Group("/store")
+
 	server.Echo.Use(middleware.Logger())
 
-	server.Echo.GET("/docs/*", echoSwagger.WrapHandler)
+	storeServer.GET("/docs/*", echoSwagger.WrapHandler)
 
-	apiV1 := server.Echo.Group("/api/v1")
+	apiV1 := storeServer.Group("/api/v1")
 
 	apiV1.Use(middleware.Logger())
 	apiV1.Use(middleware.Recover())
