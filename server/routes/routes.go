@@ -59,7 +59,7 @@ func ConfigureRoutes(server *s.Server) {
 	groupOrderManagement := apiV1.Group("/order")
 	GroupOrderManagement(server, groupOrderManagement)
 
-	groupInventoryManagement := apiV1.Group("/store")
+	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
 
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
@@ -132,7 +132,8 @@ func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
 	e.POST("", handler.Create)
 	e.PUT("/backorder/:id", handler.UpdateBackOrder)
-	e.PUT("/tracking/:id", handler.UpdateStockTracking)
+	e.PUT("/level/:id", handler.UpdateShowStockLevelStatus)
+	e.PUT("/out/:id", handler.UpdateShowOutOfStockStatus)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {

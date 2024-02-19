@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
@@ -22,22 +23,24 @@ func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManageme
 
 // Refresh godoc
 // @Summary Create store
-// @Tags inventory manangement
+// @Tags Inventory Manangement
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param params body requests.RequestStore true "Store Info"
 // @Success 201 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/store [post]
+// @Router /store/api/v1/store [post]
 func (h *HandlersInventoryManagement) Create(c echo.Context) error {
 	req := new(requests.RequestStore)
+
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	modelStore := models.Stores{}
 	storeService := storesvc.NewServiceStore(h.server.DB)
+
 	if err := storeService.Create(&modelStore, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -46,42 +49,85 @@ func (h *HandlersInventoryManagement) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Enable or disable back order
-// @Tags inventory manangement
+// @Tags Inventory Manangement
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Store ID"
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/store/backorder/{id} [put]
+// @Router /store/api/v1/inventory/backorder/{id} [put]
 func (h *HandlersInventoryManagement) UpdateBackOrder(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelStore := models.Stores{}
+
+	repositoryInventory := repositories.NewRepositoryInventory(h.server.DB)
+	if err := repositoryInventory.ReadOne(&modelStore, id); err != nil {
+		return responses.ErrorResponse(c, http.StatusNotFound, "Data index not found")
+	}
+
 	storeService := storesvc.NewServiceStore(h.server.DB)
+
 	if err := storeService.UpdateBackOrder(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseBackOrder(c, http.StatusOK, modelStore.BackOrder)
+
+	return responses.NewResponseBackOrder(c, http.StatusOK, modelStore.IsBackOrder)
 }
 
 // Refresh godoc
 // @Summary Enable or disable stock tracking
-// @Tags inventory manangement
+// @Tags Inventory Manangement
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Store ID"
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/store/tracking/{id} [put]
-func (h *HandlersInventoryManagement) UpdateStockTracking(c echo.Context) error {
+// @Router /store/api/v1/inventory/out/{id} [put]
+func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelStore := models.Stores{}
+
+	repositoryInventory := repositories.NewRepositoryInventory(h.server.DB)
+	if err := repositoryInventory.ReadOne(&modelStore, id); err != nil {
+		return responses.ErrorResponse(c, http.StatusNotFound, "Data index not found")
+	}
+
 	storeService := storesvc.NewServiceStore(h.server.DB)
-	if err := storeService.UpdateStockTracking(id, &modelStore); err != nil {
+
+	if err := storeService.UpdateShowOutOfStockStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseStockTracking(c, http.StatusOK, modelStore.ShowOutOfStockProducts)
+	return responses.NewResponseShowOutOfStockStatus(c, http.StatusOK, modelStore.ShowOutOfStockStatus)
+}
+
+// Refresh godoc
+// @Summary Enable or disable stock level status
+// @Tags Inventory Manangement
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Success 200 {object} responses.ResponseStore
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/inventory/level/{id} [put]
+func (h *HandlersInventoryManagement) UpdateShowStockLevelStatus(c echo.Context) error {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelStore := models.Stores{}
+
+	repositoryInventory := repositories.NewRepositoryInventory(h.server.DB)
+	if err := repositoryInventory.ReadOne(&modelStore, id); err != nil {
+		return responses.ErrorResponse(c, http.StatusNotFound, "Data index not found")
+	}
+
+	storeService := storesvc.NewServiceStore(h.server.DB)
+
+	if err := storeService.UpdateShowStockLevelStatus(id, &modelStore); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+	return responses.NewResponseShowStockLevelStatus(c, http.StatusOK, modelStore.ShowStockLevelStatus)
 }
