@@ -34,16 +34,16 @@ func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) 
 	responseStore := ResponseStore{
 		ID:                     uint64(modelStore.ID),
 		CompanyID:              modelStore.CompanyID,
-		UserID:                 modelStore.UserID,
+		OwnerID:                modelStore.OwnerID,
 		ContactPhone:           modelStore.ContactPhone,
 		ContactEmail:           modelStore.ContactEmail,
-		ShowStockQuantity:      modelStore.ShowStockQuantity,
-		ShowOutOfStockProducts: modelStore.ShowOutOfStockProducts,
+		ShowStockQuantity:      modelStore.ShowStockQuantityStatus,
+		ShowOutOfStockProducts: modelStore.ShowOutOfStockStatus,
 		DeliveryPolicy:         modelStore.DeliveryPolicy,
 		ReturnsPolicy:          modelStore.ReturnsPolicy,
 		Terms:                  modelStore.Terms,
 		FlatRateShipping:       modelStore.FlatRateShipping,
-		BackOrder:              modelStore.BackOrder,
+		BackOrder:              modelStore.ShowBackOrderStatus,
 		Active:                 modelStore.Active,
 	}
 	return Response(c, statusCode, responseStore)

@@ -32,12 +32,14 @@ func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManageme
 // @Router /api/v1/store [post]
 func (h *HandlersInventoryManagement) Create(c echo.Context) error {
 	req := new(requests.RequestStore)
+
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	modelStore := models.Stores{}
 	storeService := storesvc.NewServiceStore(h.server.DB)
+
 	if err := storeService.Create(&modelStore, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
