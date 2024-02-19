@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"OnlineStoreBackend/models"
+	"encoding/json"
+	"fmt"
 
 	"github.com/jinzhu/gorm"
 )
@@ -41,4 +43,6 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 		Where("carts.customer_id = ?", customerID).
 		Where("carts.deleted_at Is Null And prods.deleted_at Is Null And cates.deleted_at Is Null").
 		Scan(modelItems)
+	str, _ := json.Marshal(modelItems)
+	fmt.Println(string(str))
 }

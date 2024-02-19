@@ -78,29 +78,6 @@ func (h *HandlersShoppingCart) Read(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Preview order
-// @Tags Shopping Cart
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
-// @Success 200 {object} []responses.ResponseCart
-// @Failure 400 {object} responses.Error
-// @Router /api/v1/cart/preview [get]
-func (h *HandlersShoppingCart) PreviewOrder(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-
-	modelTax := models.TaxSettings{}
-	taxRepo := repositories.NewRepositoryTax(h.server.DB)
-	taxRepo.ReadTaxSetting(&modelTax, customerID)
-
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, customerID)
-	return responses.NewResponseOrderPreview(c, http.StatusOK, modelItems, modelTax)
-}
-
-// Refresh godoc
 // @Summary Edit cart
 // @Tags Shopping Cart
 // @Accept json

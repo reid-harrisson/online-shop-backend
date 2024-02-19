@@ -6,6 +6,5 @@ func (service *Service) Create(attributeID uint64, variant string, productID uin
 	service.DB.Create(&models.ProductVariations{
 		AttributeID: attributeID,
 		Variant:     variant,
-		ProductID:   productID,
 	})
 }
