@@ -22,12 +22,16 @@ type ResponseStore struct {
 	Active               int8    `json:"active"`
 }
 
-type ResponseStockTracking struct {
-	StockTracking string `json:"stock_tracking"`
+type ResponseShowOutOfStockStatus struct {
+	ShowOutOfStockStatus string `json:"show_out_of_stock_status"`
+}
+
+type ResponseShowStockLevelStatus struct {
+	ShowStockLevelStatus string `json:"show_stock_level_status"`
 }
 
 type ResponseBackOrder struct {
-	BackOrder string `json:"back_order"`
+	IsBackOrder string `json:"back_order"`
 }
 
 func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) error {
@@ -48,24 +52,35 @@ func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) 
 	return Response(c, statusCode, responseStore)
 }
 
-func NewResponseStockTracking(c echo.Context, statusCode int, stockTracking int8) error {
-	if stockTracking == 0 {
-		return Response(c, statusCode, ResponseStockTracking{
-			StockTracking: "Disabled",
+func NewResponseShowOutOfStockStatus(c echo.Context, statusCode int, isShowOutOfStockStatus int8) error {
+	if isShowOutOfStockStatus == 0 {
+		return Response(c, statusCode, ResponseShowOutOfStockStatus{
+			ShowOutOfStockStatus: "Disabled",
 		})
 	}
-	return Response(c, statusCode, ResponseStockTracking{
-		StockTracking: "Enabled",
+	return Response(c, statusCode, ResponseShowOutOfStockStatus{
+		ShowOutOfStockStatus: "Enabled",
+	})
+}
+
+func NewResponseShowStockLevelStatus(c echo.Context, statusCode int, isShowStockLevelStatus int8) error {
+	if isShowStockLevelStatus == 0 {
+		return Response(c, statusCode, ResponseShowStockLevelStatus{
+			ShowStockLevelStatus: "Disabled",
+		})
+	}
+	return Response(c, statusCode, ResponseShowStockLevelStatus{
+		ShowStockLevelStatus: "Enabled",
 	})
 }
 
 func NewResponseBackOrder(c echo.Context, statusCode int, backOrder int8) error {
 	if backOrder == 0 {
-		return Response(c, statusCode, ResponseStockTracking{
-			StockTracking: "Disabled",
+		return Response(c, statusCode, ResponseBackOrder{
+			IsBackOrder: "Disabled",
 		})
 	}
-	return Response(c, statusCode, ResponseStockTracking{
-		StockTracking: "Enabled",
+	return Response(c, statusCode, ResponseBackOrder{
+		IsBackOrder: "Enabled",
 	})
 }

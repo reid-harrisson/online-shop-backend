@@ -59,7 +59,7 @@ func ConfigureRoutes(server *s.Server) {
 	groupOrderManagement := apiV1.Group("/order")
 	GroupOrderManagement(server, groupOrderManagement)
 
-	groupInventoryManagement := apiV1.Group("/store")
+	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
 
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
