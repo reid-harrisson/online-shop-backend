@@ -132,7 +132,8 @@ func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
 	e.POST("", handler.Create)
 	e.PUT("/backorder/:id", handler.UpdateBackOrder)
-	e.PUT("/tracking/:id", handler.UpdateStockTracking)
+	e.PUT("/level/:id", handler.UpdateShowStockLevelStatus)
+	e.PUT("/out/:id", handler.UpdateShowOutOfStockStatus)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {
