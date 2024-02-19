@@ -31,12 +31,15 @@ func AuthMiddleware(server *s.Server) echo.MiddlewareFunc {
 
 	return authMiddleware
 }
+
 func ConfigureRoutes(server *s.Server) {
+	storeServer := server.Echo.Group("/store")
+
 	server.Echo.Use(middleware.Logger())
 
-	server.Echo.GET("/docs/*", echoSwagger.WrapHandler)
+	storeServer.GET("/docs/*", echoSwagger.WrapHandler)
 
-	apiV1 := server.Echo.Group("/api/v1")
+	apiV1 := storeServer.Group("/api/v1")
 
 	apiV1.Use(middleware.Logger())
 	apiV1.Use(middleware.Recover())
@@ -56,7 +59,7 @@ func ConfigureRoutes(server *s.Server) {
 	groupOrderManagement := apiV1.Group("/order")
 	GroupOrderManagement(server, groupOrderManagement)
 
-	groupInventoryManagement := apiV1.Group("/store")
+	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
 
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
@@ -128,7 +131,8 @@ func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
 	e.POST("", handler.Create)
 	e.PUT("/backorder/:id", handler.UpdateBackOrder)
-	e.PUT("/tracking/:id", handler.UpdateStockTracking)
+	e.PUT("/level/:id", handler.UpdateShowStockLevelStatus)
+	e.PUT("/out/:id", handler.UpdateShowOutOfStockStatus)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {

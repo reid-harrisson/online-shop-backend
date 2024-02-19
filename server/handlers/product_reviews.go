@@ -32,7 +32,7 @@ func NewHandlersProductReviews(server *s.Server) *HandlersProductReviews {
 // @Param params body requests.RequestProductReview true "Review Info"
 // @Success 201 {object} responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/review [post]
+// @Router /store/api/v1/review [post]
 func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
@@ -65,7 +65,7 @@ func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
 // @Param id path int true "Product ID"
 // @Success 200 {object} []responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/review/publish/{id} [get]
+// @Router /store/api/v1/review/publish/{id} [get]
 func (h *HandlersProductReviews) ReadPublishedReviews(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -86,7 +86,7 @@ func (h *HandlersProductReviews) ReadPublishedReviews(c echo.Context) error {
 // @Param id path int true "Product ID"
 // @Success 200 {object} []responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/review/{id} [get]
+// @Router /store/api/v1/review/{id} [get]
 func (h *HandlersProductReviews) ReadAll(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -108,7 +108,7 @@ func (h *HandlersProductReviews) ReadAll(c echo.Context) error {
 // @Param status query string true "Status" default(Approved)
 // @Success 200 {object} responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/review/moderate/{id} [put]
+// @Router /store/api/v1/review/moderate/{id} [put]
 func (h *HandlersProductReviews) ModerateReview(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	status := c.QueryParam("status")

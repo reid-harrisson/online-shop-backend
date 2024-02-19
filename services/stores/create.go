@@ -7,17 +7,16 @@ import (
 
 func (service *Service) Create(modelStore *models.Stores, req *requests.RequestStore) error {
 	modelStore.CompanyID = req.CompanyID
-	modelStore.UserID = req.UserID
+	modelStore.OwnerID = req.OwnerID
 	modelStore.ContactPhone = req.ContactPhone
 	modelStore.ContactEmail = req.ContactEmail
-	modelStore.ShowStockQuantity = req.ShowStockQuantity
-	modelStore.ShowOutOfStockProducts = req.ShowOutOfStockProducts
+	modelStore.ShowStockLevelStatus = req.ShowStockLevelStatus
+	modelStore.ShowOutOfStockStatus = req.ShowOutOfStockStatus
+	modelStore.IsBackOrder = req.IsBackOrder
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms
-	modelStore.FlatRateShipping = req.FlatRateShipping
-	modelStore.BackOrder = req.BackOrder
 	modelStore.Active = req.Active
-	service.DB.Create(&modelStore)
-	return nil
+
+	return service.DB.Create(&modelStore).Error
 }
