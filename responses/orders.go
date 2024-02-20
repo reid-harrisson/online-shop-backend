@@ -1,0 +1,124 @@
+package responses
+
+import (
+	"OnlineStoreBackend/models"
+
+	"github.com/labstack/echo/v4"
+)
+
+type ResponseCustomerOrderWithDetail struct {
+	OrderStatus    string  `json:"order_status"`
+	StoreID        uint64  `json:"store_id"`
+	ProductStatus  string  `json:"product_status"`
+	ProductID      uint64  `json:"product_id"`
+	UnitPriceSale  float64 `json:"unit_price_sale"`
+	Quantity       float64 `json:"quantity"`
+	SubTotalPrice  float64 `json:"sub_total_price"`
+	TaxRate        float64 `json:"tax_rate"`
+	TaxAmount      float64 `json:"tax_amount"`
+	ShippingMethod string  `json:"shipping_method"`
+	ShippingPrice  float64 `json:"shipping_price"`
+	TotalPrice     float64 `json:"total_price"`
+}
+
+type ResponseCustomerOrder struct {
+	OrderID         uint64  `json:"order_id"`
+	OrderStatus     string  `json:"order_status"`
+	TotalPrice      float64 `json:"total_price"`
+	BillingAddress  string  `json:"billing_address"`
+	ShippingAddress string  `json:"shipping_address"`
+}
+
+type ResponseStoreOrder struct {
+	OrderID         uint64  `gorm:"column:order_id"`
+	CustomerID      uint64  `gorm:"column:customer_id"`
+	ProductID       uint64  `gorm:"column:product_id"`
+	UnitPriceSale   float64 `gorm:"column:unit_price_sale"`
+	Quantity        float64 `gorm:"column:quantity"`
+	SubTotalPrice   float64 `gorm:"column:sub_total_price"`
+	BillingAddress  string  `gorm:"column:billing_address"`
+	ShippingAddress string  `gorm:"column:shipping_address"`
+	TaxRate         float64 `gorm:"column:tax_rate"`
+	TaxAmount       float64 `gorm:"column:tax_amount"`
+	ShippingMethod  string  `gorm:"column:shipping_method"`
+	ShippingPrice   float64 `gorm:"column:shipping_price"`
+	TotalPrice      float64 `gorm:"column:total_price"`
+	ProductStatus   string  `gorm:"column:product_status"`
+}
+
+func NewResponseCustomerOrders(c echo.Context, statusCode int, modelOrders []models.CustomerOrders) error {
+	responseOrders := make([]ResponseCustomerOrder, 0)
+	for _, modelOrder := range modelOrders {
+		responseOrders = append(responseOrders, ResponseCustomerOrder{
+			OrderID:         modelOrder.OrderID,
+			OrderStatus:     models.OrderStatusToString(modelOrder.OrderStatus),
+			TotalPrice:      modelOrder.TotalPrice,
+			BillingAddress:  modelOrder.BillingAddress,
+			ShippingAddress: modelOrder.ShippingAddress,
+		})
+	}
+	return Response(c, statusCode, responseOrders)
+}
+
+func NewResponseCustomerOrdersWithDetail(c echo.Context, statusCode int, modelOrders []models.CustomerOrdersWithDetail) error {
+	responseOrders := make([]ResponseCustomerOrderWithDetail, 0)
+	for _, modelOrder := range modelOrders {
+		responseOrders = append(responseOrders, ResponseCustomerOrderWithDetail{
+			OrderStatus:    models.OrderStatusToString(modelOrder.OrderStatus),
+			StoreID:        modelOrder.StoreID,
+			ProductStatus:  models.OrderStatusToString(modelOrder.ProductStatus),
+			ProductID:      modelOrder.ProductID,
+			UnitPriceSale:  modelOrder.UnitPriceSale,
+			Quantity:       modelOrder.Quantity,
+			SubTotalPrice:  modelOrder.SubTotalPrice,
+			TaxRate:        modelOrder.TaxRate,
+			TaxAmount:      modelOrder.TaxAmount,
+			ShippingMethod: modelOrder.ShippingMethod,
+			ShippingPrice:  modelOrder.ShippingPrice,
+			TotalPrice:     modelOrder.TotalPrice,
+		})
+	}
+	return Response(c, statusCode, responseOrders)
+}
+
+func NewResponseStoreOrders(c echo.Context, statusCode int, modelOrders []models.StoreOrders) error {
+	responseOrders := make([]ResponseStoreOrder, 0)
+	for _, modelOrder := range modelOrders {
+		responseOrders = append(responseOrders, ResponseStoreOrder{
+			OrderID:         modelOrder.OrderID,
+			CustomerID:      modelOrder.CustomerID,
+			ProductID:       modelOrder.ProductID,
+			UnitPriceSale:   modelOrder.UnitPriceSale,
+			Quantity:        modelOrder.Quantity,
+			SubTotalPrice:   modelOrder.SubTotalPrice,
+			BillingAddress:  modelOrder.BillingAddress,
+			ShippingAddress: modelOrder.ShippingAddress,
+			TaxRate:         modelOrder.TaxRate,
+			TaxAmount:       modelOrder.TaxAmount,
+			ShippingMethod:  modelOrder.ShippingMethod,
+			ShippingPrice:   modelOrder.ShippingPrice,
+			TotalPrice:      modelOrder.TotalPrice,
+			ProductStatus:   models.OrderStatusToString(modelOrder.ProductStatus),
+		})
+	}
+	return Response(c, statusCode, responseOrders)
+}
+
+func NewResponseStoreOrder(c echo.Context, statusCode int, modelOrder models.StoreOrders) error {
+	return Response(c, statusCode, ResponseStoreOrder{
+		OrderID:         modelOrder.OrderID,
+		CustomerID:      modelOrder.CustomerID,
+		ProductID:       modelOrder.ProductID,
+		UnitPriceSale:   modelOrder.UnitPriceSale,
+		Quantity:        modelOrder.Quantity,
+		SubTotalPrice:   modelOrder.SubTotalPrice,
+		BillingAddress:  modelOrder.BillingAddress,
+		ShippingAddress: modelOrder.ShippingAddress,
+		TaxRate:         modelOrder.TaxRate,
+		TaxAmount:       modelOrder.TaxAmount,
+		ShippingMethod:  modelOrder.ShippingMethod,
+		ShippingPrice:   modelOrder.ShippingPrice,
+		TotalPrice:      modelOrder.TotalPrice,
+		ProductStatus:   models.OrderStatusToString(modelOrder.ProductStatus),
+	})
+}

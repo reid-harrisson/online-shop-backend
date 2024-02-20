@@ -21,26 +21,13 @@ type ResponseCartItem struct {
 }
 
 type ResponseStoreCart struct {
-	Items    []ResponseCartItem `json:"items"`
-	SubTotal float64            `json:"sub_total"`
-}
-
-type ResponseStoreCartWithDetail struct {
-	Items        []ResponseCartItem `json:"items"`
-	TotalCost    float64            `json:"total_cost"`
-	Taxes        float64            `json:"taxes"`
-	ShippingCost float64            `json:"shipping_cost"`
-	TotalPrice   float64            `json:"total_price"`
+	Items      []ResponseCartItem `json:"items"`
+	StoreTotal float64            `json:"store_total"`
 }
 
 type ResponseCart struct {
 	Stores     []ResponseStoreCart `json:"stores"`
 	TotalPrice float64             `json:"total_price"`
-}
-
-type ResponseOrderPreview struct {
-	Stores     []ResponseStoreCartWithDetail `json:"stores"`
-	TotalPrice float64                       `json:"total_price"`
 }
 
 func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.CartItemsWithDetail) error {
@@ -75,8 +62,8 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 			totalCost += cartItem.TotalPrice
 		}
 		responseStoreCarts = append(responseStoreCarts, ResponseStoreCart{
-			Items:    responseCartItems,
-			SubTotal: totalCost,
+			Items:      responseCartItems,
+			StoreTotal: totalCost,
 		})
 		totalPrice += totalCost
 	}

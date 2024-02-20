@@ -1,6 +1,8 @@
 package requests
 
-import validation "github.com/go-ozzo/ozzo-validation"
+import (
+	validation "github.com/go-ozzo/ozzo-validation"
+)
 
 type RequestProductOrderStatus struct {
 	Status string `json:"status" example:"Processing"`

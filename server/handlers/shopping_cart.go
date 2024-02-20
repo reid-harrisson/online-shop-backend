@@ -31,7 +31,7 @@ func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
 // @Param quantity query string true "Quantity"
 // @Success 201 {object} responses.ResponseCart
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/cart [post]
+// @Router /store/api/v1/cart [post]
 func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
@@ -67,7 +67,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 // @Param customer_id query int true "Customer ID"
 // @Success 200 {object} []responses.ResponseCart
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/cart [get]
+// @Router /store/api/v1/cart [get]
 func (h *HandlersShoppingCart) Read(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
@@ -87,7 +87,7 @@ func (h *HandlersShoppingCart) Read(c echo.Context) error {
 // @Param quantity query string true "Quantity"
 // @Success 200 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/cart/{id} [put]
+// @Router /store/api/v1/cart/{id} [put]
 func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
@@ -119,7 +119,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 // @Param id path int true "Cart ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/cart/{id} [delete]
+// @Router /store/api/v1/cart/{id} [delete]
 func (h *HandlersShoppingCart) DeleteByID(c echo.Context) error {
 	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -145,7 +145,7 @@ func (h *HandlersShoppingCart) DeleteByID(c echo.Context) error {
 // @Param customer_id query int true "Customer ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/cart [delete]
+// @Router /store/api/v1/cart [delete]
 func (h *HandlersShoppingCart) DeleteAll(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 

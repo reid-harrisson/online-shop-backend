@@ -15,7 +15,7 @@ func NewRepositorySales(db *gorm.DB) *RepositorySales {
 }
 
 func (repository *RepositorySales) ReadSalesByProduct(modelSales *[]models.ProductSales, storeID uint64) error {
-	return repository.DB.Model(models.ProductOrders{}).Where("store_id = ?", storeID).
+	return repository.DB.Model(models.Orders{}).Where("store_id = ?", storeID).
 		Select(`
 			product_id As product_id,
 			Sum(quantity) As quantity,
@@ -37,7 +37,7 @@ func (repository *RepositorySales) ReadSalesByCategory(modelSales *[]models.Cate
 }
 
 func (repository *RepositorySales) ReadCLV(modelSales *[]models.CustomerSales, storeID uint64) error {
-	return repository.DB.Model(models.ProductOrders{}).Where("store_id = ?", storeID).
+	return repository.DB.Model(models.Orders{}).Where("store_id = ?", storeID).
 		Select(`
 			customer_id,
 			Sum(quantity) As quantity,
@@ -47,11 +47,11 @@ func (repository *RepositorySales) ReadCLV(modelSales *[]models.CustomerSales, s
 }
 
 func (repository *RepositorySales) ReadRevenue(modelSale *models.StoreSales, storeID uint64) error {
-	return repository.DB.Model(models.ProductOrders{}).Where("store_id = ?", storeID).
+	return repository.DB.Model(models.Orders{}).Where("store_id = ?", storeID).
 		Select("store_id,	Sum(total) As price").Scan(modelSale).Error
 }
 
 func (repository *RepositorySales) ReadAOV(modelSale *models.StoreSales, storeID uint64) error {
-	return repository.DB.Model(models.ProductOrders{}).Where("store_id = ?", storeID).
+	return repository.DB.Model(models.Orders{}).Where("store_id = ?", storeID).
 		Select("store_id,	Avg(total) As price").Scan(modelSale).Error
 }

@@ -37,7 +37,7 @@ func NewHandlersProductManagement(server *s.Server) *HandlersProductManagement {
 // @Param params body requests.RequestProduct true "Product Info"
 // @Success 201 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product [post]
+// @Router /store/api/v1/product [post]
 func (h *HandlersProductManagement) Create(c echo.Context) error {
 	req := new(requests.RequestProduct)
 	if err := c.Bind(req); err != nil {
@@ -60,7 +60,7 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Success 200 {object} responses.ResponseProductWithDetail
-// @Router /api/v1/product/{id} [get]
+// @Router /store/api/v1/product/{id} [get]
 func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	modelProduct := models.ProductsWithDetail{}
@@ -78,7 +78,7 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 // @Param store_id query int false "Store ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
-// @Router /api/v1/product [get]
+// @Router /store/api/v1/product [get]
 func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -99,7 +99,7 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 // @Param store_id query int false "Store ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} responses.ResponseProductsPaging
-// @Router /api/v1/product/paging [get]
+// @Router /store/api/v1/product/paging [get]
 func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 	page, _ := strconv.ParseUint(c.QueryParam("page"), 10, 64)
@@ -122,7 +122,7 @@ func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
 // @Param params body requests.RequestProduct true "Product Info"
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/{id} [put]
+// @Router /store/api/v1/product/{id} [put]
 func (h *HandlersProductManagement) Update(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -151,7 +151,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 // @Param id path int true "Product ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/{id} [delete]
+// @Router /store/api/v1/product/{id} [delete]
 func (h *HandlersProductManagement) Delete(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -172,7 +172,7 @@ func (h *HandlersProductManagement) Delete(c echo.Context) error {
 // @Param params body requests.RequestProductCategory true "Product Info"
 // @Success 200 {object} []responses.ResponseCategory
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/category/{id} [put]
+// @Router /store/api/v1/product/category/{id} [put]
 func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -200,7 +200,7 @@ func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
 // @Param params body requests.RequestProductChannel true "Product Channel Info"
 // @Success 200 {object} []responses.ResponseProductChannel
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/channel/{id} [put]
+// @Router /store/api/v1/product/channel/{id} [put]
 func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestProductChannel)
@@ -234,7 +234,7 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 // @Param params body requests.RequestProductContent true "Product Content Info"
 // @Success 200 {object} []responses.ResponseProductContent
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/content/{id} [put]
+// @Router /store/api/v1/product/content/{id} [put]
 func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestProductContent)
@@ -268,7 +268,7 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 // @Param params body requests.RequestTag true "Tags"
 // @Success 200 {object} []responses.ResponseTag
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/tag/{id} [put]
+// @Router /store/api/v1/product/tag/{id} [put]
 func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestTag)
@@ -295,7 +295,7 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 // @Param params body requests.RequestAttribute true "Attributes"
 // @Success 201 {object} []responses.ResponseProductAttribute
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/attribute/{id} [post]
+// @Router /store/api/v1/product/attribute/{id} [post]
 func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestAttribute)
@@ -331,7 +331,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 // @Param params body requests.RequestAttribute true "Attributes"
 // @Success 200 {object} []responses.ResponseProductAttribute
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/attribute/{id} [put]
+// @Router /store/api/v1/product/attribute/{id} [put]
 func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
@@ -366,7 +366,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 // @Param attribute_id query int true "Attribute ID"
 // @Success 200 {object} []responses.Data
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/attribute [delete]
+// @Router /store/api/v1/product/attribute [delete]
 func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
 
@@ -395,7 +395,7 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 // @Param params body requests.RequestProductVariation true "Attributes"
 // @Success 200 {object} []responses.ResponseProductVariation
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/variation/{id} [put]
+// @Router /store/api/v1/product/variation/{id} [put]
 func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
@@ -433,7 +433,7 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 // @Param params body requests.RequestMinimumStockLevel true "Minimum Stock Level"
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/min-stock-level/{id} [put]
+// @Router /store/api/v1/product/min-stock-level/{id} [put]
 func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestMinimumStockLevel)
@@ -465,7 +465,7 @@ func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) erro
 // @Param params body requests.RequestShippingData true "Shipping Data"
 // @Success 201 {object} responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/shipping/{id} [post]
+// @Router /store/api/v1/product/shipping/{id} [post]
 func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestShippingData)
@@ -496,7 +496,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 // @Param params body requests.RequestShippingData true "Review"
 // @Success 200 {object} responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/shipping/{id} [put]
+// @Router /store/api/v1/product/shipping/{id} [put]
 func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestShippingData)
@@ -528,7 +528,7 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 // @Param params body requests.RequestShippingData true "Review"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/product/shipping/{id} [delete]
+// @Router /store/api/v1/product/shipping/{id} [delete]
 func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 

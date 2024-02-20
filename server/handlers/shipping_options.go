@@ -28,7 +28,7 @@ func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 // @Param params body requests.RequestShippingMethod true "Shipping Method"
 // @Success 200 {object} []responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/shipping-option/method [get]
+// @Router /store/api/v1/shipping-option/method [get]
 func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
 	req := new(requests.RequestShippingMethod)
 	if err := c.Bind(req); err != nil {

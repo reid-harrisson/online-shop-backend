@@ -31,7 +31,7 @@ func NewHandlersCategories(server *s.Server) *HandlersCategories {
 // @Param params body requests.RequestCategory true "Category"
 // @Success 201 {object} []responses.ResponseStoreCategory
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/category [post]
+// @Router /store/api/v1/category [post]
 func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	req := new(requests.RequestCategory)
@@ -62,7 +62,7 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseStoreCategory
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/category [get]
+// @Router /store/api/v1/category [get]
 func (h *HandlersCategories) ReadCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -84,7 +84,7 @@ func (h *HandlersCategories) ReadCategory(c echo.Context) error {
 // @Param name query string false "Name"
 // @Success 200 {object} []responses.ResponseStoreCategory
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/category/{id} [put]
+// @Router /store/api/v1/category/{id} [put]
 func (h *HandlersCategories) UpdateCategory(c echo.Context) error {
 	categoryID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -115,7 +115,7 @@ func (h *HandlersCategories) UpdateCategory(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseStoreCategory
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/category/{id} [delete]
+// @Router /store/api/v1/category/{id} [delete]
 func (h *HandlersCategories) DeleteCategory(c echo.Context) error {
 	categoryID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
