@@ -21,7 +21,7 @@ func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 
 // Refresh godoc
 // @Summary Set shipping method
-// @Tags shipping options
+// @Tags Shipping Options
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

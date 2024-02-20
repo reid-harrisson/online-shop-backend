@@ -21,7 +21,7 @@ func NewHandlersSalesMetrics(server *s.Server) *HandlersSalesMetrics {
 
 // Refresh godoc
 // @Summary Show Revenue
-// @Tags sales performance metrics
+// @Tags Sales Performance Metrics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -40,7 +40,7 @@ func (h *HandlersSalesMetrics) ReadRevenue(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Show average order value(AOV)
-// @Tags sales performance metrics
+// @Tags Sales Performance Metrics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -59,7 +59,7 @@ func (h *HandlersSalesMetrics) ReadAOV(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Show sales by product
-// @Tags sales performance metrics
+// @Tags Sales Performance Metrics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -78,7 +78,7 @@ func (h *HandlersSalesMetrics) ReadSalesByProduct(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Show sales by category
-// @Tags sales performance metrics
+// @Tags Sales Performance Metrics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -97,7 +97,7 @@ func (h *HandlersSalesMetrics) ReadSalesByCategory(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Show customer lifetime value(CLV)
-// @Tags sales performance metrics
+// @Tags Sales Performance Metrics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
