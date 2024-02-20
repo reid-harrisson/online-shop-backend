@@ -121,5 +121,5 @@ func (h *HandlersProductReviews) ModerateReview(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	return responses.NewResponseReview(c, http.StatusCreated, modelProductReview)
+	return responses.NewResponseReview(c, http.StatusOK, modelProductReview)
 }

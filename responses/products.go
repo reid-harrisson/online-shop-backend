@@ -35,7 +35,7 @@ type ResponseProductWithDetail struct {
 	Tags            []string             `json:"tags"`
 	Categories      []string             `json:"categories"`
 	Attributes      []string             `json:"attributes"`
-	Variations      []map[string]string  `json:"variations"`
+	Variations      map[string][]string  `json:"variations"`
 	ShippingData    ResponseShippingData `json:"shipping_data"`
 }
 
@@ -87,22 +87,10 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		attributes = append(attributes, modelAttr.Name)
 	}
 
-	variations := make([]map[string]string, 0)
-	variationID := uint64(0)
-	if len(modelDetail.Variations) > 0 {
-		variationID = uint64(modelDetail.Variations[0].ID)
-	}
-	variation := make(map[string]string)
+	variations := make(map[string][]string, 0)
 	for _, modelVar := range modelDetail.Variations {
-		variation[modelVar.AttributeName] = modelVar.Variant
-		if uint64(modelVar.ID) != variationID {
-			variations = append(variations, variation)
-			variation = make(map[string]string)
-			variationID = uint64(modelVar.ID)
-		}
-	}
-	if len(variation) > 0 {
-		variations = append(variations, variation)
+		attributeName := modelVar.AttributeName
+		variations[attributeName] = append(variations[attributeName], modelVar.Variant+modelVar.AttributeUnit)
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{

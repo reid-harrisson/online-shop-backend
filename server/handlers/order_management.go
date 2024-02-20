@@ -2,13 +2,11 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
-	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	ordsvc "OnlineStoreBackend/services/product_orders"
-	"fmt"
+	cartsvc "OnlineStoreBackend/services/cart_items"
+	ordsvc "OnlineStoreBackend/services/orders"
 	"net/http"
 	"strconv"
 
@@ -25,119 +23,140 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 
 // Refresh godoc
 // @Summary Add order
-// @Tags order manangement
+// @Tags Order Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param customer_id query int true "Customer ID"
-// @Success 201 {object} responses.ResponseCustomerOrder
+// @Success 201 {object} []responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/order [post]
+// @Router /store/api/v1/order [post]
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
-	modelCarts := make([]models.CartItemWithPrice, 0)
-	modelOrders := make([]models.ProductOrders, 0)
-	modelTaxSet := models.TaxSettings{}
+	modelCarts := make([]models.CartItemsWithDetail, 0)
+	modelTax := models.TaxSettings{}
+	taxRepo := repositories.NewRepositoryTax(h.server.DB)
+	taxRepo.ReadTaxSetting(&modelTax, customerID)
+
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadPreview(&modelCarts, &modelTaxSet, customerID)
-	orderService := ordsvc.NewServiceProductOrder(h.server.DB)
-	if err := orderService.Create(&modelOrders, modelCarts, modelTaxSet, customerID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+	cartRepo.ReadDetail(&modelCarts, customerID)
+
+	cartService := cartsvc.NewServiceCartItem(h.server.DB)
+	cartService.DeleteAll(customerID)
+
+	modelOrder := models.Orders{}
+	orderService := ordsvc.NewServiceOrder(h.server.DB)
+	orderService.Create(&modelOrder, modelCarts, modelTax, customerID)
+	modelItems := make([]models.CustomerOrdersWithDetail, 0)
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
+	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
 }
 
 // Refresh godoc
-// @Summary View orders by ID
-// @Tags order manangement
+// @Summary Read orders by ID
+// @Tags Order Management
 // @Accept json
 // @Produce json
 // @Param id path int true "Order ID"
 // @Security ApiKeyAuth
-// @Success 200 {object} responses.ResponseCustomerOrder
+// @Success 200 {object} []responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/order/{id} [get]
+// @Router /store/api/v1/order/{id} [get]
 func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	modelOrders := make([]models.ProductOrders, 0)
+	modelOrders := make([]models.CustomerOrdersWithDetail, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByID(&modelOrders, id)
-	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+	orderRepo.ReadByOrderID(&modelOrders, id)
+	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrders)
 }
 
 // Refresh godoc
-// @Summary View orders
-// @Tags order manangement
+// @Summary Read orders by Store
+// @Tags Order Management
 // @Accept json
 // @Produce json
 // @Param store_id query int false "Store ID"
-// @Param customer_id query int false "Customer ID"
-// @Param product_id query int false "Product ID"
 // @Security ApiKeyAuth
-// @Success 200 {object} responses.ResponseCustomerOrder
+// @Success 200 {object} []responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/order [get]
-func (h *HandlersOrderManagement) Read(c echo.Context) error {
+// @Router /store/api/v1/order/store [get]
+func (h *HandlersOrderManagement) ReadByStoreID(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
-	modelOrders := make([]models.ProductOrders, 0)
+	modelOrders := make([]models.StoreOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.Read(&modelOrders, customerID, productID, storeID)
-	return responses.NewResponseProductOrders(c, http.StatusCreated, modelOrders)
+	orderRepo.ReadByStoreID(&modelOrders, storeID)
+	return responses.NewResponseStoreOrders(c, http.StatusOK, modelOrders)
+}
+
+// Refresh godoc
+// @Summary Read orders by Customer
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Param customer_id query int false "Customer ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} []responses.ResponseCustomerOrderWithDetail
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/customer [get]
+func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+
+	modelOrders := make([]models.CustomerOrders, 0)
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByCustomerID(&modelOrders, customerID)
+	return responses.NewResponseCustomerOrders(c, http.StatusOK, modelOrders)
 }
 
 // Refresh godoc
 // @Summary Edit order status
-// @Tags order manangement
+// @Tags Order Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Order ID"
-// @Param params body requests.RequestProductOrderStatus true "Status"
-// @Success 200 {object} []responses.ResponseProductOrder
+// @Param store_id query int true "Store ID"
+// @Param status query string ture "Status"
+// @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/order/status/{id} [put]
+// @Router /store/api/v1/order/status/{id} [put]
 func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestProductOrderStatus)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
+	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	status := c.QueryParam("status")
 
-	modelOrders := make([]models.ProductOrders, 0)
-	orderService := ordsvc.NewServiceProductOrder(h.server.DB)
-	if err := orderService.UpdateStatus(&modelOrders, req, id); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
+	orderService := ordsvc.NewServiceOrder(h.server.DB)
+	orderService.UpdateStatus(storeID, orderID, status)
 
-	fmt.Println("**#* -> ", modelOrders)
-	mailData := utils.MailData{
-		Name:            "PockitTV Contact Centre",
-		EmailFrom:       "araki@pockittv.com",
-		EmailTo:         "kaspersky3550879@gmail.com",
-		EmailPretext:    "Contact Centre",
-		Company:         "PockitTV",
-		Subject:         "Account Activation",
-		Phone:           "+12387621342",
-		SourceChannel:   "Sports",
-		BodyBlock:       "Body Block",
-		TargetTeam:      "PockitTv Contact Team",
-		BodyCtaBtnLabel: "ACTIVATE",
-		// BodyCtaBtnLink:             tempUser.ActivationLink,
-		BodyGreeting: "Hi",
-		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
-		CompanyID:    2,
-		// FirstName:                  tempUser.FirstName,
-		HeaderPosterImageUrl:       "",
-		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
-		HeaderPosterSloganTitle:    "ARE YOU READY?",
-	}
+	// mailData := utils.MailData{
+	// 	Name:            "PockitTV Contact Centre",
+	// 	EmailFrom:       "araki@pockittv.com",
+	// 	EmailTo:         "kaspersky3550879@gmail.com",
+	// 	EmailPretext:    "Contact Centre",
+	// 	Company:         "PockitTV",
+	// 	Subject:         "Account Activation",
+	// 	Phone:           "+12387621342",
+	// 	SourceChannel:   "Sports",
+	// 	BodyBlock:       "Body Block",
+	// 	TargetTeam:      "PockitTv Contact Team",
+	// 	BodyCtaBtnLabel: "ACTIVATE",
+	// 	// BodyCtaBtnLink:             tempUser.ActivationLink,
+	// 	BodyGreeting: "Hi",
+	// 	BodyHeading:  "ACTIVATE YOUR ACCOUNT",
+	// 	CompanyID:    2,
+	// 	// FirstName:                  tempUser.FirstName,
+	// 	HeaderPosterImageUrl:       "",
+	// 	HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
+	// 	HeaderPosterSloganTitle:    "ARE YOU READY?",
+	// }
+	// utils.HelperMail(h.server.Config.ExternalURL.String(), c, mailData)
 
-	utils.HelperMail(h.server.Config.ExternalURL.String(), c, mailData)
+	modelOrder := models.StoreOrders{}
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByStoreAndOrderID(&modelOrder, orderID, storeID)
 
-	return responses.NewResponseProductOrders(c, http.StatusOK, modelOrders)
+	return responses.NewResponseStoreOrder(c, http.StatusOK, modelOrder)
 }

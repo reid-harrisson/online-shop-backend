@@ -11,7 +11,7 @@ func (service *Service) Create(modelProductReview *models.ProductReviews, reques
 
 	modelProductReview.Comment = requestProductReview.Comment
 	modelProductReview.Rate = requestProductReview.Rate
-	modelProductReview.Status = 0
+	modelProductReview.Status = models.StatusReviewPending
 
 	return service.DB.Create(modelProductReview).Error
 }

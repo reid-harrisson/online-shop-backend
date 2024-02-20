@@ -21,6 +21,7 @@ func (repository *RepositoryTax) ReadTaxSetting(modelTax *models.TaxSettings, cu
 			? As customer_id`, customerID).
 		Joins("Join countries On countries.id = users.country_id").
 		Where("users.id = ?", customerID).
+		Where("countries.deleted_at Is Null And users.deleted_at Is Null").
 		Limit(1).
 		Scan(modelTax).
 		Error

@@ -28,7 +28,7 @@ func NewHandlersSalesMetrics(server *s.Server) *HandlersSalesMetrics {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} responses.ResponseSalesRevenue
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/analytic/sales/revenue [get]
+// @Router /store/api/v1/analytic/sales/revenue [get]
 func (h *HandlersSalesMetrics) ReadRevenue(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -47,7 +47,7 @@ func (h *HandlersSalesMetrics) ReadRevenue(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} responses.ResponseSalesAOV
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/analytic/sales/aov [get]
+// @Router /store/api/v1/analytic/sales/aov [get]
 func (h *HandlersSalesMetrics) ReadAOV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -66,7 +66,7 @@ func (h *HandlersSalesMetrics) ReadAOV(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} responses.ResponseSalesByProduct
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/analytic/sales/product [get]
+// @Router /store/api/v1/analytic/sales/product [get]
 func (h *HandlersSalesMetrics) ReadSalesByProduct(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -85,7 +85,7 @@ func (h *HandlersSalesMetrics) ReadSalesByProduct(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} responses.ResponseSalesByCategory
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/analytic/sales/category [get]
+// @Router /store/api/v1/analytic/sales/category [get]
 func (h *HandlersSalesMetrics) ReadSalesByCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -104,7 +104,7 @@ func (h *HandlersSalesMetrics) ReadSalesByCategory(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} responses.ResponseSalesCLV
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/analytic/sales/clv [get]
+// @Router /store/api/v1/analytic/sales/clv [get]
 func (h *HandlersSalesMetrics) ReadCLV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 

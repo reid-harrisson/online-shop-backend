@@ -28,7 +28,7 @@ func NewHandlersTaxSettings(server *s.Server) *HandlersTaxSettings {
 // @Param customer_id query int true "Customer ID"
 // @Success 200 {object} []responses.ResponseTaxSetting
 // @Failure 400 {object} responses.Error
-// @Router /api/v1/tax [get]
+// @Router /store/api/v1/tax [get]
 func (h *HandlersTaxSettings) ReadTaxSetting(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 

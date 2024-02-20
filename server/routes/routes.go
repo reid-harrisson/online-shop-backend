@@ -105,10 +105,9 @@ func GroupCategory(server *s.Server, e *echo.Group) {
 func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.ReadAll)
-	e.GET("/preview", handler.ReadPreview)
+	e.GET("", handler.Read)
 	e.PUT("/:id", handler.UpdateQuantity)
-	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/:id", handler.DeleteByID)
 	e.DELETE("", handler.DeleteAll)
 }
 
@@ -124,7 +123,8 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersOrderManagement(server)
 	e.POST("", handler.Create)
 	e.GET("/:id", handler.ReadByID)
-	e.GET("", handler.Read)
+	e.GET("/customer", handler.ReadByCustomerID)
+	e.GET("/store", handler.ReadByStoreID)
 	e.PUT("/status/:id", handler.UpdateStatus)
 }
 

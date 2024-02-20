@@ -7,13 +7,13 @@ func (service *Service) UpdateStatus(id uint64, modelReview *models.ProductRevie
 		return err
 	}
 
-	var status int8
+	var status models.ReviewStatuses
 
 	switch reviewStatus {
 	case "Approved":
-		status = 1
+		status = models.StatusReviewApproved
 	case "Blocked":
-		status = 2
+		status = models.StatusReviewBlocked
 	}
 
 	modelReview.Status = status
