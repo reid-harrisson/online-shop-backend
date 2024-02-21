@@ -230,8 +230,40 @@ func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {
 	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
 }
 
-func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) error {}
+func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
-func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {}
+	modelEmailTemplates := make([]models.EmailTemplate, 0)
 
-func (h *HandlersOrderManagement) DeleteEmailTemplate(c echo.Context) error {}
+	emailTemplateRepository := repositories.NewRepositoryEmailTemplate(h.server.DB)
+	emailTemplateRepository.ReadEmailTemplateByStoreID(&modelEmailTemplates, storeID)
+
+	return responses.NewResponseEmailTemplates(c, http.StatusOK, modelEmailTemplates)
+}
+
+func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {
+	emailTemplateID, _ := strconv.ParseUint(c.QueryParam("id"), 10, 64)
+	requestEmailTemplate := new(requests.RequestEmailTemplate)
+
+	modelEmailTemplate := models.EmailTemplate{}
+
+	emailTemplateService := etsvc.NewServiceEmailTemplate(h.server.DB)
+	if err := emailTemplateService.Update(emailTemplateID, &modelEmailTemplate, requestEmailTemplate); err != nil {
+		return responses.Response(c, http.StatusBadRequest, "No record found.")
+	}
+
+	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
+}
+
+func (h *HandlersOrderManagement) DeleteEmailTemplate(c echo.Context) error {
+	emailTemplateID, _ := strconv.ParseUint(c.QueryParam("id"), 10, 64)
+
+	modelEmailTemplates := make([]models.EmailTemplate, 0)
+
+	emailTemplateService := etsvc.NewServiceEmailTemplate(h.server.DB)
+	if err := emailTemplateService.Delete(emailTemplateID); err != nil {
+		return responses.Response(c, http.StatusBadRequest, "No record found.")
+	}
+
+	return responses.NewResponseEmailTemplates(c, http.StatusCreated, modelEmailTemplates)
+}
