@@ -60,8 +60,8 @@ func (h *HandlersCustomers) ReadCustomerAddress(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	modelAddrs := make([]models.CustomerAddresses, 0)
-	cusRepo := repositories.NewRepositoryCustomer(h.server.DB)
-	cusRepo.ReadAddressByCustomerID(&modelAddrs, customerID)
+	addrRepo := repositories.NewRepositoryCustomer(h.server.DB)
+	addrRepo.ReadAddressesByCustomerID(&modelAddrs, customerID)
 
 	return responses.NewResponseCustomerAddresses(c, http.StatusOK, modelAddrs)
 }

@@ -53,3 +53,11 @@ func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus
 		Where("id = ?", orderID).
 		Update("status", status)
 }
+
+func (service *Service) UpdateBillingAddress(orderID uint64, addressID uint64) {
+	service.DB.Model(models.Orders{}).Update("billing_address_id", addressID)
+}
+
+func (service *Service) UpdateShippingAddress(orderID uint64, addressID uint64) {
+	service.DB.Model(models.Orders{}).Update("shipping_address_id", addressID)
+}

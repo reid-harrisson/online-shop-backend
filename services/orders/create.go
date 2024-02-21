@@ -3,14 +3,26 @@ package ordsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"OnlineStoreBackend/repositories"
+	addrsvc "OnlineStoreBackend/services/customer_addresses"
 	orditmsvc "OnlineStoreBackend/services/order_items"
 )
 
 func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
 	modelOrder.CustomerID = customerID
 	modelOrder.Status = models.StatusOrderPending
-	modelOrder.BillingAddress = ""
-	modelOrder.ShippingAddress = ""
+
+	modelAddr := models.CustomerAddresses{}
+	addrRepo := repositories.NewRepositoryCustomer(service.DB)
+	addrRepo.ReadAddressByCustomerID(&modelAddr, customerID)
+
+	if modelAddr.ID == 0 {
+		addrService := addrsvc.NewServiceCustomerAddress(service.DB)
+		addrService.CreateFromUser(&modelAddr, customerID)
+	}
+
+	modelOrder.BillingAddressID = uint64(modelAddr.ID)
+	modelOrder.ShippingAddressID = uint64(modelAddr.ID)
 	service.DB.Create(&modelOrder)
 
 	orderID := modelOrder.ID

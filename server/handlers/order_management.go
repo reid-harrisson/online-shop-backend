@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
@@ -28,7 +29,7 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param customer_id query int true "Customer ID"
-// @Success 201 {object} []responses.ResponseCustomerOrderWithDetail
+// @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order [post]
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
@@ -61,7 +62,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 // @Produce json
 // @Param id path int true "Order ID"
 // @Security ApiKeyAuth
-// @Success 200 {object} []responses.ResponseCustomerOrderWithDetail
+// @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/{id} [get]
 func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
@@ -99,7 +100,7 @@ func (h *HandlersOrderManagement) ReadByStoreID(c echo.Context) error {
 // @Produce json
 // @Param customer_id query int false "Customer ID"
 // @Security ApiKeyAuth
-// @Success 200 {object} []responses.ResponseCustomerOrderWithDetail
+// @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/customer [get]
 func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
@@ -131,32 +132,82 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 	orderService := ordsvc.NewServiceOrder(h.server.DB)
 	orderService.UpdateStatus(storeID, orderID, status)
 
-	// mailData := utils.MailData{
-	// 	Name:            "PockitTV Contact Centre",
-	// 	EmailFrom:       "araki@pockittv.com",
-	// 	EmailTo:         "kaspersky3550879@gmail.com",
-	// 	EmailPretext:    "Contact Centre",
-	// 	Company:         "PockitTV",
-	// 	Subject:         "Account Activation",
-	// 	Phone:           "+12387621342",
-	// 	SourceChannel:   "Sports",
-	// 	BodyBlock:       "Body Block",
-	// 	TargetTeam:      "PockitTv Contact Team",
-	// 	BodyCtaBtnLabel: "ACTIVATE",
-	// 	// BodyCtaBtnLink:             tempUser.ActivationLink,
-	// 	BodyGreeting: "Hi",
-	// 	BodyHeading:  "ACTIVATE YOUR ACCOUNT",
-	// 	CompanyID:    2,
-	// 	// FirstName:                  tempUser.FirstName,
-	// 	HeaderPosterImageUrl:       "",
-	// 	HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
-	// 	HeaderPosterSloganTitle:    "ARE YOU READY?",
-	// }
-	// utils.HelperMail(h.server.Config.ExternalURL.String(), c, mailData)
+	mailData := utils.MailData{
+		Name:            "PockitTV Contact Centre",
+		EmailFrom:       "araki@pockittv.com",
+		EmailTo:         "kaspersky3550879@gmail.com",
+		EmailPretext:    "Contact Centre",
+		Company:         "PockitTV",
+		Subject:         "Account Activation",
+		Phone:           "+12387621342",
+		SourceChannel:   "Sports",
+		BodyBlock:       "Body Block",
+		TargetTeam:      "PockitTv Contact Team",
+		BodyCtaBtnLabel: "ACTIVATE",
+		// BodyCtaBtnLink:             tempUser.ActivationLink,
+		BodyGreeting: "Hi",
+		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
+		CompanyID:    2,
+		// FirstName:                  tempUser.FirstName,
+		HeaderPosterImageUrl:       "",
+		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
+		HeaderPosterSloganTitle:    "ARE YOU READY?",
+	}
+	utils.HelperMail(h.server.Config.ExternalURL.String(), c, mailData)
 
 	modelOrder := models.StoreOrders{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByStoreAndOrderID(&modelOrder, orderID, storeID)
 
 	return responses.NewResponseStoreOrder(c, http.StatusOK, modelOrder)
+}
+
+// Refresh godoc
+// @Summary Edit order billing address
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Order ID"
+// @Param address_id query int true "Address ID"
+// @Success 200 {object} responses.ResponseCustomerOrderWithDetail
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/billing-address/{id} [put]
+func (h *HandlersOrderManagement) UpdateBillingAddress(c echo.Context) error {
+	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	addressID, _ := strconv.ParseUint(c.QueryParam("address_id"), 10, 64)
+
+	orderService := ordsvc.NewServiceOrder(h.server.DB)
+	orderService.UpdateBillingAddress(orderID, addressID)
+
+	modelOrder := make([]models.CustomerOrdersWithDetail, 0)
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByOrderID(&modelOrder, orderID)
+
+	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
+}
+
+// Refresh godoc
+// @Summary Edit order shipping address
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Order ID"
+// @Param address_id query int true "Address ID"
+// @Success 200 {object} responses.ResponseCustomerOrderWithDetail
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/shipping-address/{id} [put]
+func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
+	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	addressID, _ := strconv.ParseUint(c.QueryParam("address_id"), 10, 64)
+
+	orderService := ordsvc.NewServiceOrder(h.server.DB)
+	orderService.UpdateShippingAddress(orderID, addressID)
+
+	modelOrder := make([]models.CustomerOrdersWithDetail, 0)
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByOrderID(&modelOrder, orderID)
+
+	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
 }

@@ -132,6 +132,8 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	e.GET("/customer", handler.ReadByCustomerID)
 	e.GET("/store", handler.ReadByStoreID)
 	e.PUT("/status/:id", handler.UpdateStatus)
+	e.PUT("/billing-address/:id", handler.UpdateBillingAddress)
+	e.PUT("/shipping-address/:id", handler.UpdateShippingAddress)
 }
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {

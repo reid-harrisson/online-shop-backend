@@ -91,10 +91,19 @@ func (repository *RepositoryOrder) ReadByOrderID(modelOrders *[]models.CustomerO
 			soi.tax_amount,
 			soi.shipping_method,
 			soi.shipping_price,
-			soi.total_price
+			soi.total_price,
+			so.billing_address_id,
+			so.shipping_address_id
 		`).
 		Joins(`Right Join store_order_items As soi On soi.order_id = so.id`).
 		Where("so.id = ?", orderID).
 		Where("so.deleted_at Is Null And soi.deleted_at Is Null").
 		Scan(modelOrders)
+	addrRepo := NewRepositoryCustomer(repository.DB)
+	for _, modelOrder := range *modelOrders {
+		modelOrder.BillingAddress = new(models.CustomerAddresses)
+		modelOrder.ShippingAddress = new(models.CustomerAddresses)
+		addrRepo.ReadAddressByID(modelOrder.BillingAddress, modelOrder.BillingAddressID)
+		addrRepo.ReadAddressByID(modelOrder.ShippingAddress, modelOrder.ShippingAddressID)
+	}
 }
