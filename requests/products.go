@@ -10,6 +10,7 @@ type RequestProduct struct {
 	ImageUrls        []string `json:"image_urls" example:"https://www.pockittv.com/images/companies/63/products/bg_645a225496947_stirrup-cover-red-brass.webp,https://www.pockittv.com/images/companies/63/products/bg_645a339f5bef2_tall-black.webp"`
 	UnitPriceRegular float64  `json:"unit_price_regular" example:"1.3"`
 	StockQuantity    float64  `json:"stock_quantity" example:"47"`
+	CategoryID       uint64   `json:"category_id" example:"5"`
 	Active           int8     `json:"active" example:"1"`
 }
 

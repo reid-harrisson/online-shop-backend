@@ -71,7 +71,7 @@ func ConfigureRoutes(server *s.Server) {
 	groupTaxSettings := apiV1.Group("/tax")
 	GroupTaxSettings(server, groupTaxSettings)
 
-	groupShippingOption := apiV1.Group("/shipping-option")
+	groupShippingOption := apiV1.Group("/shipping")
 	GroupShippingOption(server, groupShippingOption)
 }
 
@@ -85,7 +85,6 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/paging", handler.ReadPaging)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/attribute/:id", handler.UpdateAttributes)
-	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
@@ -159,6 +158,8 @@ func GroupTaxSettings(server *s.Server, e *echo.Group) {
 }
 
 func GroupShippingOption(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersTaxSettings(server)
-	e.GET("", handler.ReadTaxSetting)
+	handler := handlers.NewHandlersShippingOptions(server)
+	e.GET("/store", handler.ReadShippingOption)
+	e.POST("/store", handler.CreateShippingOption)
+	e.PUT("/order", handler.UpdateShippingMethod)
 }

@@ -15,22 +15,6 @@ type StoreCategoriesWithChildren struct {
 	ChildrenIDs []uint64 `gorm:"column:children_ids"`
 }
 
-type ProductCategories struct {
-	gorm.Model
-
-	ProductID  uint64 `gorm:"column:product_id; type:bigint(20) unsigned"`
-	CategoryID uint64 `gorm:"column:category_id; type:bigint(20) unsigned"`
-}
-
 func (BaseCategories) TableName() string {
 	return "store_categories"
-}
-
-func (ProductCategories) TableName() string {
-	return "store_product_categories"
-}
-
-type ProductCategoriesWithName struct {
-	ProductCategories
-	CategoryName string `gorm:"column:category_name"`
 }

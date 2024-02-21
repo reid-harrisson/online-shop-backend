@@ -25,6 +25,10 @@ type ResponseProductShippingData struct {
 	Classification string  `json:"classification"`
 }
 
+type ResponseShippingMethod struct {
+	Method string `json:"method"`
+}
+
 func NewResponseShippingData(c echo.Context, statusCode int, modelShipData models.ShippingData) error {
 	responseShipData := ResponseProductShippingData{
 		ID:             uint64(modelShipData.ID),
@@ -36,4 +40,27 @@ func NewResponseShippingData(c echo.Context, statusCode int, modelShipData model
 		Classification: modelShipData.Classification,
 	}
 	return Response(c, statusCode, responseShipData)
+}
+
+func NewResponseShippingMethod(c echo.Context, statusCode int, modelOptions []models.ShippingOptions) error {
+	responseMethods := make([]ResponseShippingMethod, 0)
+	for _, modelOption := range modelOptions {
+		method := ""
+		switch modelOption.Method {
+		case models.MethodPickUp:
+			method = "Pick Up"
+		case models.MethodFlatRate:
+			method = "Flat Rate"
+		case models.MethodTableRate:
+			method = "Table Rate"
+		case models.MethodFreeShipping:
+			method = "Free Shipping"
+		case models.MethodRealTime:
+			method = "Real Time"
+		}
+		responseMethods = append(responseMethods, ResponseShippingMethod{
+			Method: method,
+		})
+	}
+	return Response(c, statusCode, responseMethods)
 }

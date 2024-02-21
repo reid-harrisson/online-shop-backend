@@ -21,19 +21,6 @@ type ResponseStoreCategory struct {
 	ChildrenIDs []uint64 `json:"children_ids"`
 }
 
-func NewResponseProductCategories(c echo.Context, statusCode int, modelCategories []models.ProductCategoriesWithName) error {
-	responseCategories := make([]ResponseCategory, 0)
-	for _, modelCategory := range modelCategories {
-		responseCategories = append(responseCategories, ResponseCategory{
-			ID:           uint64(modelCategory.ID),
-			ProductID:    modelCategory.ProductID,
-			CategoryID:   modelCategory.CategoryID,
-			CategoryName: modelCategory.CategoryName,
-		})
-	}
-	return Response(c, statusCode, responseCategories)
-}
-
 func NewResponseStoreCategories(c echo.Context, statusCode int, modelCategories []models.StoreCategoriesWithChildren) error {
 	responseTags := make([]ResponseStoreCategory, 0)
 	for _, modelCategory := range modelCategories {

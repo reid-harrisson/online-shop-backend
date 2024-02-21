@@ -19,6 +19,8 @@ type ResponseProduct struct {
 	UnitPriceSale     float64  `json:"unit_price_sale"`
 	MinimumStockLevel float64  `json:"minimum_stock_level"`
 	MaximumStockLevel float64  `json:"maximum_stock_level"`
+	Category          string   `json:"category"`
+	CategoryID        uint64   `json:"category_id"`
 	StockQuantity     float64  `json:"stock_quantity"`
 	Active            int8     `json:"active"`
 }
@@ -33,13 +35,12 @@ type ResponseProductWithDetail struct {
 	RelatedChannels []uint64             `json:"related_channels"`
 	RelatedContents []uint64             `json:"related_contents"`
 	Tags            []string             `json:"tags"`
-	Categories      []string             `json:"categories"`
 	Attributes      []string             `json:"attributes"`
 	Variations      map[string][]string  `json:"variations"`
 	ShippingData    ResponseShippingData `json:"shipping_data"`
 }
 
-func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Products) error {
+func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.ProductsWithCategory) error {
 	imageUrls := make([]string, 0)
 	json.Unmarshal([]byte(modelProduct.ImageUrls), &imageUrls)
 	responseProduct := ResponseProduct{
@@ -54,6 +55,8 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		UnitPriceSale:    modelProduct.UnitPriceSale,
 		StockQuantity:    modelProduct.StockQuantity,
 		Active:           modelProduct.Active,
+		Category:         modelProduct.Category,
+		CategoryID:       modelProduct.CategoryID,
 	}
 	return Response(c, statusCode, responseProduct)
 }
@@ -75,11 +78,6 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 	tags := make([]string, 0)
 	for _, modelTag := range modelDetail.Tags {
 		tags = append(tags, modelTag.TagName)
-	}
-
-	categories := make([]string, 0)
-	for _, modelCategory := range modelDetail.Categories {
-		categories = append(categories, modelCategory.CategoryName)
 	}
 
 	attributes := make([]string, 0)
@@ -107,11 +105,11 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 			MinimumStockLevel: modelDetail.MinimumStockLevel,
 			StockQuantity:     modelDetail.StockQuantity,
 			Active:            modelDetail.Active,
+			Category:          modelDetail.Category,
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
 		Tags:            tags,
-		Categories:      categories,
 		Attributes:      attributes,
 		Variations:      variations,
 		ShippingData: ResponseShippingData{
@@ -125,7 +123,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 	})
 }
 
-func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.Products) error {
+func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.ProductsWithCategory) error {
 	responseProducts := make([]ResponseProduct, 0)
 	for _, modelProduct := range modelProducts {
 		imageUrls := make([]string, 0)
@@ -141,13 +139,15 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			UnitPriceRegular: modelProduct.UnitPriceRegular,
 			UnitPriceSale:    modelProduct.UnitPriceSale,
 			StockQuantity:    modelProduct.StockQuantity,
+			Category:         modelProduct.Category,
+			CategoryID:       modelProduct.CategoryID,
 			Active:           modelProduct.Active,
 		})
 	}
 	return Response(c, statusCode, responseProducts)
 }
 
-func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []models.Products, totalCount uint64) error {
+func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []models.ProductsWithCategory, totalCount uint64) error {
 	responseProducts := make([]ResponseProduct, 0)
 	for _, modelProduct := range modelProducts {
 		imageUrls := make([]string, 0)
@@ -164,6 +164,8 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			UnitPriceSale:    modelProduct.UnitPriceSale,
 			StockQuantity:    modelProduct.StockQuantity,
 			Active:           modelProduct.Active,
+			Category:         modelProduct.Category,
+			CategoryID:       modelProduct.CategoryID,
 		})
 	}
 	return Response(c, statusCode, ResponseProductsPaging{

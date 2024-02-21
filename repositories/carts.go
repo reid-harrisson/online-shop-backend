@@ -28,15 +28,17 @@ func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItem
 
 func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartItemCount, customerID uint64) {
 	repository.DB.
+		Model(models.CartItems{}).
 		Select(`
-			Count(id) As count,
+			Count(id) As count
 		`).
 		Where("customer_id = ?", customerID).
 		Scan(modelCount)
 }
 
 func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {
-	repository.DB.Table("store_cart_items As carts").
+	repository.DB.
+		Table("store_cart_items As carts").
 		Select(`carts.*,
 			prods.store_id As store_id,
 			prods.unit_price_sale * carts.quantity As total_price, 
@@ -45,9 +47,8 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 			prods.title As product_name,
 			cates.name As category`).
 		Joins("Left Join store_products As prods On prods.id = carts.product_id").
-		Joins("Left Join store_product_categories As prodcates On prodcates.product_id = prods.id").
-		Joins("Left Join store_categories As cates On cates.id = prodcates.category_id").
+		Joins("Left Join store_categories As cates On cates.id = prods.category_id").
 		Where("carts.customer_id = ?", customerID).
-		Where("carts.deleted_at Is Null And prods.deleted_at Is Null And cates.deleted_at Is Null And prodcates.deleted_at Is Null").
+		Where("carts.deleted_at Is Null And prods.deleted_at Is Null And cates.deleted_at Is Null").
 		Scan(modelItems)
 }
