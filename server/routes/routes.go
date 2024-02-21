@@ -137,8 +137,8 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/status/:id", handler.UpdateStatus)
 	e.PUT("/billing-address/:id", handler.UpdateBillingAddress)
 	e.PUT("/shipping-address/:id", handler.UpdateShippingAddress)
-	e.PUT("/email-template", handler.UpdateEmailTemplate)
-	e.DELETE("/email-template", handler.DeleteEmailTemplate)
+	e.PUT("/email-template/:id", handler.UpdateEmailTemplate)
+	e.DELETE("/email-template/:id", handler.DeleteEmailTemplate)
 }
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {

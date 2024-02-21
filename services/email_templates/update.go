@@ -6,6 +6,7 @@ import (
 )
 
 func (service *Service) Update(emailTemplateID uint64, modelEmailTemplate *models.EmailTemplate, requestEmailTemplate *requests.RequestEmailTemplate) error {
+	modelEmailTemplate.ID = uint(emailTemplateID)
 	modelEmailTemplate.StoreID = requestEmailTemplate.StoreID
 	modelEmailTemplate.OrderStatus = requestEmailTemplate.OrderStatus
 	modelEmailTemplate.CompanyName = requestEmailTemplate.CompanyName
@@ -24,6 +25,6 @@ func (service *Service) Update(emailTemplateID uint64, modelEmailTemplate *model
 	modelEmailTemplate.UnsubscribeLink = requestEmailTemplate.UnsubscribeLink
 	modelEmailTemplate.UnsubscribeSafeLink = requestEmailTemplate.UnsubscribeSafeLink
 
-	service.DB.Save(&modelEmailTemplate)
+	service.DB.Save(modelEmailTemplate)
 	return nil
 }

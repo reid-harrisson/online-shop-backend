@@ -5,7 +5,6 @@ import "github.com/jinzhu/gorm"
 type EmailTemplate struct {
 	gorm.Model
 
-	ProductID                  uint64 `gorm:"column:product_id; type:bigint(20) unsigned"`
 	StoreID                    uint64 `gorm:"column:store_id; type:bigint(20) unsigned"`
 	OrderStatus                uint64 `gorm:"column:order_status; type:tinyint(4)"`
 	CompanyName                string `gorm:"column:company_name; type:varchar(100)"`

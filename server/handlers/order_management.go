@@ -214,6 +214,16 @@ func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
 }
 
+// Refresh godoc
+// @Summary Read Email Templates By Store ID
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param params body requests.RequestEmailTemplate true "Email Template Data"
+// @Success 200 {object} responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/email-template [post]
 func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {
 	requestEmailTemplate := new(requests.RequestEmailTemplate)
 
@@ -230,8 +240,18 @@ func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {
 	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
 }
 
+// Refresh godoc
+// @Summary Read Email Templates By Store ID
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Success 200 {object} []responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/email-template/{id} [get]
 func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelEmailTemplates := make([]models.EmailTemplate, 0)
 
@@ -241,9 +261,26 @@ func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) err
 	return responses.NewResponseEmailTemplates(c, http.StatusOK, modelEmailTemplates)
 }
 
+// Refresh godoc
+// @Summary Update Email Template
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Email Template ID"
+// @Param params body requests.RequestEmailTemplate true "Email Template Data"
+// @Success 200 {object} responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/email-template/{id} [put]
 func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {
-	emailTemplateID, _ := strconv.ParseUint(c.QueryParam("id"), 10, 64)
+	emailTemplateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	requestEmailTemplate := new(requests.RequestEmailTemplate)
+
+	if err := c.Bind(requestEmailTemplate); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	} else if err := requestEmailTemplate.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
 
 	modelEmailTemplate := models.EmailTemplate{}
 
@@ -255,15 +292,23 @@ func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {
 	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
 }
 
+// Refresh godoc
+// @Summary Delete Email Template
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Email Template ID"
+// @Success 200 {object} []responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/email-template/{id} [delete]
 func (h *HandlersOrderManagement) DeleteEmailTemplate(c echo.Context) error {
-	emailTemplateID, _ := strconv.ParseUint(c.QueryParam("id"), 10, 64)
-
-	modelEmailTemplates := make([]models.EmailTemplate, 0)
+	emailTemplateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	emailTemplateService := etsvc.NewServiceEmailTemplate(h.server.DB)
 	if err := emailTemplateService.Delete(emailTemplateID); err != nil {
 		return responses.Response(c, http.StatusBadRequest, "No record found.")
 	}
 
-	return responses.NewResponseEmailTemplates(c, http.StatusCreated, modelEmailTemplates)
+	return responses.MessageResponse(c, http.StatusCreated, "Successfully deleted")
 }

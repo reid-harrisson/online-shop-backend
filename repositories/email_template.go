@@ -16,7 +16,7 @@ func NewRepositoryEmailTemplate(db *gorm.DB) *RepositoryEmailTemplate {
 
 func (repository *RepositoryEmailTemplate) ReadEmailTemplateByStoreID(modelStore *[]models.EmailTemplate, storeID uint64) error {
 	return repository.DB.
-		Where("id = ?", storeID).
+		Where("store_id = ?", storeID).
 		Find(modelStore).
 		Error
 }
