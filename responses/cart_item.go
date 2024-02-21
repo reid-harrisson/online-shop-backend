@@ -30,6 +30,10 @@ type ResponseCart struct {
 	TotalPrice float64             `json:"total_price"`
 }
 
+type ResponseCartCount struct {
+	Count uint64 `json:"count"`
+}
+
 func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.CartItemsWithDetail) error {
 	allCartItems := make(map[uint64][]models.CartItemsWithDetail)
 	responseStoreCarts := make([]ResponseStoreCart, 0)
@@ -71,5 +75,11 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 	return Response(c, statusCode, ResponseCart{
 		Stores:     responseStoreCarts,
 		TotalPrice: totalPrice,
+	})
+}
+
+func NewResponseCartItemCount(c echo.Context, statusCode int, modelCount models.CartItemCount) error {
+	return Response(c, statusCode, ResponseCartCount{
+		Count: modelCount.Count,
 	})
 }

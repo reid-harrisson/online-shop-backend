@@ -21,7 +21,7 @@ func NewHandlersTaxSettings(server *s.Server) *HandlersTaxSettings {
 
 // Refresh godoc
 // @Summary View tax rates
-// @Tags tax settings
+// @Tags Tax Settings
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

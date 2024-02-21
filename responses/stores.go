@@ -7,19 +7,18 @@ import (
 )
 
 type ResponseStore struct {
-	ID                   uint64  `json:"id"`
-	CompanyID            uint64  `json:"company_id"`
-	OwnerID              uint64  `json:"owner_id"`
-	ContactPhone         string  `json:"contact_phone"`
-	ContactEmail         string  `json:"contact_email"`
-	ShowStockLevelStatus int8    `json:"show_stock_level"`
-	ShowOutOfStockStatus int8    `json:"show_out_of_stock_products"`
-	IsBackOrder          int8    `json:"show_back_order"`
-	DeliveryPolicy       string  `json:"delivery_policy"`
-	ReturnsPolicy        string  `json:"returns_policy"`
-	Terms                string  `json:"terms"`
-	FlatRateShipping     float64 `json:"flat_rate_shipping"`
-	Active               int8    `json:"active"`
+	ID                   uint64 `json:"id"`
+	CompanyID            uint64 `json:"company_id"`
+	OwnerID              uint64 `json:"owner_id"`
+	ContactPhone         string `json:"contact_phone"`
+	ContactEmail         string `json:"contact_email"`
+	ShowStockLevelStatus int8   `json:"show_stock_level_status"`
+	ShowOutOfStockStatus int8   `json:"show_out_of_stock_status"`
+	IsBackOrder          int8   `json:"is_back_order"`
+	DeliveryPolicy       string `json:"delivery_policy"`
+	ReturnsPolicy        string `json:"returns_policy"`
+	Terms                string `json:"terms"`
+	Active               int8   `json:"active"`
 }
 
 type ResponseShowOutOfStockStatus struct {

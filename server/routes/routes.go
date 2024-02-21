@@ -62,6 +62,9 @@ func ConfigureRoutes(server *s.Server) {
 	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
 
+	groupGeneralStoreOffering := apiV1.Group("/store")
+	GroupGeneralStoreOffering(server, groupGeneralStoreOffering)
+
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
 	GroupSalesMetrices(server, groupSalesMetrics)
 
@@ -106,6 +109,7 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
 	e.GET("", handler.Read)
+	e.GET("/count", handler.ReadItemCount)
 	e.PUT("/:id", handler.UpdateQuantity)
 	e.DELETE("/:id", handler.DeleteByID)
 	e.DELETE("", handler.DeleteAll)
@@ -130,10 +134,14 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
-	e.POST("", handler.Create)
 	e.PUT("/backorder/:id", handler.UpdateBackOrder)
 	e.PUT("/level/:id", handler.UpdateShowStockLevelStatus)
 	e.PUT("/out/:id", handler.UpdateShowOutOfStockStatus)
+}
+
+func GroupGeneralStoreOffering(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersGeneralStoreOffering(server)
+	e.POST("", handler.Create)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {

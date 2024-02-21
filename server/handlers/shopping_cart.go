@@ -59,6 +59,25 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Read product count
+// @Tags Shopping Cart
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param customer_id query int true "Customer ID"
+// @Success 200 {object} []responses.ResponseCart
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/cart/count [get]
+func (h *HandlersShoppingCart) ReadItemCount(c echo.Context) error {
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+
+	cartRepo := repositories.NewRepositoryCart(h.server.DB)
+	modelCount := models.CartItemCount{}
+	cartRepo.ReadItemCount(&modelCount, customerID)
+	return responses.NewResponseCartItemCount(c, http.StatusOK, modelCount)
+}
+
+// Refresh godoc
 // @Summary Read cart
 // @Tags Shopping Cart
 // @Accept json
