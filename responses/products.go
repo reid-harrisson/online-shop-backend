@@ -22,6 +22,7 @@ type ResponseProduct struct {
 	Category          string   `json:"category"`
 	CategoryID        uint64   `json:"category_id"`
 	StockQuantity     float64  `json:"stock_quantity"`
+	ProductStatus     string   `json:"product_status"`
 	Active            int8     `json:"active"`
 }
 
@@ -57,6 +58,7 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		Active:           modelProduct.Active,
 		Category:         modelProduct.Category,
 		CategoryID:       modelProduct.CategoryID,
+		ProductStatus:    models.ProductStatusToString(modelProduct.ProductStatus),
 	}
 	return Response(c, statusCode, responseProduct)
 }
@@ -105,7 +107,9 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 			MinimumStockLevel: modelDetail.MinimumStockLevel,
 			StockQuantity:     modelDetail.StockQuantity,
 			Active:            modelDetail.Active,
+			CategoryID:        modelDetail.CategoryID,
 			Category:          modelDetail.Category,
+			ProductStatus:     models.ProductStatusToString(modelDetail.ProductStatus),
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
@@ -142,6 +146,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			Category:         modelProduct.Category,
 			CategoryID:       modelProduct.CategoryID,
 			Active:           modelProduct.Active,
+			ProductStatus:    models.ProductStatusToString(modelProduct.ProductStatus),
 		})
 	}
 	return Response(c, statusCode, responseProducts)
@@ -166,6 +171,7 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			Active:           modelProduct.Active,
 			Category:         modelProduct.Category,
 			CategoryID:       modelProduct.CategoryID,
+			ProductStatus:    models.ProductStatusToString(modelProduct.ProductStatus),
 		})
 	}
 	return Response(c, statusCode, ResponseProductsPaging{

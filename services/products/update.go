@@ -5,13 +5,10 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
 	"encoding/json"
+	"strings"
 )
 
 func (service *Service) Update(modelProduct *models.Products, req *requests.RequestProduct) error {
-	productID := uint64(modelProduct.ID)
-	if err := service.DB.First(&modelProduct, productID).Error; err != nil {
-		return err
-	}
 	modelProduct.StoreID = req.StoreID
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
@@ -38,4 +35,15 @@ func (service *Service) UpdatePrice(productID uint64, req *requests.RequestProdu
 	modelProduct.UnitPriceSale = req.Price * modelProduct.UnitPriceSale / modelProduct.UnitPriceRegular
 	modelProduct.UnitPriceRegular = req.Price
 	return service.DB.Save(modelProduct).Error
+}
+
+func (service *Service) UpdateStatus(productID uint64, productStatus string) error {
+	status := models.StatusProductPending
+	switch strings.ToLower(productStatus) {
+	case "pending":
+		status = models.StatusProductPending
+	case "approved":
+		status = models.StatusProductApproved
+	}
+	return service.DB.Model(models.Products{}).Where("id = ?", productID).Update("product_status", status).Error
 }

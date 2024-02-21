@@ -15,7 +15,11 @@ func NewRepositoryProduct(db *gorm.DB) *RepositoryProduct {
 	return &RepositoryProduct{DB: db}
 }
 
-func (repository *RepositoryProduct) ReadByID(modelProduct *models.ProductsWithCategory, productID uint64) {
+func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) {
+	repository.DB.First(modelProduct, productID)
+}
+
+func (repository *RepositoryProduct) ReadOne(modelProduct *models.ProductsWithCategory, productID uint64) {
 	repository.DB.Table("store_products As prods").Select("prods.*, cates.name As category").
 		Joins("Left Join store_categories As cates On cates.id = prods.category_id").
 		Where("prods.id = ?", productID).
@@ -25,7 +29,7 @@ func (repository *RepositoryProduct) ReadByID(modelProduct *models.ProductsWithC
 }
 
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {
-	repository.ReadByID(&modelDetail.ProductsWithCategory, productID)
+	repository.ReadOne(&modelDetail.ProductsWithCategory, productID)
 
 	attrRepo := NewRepositoryAttribute(repository.DB)
 	attrRepo.ReadByProductID(&modelDetail.Attributes, productID)

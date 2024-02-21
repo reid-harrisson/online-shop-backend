@@ -39,7 +39,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelProduct := models.ProductsWithCategory{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
+	prodRepo.ReadOne(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No product exists at this product ID.")
 	}
@@ -120,7 +120,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 
 	modelProduct := models.ProductsWithCategory{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, modelItem.ProductID)
+	prodRepo.ReadOne(&modelProduct, modelItem.ProductID)
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.UpdateQuantity(cartID, &modelItem, modelProduct.Products, quantity)
