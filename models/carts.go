@@ -20,6 +20,10 @@ type CartItemsWithDetail struct {
 	TotalPrice  float64 `gorm:"column:total_price"`
 }
 
+type CartItemCount struct {
+	Count uint64 `gorm:"column:count"`
+}
+
 func (CartItems) TableName() string {
 	return "store_cart_items"
 }

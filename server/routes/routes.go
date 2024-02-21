@@ -109,6 +109,7 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
 	e.GET("", handler.Read)
+	e.GET("/count", handler.ReadItemCount)
 	e.PUT("/:id", handler.UpdateQuantity)
 	e.DELETE("/:id", handler.DeleteByID)
 	e.DELETE("", handler.DeleteAll)

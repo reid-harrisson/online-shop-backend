@@ -25,10 +25,10 @@ func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.Ca
 			Quantity:       modelCart.Quantity,
 			SubTotalPrice:  modelCart.TotalPrice,
 			TaxRate:        modelTax.TaxRate,
-			TaxAmount:      utils.Round(modelTax.TaxRate * modelCart.TotalPrice),
+			TaxAmount:      utils.Round(modelTax.TaxRate * modelCart.TotalPrice / 100),
 			ShippingMethod: "",
 			ShippingPrice:  float64(0),
-			TotalPrice:     modelCart.TotalPrice + modelCart.TotalPrice*modelTax.TaxRate,
+			TotalPrice:     utils.Round(modelCart.TotalPrice + (modelCart.TotalPrice * modelTax.TaxRate / 100)),
 			Status:         models.StatusOrderPending,
 		})
 	}
