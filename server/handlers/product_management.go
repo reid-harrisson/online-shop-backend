@@ -6,6 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
+	linkedsvc "OnlineStoreBackend/services/linked_producct"
 	prodattrsvc "OnlineStoreBackend/services/product_attributes"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
@@ -544,4 +545,28 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 		return responses.MessageResponse(c, http.StatusOK, "Failed to delete shipping data")
 	}
 	return responses.MessageResponse(c, http.StatusOK, "Shipping data is successfully deleted")
+}
+
+// Refresh godoc
+// @Summary Create liked product
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id query int false "product ID"
+// @Param linked_id query int false "linked product ID"
+// @Param is_up_cross query int false "is up-sell or cross-sell"
+// @Param product_id query int false "product ID"
+// @Success 200 {object} []responses.ResponseProduct
+// @Router /store/api/v1/product/linked [post]
+func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+	linkedID, _ := strconv.ParseUint(c.QueryParam("linked_id"), 10, 64)
+	isUpCross, _ := strconv.ParseUint(c.QueryParam("linked_id"), 10, 64)
+
+	linkedService := linkedsvc.NewServiceLinkedProduct(h.server.DB)
+	if err := linkedService.Create(productID, linkedID, isUpCross); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
 }

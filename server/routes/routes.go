@@ -80,6 +80,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.POST("", handler.Create)
 	e.POST("/attribute/:id", handler.CreateAttributes)
 	e.POST("/shipping/:id", handler.CreateShippingData)
+	e.POST("/linked", handler.CreateLinkedProduct)
 	e.GET("", handler.ReadAll)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
