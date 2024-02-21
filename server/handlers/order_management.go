@@ -211,3 +211,11 @@ func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
 
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
 }
+
+func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {}
+
+func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) error {}
+
+func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {}
+
+func (h *HandlersOrderManagement) DeleteEmailTemplate(c echo.Context) error {}

@@ -129,12 +129,16 @@ func GroupProductReviews(server *s.Server, e *echo.Group) {
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersOrderManagement(server)
 	e.POST("", handler.Create)
+	e.POST("/email-template", handler.CreateEmailTemplate)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/customer", handler.ReadByCustomerID)
 	e.GET("/store", handler.ReadByStoreID)
+	e.GET("/email-template/:id", handler.ReadEmailTemplateByStoreID)
 	e.PUT("/status/:id", handler.UpdateStatus)
 	e.PUT("/billing-address/:id", handler.UpdateBillingAddress)
 	e.PUT("/shipping-address/:id", handler.UpdateShippingAddress)
+	e.PUT("/email-template", handler.UpdateEmailTemplate)
+	e.DELETE("/email-template", handler.DeleteEmailTemplate)
 }
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
