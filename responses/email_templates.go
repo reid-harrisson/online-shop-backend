@@ -27,6 +27,30 @@ type ResponseEmailTemplate struct {
 	UnsubscribeSafeLink        string `json:"unsubscribe_safe_link"`
 }
 
+func NewResponseEmailTemplate(c echo.Context, statusCode int, modelEmailTemplate *models.EmailTemplate) error {
+	responseEmailTemplate := ResponseEmailTemplate{
+		ID:                         uint64(modelEmailTemplate.ID),
+		StoreID:                    modelEmailTemplate.StoreID,
+		OrderStatus:                modelEmailTemplate.OrderStatus,
+		CompanyName:                modelEmailTemplate.CompanyName,
+		CompanyLink:                modelEmailTemplate.CompanyLink,
+		CompanyLogoUrl:             modelEmailTemplate.CompanyLogoUrl,
+		CompanyPrimaryColor:        modelEmailTemplate.CompanyPrimaryColor,
+		EmailPretext:               modelEmailTemplate.EmailPretext,
+		HeaderPosterSloganTitle:    modelEmailTemplate.HeaderPosterSloganTitle,
+		HeaderPosterSloganSubtitle: modelEmailTemplate.HeaderPosterSloganSubtitle,
+		BodyGreeting:               modelEmailTemplate.BodyGreeting,
+		FirstName:                  modelEmailTemplate.FirstName,
+		BodyMessage:                modelEmailTemplate.BodyMessage,
+		BodyCtaBtnLink:             modelEmailTemplate.BodyCtaBtnLink,
+		BodyCtaBtnLabel:            modelEmailTemplate.BodyCtaBtnLabel,
+		BodySecondaryMessage:       modelEmailTemplate.BodySecondaryMessage,
+		UnsubscribeLink:            modelEmailTemplate.UnsubscribeLink,
+		UnsubscribeSafeLink:        modelEmailTemplate.UnsubscribeSafeLink,
+	}
+	return Response(c, statusCode, responseEmailTemplate)
+}
+
 func NewResponseEmailTemplates(c echo.Context, statusCode int, modelEmailTemplates []models.EmailTemplate) error {
 	responseEmailTemplates := make([]ResponseEmailTemplate, 0)
 	for _, modelEmailTemplate := range modelEmailTemplates {

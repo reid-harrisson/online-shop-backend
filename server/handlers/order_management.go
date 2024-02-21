@@ -4,9 +4,11 @@ import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
+	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	cartsvc "OnlineStoreBackend/services/cart_items"
+	etsvc "OnlineStoreBackend/services/email_templates"
 	ordsvc "OnlineStoreBackend/services/orders"
 	"net/http"
 	"strconv"
@@ -212,7 +214,21 @@ func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
 }
 
-func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {}
+func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {
+	requestEmailTemplate := new(requests.RequestEmailTemplate)
+
+	if err := c.Bind(requestEmailTemplate); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	} else if err := requestEmailTemplate.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelEmailTemplate := models.EmailTemplate{}
+	prodService := etsvc.NewServiceEmailTemplate(h.server.DB)
+	prodService.Create(&modelEmailTemplate, requestEmailTemplate)
+
+	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
+}
 
 func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) error {}
 
