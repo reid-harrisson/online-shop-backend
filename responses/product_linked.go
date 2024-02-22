@@ -24,12 +24,8 @@ func NewResponseProductLinked(c echo.Context, statusCode int, modelProductLinked
 			Title:            modelItem.Title,
 			ShortDescription: modelItem.ShortDescription,
 			LongDescription:  modelItem.LongDescription,
-			SKU:              modelItem.SKU,
 			ImageUrls:        imageUrls,
-			UnitPriceRegular: modelItem.UnitPriceRegular,
-			UnitPriceSale:    modelItem.UnitPriceSale,
-			StockQuantity:    modelItem.StockQuantity,
-			Active:           modelItem.Active,
+			Status:           modelItem.Status,
 		}
 		if modelItem.IsUpCross == models.UpSell {
 			upSell = append(upSell, responseProduct)

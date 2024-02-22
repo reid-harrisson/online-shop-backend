@@ -8,19 +8,13 @@ import (
 )
 
 type ResponseProduct struct {
-	ID                uint64   `json:"id"`
-	StoreID           uint64   `json:"store_id"`
-	Title             string   `json:"title"`
-	ShortDescription  string   `json:"short_description"`
-	LongDescription   string   `json:"long_description"`
-	ImageUrls         []string `json:"image_urls"`
-	SKU               string   `json:"sku"`
-	UnitPriceRegular  float64  `json:"unit_price_regular"`
-	UnitPriceSale     float64  `json:"unit_price_sale"`
-	MinimumStockLevel float64  `json:"minimum_stock_level"`
-	MaximumStockLevel float64  `json:"maximum_stock_level"`
-	StockQuantity     float64  `json:"stock_quantity"`
-	Active            int8     `json:"active"`
+	ID               uint64   `json:"id"`
+	StoreID          uint64   `json:"store_id"`
+	Title            string   `json:"title"`
+	ShortDescription string   `json:"short_description"`
+	LongDescription  string   `json:"long_description"`
+	ImageUrls        []string `json:"image_urls"`
+	Status           int8     `json:"active"`
 }
 
 type ResponseProductsPaging struct {
@@ -48,12 +42,8 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		Title:            modelProduct.Title,
 		ShortDescription: modelProduct.ShortDescription,
 		LongDescription:  modelProduct.LongDescription,
-		SKU:              modelProduct.SKU,
 		ImageUrls:        imageUrls,
-		UnitPriceRegular: modelProduct.UnitPriceRegular,
-		UnitPriceSale:    modelProduct.UnitPriceSale,
-		StockQuantity:    modelProduct.StockQuantity,
-		Active:           modelProduct.Active,
+		Status:           modelProduct.Status,
 	}
 	return Response(c, statusCode, responseProduct)
 }
@@ -95,18 +85,13 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 
 	return Response(c, statusCode, ResponseProductWithDetail{
 		ResponseProduct: ResponseProduct{
-			ID:                uint64(modelDetail.ID),
-			StoreID:           modelDetail.StoreID,
-			Title:             modelDetail.Title,
-			ShortDescription:  modelDetail.ShortDescription,
-			LongDescription:   modelDetail.LongDescription,
-			ImageUrls:         imageUrls,
-			SKU:               modelDetail.SKU,
-			UnitPriceRegular:  modelDetail.UnitPriceRegular,
-			UnitPriceSale:     modelDetail.UnitPriceSale,
-			MinimumStockLevel: modelDetail.MinimumStockLevel,
-			StockQuantity:     modelDetail.StockQuantity,
-			Active:            modelDetail.Active,
+			ID:               uint64(modelDetail.ID),
+			StoreID:          modelDetail.StoreID,
+			Title:            modelDetail.Title,
+			ShortDescription: modelDetail.ShortDescription,
+			LongDescription:  modelDetail.LongDescription,
+			ImageUrls:        imageUrls,
+			Status:           modelDetail.Status,
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
@@ -136,12 +121,8 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			Title:            modelProduct.Title,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
-			SKU:              modelProduct.SKU,
 			ImageUrls:        imageUrls,
-			UnitPriceRegular: modelProduct.UnitPriceRegular,
-			UnitPriceSale:    modelProduct.UnitPriceSale,
-			StockQuantity:    modelProduct.StockQuantity,
-			Active:           modelProduct.Active,
+			Status:           modelProduct.Status,
 		})
 	}
 	return Response(c, statusCode, responseProducts)
@@ -158,12 +139,8 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			Title:            modelProduct.Title,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
-			SKU:              modelProduct.SKU,
 			ImageUrls:        imageUrls,
-			UnitPriceRegular: modelProduct.UnitPriceRegular,
-			UnitPriceSale:    modelProduct.UnitPriceSale,
-			StockQuantity:    modelProduct.StockQuantity,
-			Active:           modelProduct.Active,
+			Status:           modelProduct.Status,
 		})
 	}
 	return Response(c, statusCode, ResponseProductsPaging{

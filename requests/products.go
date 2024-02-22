@@ -8,7 +8,6 @@ type RequestProduct struct {
 	ShortDescription string   `json:"short_description" example:"Apple"`
 	LongDescirpiton  string   `json:"long_description" example:"Delicious Apple"`
 	ImageUrls        []string `json:"image_urls" example:"https://www.pockittv.com/images/companies/63/products/bg_645a225496947_stirrup-cover-red-brass.webp,https://www.pockittv.com/images/companies/63/products/bg_645a339f5bef2_tall-black.webp"`
-	Status           int8     `json:"active" example:"1"`
 }
 
 type RequestMinimumStockLevel struct {
