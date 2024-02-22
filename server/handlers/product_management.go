@@ -86,9 +86,12 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
 	modelProducts := make([]models.Products, 0)
+
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	prodRepo.ReadAll(&modelProducts, storeID, keyword)
+
 	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
 }
 

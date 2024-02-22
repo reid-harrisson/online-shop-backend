@@ -46,7 +46,7 @@ func (h *HandlersInventoryManagement) UpdateBackOrder(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	return responses.NewResponseBackOrder(c, http.StatusOK, modelStore.IsBackOrder)
+	return responses.NewResponseBackOrderStatus(c, http.StatusOK, modelStore.BackOrderStatus)
 }
 
 // Refresh godoc
@@ -74,7 +74,7 @@ func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context)
 	if err := storeService.UpdateShowOutOfStockStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseShowOutOfStockStatus(c, http.StatusOK, modelStore.ShowOutOfStockStatus)
+	return responses.NewResponseOutOfStockStatus(c, http.StatusOK, modelStore.OutOfStockStatus)
 }
 
 // Refresh godoc
@@ -102,5 +102,5 @@ func (h *HandlersInventoryManagement) UpdateShowStockLevelStatus(c echo.Context)
 	if err := storeService.UpdateShowStockLevelStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseShowStockLevelStatus(c, http.StatusOK, modelStore.ShowStockLevelStatus)
+	return responses.NewResponseStockLevelStatus(c, http.StatusOK, modelStore.StockLevelStatus)
 }

@@ -2,6 +2,7 @@ package prodsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
 	"encoding/json"
 )
@@ -11,7 +12,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
-	modelProduct.Status = int8(models.Draft)
+	modelProduct.Status = utils.Draft
 
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)

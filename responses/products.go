@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"encoding/json"
 
 	"github.com/labstack/echo/v4"
@@ -14,7 +15,7 @@ type ResponseProduct struct {
 	ShortDescription string   `json:"short_description"`
 	LongDescription  string   `json:"long_description"`
 	ImageUrls        []string `json:"image_urls"`
-	Status           int8     `json:"active"`
+	Status           string   `json:"status"`
 }
 
 type ResponseProductsPaging struct {
@@ -43,7 +44,7 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		ShortDescription: modelProduct.ShortDescription,
 		LongDescription:  modelProduct.LongDescription,
 		ImageUrls:        imageUrls,
-		Status:           modelProduct.Status,
+		Status:           utils.ProductStatusToString(modelProduct.Status),
 	}
 	return Response(c, statusCode, responseProduct)
 }

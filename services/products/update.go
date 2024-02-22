@@ -2,23 +2,27 @@ package prodsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
 	"encoding/json"
 )
 
 func (service *Service) Update(modelProduct *models.Products, req *requests.RequestProduct) error {
 	productID := uint64(modelProduct.ID)
+
 	if err := service.DB.First(&modelProduct, productID).Error; err != nil {
 		return err
 	}
+
 	modelProduct.StoreID = req.StoreID
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
 
-	modelProduct.Active = req.Active
+	modelProduct.Status = utils.Draft
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)
+
 	return service.DB.Save(modelProduct).Error
 }
 

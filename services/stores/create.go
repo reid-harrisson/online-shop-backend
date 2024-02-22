@@ -8,13 +8,14 @@ import (
 func (service *Service) Create(modelStore *models.Stores, req *requests.RequestStore) error {
 	modelStore.CompanyID = req.CompanyID
 	modelStore.OwnerID = req.OwnerID
-	modelStore.ShowStockLevelStatus = req.ShowStockLevelStatus
-	modelStore.ShowOutOfStockStatus = req.ShowOutOfStockStatus
-	modelStore.IsBackOrder = req.IsBackOrder
+	modelStore.ContactPhone = req.ContactPhone
+	modelStore.ContactEmail = req.ContactEmail
+	modelStore.StockLevelStatus = req.StockLevelStatus
+	modelStore.OutOfStockStatus = req.OutOfStockStatus
+	modelStore.BackOrderStatus = req.BackOrderStatus
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms
-	modelStore.Active = req.Active
 
 	modelUser := models.Users{}
 	service.DB.Table("users As u").

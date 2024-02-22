@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"encoding/json"
 
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,7 @@ func NewResponseProductLinked(c echo.Context, statusCode int, modelProductLinked
 			ShortDescription: modelItem.ShortDescription,
 			LongDescription:  modelItem.LongDescription,
 			ImageUrls:        imageUrls,
-			Status:           modelItem.Status,
+			Status:           utils.ProductStatusToString(modelItem.Status),
 		}
 		if modelItem.IsUpCross == models.UpSell {
 			upSell = append(upSell, responseProduct)

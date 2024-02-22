@@ -1,27 +1,20 @@
 package models
 
 import (
+	"OnlineStoreBackend/pkgs/utils"
+
 	"github.com/jinzhu/gorm"
-)
-
-type ProductStatus int8
-
-const (
-	Draft ProductStatus = iota
-	Pending
-	Approved
-	Rejected
 )
 
 type Products struct {
 	gorm.Model
 
-	StoreID          uint64 `gorm:"column:store_id; type:bigint(20) unsigned"`
-	Title            string `gorm:"column:title; type:varchar(100)"`
-	ShortDescription string `gorm:"column:short_description; type:varchar(100)"`
-	LongDescription  string `gorm:"column:long_description; type:varchar(500)"`
-	ImageUrls        string `gorm:"column:image_urls; type:varchar(1000)"`
-	Status           int8   `gorm:"column:active; type:tinyint(4)"`
+	StoreID          uint64              `gorm:"column:store_id; type:bigint(20) unsigned"`
+	Title            string              `gorm:"column:title; type:varchar(100)"`
+	ShortDescription string              `gorm:"column:short_description; type:varchar(100)"`
+	LongDescription  string              `gorm:"column:long_description; type:varchar(500)"`
+	ImageUrls        string              `gorm:"column:image_urls; type:varchar(1000)"`
+	Status           utils.ProductStatus `gorm:"column:active; type:tinyint(4)"`
 }
 
 type ProductsWithDetail struct {
