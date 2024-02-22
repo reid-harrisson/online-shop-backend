@@ -8,6 +8,7 @@ import (
 	s "OnlineStoreBackend/server"
 	prodattrsvc "OnlineStoreBackend/services/product_attributes"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
+	linkedsvc "OnlineStoreBackend/services/product_linked"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
 	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	prodsvc "OnlineStoreBackend/services/products"
@@ -686,4 +687,77 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	}
 	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.MessageResponse(c, http.StatusOK, "Shipping data is successfully deleted")
+}
+
+// Refresh godoc
+// @Summary Create linked product
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id query int false "product ID"
+// @Param linked_id query int false "linked product ID"
+// @Param is_up_cross query int false "is up-sell or cross-sell"
+// @Success 201 {object} responses.ResponseProductLinked
+// @Router /store/api/v1/product/linked [post]
+func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+	linkedID, _ := strconv.ParseUint(c.QueryParam("linked_id"), 10, 64)
+	isUpCross, _ := strconv.ParseUint(c.QueryParam("is_up_cross"), 10, 64)
+
+	modelProductLinked := models.ProductLinked{}
+
+	linkedService := linkedsvc.NewServiceProductLinked(h.server.DB)
+	if err := linkedService.Create(productID, linkedID, isUpCross, &modelProductLinked); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelProducts := make([]models.ProductsWithLink, 0)
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadLinkedProducts(&modelProducts, productID)
+
+	return responses.NewResponseProductLinked(c, http.StatusCreated, modelProducts)
+}
+
+// Refresh godoc
+// @Summary Read linked products
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id query int false "product ID"
+// @Success 200 {object} responses.ResponseProductLinked
+// @Router /store/api/v1/product/linked [get]
+func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+
+	modelProducts := make([]models.ProductsWithLink, 0)
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadLinkedProducts(&modelProducts, productID)
+
+	return responses.NewResponseProductLinked(c, http.StatusOK, modelProducts)
+}
+
+// Refresh godoc
+// @Summary Delete linked product
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int false "ID"
+// @Param product_id query int false "product ID"
+// @Success 200 {object} responses.ResponseProductLinked
+// @Router /store/api/v1/product/linked/{id} [delete]
+func (h *HandlersProductManagement) DeleteLinkedProduct(c echo.Context) error {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+
+	prodService := linkedsvc.NewServiceProductLinked(h.server.DB)
+	prodService.Delete(id)
+
+	modelProducts := make([]models.ProductsWithLink, 0)
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadLinkedProducts(&modelProducts, productID)
+
+	return responses.NewResponseProductLinked(c, http.StatusOK, modelProducts)
 }

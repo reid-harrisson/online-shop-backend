@@ -83,9 +83,11 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.POST("", handler.Create)
 	e.POST("/attribute/:id", handler.CreateAttributes)
 	e.POST("/shipping/:id", handler.CreateShippingData)
+	e.POST("/linked", handler.CreateLinkedProduct)
 	e.GET("", handler.ReadAll)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/paging", handler.ReadPaging)
+	e.GET("/linked", handler.ReadLinkedProduct)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/approve/:id", handler.UpdateStatusApproved)
 	e.PUT("/attribute/:id", handler.UpdateAttributes)
@@ -99,6 +101,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/attribute/:id", handler.UpdateAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)
+	e.DELETE("/linked/:id", handler.DeleteLinkedProduct)
 }
 
 func GroupCategory(server *s.Server, e *echo.Group) {

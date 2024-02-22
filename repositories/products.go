@@ -19,6 +19,15 @@ func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, pro
 	repository.DB.First(modelProduct, productID)
 }
 
+func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) {
+	repository.DB.Model(models.Products{}).
+		Select("store_products.*, links.is_up_cross As is_up_cross").
+		Joins("Join store_linked_products As links On links.linked_id = store_products.id").
+		Where("links.product_id = ?", productID).
+		Where("links.deleted_at Is Null").
+		Scan(modelProducts)
+}
+
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {
 	repository.ReadByID(&modelDetail.Products, productID)
 
