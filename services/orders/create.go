@@ -30,18 +30,18 @@ func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.Ca
 	modelItems := make([]*models.OrderItems, 0)
 	for _, modelCart := range modelCarts {
 		modelItems = append(modelItems, &models.OrderItems{
-			OrderID:        uint64(orderID),
-			StoreID:        modelCart.StoreID,
-			ProductID:      modelCart.ProductID,
-			UnitPriceSale:  modelCart.UnitPrice,
-			Quantity:       modelCart.Quantity,
-			SubTotalPrice:  modelCart.TotalPrice,
-			TaxRate:        modelTax.TaxRate,
-			TaxAmount:      utils.Round(modelTax.TaxRate * modelCart.TotalPrice / 100),
-			ShippingMethod: "",
-			ShippingPrice:  float64(0),
-			TotalPrice:     utils.Round(modelCart.TotalPrice + (modelCart.TotalPrice * modelTax.TaxRate / 100)),
-			Status:         models.StatusOrderPending,
+			OrderID:          uint64(orderID),
+			StoreID:          modelCart.StoreID,
+			VariationID:      modelCart.ProductID,
+			Price:            modelCart.UnitPrice,
+			Quantity:         modelCart.Quantity,
+			SubTotalPrice:    modelCart.TotalPrice,
+			TaxRate:          modelTax.TaxRate,
+			TaxAmount:        utils.Round(modelTax.TaxRate * modelCart.TotalPrice / 100),
+			ShippingMethodID: 0,
+			ShippingPrice:    float64(0),
+			TotalPrice:       utils.Round(modelCart.TotalPrice + (modelCart.TotalPrice * modelTax.TaxRate / 100)),
+			Status:           models.StatusOrderPending,
 		})
 	}
 	orderService.Create(modelItems)

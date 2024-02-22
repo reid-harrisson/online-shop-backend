@@ -47,8 +47,8 @@ func (repository *RepositoryOrder) ReadByStoreID(modelOrders *[]models.StoreOrde
 			soi.unit_price_sale,
 			soi.quantity,
 			soi.sub_total_price,
-			so.billing_address,
-			so.shipping_address,
+			so.billing_address_id,
+			so.shipping_address_id,
 			soi.tax_rate,
 			soi.tax_amount,
 			soi.shipping_method,
@@ -67,8 +67,8 @@ func (repository *RepositoryOrder) ReadByCustomerID(modelOrders *[]models.Custom
 			so.id AS order_id,
 			so.status AS order_status,
 			Sum( soi.total_price ) As total_price,
-			billing_address,
-			shipping_address
+			billing_address_id,
+			shipping_address_id
 		`).
 		Joins(`Right Join store_order_items As soi On soi.order_id = so.id`).
 		Where("so.customer_id = ?", customerID).
@@ -77,19 +77,20 @@ func (repository *RepositoryOrder) ReadByCustomerID(modelOrders *[]models.Custom
 		Scan(modelOrders)
 }
 
-func (repository *RepositoryOrder) ReadByOrderID(modelOrders *[]models.CustomerOrdersWithDetail, orderID uint64) {
+func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrdersWithAddress, orderID uint64) {
+	modelOrder.Items = make([]models.CustomerOrderItems, 0)
 	repository.DB.Table("store_orders As so").
 		Select(`
 			so.status As order_status,
 			soi.store_id,
 			soi.status As product_status,
-			soi.product_id,
-			soi.unit_price_sale,
+			soi.variation_id,
+			soi.price,
 			soi.quantity,
 			soi.sub_total_price,
 			soi.tax_rate,
 			soi.tax_amount,
-			soi.shipping_method,
+			soi.shipping_method_id,
 			soi.shipping_price,
 			soi.total_price,
 			so.billing_address_id,
@@ -98,12 +99,12 @@ func (repository *RepositoryOrder) ReadByOrderID(modelOrders *[]models.CustomerO
 		Joins(`Right Join store_order_items As soi On soi.order_id = so.id`).
 		Where("so.id = ?", orderID).
 		Where("so.deleted_at Is Null And soi.deleted_at Is Null").
-		Scan(modelOrders)
-	addrRepo := NewRepositoryCustomer(repository.DB)
-	for _, modelOrder := range *modelOrders {
-		modelOrder.BillingAddress = new(models.CustomerAddresses)
-		modelOrder.ShippingAddress = new(models.CustomerAddresses)
-		addrRepo.ReadAddressByID(modelOrder.BillingAddress, modelOrder.BillingAddressID)
-		addrRepo.ReadAddressByID(modelOrder.ShippingAddress, modelOrder.ShippingAddressID)
+		Scan(&modelOrder.Items)
+	if len(modelOrder.Items) > 0 {
+		billingAdddressID := modelOrder.Items[0].BillingAddressID
+		shippingAdddressID := modelOrder.Items[0].ShippingAddressID
+		addrRepo := NewRepositoryCustomer(repository.DB)
+		addrRepo.ReadAddressByID(&modelOrder.BillingAddress, billingAdddressID)
+		addrRepo.ReadAddressByID(&modelOrder.ShippingAddress, shippingAdddressID)
 	}
 }

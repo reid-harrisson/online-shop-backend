@@ -19,17 +19,11 @@ func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, pro
 	repository.DB.First(modelProduct, productID)
 }
 
-func (repository *RepositoryProduct) ReadOne(modelProduct *models.ProductsWithCategory, productID uint64) {
-	repository.DB.Table("store_products As prods").Select("prods.*, cates.name As category").
-		Joins("Left Join store_categories As cates On cates.id = prods.category_id").
-		Where("prods.id = ?", productID).
-		Where("prods.deleted_at Is Null And cates.deleted_at Is Null").
-		Limit(1).
-		Scan(modelProduct)
-}
-
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {
-	repository.ReadOne(&modelDetail.ProductsWithCategory, productID)
+	repository.ReadByID(&modelDetail.Products, productID)
+
+	cateRepo := NewRepositoryCategory(repository.DB)
+	cateRepo.ReadByProductID(&modelDetail.Categories, productID)
 
 	attrRepo := NewRepositoryAttribute(repository.DB)
 	attrRepo.ReadByProductID(&modelDetail.Attributes, productID)
@@ -50,22 +44,19 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	varRepo.ReadByProductID(&modelDetail.Variations, productID)
 }
 
-func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.ProductsWithCategory, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {
+func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
-	return repository.DB.Table("store_products As prods").Select("prods.*, cates.name As category").
-		Joins("Left Join store_categories As cates On cates.id = prods.category_id").
+	return repository.DB.Model(models.Products{}).
 		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
 		Where("prods.deleted_at Is Null And cates.deleted_at Is Null").
-		Count(totalCount).Offset(page).Limit(count).Find(&modelProducts).Error
+		Count(totalCount).Offset(page).Limit(count).Find(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.ProductsWithCategory, storeID uint64, keyword string) error {
+func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, storeID uint64, keyword string) error {
 	keyword = strings.ToLower("%" + keyword + "%")
-	return repository.DB.Table("store_products As prods").Select("prods.*, cates.name As category").
-		Joins("Left Join store_categories As cates On cates.id = prods.category_id").
+	return repository.DB.
 		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
-		Where("prods.deleted_at Is Null And cates.deleted_at Is Null").
-		Scan(&modelProducts).Error
+		Find(modelProducts).Error
 }

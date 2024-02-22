@@ -10,7 +10,6 @@ import (
 func (service *Service) Create(modelProduct *models.Products, req *requests.RequestProduct) error {
 	modelProduct.StoreID = req.StoreID
 	modelProduct.Title = req.Title
-	modelProduct.CategoryID = req.CategoryID
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
 	modelProduct.SKU = utils.GenerateSKU(req.Title, req.StoreID)

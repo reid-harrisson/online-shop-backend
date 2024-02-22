@@ -93,6 +93,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
+	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/tag/:id", handler.UpdateTags)
 	e.PUT("/variation/:id", handler.UpdateVariations)
 	e.DELETE("/:id", handler.Delete)

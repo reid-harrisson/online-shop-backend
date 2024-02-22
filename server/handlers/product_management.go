@@ -7,6 +7,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	prodattrsvc "OnlineStoreBackend/services/product_attributes"
+	prodcatesvc "OnlineStoreBackend/services/product_categories"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
 	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	prodsvc "OnlineStoreBackend/services/products"
@@ -55,12 +56,8 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	prodService.Create(&modelProduct, req)
 
-	modelProductWithCategory := models.ProductsWithCategory{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProductWithCategory, uint64(modelProduct.ID))
-
 	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
-	return responses.NewResponseProduct(c, http.StatusCreated, modelProductWithCategory)
+	return responses.NewResponseProduct(c, http.StatusCreated, modelProduct)
 }
 
 // Refresh godoc
@@ -93,7 +90,7 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	modelProducts := make([]models.ProductsWithCategory, 0)
+	modelProducts := make([]models.Products, 0)
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	prodRepo.ReadAll(&modelProducts, storeID, keyword)
 	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
@@ -117,7 +114,7 @@ func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
 	count, _ := strconv.ParseUint(c.QueryParam("count"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	totalCount := uint64(0)
-	modelProducts := make([]models.ProductsWithCategory, 0)
+	modelProducts := make([]models.Products, 0)
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	prodRepo.ReadPaging(&modelProducts, page, count, storeID, keyword, &totalCount)
 	return responses.NewResponseProductsPaging(c, http.StatusOK, modelProducts, totalCount)
@@ -156,11 +153,9 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 	if err := prodService.Update(&modelProduct, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	modelProductWithCategory := models.ProductsWithCategory{}
-	prodRepo.ReadOne(&modelProductWithCategory, productID)
 
 	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
-	return responses.NewResponseProduct(c, http.StatusOK, modelProductWithCategory)
+	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
 // Refresh godoc
@@ -178,9 +173,9 @@ func (h *HandlersProductManagement) UpdateStatusApproved(c echo.Context) error {
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	prodService.UpdateStatus(productID, "Approved")
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
@@ -205,6 +200,34 @@ func (h *HandlersProductManagement) Delete(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Edit categories of product
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Param params body requests.RequestProductCategory true "Product Info"
+// @Success 200 {object} []responses.ResponseCategory
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/category/{id} [put]
+func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	req := new(requests.RequestProductCategory)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelCategories := make([]models.ProductCategoriesWithName, 0)
+	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
+	cateRepo.ReadByProductID(&modelCategories, productID)
+
+	service := prodcatesvc.NewServiceProductCategory(h.server.DB)
+	service.Update(&modelCategories, req, productID)
+	return responses.NewResponseProductCategories(c, http.StatusOK, modelCategories)
+}
+
+// Refresh godoc
 // @Summary Edit related channels
 // @Tags Product Management
 // @Accept json
@@ -222,9 +245,9 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -261,9 +284,9 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -300,9 +323,9 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -339,9 +362,9 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -387,9 +410,9 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -430,9 +453,9 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.Param("product_id"), 10, 64)
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -475,9 +498,9 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -523,9 +546,9 @@ func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) erro
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -534,7 +557,7 @@ func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) erro
 	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	if err := prodService.UpdateMinimumStockLevel(productID, req, &modelProduct.Products); err != nil {
+	if err := prodService.UpdateMinimumStockLevel(productID, req, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
@@ -559,9 +582,9 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -601,9 +624,9 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
@@ -640,9 +663,9 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}

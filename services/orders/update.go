@@ -29,16 +29,16 @@ func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus
 		Where("order_id = ? And store_id = ?", orderID, storeID).
 		Update("status", status)
 
-	modelOrders := make([]models.CustomerOrdersWithDetail, 0)
+	modelOrder := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(service.DB)
-	orderRepo.ReadByOrderID(&modelOrders, orderID)
+	orderRepo.ReadByOrderID(&modelOrder, orderID)
 	flagCompleted := true
 	flagPending := true
-	for _, modelOrder := range modelOrders {
-		if modelOrder.ProductStatus != models.StatusOrderCompleted {
+	for _, modelItem := range modelOrder.Items {
+		if modelItem.ProductStatus != models.StatusOrderCompleted {
 			flagCompleted = false
 		}
-		if modelOrder.ProductStatus != models.StatusOrderPending {
+		if modelItem.ProductStatus != models.StatusOrderPending {
 			flagPending = false
 		}
 	}

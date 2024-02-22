@@ -51,7 +51,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	modelOrder := models.Orders{}
 	orderService := ordsvc.NewServiceOrder(h.server.DB)
 	orderService.Create(&modelOrder, modelCarts, modelTax, customerID)
-	modelItems := make([]models.CustomerOrdersWithDetail, 0)
+	modelItems := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
@@ -70,7 +70,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	modelOrders := make([]models.CustomerOrdersWithDetail, 0)
+	modelOrders := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelOrders, id)
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrders)
@@ -182,7 +182,7 @@ func (h *HandlersOrderManagement) UpdateBillingAddress(c echo.Context) error {
 	orderService := ordsvc.NewServiceOrder(h.server.DB)
 	orderService.UpdateBillingAddress(orderID, addressID)
 
-	modelOrder := make([]models.CustomerOrdersWithDetail, 0)
+	modelOrder := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelOrder, orderID)
 
@@ -207,7 +207,7 @@ func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
 	orderService := ordsvc.NewServiceOrder(h.server.DB)
 	orderService.UpdateShippingAddress(orderID, addressID)
 
-	modelOrder := make([]models.CustomerOrdersWithDetail, 0)
+	modelOrder := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelOrder, orderID)
 

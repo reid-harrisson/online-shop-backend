@@ -37,9 +37,9 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, productID)
+	prodRepo.ReadByID(&modelProduct, productID)
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No product exists at this product ID.")
 	}
@@ -51,7 +51,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This cart item already exist in cart.")
 	}
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.Create(&modelItem, customerID, modelProduct.Products, quantity)
+	cartService.Create(&modelItem, customerID, modelProduct, quantity)
 
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	cartRepo.ReadDetail(&modelItems, customerID)
@@ -118,12 +118,12 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No cart item exist at this ID.")
 	}
 
-	modelProduct := models.ProductsWithCategory{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadOne(&modelProduct, modelItem.ProductID)
+	prodRepo.ReadByID(&modelProduct, modelItem.ProductID)
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.UpdateQuantity(cartID, &modelItem, modelProduct.Products, quantity)
+	cartService.UpdateQuantity(cartID, &modelItem, modelProduct, quantity)
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	cartRepo.ReadDetail(&modelItems, modelItem.CustomerID)
 	return responses.NewResponseCart(c, http.StatusOK, modelItems)
