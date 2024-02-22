@@ -5,8 +5,10 @@ import "github.com/jinzhu/gorm"
 type ProductVariations struct {
 	gorm.Model
 
-	AttributeID uint64 `gorm:"column:attribute_id; type:bigint(20) unsigned"`
-	Variant     string `gorm:"column:variant; type:varchar(50)"`
+	ProductID  uint64  `gorm:"column:product_id; type:bigint(20) unsigned"`
+	SKU        string  `gorm:"column:sku; type:varchar(50)"`
+	Price      float64 `gorm:"column:price; type:decimal(20,6)"`
+	StockLevel float64 `gorm:"column:stock_level; type:decimal(20,6)"`
 }
 
 type ProductVariationDetails struct {
