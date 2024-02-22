@@ -41,6 +41,7 @@ func NewHandlersProductManagement(server *s.Server) *HandlersProductManagement {
 // @Router /store/api/v1/product [post]
 func (h *HandlersProductManagement) Create(c echo.Context) error {
 	req := new(requests.RequestProduct)
+
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	} else if err := req.Validate(); err != nil {
@@ -48,8 +49,10 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
+
 	serviceProduct := prodsvc.NewServiceProduct(h.server.DB)
 	serviceProduct.Create(&modelProduct, req)
+
 	return responses.NewResponseProduct(c, http.StatusCreated, modelProduct)
 }
 
