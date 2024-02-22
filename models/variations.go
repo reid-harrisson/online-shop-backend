@@ -9,8 +9,19 @@ type ProductVariations struct {
 	Variant     string `gorm:"column:variant; type:varchar(50)"`
 }
 
+type ProductVariationDetails struct {
+	gorm.Model
+
+	VariationID      uint64 `gorm:"column:variation_id; type:bigint(20) unsigned"`
+	AttributeValueID uint64 `gorm:"column:attribute_value_id; type:bigint(20) unsigned"`
+}
+
 func (ProductVariations) TableName() string {
 	return "store_product_variations"
+}
+
+func (ProductVariationDetails) TableName() string {
+	return "store_product_variation_details"
 }
 
 type ProductVariationsWithName struct {

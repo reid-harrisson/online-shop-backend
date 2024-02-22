@@ -23,5 +23,5 @@ type ProductsWithLink struct {
 }
 
 func (ProductLinked) TableName() string {
-	return "store_linked_products"
+	return "store_product_links"
 }
