@@ -28,7 +28,7 @@ func NewResponseProductLinked(c echo.Context, statusCode int, modelProductLinked
 			ImageUrls:        imageUrls,
 			Status:           utils.ProductStatusToString(modelItem.Status),
 		}
-		if modelItem.IsUpCross == models.UpSell {
+		if modelItem.IsUpCross == utils.UpSell {
 			upSell = append(upSell, responseProduct)
 		} else {
 			crossSell = append(crossSell, responseProduct)

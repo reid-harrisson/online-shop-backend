@@ -6,6 +6,12 @@ type OutOfStockStatus int8
 type BackOrderStatus int8
 type ProductStatus int8
 type DiscountTypes int8
+type SellTypes int8
+
+const (
+	UpSell SellTypes = iota
+	CrossSell
+)
 
 const (
 	PercentageOff DiscountTypes = iota + 1

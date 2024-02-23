@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -670,12 +671,10 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 	linkedID, _ := strconv.ParseUint(c.QueryParam("linked_id"), 10, 64)
-	isUpCross, _ := strconv.ParseUint(c.QueryParam("is_up_cross"), 10, 64)
-
-	modelProductLinked := models.ProductLinked{}
+	isUpCross, _ := strconv.ParseUint(c.QueryParam("is_up_cross"), 10, 8)
 
 	linkedService := linkedsvc.NewServiceProductLinked(h.server.DB)
-	if err := linkedService.Create(productID, linkedID, isUpCross, &modelProductLinked); err != nil {
+	if err := linkedService.Create(productID, linkedID, utils.SellTypes(isUpCross)); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 

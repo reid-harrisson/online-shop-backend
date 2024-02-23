@@ -2,14 +2,14 @@ package linkedsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 )
 
-func (service *Service) Create(productID uint64, linkedID uint64, isUpCross uint64, modelProductLinked *models.ProductLinked) error {
-	return service.DB.
-		Create(&models.ProductLinked{
-			ProductID: productID,
-			LinkedID:  linkedID,
-			IsUpCross: models.IsUpCross(isUpCross),
-		}).
-		Error
+func (service *Service) Create(productID uint64, linkID uint64, isUpCross utils.SellTypes) error {
+	modelLink := models.ProductLinked{}
+	service.DB.Where("link_id = ? And product_id = ?", linkID, productID).First(&modelLink)
+	modelLink.ProductID = productID
+	modelLink.LinkID = linkID
+	modelLink.IsUpCross = isUpCross
+	return service.DB.Save(&modelLink).Error
 }

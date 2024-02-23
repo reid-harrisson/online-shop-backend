@@ -1,25 +1,22 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"OnlineStoreBackend/pkgs/utils"
 
-type IsUpCross int8
-
-const (
-	UpSell IsUpCross = iota
-	CrossSell
+	"github.com/jinzhu/gorm"
 )
 
 type ProductLinked struct {
 	gorm.Model
 
-	ProductID uint64    `gorm:"column:product_id; type:bigint(20) unsigned"`
-	LinkedID  uint64    `gorm:"column:linked_id; type:bigint(20) unsigned"`
-	IsUpCross IsUpCross `gorm:"column:is_up_cross; type:tinyint(4)"`
+	ProductID uint64          `gorm:"column:product_id; type:bigint(20) unsigned"`
+	LinkID    uint64          `gorm:"column:link_id; type:bigint(20) unsigned"`
+	IsUpCross utils.SellTypes `gorm:"column:is_up_cross; type:tinyint(4)"`
 }
 
 type ProductsWithLink struct {
 	Products
-	IsUpCross IsUpCross `gorm:"column:is_up_cross"`
+	IsUpCross utils.SellTypes `gorm:"column:is_up_cross"`
 }
 
 func (ProductLinked) TableName() string {
