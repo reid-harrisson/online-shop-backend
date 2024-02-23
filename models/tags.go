@@ -5,7 +5,8 @@ import "github.com/jinzhu/gorm"
 type BaseTags struct {
 	gorm.Model
 
-	Name string `gorm:"column:name; type:varchar(50)"`
+	StoreID uint64 `gorm:"column:store_id; type:bigint(20) unsigned"`
+	Name    string `gorm:"column:name; type:varchar(50)"`
 }
 
 type ProductTags struct {

@@ -6,7 +6,7 @@ import (
 )
 
 func (service *Service) Update(attributeID uint64, req *requests.RequestAttribute, modelAttr *models.ProductAttributes) {
-	modelAttr.Name = req.Name
+	modelAttr.AttributeName = req.Name
 	modelAttr.Unit = req.Unit
 	modelAttr.ProductID = attributeID
 	service.DB.Save(modelAttr)

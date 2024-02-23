@@ -45,5 +45,7 @@ func NewServer(cfg *config.Config) *Server {
 }
 
 func (server *Server) Start(addr string) error {
-	return server.Echo.Start(":" + addr)
+	serverCrt := "certificate/pockittv.com.crt"
+	serverKey := "certificate/pockittv.com.key"
+	return server.Echo.StartTLS(":"+addr, serverCrt, serverKey)
 }

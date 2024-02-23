@@ -5,13 +5,14 @@ import "github.com/jinzhu/gorm"
 type CartItems struct {
 	gorm.Model
 
-	ProductID  uint64  `gorm:"column:product_id; type:bigint(20) unsigned"`
-	CustomerID uint64  `gorm:"column:customer_id; type:bigint(20) unsigned"`
-	Quantity   float64 `gorm:"column:quantity; type:decimal(20,6)"`
+	CustomerID  uint64  `gorm:"column:customer_id; type:bigint(20) unsigned"`
+	VariationID uint64  `gorm:"column:varition_id; type:bigint(20) unsigned"`
+	Quantity    float64 `gorm:"column:quantity; type:decimal(20,6)"`
 }
 
 type CartItemsWithDetail struct {
 	CartItems
+
 	StoreID     uint64  `gorm:"column:store_id"`
 	ProductName string  `gorm:"column:product_name"`
 	ImageUrl    string  `gorm:"column:image_url"`

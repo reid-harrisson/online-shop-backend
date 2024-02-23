@@ -23,11 +23,11 @@ func (repository *RepositoryCategory) ReadByProductID(modelCategories *[]models.
 		Scan(modelCategories)
 }
 
-func (repository *RepositoryCategory) ReadByName(modelCategory *models.BaseCategories, name string, storeID uint64) {
+func (repository *RepositoryCategory) ReadByName(modelCategory *models.StoreCategories, name string, storeID uint64) {
 	repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelCategory)
 }
 
-func (repository *RepositoryCategory) ReadByCategoryID(modelCategory *models.BaseCategories, categoryID uint64) {
+func (repository *RepositoryCategory) ReadByCategoryID(modelCategory *models.StoreCategories, categoryID uint64) {
 	repository.DB.First(modelCategory, categoryID)
 }
 

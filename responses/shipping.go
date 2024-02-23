@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -25,6 +26,10 @@ type ResponseProductShippingData struct {
 	Classification string  `json:"classification"`
 }
 
+type ResponseShippingMethod struct {
+	Method string `json:"method"`
+}
+
 func NewResponseShippingData(c echo.Context, statusCode int, modelShipData models.ShippingData) error {
 	responseShipData := ResponseProductShippingData{
 		ID:             uint64(modelShipData.ID),
@@ -36,4 +41,14 @@ func NewResponseShippingData(c echo.Context, statusCode int, modelShipData model
 		Classification: modelShipData.Classification,
 	}
 	return Response(c, statusCode, responseShipData)
+}
+
+func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []models.ShippingMethods) error {
+	responseMethods := make([]ResponseShippingMethod, 0)
+	for _, modelMethod := range modelMethods {
+		responseMethods = append(responseMethods, ResponseShippingMethod{
+			Method: utils.ShippingMethodsToString(modelMethod.Method),
+		})
+	}
+	return Response(c, statusCode, responseMethods)
 }

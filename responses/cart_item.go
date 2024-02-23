@@ -55,7 +55,7 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 			}
 			responseCartItems = append(responseCartItems, ResponseCartItem{
 				ID:            uint64(cartItem.ID),
-				ProductID:     cartItem.ProductID,
+				ProductID:     cartItem.VariationID,
 				ProductName:   cartItem.ProductName,
 				ImageUrl:      imageUrl,
 				UnitPriceSale: cartItem.UnitPrice,
