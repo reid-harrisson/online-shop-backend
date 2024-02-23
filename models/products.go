@@ -6,6 +6,23 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type ProductStatuses int8
+
+const (
+	StatusProductPending ProductStatuses = iota
+	StatusProductApproved
+)
+
+func ProductStatusToString(productStatus ProductStatuses) string {
+	switch productStatus {
+	case StatusProductApproved:
+		return "Approved"
+	case StatusProductPending:
+		return "Pending"
+	}
+	return ""
+}
+
 type Products struct {
 	gorm.Model
 
@@ -21,14 +38,13 @@ type Products struct {
 
 type ProductsWithDetail struct {
 	Products
-
-	RelatedChannels []ProductChannelsWithName   `gorm:"column:related_channels"`
-	RelatedContents []ProductContentsWithTitle  `gorm:"column:related_contents"`
-	Tags            []ProductTagsWithName       `gorm:"column:tags"`
-	Categories      []ProductCategoriesWithName `gorm:"column:categories"`
-	Attributes      []ProductAttributes         `gorm:"column:attributes"`
-	Variations      []ProductVariationsWithName `gorm:"column:variations"`
-	ShippingData    ShippingData                `gorm:"column:shipping_data"`
+	RelatedChannels []ProductChannelsWithName          `gorm:"column:related_channels"`
+	RelatedContents []ProductContentsWithTitle         `gorm:"column:related_contents"`
+	Tags            []ProductTagsWithName              `gorm:"column:tags"`
+	Categories      []ProductCategoriesWithName        `gorm:"categories"`
+	Attributes      []ProductAttributes                `gorm:"column:attributes"`
+	AttributeValues []ProductAttributeValuesWithDetail `gorm:"column:variations"`
+	ShippingData    ShippingData                       `gorm:"column:shipping_data"`
 }
 
 type ProductCurrencyID struct {

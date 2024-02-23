@@ -14,9 +14,3 @@ func (service *Service) Update(productID uint64, req *requests.RequestShippingDa
 	service.DB.Save(&modelShipData)
 	return nil
 }
-
-func (service *Service) UpdateShippingMethod(req *requests.RequestShippingMethod, modelShipData *models.ShippingData) error {
-	service.DB.Where("product_id = ?", req.ProductID).First(modelShipData)
-	service.DB.Save(&modelShipData)
-	return nil
-}

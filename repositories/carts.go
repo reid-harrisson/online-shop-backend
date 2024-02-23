@@ -28,15 +28,17 @@ func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItem
 
 func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartItemCount, customerID uint64) {
 	repository.DB.
+		Model(models.CartItems{}).
 		Select(`
-			Count(id) As count,
+			Count(id) As count
 		`).
 		Where("customer_id = ?", customerID).
 		Scan(modelCount)
 }
 
 func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {
-	repository.DB.Table("store_cart_items As carts").
+	repository.DB.
+		Table("store_cart_items As carts").
 		Select(`carts.*,
 			prods.store_id As store_id,
 			prods.unit_price_sale * carts.quantity As total_price, 

@@ -16,7 +16,7 @@ func NewRepositoryProduct(db *gorm.DB) *RepositoryProduct {
 }
 
 func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) {
-	repository.DB.First(&modelProduct, productID)
+	repository.DB.First(modelProduct, productID)
 }
 
 func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) {
@@ -46,27 +46,28 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	contRepo := NewRepositoryProductContent(repository.DB)
 	contRepo.ReadByProductID(&modelDetail.RelatedContents, productID)
 
-	shipRepo := NewRepositoryShippingData(repository.DB)
+	shipRepo := NewRepositoryShipping(repository.DB)
 	shipRepo.ReadByProductID(&modelDetail.ShippingData, productID)
 
-	varRepo := NewRepositoryProductVariation(repository.DB)
-	varRepo.ReadByProductID(&modelDetail.Variations, productID)
+	varRepo := NewRepositoryProductAttributeValue(repository.DB)
+	varRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }
 
 func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.Model(models.Products{}).
-		Where("? = 0 Or store_id = ?", storeID, storeID).
+		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
-		Count(totalCount).Offset(page).Limit(count).Find(&modelProducts).Error
+		Where("prods.deleted_at Is Null And cates.deleted_at Is Null").
+		Count(totalCount).Offset(page).Limit(count).Find(modelProducts).Error
 }
 
 func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, storeID uint64, keyword string) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.
-		Where("? = 0 Or store_id = ?", storeID, storeID).
+		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
-		Find(&modelProducts).Error
+		Find(modelProducts).Error
 }
 
 func (repository *RepositoryProduct) ReadCurrencyID(modelCurrencyID *models.ProductCurrencyID, storeID uint64) error {

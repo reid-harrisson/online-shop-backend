@@ -98,3 +98,10 @@ func BackOrderStatusToString(backOrderStatus BackOrderStatus) string {
 
 	return "Off"
 }
+
+type DiscountTypes int8
+
+const (
+	PercentageOff DiscountTypes = iota + 1
+	FixedAmountOff
+)

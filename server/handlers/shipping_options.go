@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	shipData "OnlineStoreBackend/services/shipping_data"
+	orditmsvc "OnlineStoreBackend/services/order_items"
+	shipoptsvc "OnlineStoreBackend/services/shipping_options"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -20,25 +23,72 @@ func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 }
 
 // Refresh godoc
-// @Summary Set shipping method
+// @Summary Add shipping method to store
 // @Tags Shipping Options
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param params body requests.RequestShippingMethod true "Shipping Method"
-// @Success 200 {object} []responses.ResponseShippingData
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingOption true "Shipping Option"
+// @Success 201 {object} responses.ResponseShippingMethod
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/shipping-option/method [get]
-func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
-	req := new(requests.RequestShippingMethod)
+// @Router /store/api/v1/shipping/store [post]
+func (h *HandlersShippingOptions) CreateShippingOption(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingOption)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	shipDataService := shipData.NewServiceShippingData(h.server.DB)
-	modelShipData := models.ShippingData{}
-	if err := shipDataService.UpdateShippingMethod(req, &modelShipData); err != nil {
+	shipService := shipoptsvc.NewServiceShippingOption(h.server.DB)
+	if err := shipService.Create(storeID, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseShippingData(c, http.StatusOK, modelShipData)
+	modelOptions := make([]models.ShippingOptions, 0)
+	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
+	shipRepo.ReadOptionsByStoreID(&modelOptions, storeID)
+	return responses.NewResponseShippingMethod(c, http.StatusCreated, modelOptions)
+}
+
+// Refresh godoc
+// @Summary Read shipping method of store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseShippingMethod
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/store [get]
+func (h *HandlersShippingOptions) ReadShippingOption(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	modelOptions := make([]models.ShippingOptions, 0)
+	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
+	shipRepo.ReadOptionsByStoreID(&modelOptions, storeID)
+	return responses.NewResponseShippingMethod(c, http.StatusOK, modelOptions)
+}
+
+// Refresh godoc
+// @Summary Update shipping method of order
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param order_id query int true "Order ID"
+// @Param store_id query int true "Store ID"
+// @Param method query string true "Shipping Method"
+// @Success 200 {object} responses.Data
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/order [put]
+func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
+	orderID, _ := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	method := c.QueryParam("method")
+
+	orderService := orditmsvc.NewServiceOrderItem(h.server.DB)
+	if err := orderService.UpdateShippingMethod(storeID, orderID, method); err != nil {
+		return responses.Response(c, http.StatusBadRequest, "No recorde found.")
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, "Shipping Method Successfully updated.")
 }

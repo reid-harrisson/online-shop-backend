@@ -6,11 +6,11 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
+	prodattrvalsvc "OnlineStoreBackend/services/product_attribute_values"
 	prodattrsvc "OnlineStoreBackend/services/product_attributes"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
 	linkedsvc "OnlineStoreBackend/services/product_linked"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
-	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	prodsvc "OnlineStoreBackend/services/products"
 	chansvc "OnlineStoreBackend/services/related_channels"
 	contsvc "OnlineStoreBackend/services/related_contents"
@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,6 +28,11 @@ type HandlersProductManagement struct {
 
 func NewHandlersProductManagement(server *s.Server) *HandlersProductManagement {
 	return &HandlersProductManagement{server: server}
+}
+
+func MakeProductPending(db *gorm.DB, productID uint64) {
+	prodService := prodsvc.NewServiceProduct(db)
+	prodService.UpdateStatus(productID, "Pending")
 }
 
 // Refresh godoc
@@ -139,13 +145,42 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 	} else if err := req.Validate(); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+
 	modelProduct := models.Products{}
-	modelProduct.ID = uint(productID)
-	service := prodsvc.NewServiceProduct(h.server.DB)
-	if err := service.Update(&modelProduct, req); err != nil {
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	if err := prodService.Update(&modelProduct, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
+}
+
+// Refresh godoc
+// @Summary Approve product
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} responses.ResponseProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/approve/{id} [put]
+func (h *HandlersProductManagement) UpdateStatusApproved(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	prodService.UpdateStatus(productID, "Approved")
+
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
@@ -215,11 +250,14 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProdut := models.Products{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProdut, productID)
-	if modelProdut.ID == 0 {
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
 	}
 
 	modelChannels := make([]models.ProductChannelsWithName, 0)
@@ -228,6 +266,8 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 
 	chanService := chansvc.NewServiceProductChannel(h.server.DB)
 	chanService.Update(&modelChannels, req, productID)
+
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProductChannels(c, http.StatusOK, modelChannels)
 }
 
@@ -249,11 +289,14 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProdut := models.Products{}
+	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProdut, productID)
-	if modelProdut.ID == 0 {
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
 	}
 
 	modelContents := make([]models.ProductContentsWithTitle, 0)
@@ -262,6 +305,8 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 
 	contService := contsvc.NewServiceProductContent(h.server.DB)
 	contService.Update(&modelContents, req, productID)
+
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProductContents(c, http.StatusOK, modelContents)
 }
 
@@ -283,12 +328,24 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
 	modelTags := make([]models.ProductTagsWithName, 0)
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
 	tagRepo.ReadByProductID(&modelTags, productID)
 
 	tagService := prodtagsvc.NewServiceProductTag(h.server.DB)
 	tagService.Update(&modelTags, req, productID)
+
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProductTags(c, http.StatusOK, modelTags)
 }
 
@@ -310,6 +367,16 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
 	modelAttr := models.ProductAttributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
 	attrRepo.ReadByName(&modelAttr, req.Name)
@@ -324,6 +391,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	modelAttrs := make([]models.ProductAttributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProductAttributes(c, http.StatusCreated, modelAttrs)
 }
 
@@ -347,6 +415,16 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
 	modelAttr := models.ProductAttributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
 	attrRepo.ReadByID(&modelAttr, attributeID)
@@ -361,6 +439,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 	modelAttrs := make([]models.ProductAttributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProductAttributes(c, http.StatusOK, modelAttrs)
 }
 
@@ -371,11 +450,23 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param attribute_id query int true "Attribute ID"
+// @Param id path int true "Product ID"
 // @Success 200 {object} []responses.Data
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/product/attribute [delete]
+// @Router /store/api/v1/product/attribute/{id} [delete]
 func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
 
 	modelAttr := models.ProductAttributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
@@ -388,6 +479,7 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
 	attrService.Delete(attributeID)
 
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProductAttribute(c, http.StatusOK, modelAttr)
 }
 
@@ -406,9 +498,19 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
-	req := new(requests.RequestProductVariation)
+	req := new(requests.RequestProductAttributeValue)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
 	}
 
 	modelAttr := models.ProductAttributes{}
@@ -419,15 +521,16 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute doesn't exists in the product.")
 	}
 
-	modelVars := make([]models.ProductVariationsWithName, 0)
-	varRepo := repositories.NewRepositoryProductVariation(h.server.DB)
+	modelVars := make([]models.ProductAttributeValuesWithDetail, 0)
+	varRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
 	varRepo.ReadByID(&modelVars, attributeID)
 
-	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService := prodattrvalsvc.NewServiceProductVariation(h.server.DB)
 	varService.Update(attributeID, productID, &modelVars, req)
 
 	varRepo.ReadByProductID(&modelVars, productID)
-	return responses.NewResponseProductVariations(c, http.StatusOK, modelVars)
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelVars)
 }
 
 // Refresh godoc
@@ -454,11 +557,15 @@ func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) erro
 	if modelProduct.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
 	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	if err := prodService.UpdateMinimumStockLevel(productID, req, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
@@ -480,8 +587,18 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
 	modelShipData := models.ShippingData{}
-	shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
+	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
 	shipRepo.ReadByProductID(&modelShipData, productID)
 	if modelShipData.ID != 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data already exists in this product.")
@@ -490,6 +607,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 	if err := shipService.Create(productID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseShippingData(c, http.StatusCreated, modelShipData)
 }
 
@@ -511,8 +629,18 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
 	modelShipData := models.ShippingData{}
-	shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
+	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
 	shipRepo.ReadByProductID(&modelShipData, productID)
 	if modelShipData.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
@@ -522,6 +650,7 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 	if err := shipService.Update(productID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.NewResponseShippingData(c, http.StatusOK, modelShipData)
 }
 
@@ -539,8 +668,18 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	}
+	if modelProduct.Status == models.StatusProductPending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	}
+
 	modelShipData := models.ShippingData{}
-	shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
+	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
 	shipRepo.ReadByProductID(&modelShipData, productID)
 	if modelShipData.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
@@ -550,6 +689,7 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	if err := shipService.Delete(productID); err != nil {
 		return responses.MessageResponse(c, http.StatusOK, "Failed to delete shipping data")
 	}
+	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
 	return responses.MessageResponse(c, http.StatusOK, "Shipping data is successfully deleted")
 }
 

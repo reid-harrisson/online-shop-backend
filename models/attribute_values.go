@@ -12,3 +12,10 @@ type ProductAttributeValues struct {
 func (ProductAttributeValues) TableName() string {
 	return "store_product_attribute_values"
 }
+
+type ProductAttributeValuesWithDetail struct {
+	ProductAttributeValues
+	ProductID     uint64 `gorm:"column:product_id"`
+	AttributeName string `gorm:"column:attribute_name"`
+	AttributeUnit string `gomr:"column:attribute_unit"`
+}

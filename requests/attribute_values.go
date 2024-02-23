@@ -1,0 +1,5 @@
+package requests
+
+type RequestProductAttributeValue struct {
+	Values []string `json:"values" example:"100,200,300"`
+}

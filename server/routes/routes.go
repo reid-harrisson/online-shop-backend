@@ -71,8 +71,14 @@ func ConfigureRoutes(server *s.Server) {
 	groupTaxSettings := apiV1.Group("/tax")
 	GroupTaxSettings(server, groupTaxSettings)
 
-	groupShippingOption := apiV1.Group("/shipping-option")
+	groupShippingOption := apiV1.Group("/shipping")
 	GroupShippingOption(server, groupShippingOption)
+
+	groupCustomers := apiV1.Group("/customer")
+	GroupCustomers(server, groupCustomers)
+
+	groupVariations := apiV1.Group("/variation")
+	GroupVariations(server, groupVariations)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {
@@ -86,16 +92,17 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/paging", handler.ReadPaging)
 	e.GET("/linked", handler.ReadLinkedProduct)
 	e.PUT("/:id", handler.Update)
+	e.PUT("/approve/:id", handler.UpdateStatusApproved)
 	e.PUT("/attribute/:id", handler.UpdateAttributes)
-	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
+	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/tag/:id", handler.UpdateTags)
 	e.PUT("/variation/:id", handler.UpdateVariations)
 	e.DELETE("/:id", handler.Delete)
-	e.DELETE("/attribute/:id", handler.UpdateAttributes)
+	e.DELETE("/attribute/:id", handler.DeleteAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)
 	e.DELETE("/linked/:id", handler.DeleteLinkedProduct)
 }
@@ -129,10 +136,16 @@ func GroupProductReviews(server *s.Server, e *echo.Group) {
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersOrderManagement(server)
 	e.POST("", handler.Create)
+	e.POST("/email-template", handler.CreateEmailTemplate)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/customer", handler.ReadByCustomerID)
 	e.GET("/store", handler.ReadByStoreID)
+	e.GET("/email-template/:id", handler.ReadEmailTemplateByStoreID)
 	e.PUT("/status/:id", handler.UpdateStatus)
+	e.PUT("/billing-address/:id", handler.UpdateBillingAddress)
+	e.PUT("/shipping-address/:id", handler.UpdateShippingAddress)
+	e.PUT("/email-template/:id", handler.UpdateEmailTemplate)
+	e.DELETE("/email-template/:id", handler.DeleteEmailTemplate)
 }
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
@@ -162,6 +175,23 @@ func GroupTaxSettings(server *s.Server, e *echo.Group) {
 }
 
 func GroupShippingOption(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersTaxSettings(server)
-	e.GET("", handler.ReadTaxSetting)
+	handler := handlers.NewHandlersShippingOptions(server)
+	e.POST("/store", handler.CreateShippingOption)
+	e.GET("/store", handler.ReadShippingOption)
+	e.PUT("/order", handler.UpdateShippingMethod)
+}
+
+func GroupCustomers(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCustomers(server)
+	e.POST("/address", handler.CreateCustomerAddress)
+	e.GET("/address", handler.ReadCustomerAddress)
+	e.PUT("/address/:id", handler.UpdateCustomerAddress)
+}
+
+func GroupVariations(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersProductVariations(server)
+	e.POST("", handler.Create)
+	e.GET("", handler.ReadAll)
+	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
+	e.DELETE("/:id", handler.Delete)
 }

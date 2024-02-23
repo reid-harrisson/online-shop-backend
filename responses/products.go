@@ -28,9 +28,9 @@ type ResponseProductWithDetail struct {
 	RelatedChannels []uint64             `json:"related_channels"`
 	RelatedContents []uint64             `json:"related_contents"`
 	Tags            []string             `json:"tags"`
-	Categories      []string             `json:"categories"`
 	Attributes      []string             `json:"attributes"`
-	Variations      map[string][]string  `json:"variations"`
+	Categories      []string             `json:"categories"`
+	AttributeValues map[string][]string  `json:"variations"`
 	ShippingData    ResponseShippingData `json:"shipping_data"`
 }
 
@@ -63,14 +63,14 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		relatedContents = append(relatedContents, modelContent.ContentID)
 	}
 
-	tags := make([]string, 0)
-	for _, modelTag := range modelDetail.Tags {
-		tags = append(tags, modelTag.TagName)
-	}
-
 	categories := make([]string, 0)
 	for _, modelCategory := range modelDetail.Categories {
 		categories = append(categories, modelCategory.CategoryName)
+	}
+
+	tags := make([]string, 0)
+	for _, modelTag := range modelDetail.Tags {
+		tags = append(tags, modelTag.TagName)
 	}
 
 	attributes := make([]string, 0)
@@ -78,10 +78,10 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		attributes = append(attributes, modelAttr.Name)
 	}
 
-	variations := make(map[string][]string, 0)
-	for _, modelVar := range modelDetail.Variations {
-		attributeName := modelVar.AttributeName
-		variations[attributeName] = append(variations[attributeName], modelVar.Variant+modelVar.AttributeUnit)
+	attributeValues := make(map[string][]string, 0)
+	for _, modelValue := range modelDetail.AttributeValues {
+		attributeName := modelValue.AttributeName
+		attributeValues[attributeName] = append(attributeValues[attributeName], modelValue.Value+modelValue.AttributeUnit)
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{
@@ -96,10 +96,10 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
-		Tags:            tags,
 		Categories:      categories,
+		Tags:            tags,
 		Attributes:      attributes,
-		Variations:      variations,
+		AttributeValues: attributeValues,
 		ShippingData: ResponseShippingData{
 			ID:             uint64(modelDetail.ShippingData.ID),
 			Weight:         modelDetail.ShippingData.Weight,
