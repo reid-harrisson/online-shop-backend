@@ -1,4 +1,4 @@
-package linkedsvc
+package linksvc
 
 import (
 	"OnlineStoreBackend/models"
@@ -6,7 +6,7 @@ import (
 )
 
 func (service *Service) Create(productID uint64, linkID uint64, isUpCross utils.SellTypes) error {
-	modelLink := models.ProductLinked{}
+	modelLink := models.ProductLinks{}
 	service.DB.Where("link_id = ? And product_id = ?", linkID, productID).First(&modelLink)
 	modelLink.ProductID = productID
 	modelLink.LinkID = linkID

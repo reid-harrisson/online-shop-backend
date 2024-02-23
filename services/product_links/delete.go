@@ -1,4 +1,4 @@
-package linkedsvc
+package linksvc
 
 import (
 	"OnlineStoreBackend/models"
@@ -7,5 +7,5 @@ import (
 func (service *Service) Delete(linkedProductID uint64) {
 	service.DB.
 		Where("id = ?", linkedProductID).
-		Delete(models.ProductLinked{})
+		Delete(models.ProductLinks{})
 }

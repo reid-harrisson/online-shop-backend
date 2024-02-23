@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type ProductLinked struct {
+type ProductLinks struct {
 	gorm.Model
 
 	ProductID uint64          `gorm:"column:product_id; type:bigint(20) unsigned"`
@@ -19,6 +19,6 @@ type ProductsWithLink struct {
 	IsUpCross utils.SellTypes `gorm:"column:is_up_cross"`
 }
 
-func (ProductLinked) TableName() string {
+func (ProductLinks) TableName() string {
 	return "store_product_links"
 }

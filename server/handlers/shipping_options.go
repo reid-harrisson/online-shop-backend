@@ -7,7 +7,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	orditmsvc "OnlineStoreBackend/services/order_items"
-	shipoptsvc "OnlineStoreBackend/services/shipping_options"
+	shipmthsvc "OnlineStoreBackend/services/shipping_methods"
 	"net/http"
 	"strconv"
 
@@ -40,7 +40,7 @@ func (h *HandlersShippingOptions) CreateShippingOption(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	shipService := shipoptsvc.NewServiceShippingOption(h.server.DB)
+	shipService := shipmthsvc.NewServiceShippingMethod(h.server.DB)
 	if err := shipService.Create(storeID, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

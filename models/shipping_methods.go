@@ -14,5 +14,5 @@ type ShippingMethods struct {
 }
 
 func (ShippingMethods) TableName() string {
-	return "store_shipping_options"
+	return "store_shipping_methods"
 }

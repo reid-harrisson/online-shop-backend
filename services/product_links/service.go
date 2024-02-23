@@ -1,4 +1,4 @@
-package linkedsvc
+package linksvc
 
 import "github.com/jinzhu/gorm"
 

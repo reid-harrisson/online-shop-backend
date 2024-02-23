@@ -1,4 +1,4 @@
-package shipoptsvc
+package shipmthsvc
 
 import (
 	"OnlineStoreBackend/models"
