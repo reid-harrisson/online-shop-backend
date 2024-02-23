@@ -49,8 +49,8 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	shipRepo := NewRepositoryShipping(repository.DB)
 	shipRepo.ReadByProductID(&modelDetail.ShippingData, productID)
 
-	varRepo := NewRepositoryProductVariation(repository.DB)
-	varRepo.ReadByProductID(&modelDetail.Variations, productID)
+	varRepo := NewRepositoryProductAttributeValue(repository.DB)
+	varRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }
 
 func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {

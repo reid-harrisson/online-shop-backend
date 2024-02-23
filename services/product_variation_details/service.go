@@ -1,4 +1,4 @@
-package detsvc
+package prodvardetsvc
 
 import "github.com/jinzhu/gorm"
 

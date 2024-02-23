@@ -45,5 +45,5 @@ func (service *Service) UpdateStatus(productID uint64, productStatus string) err
 	case "approved":
 		status = models.StatusProductApproved
 	}
-	return service.DB.Model(models.Products{}).Where("id = ?", productID).Update("product_status", status).Error
+	return service.DB.Model(models.Products{}).Where("id = ?", productID).Update("status", status).Error
 }

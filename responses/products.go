@@ -36,7 +36,7 @@ type ResponseProductWithDetail struct {
 	Tags            []string             `json:"tags"`
 	Attributes      []string             `json:"attributes"`
 	Categories      []string             `json:"categories"`
-	Variations      map[string][]string  `json:"variations"`
+	AttributeValues map[string][]string  `json:"variations"`
 	ShippingData    ResponseShippingData `json:"shipping_data"`
 }
 
@@ -55,7 +55,7 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		UnitPriceSale:    modelProduct.UnitPriceSale,
 		StockQuantity:    modelProduct.StockQuantity,
 		Active:           modelProduct.Active,
-		ProductStatus:    models.ProductStatusToString(modelProduct.ProductStatus),
+		ProductStatus:    models.ProductStatusToString(modelProduct.Status),
 	}
 	return Response(c, statusCode, responseProduct)
 }
@@ -89,10 +89,10 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		attributes = append(attributes, modelAttr.Name)
 	}
 
-	variations := make(map[string][]string, 0)
-	for _, modelVar := range modelDetail.Variations {
-		attributeName := modelVar.AttributeName
-		variations[attributeName] = append(variations[attributeName], modelVar.Variant+modelVar.AttributeUnit)
+	attributeValues := make(map[string][]string, 0)
+	for _, modelValue := range modelDetail.AttributeValues {
+		attributeName := modelValue.AttributeName
+		attributeValues[attributeName] = append(attributeValues[attributeName], modelValue.Value+modelValue.AttributeUnit)
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{
@@ -109,14 +109,14 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 			MinimumStockLevel: modelDetail.MinimumStockLevel,
 			StockQuantity:     modelDetail.StockQuantity,
 			Active:            modelDetail.Active,
-			ProductStatus:     models.ProductStatusToString(modelDetail.ProductStatus),
+			ProductStatus:     models.ProductStatusToString(modelDetail.Status),
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
 		Categories:      categories,
 		Tags:            tags,
 		Attributes:      attributes,
-		Variations:      variations,
+		AttributeValues: attributeValues,
 		ShippingData: ResponseShippingData{
 			ID:             uint64(modelDetail.ShippingData.ID),
 			Weight:         modelDetail.ShippingData.Weight,
@@ -145,7 +145,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			UnitPriceSale:    modelProduct.UnitPriceSale,
 			StockQuantity:    modelProduct.StockQuantity,
 			Active:           modelProduct.Active,
-			ProductStatus:    models.ProductStatusToString(modelProduct.ProductStatus),
+			ProductStatus:    models.ProductStatusToString(modelProduct.Status),
 		})
 	}
 	return Response(c, statusCode, responseProducts)
@@ -168,7 +168,7 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			UnitPriceSale:    modelProduct.UnitPriceSale,
 			StockQuantity:    modelProduct.StockQuantity,
 			Active:           modelProduct.Active,
-			ProductStatus:    models.ProductStatusToString(modelProduct.ProductStatus),
+			ProductStatus:    models.ProductStatusToString(modelProduct.Status),
 		})
 	}
 	return Response(c, statusCode, ResponseProductsPaging{

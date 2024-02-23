@@ -1,4 +1,4 @@
-package detsvc
+package prodvardetsvc
 
 import (
 	"OnlineStoreBackend/models"

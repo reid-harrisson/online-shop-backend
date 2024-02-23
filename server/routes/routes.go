@@ -102,7 +102,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/tag/:id", handler.UpdateTags)
 	e.PUT("/variation/:id", handler.UpdateVariations)
 	e.DELETE("/:id", handler.Delete)
-	e.DELETE("/attribute/:id", handler.UpdateAttributes)
+	e.DELETE("/attribute/:id", handler.DeleteAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)
 	e.DELETE("/linked/:id", handler.DeleteLinkedProduct)
 }
@@ -191,4 +191,7 @@ func GroupCustomers(server *s.Server, e *echo.Group) {
 func GroupVariations(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductVariations(server)
 	e.POST("", handler.Create)
+	e.GET("", handler.ReadAll)
+	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
+	e.DELETE("/:id", handler.Delete)
 }

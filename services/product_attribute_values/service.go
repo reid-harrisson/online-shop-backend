@@ -1,4 +1,4 @@
-package varsvc
+package prodattrvalsvc
 
 import "github.com/jinzhu/gorm"
 

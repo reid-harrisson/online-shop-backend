@@ -34,19 +34,19 @@ type Products struct {
 	UnitPriceSale     float64         `gorm:"column:unit_price_sale; type:decimal(20,6)"`
 	StockQuantity     float64         `gorm:"column:stock_quantity; type:decimal(20,6)"`
 	MinimumStockLevel float64         `gorm:"column:minimum_stock_level; type:decimal(20,6)"`
-	ProductStatus     ProductStatuses `gorm:"column:product_status; type:tinyint(4)"`
+	Status            ProductStatuses `gorm:"column:status; type:tinyint(4)"`
 	Active            int8            `gorm:"column:active; type:tinyint(4)"`
 }
 
 type ProductsWithDetail struct {
 	Products
-	RelatedChannels []ProductChannelsWithName   `gorm:"column:related_channels"`
-	RelatedContents []ProductContentsWithTitle  `gorm:"column:related_contents"`
-	Tags            []ProductTagsWithName       `gorm:"column:tags"`
-	Categories      []ProductCategoriesWithName `gorm:"categories"`
-	Attributes      []ProductAttributes         `gorm:"column:attributes"`
-	Variations      []ProductVariationsWithName `gorm:"column:variations"`
-	ShippingData    ShippingData                `gorm:"column:shipping_data"`
+	RelatedChannels []ProductChannelsWithName          `gorm:"column:related_channels"`
+	RelatedContents []ProductContentsWithTitle         `gorm:"column:related_contents"`
+	Tags            []ProductTagsWithName              `gorm:"column:tags"`
+	Categories      []ProductCategoriesWithName        `gorm:"categories"`
+	Attributes      []ProductAttributes                `gorm:"column:attributes"`
+	AttributeValues []ProductAttributeValuesWithDetail `gorm:"column:variations"`
+	ShippingData    ShippingData                       `gorm:"column:shipping_data"`
 }
 
 func (Products) TableName() string {

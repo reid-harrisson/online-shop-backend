@@ -1,21 +1,29 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type ProductVariations struct {
 	gorm.Model
 
-	AttributeID uint64 `gorm:"column:attribute_id; type:bigint(20) unsigned"`
-	Variant     string `gorm:"column:variant; type:varchar(50)"`
+	Sku        string  `gorm:"column:sku; type:varchar(50)"`
+	ProductID  uint64  `gorm:"column:product_id; type:bigint(20) unsigned"`
+	Price      float64 `gorm:"column:price; type:decimal(20,6)"`
+	StockLevel float64 `gorm:"column:stock_level; type:decimal(20,6)"`
+}
+
+type ProductVariationDetails struct {
+	gorm.Model
+
+	VariationID      uint64 `gorm:"column:variation_id; type:bigint(20) unsigned"`
+	AttributeValueID uint64 `gorm:"column:attribute_value_id; type:bigint(20) unsigned"`
 }
 
 func (ProductVariations) TableName() string {
 	return "store_product_variations"
 }
 
-type ProductVariationsWithName struct {
-	ProductVariations
-	ProductID     uint64 `gorm:"column:product_id"`
-	AttributeName string `gorm:"column:attribute_name"`
-	AttributeUnit string `gomr:"column:attribute_unit"`
+func (ProductVariationDetails) TableName() string {
+	return "store_product_variation_details"
 }
