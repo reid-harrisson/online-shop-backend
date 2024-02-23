@@ -7,10 +7,10 @@ import (
 )
 
 type ResponseProductVariation struct {
-	ProductID     uint64   `json:"product_id"`
-	AttributeID   uint64   `json:"attribute_id"`
-	AttributeName string   `json:"attribute_name"`
-	Variants      []string `json:"variants"`
+	ProductID  uint64  `json:"product_id"`
+	SKU        string  `json:"sku"`
+	Price      float64 `json:"price"`
+	StockLevel float64 `json:"stock_level"`
 }
 
 func NewResponseProductVariations(c echo.Context, statusCode int, modelVars []models.ProductVariationsWithName) error {
@@ -24,7 +24,7 @@ func NewResponseProductVariations(c echo.Context, statusCode int, modelVars []mo
 		if tempID != modelVar.AttributeID {
 			responseAttrs = append(responseAttrs, ResponseProductVariation{
 				ProductID:     modelVar.ProductID,
-				AttributeID:   modelVar.AttributeID,
+				AttributeID:   modelVar.ProductID,
 				AttributeName: modelVar.AttributeName,
 				Variants:      vars[modelVar.AttributeName],
 			})

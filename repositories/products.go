@@ -68,3 +68,15 @@ func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, s
 		Where("Lower(title) Like ?", keyword).
 		Find(&modelProducts).Error
 }
+
+func (repository *RepositoryProduct) ReadCurrencyID(modelCurrencyID *models.ProductCurrencyID, storeID uint64) error {
+	return repository.DB.
+		Model(models.Stores{}).
+		Select("cu.id").
+		Joins("LEFT JOIN users AS u ON u.id = owner_id").
+		Joins("LEFT JOIN countries AS ca ON ca.id = u.country_id").
+		Joins("LEFT JOIN currencies AS cu ON cu.`code` = ca.currency_code ").
+		Where("stores.id = ?", storeID).
+		Scan(modelCurrencyID).
+		Error
+}

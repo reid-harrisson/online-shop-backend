@@ -3,6 +3,7 @@ package prodsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"encoding/json"
 )
@@ -18,8 +19,14 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
-
 	modelProduct.Status = utils.Draft
+
+	modelCurrenyID := models.ProductCurrencyID{}
+
+	productRepository := repositories.NewRepositoryProduct(service.DB)
+	productRepository.ReadCurrencyID(&modelCurrenyID, req.StoreID)
+
+	modelProduct.CurrencyID = modelCurrenyID.CurrencyID
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)
 
@@ -27,15 +34,6 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 }
 
 func (service *Service) UpdateMinimumStockLevel(productID uint64, req *requests.RequestMinimumStockLevel, modelProduct *models.Products) error {
-	modelProduct.StockQuantity = req.Level
-	return service.DB.Save(modelProduct).Error
-}
-
-func (service *Service) UpdatePrice(productID uint64, req *requests.RequestProductPrice, modelProduct *models.Products) error {
-	if err := service.DB.First(modelProduct, productID).Error; err != nil {
-		return err
-	}
-	modelProduct.UnitPriceSale = req.Price * modelProduct.UnitPriceSale / modelProduct.UnitPriceRegular
-	modelProduct.UnitPriceRegular = req.Price
+	modelProduct.MinimumStockLevel = req.Level
 	return service.DB.Save(modelProduct).Error
 }

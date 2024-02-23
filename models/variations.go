@@ -28,7 +28,8 @@ func (ProductVariationDetails) TableName() string {
 
 type ProductVariationsWithName struct {
 	ProductVariations
-	ProductID     uint64 `gorm:"column:product_id"`
-	AttributeName string `gorm:"column:attribute_name"`
-	AttributeUnit string `gomr:"column:attribute_unit"`
+
+	Title          uint64 `gorm:"column:product_id"`
+	AttributeName  string `gorm:"column:attribute_name"`
+	AttributeValue string `gomr:"column:attribute_value"`
 }
