@@ -14,11 +14,11 @@ func NewRepositoryCart(db *gorm.DB) *RepositoryCart {
 	return &RepositoryCart{DB: db}
 }
 
-func (repository *RepositoryCart) ReadByCartID(modelItem *models.CartItems, cartID uint64) {
+func (repository *RepositoryCart) ReadByID(modelItem *models.CartItems, cartID uint64) {
 	repository.DB.First(modelItem, cartID)
 }
 
-func (repository *RepositoryCart) ReadByProductID(modelItem *models.CartItems, productID uint64, customerID uint64) {
+func (repository *RepositoryCart) ReadByInfo(modelItem *models.CartItems, productID uint64, customerID uint64) {
 	repository.DB.Where("customer_id = ? And product_id = ?", customerID, productID).First(modelItem)
 }
 

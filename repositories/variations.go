@@ -14,11 +14,15 @@ func NewRepositoryVariation(db *gorm.DB) *RepositoryVariation {
 	return &RepositoryVariation{DB: db}
 }
 
-func (repository *RepositoryVariation) ReadVariationByID(modelVar *models.ProductVariations, variationID uint64) {
+func (repository *RepositoryVariation) ReadByID(modelVar *models.ProductVariations, variationID uint64) {
 	repository.DB.First(modelVar, variationID)
 }
 
-func (repository *RepositoryVariation) ReadVariationsInStore(modelVars *[]models.ProductVariationsInStore, storeID uint64) {
+func (repository *RepositoryVariation) ReadBySku(modelVar *models.ProductVariations, sku string) {
+	repository.DB.Where("sku = ?", sku).First(modelVar)
+}
+
+func (repository *RepositoryVariation) ReadByStore(modelVars *[]models.ProductVariationsInStore, storeID uint64) {
 	repository.DB.Table("store_product_variations As vars").
 		Select(`
 			vars.*,
@@ -30,7 +34,7 @@ func (repository *RepositoryVariation) ReadVariationsInStore(modelVars *[]models
 		Scan(&modelVars)
 }
 
-func (repository *RepositoryVariation) ReadVariationsInProduct(modelVars *[]models.ProductVariationsInProduct, productID uint64) {
+func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.ProductVariationsInProduct, productID uint64) {
 	repository.DB.Table("store_product_variations As vars").
 		Select(`
 			vars.*,

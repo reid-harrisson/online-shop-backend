@@ -63,7 +63,7 @@ func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error 
 
 	modelVars := make([]models.ProductVariationsInStore, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadVariationsInStore(&modelVars, storeID)
+	varRepo.ReadByStore(&modelVars, storeID)
 
 	return responses.NewResponseProductVariationsInStore(c, http.StatusOK, modelVars)
 }
@@ -83,7 +83,7 @@ func (h *HandlersProductVariations) ReadVariationsInProduct(c echo.Context) erro
 
 	modelVars := make([]models.ProductVariationsInProduct, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadVariationsInProduct(&modelVars, productID)
+	varRepo.ReadByProduct(&modelVars, productID)
 
 	return responses.NewResponseProductVariationsInProduct(c, http.StatusOK, modelVars)
 }
@@ -105,7 +105,7 @@ func (h *HandlersProductVariations) UpdateStockLevel(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadVariationByID(&modelVar, variationID)
+	varRepo.ReadByID(&modelVar, variationID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
@@ -132,7 +132,7 @@ func (h *HandlersProductVariations) Delete(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadVariationByID(&modelVar, variationID)
+	varRepo.ReadByID(&modelVar, variationID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")

@@ -19,7 +19,7 @@ func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, pro
 	repository.DB.First(modelProduct, productID)
 }
 
-func (repository *RepositoryProduct) ReadProductLinks(modelProducts *[]models.ProductsWithLink, productID uint64) {
+func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) {
 	repository.DB.Table("store_products As prods").
 		Select("prods.*, links.is_up_cross As is_up_cross").
 		Joins("Join store_product_links As links On links.link_id = prods.id").

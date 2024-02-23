@@ -1,17 +1,10 @@
 package utils
 
 type ShippingMethods int8
-type StockLevelStatus int8
-type OutOfStockStatus int8
-type BackOrderStatus int8
+type SimpleStatuses int8
 type ProductStatus int8
 type DiscountTypes int8
 type SellTypes int8
-
-const (
-	UpSell SellTypes = iota
-	CrossSell
-)
 
 const (
 	PercentageOff DiscountTypes = iota + 1
@@ -27,18 +20,8 @@ const (
 )
 
 const (
-	HideStockLevel StockLevelStatus = iota
-	ShowStockLevel
-)
-
-const (
-	HideOutOfStock OutOfStockStatus = iota
-	ShowOutOfStock
-)
-
-const (
-	HideBackOrder BackOrderStatus = iota
-	ShowBackOrder
+	Disabled SimpleStatuses = iota
+	Enabled
 )
 
 const (
@@ -46,6 +29,11 @@ const (
 	Pending
 	Approved
 	Rejected
+)
+
+const (
+	UpSell SellTypes = iota
+	CrossSell
 )
 
 func ProductStatusToString(productStatus ProductStatus) string {
@@ -78,37 +66,15 @@ func ProductStatusFromString(productStatus string) ProductStatus {
 	return Draft
 }
 
-func StockLevelStatusToString(stockLevelStatus StockLevelStatus) string {
-	switch stockLevelStatus {
-	case HideStockLevel:
-		return "Off"
-	case ShowStockLevel:
-		return "On"
+func SimpleStatusToString(status SimpleStatuses) string {
+	switch status {
+	case Disabled:
+		return "Disabled"
+	case Enabled:
+		return "Enabled"
 	}
 
-	return "Off"
-}
-
-func OutOfStockStatusToString(outOfStockStatus OutOfStockStatus) string {
-	switch outOfStockStatus {
-	case HideOutOfStock:
-		return "Off"
-	case ShowOutOfStock:
-		return "On"
-	}
-
-	return "Off"
-}
-
-func BackOrderStatusToString(backOrderStatus BackOrderStatus) string {
-	switch backOrderStatus {
-	case HideBackOrder:
-		return "Off"
-	case ShowBackOrder:
-		return "On"
-	}
-
-	return "Off"
+	return "Disabled"
 }
 
 func ShippingMethodsToString(method ShippingMethods) string {
