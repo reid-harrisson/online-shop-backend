@@ -191,7 +191,8 @@ func GroupCustomers(server *s.Server, e *echo.Group) {
 func GroupVariations(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductVariations(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.ReadAll)
+	e.GET("/store", handler.ReadVariationsInStore)
+	e.GET("/product", handler.ReadVariationsInProduct)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 	e.DELETE("/:id", handler.Delete)
 }

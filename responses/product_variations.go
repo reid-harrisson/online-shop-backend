@@ -22,6 +22,16 @@ type ResponseProductVariationsInStore struct {
 	Variations        []ResponseProductVariation `json:"variations"`
 }
 
+type ResponseProductVariationAttribute struct {
+	AttributeID    uint64 `json:"attribute_id"`
+	AttributeName  string `json:"attribute_name"`
+	AttributeValue string `json:"attribute_value"`
+}
+type ResponseProductVariationsInProduct struct {
+	ResponseProductVariation
+	Attributes []ResponseProductVariationAttribute `json:"attributes"`
+}
+
 func NewResponseProductVariation(c echo.Context, statusCode int, modelVar models.ProductVariations) error {
 	return Response(c, statusCode, ResponseProductVariation{
 		ID:         uint64(modelVar.ID),
@@ -32,7 +42,7 @@ func NewResponseProductVariation(c echo.Context, statusCode int, modelVar models
 	})
 }
 
-func NewResponseProductVariationsInStore(c echo.Context, statusCode int, modelVars []models.ProductVariationsWithDetail) error {
+func NewResponseProductVariationsInStore(c echo.Context, statusCode int, modelVars []models.ProductVariationsInStore) error {
 	mapVars := make(map[uint64][]int)
 	responseProducts := make([]ResponseProductVariationsInStore, 0)
 	for index, modelVar := range modelVars {
@@ -66,4 +76,37 @@ func NewResponseProductVariationsInStore(c echo.Context, statusCode int, modelVa
 		})
 	}
 	return Response(c, statusCode, responseProducts)
+}
+
+func NewResponseProductVariationsInProduct(c echo.Context, statusCode int, modelVars []models.ProductVariationsInProduct) error {
+	mapVars := make(map[uint64][]int)
+	for index, modelVar := range modelVars {
+		mapVars[uint64(modelVar.ID)] = append(mapVars[uint64(modelVar.ID)], index)
+	}
+	responseVars := make([]ResponseProductVariationsInProduct, 0)
+	for _, indexes := range mapVars {
+		responseAttrs := make([]ResponseProductVariationAttribute, 0)
+		for _, index := range indexes {
+			responseAttrs = append(responseAttrs, ResponseProductVariationAttribute{
+				AttributeID:    modelVars[index].AttributeID,
+				AttributeName:  modelVars[index].AttributeName,
+				AttributeValue: modelVars[index].AttributeValue + modelVars[index].Unit,
+			})
+		}
+		index := 0
+		if len(indexes) > 0 {
+			index = indexes[0]
+		}
+		responseVars = append(responseVars, ResponseProductVariationsInProduct{
+			ResponseProductVariation: ResponseProductVariation{
+				ID:         uint64(modelVars[index].ID),
+				Sku:        modelVars[index].Sku,
+				ProductID:  modelVars[index].ProductID,
+				Price:      modelVars[index].Price,
+				StockLevel: modelVars[index].StockLevel,
+			},
+			Attributes: responseAttrs,
+		})
+	}
+	return Response(c, statusCode, responseVars)
 }

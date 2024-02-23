@@ -49,20 +49,43 @@ func (h *HandlersProductVariations) Create(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read all product variation
+// @Summary Read all product variation in store
 // @Tags Product Variation
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
 // @Success 200 {object} responses.ResponseProductVariationsInStore
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/variation [get]
-func (h *HandlersProductVariations) ReadAll(c echo.Context) error {
-	modelVars := make([]models.ProductVariationsWithDetail, 0)
+// @Router /store/api/v1/variation/store [get]
+func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	modelVars := make([]models.ProductVariationsInStore, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadAllVariations(&modelVars)
+	varRepo.ReadVariationsInStore(&modelVars, storeID)
 
 	return responses.NewResponseProductVariationsInStore(c, http.StatusOK, modelVars)
+}
+
+// Refresh godoc
+// @Summary Read all product variation in product
+// @Tags Product Variation
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id query int true "Product ID"
+// @Success 200 {object} []responses.ResponseProductVariationsInProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/variation/product [get]
+func (h *HandlersProductVariations) ReadVariationsInProduct(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+
+	modelVars := make([]models.ProductVariationsInProduct, 0)
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadVariationsInProduct(&modelVars, productID)
+
+	return responses.NewResponseProductVariationsInProduct(c, http.StatusOK, modelVars)
 }
 
 // Refresh godoc

@@ -17,8 +17,16 @@ func (ProductVariations) TableName() string {
 	return "store_product_variations"
 }
 
-type ProductVariationsWithDetail struct {
+type ProductVariationsInStore struct {
 	ProductVariations
 	Title             string  `gorm:"column:title"`
 	MinimumStockLevel float64 `gorm:"column:minimum_stock_level"`
+}
+
+type ProductVariationsInProduct struct {
+	ProductVariations
+	AttributeID    uint64 `gomr:"column:attribute_id"`
+	AttributeName  string `gorm:"column:attribute_name"`
+	AttributeValue string `gorm:"column:attribute_value"`
+	Unit           string `gorm:"column:unit"`
 }
