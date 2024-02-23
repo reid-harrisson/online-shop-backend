@@ -120,7 +120,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, modelItem.ProductID)
+	prodRepo.ReadByID(&modelProduct, modelItem.VariationID)
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.UpdateQuantity(cartID, &modelItem, modelProduct, quantity)

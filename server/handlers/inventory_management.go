@@ -71,7 +71,7 @@ func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context)
 
 	storeService := storesvc.NewServiceStore(h.server.DB)
 
-	if err := storeService.UpdateShowOutOfStockStatus(id, &modelStore); err != nil {
+	if err := storeService.UpdateOutOfStockStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseOutOfStockStatus(c, http.StatusOK, modelStore.OutOfStockStatus)
@@ -99,7 +99,7 @@ func (h *HandlersInventoryManagement) UpdateShowStockLevelStatus(c echo.Context)
 
 	storeService := storesvc.NewServiceStore(h.server.DB)
 
-	if err := storeService.UpdateShowStockLevelStatus(id, &modelStore); err != nil {
+	if err := storeService.UpdateStockLevelStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseStockLevelStatus(c, http.StatusOK, modelStore.StockLevelStatus)

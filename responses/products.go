@@ -92,7 +92,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 			ShortDescription: modelDetail.ShortDescription,
 			LongDescription:  modelDetail.LongDescription,
 			ImageUrls:        imageUrls,
-			Status:           modelDetail.Status,
+			Status:           utils.ProductStatusToString(modelDetail.Status),
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
@@ -123,7 +123,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
 			ImageUrls:        imageUrls,
-			Status:           modelProduct.Status,
+			Status:           utils.ProductStatusToString(modelProduct.Status),
 		})
 	}
 	return Response(c, statusCode, responseProducts)
@@ -141,7 +141,7 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
 			ImageUrls:        imageUrls,
-			Status:           modelProduct.Status,
+			Status:           utils.ProductStatusToString(modelProduct.Status),
 		})
 	}
 	return Response(c, statusCode, ResponseProductsPaging{

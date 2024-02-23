@@ -5,32 +5,32 @@ import "OnlineStoreBackend/models"
 func (service *Service) UpdateBackOrder(storeID uint64, modelStore *models.Stores) error {
 	service.DB.First(modelStore, storeID)
 
-	if modelStore.IsBackOrder == 0 {
-		modelStore.IsBackOrder = 1
+	if modelStore.BackOrderStatus == 0 {
+		modelStore.BackOrderStatus = 1
 	} else {
-		modelStore.IsBackOrder = 0
+		modelStore.BackOrderStatus = 0
 	}
 	return service.DB.Save(modelStore).Error
 }
 
-func (service *Service) UpdateShowOutOfStockStatus(storeID uint64, modelStore *models.Stores) error {
+func (service *Service) UpdateOutOfStockStatus(storeID uint64, modelStore *models.Stores) error {
 	service.DB.First(modelStore, storeID)
 
-	if modelStore.ShowOutOfStockStatus == 0 {
-		modelStore.ShowOutOfStockStatus = 1
+	if modelStore.OutOfStockStatus == 0 {
+		modelStore.OutOfStockStatus = 1
 	} else {
-		modelStore.ShowOutOfStockStatus = 0
+		modelStore.OutOfStockStatus = 0
 	}
 	return service.DB.Save(modelStore).Error
 }
 
-func (service *Service) UpdateShowStockLevelStatus(storeID uint64, modelStore *models.Stores) error {
+func (service *Service) UpdateStockLevelStatus(storeID uint64, modelStore *models.Stores) error {
 	service.DB.First(modelStore, storeID)
 
-	if modelStore.ShowStockLevelStatus == 0 {
-		modelStore.ShowStockLevelStatus = 1
+	if modelStore.StockLevelStatus == 0 {
+		modelStore.StockLevelStatus = 1
 	} else {
-		modelStore.ShowStockLevelStatus = 0
+		modelStore.StockLevelStatus = 0
 	}
 	return service.DB.Save(modelStore).Error
 }
