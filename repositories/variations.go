@@ -18,6 +18,13 @@ func (repository *RepositoryVariation) ReadVariationByID(modelVar *models.Produc
 	repository.DB.First(modelVar, variationID)
 }
 
-func (repository *RepositoryVariation) ReadAllVariations(modelVar *[]models.ProductVariations) {
-	repository.DB.Find(modelVar)
+func (repository *RepositoryVariation) ReadAllVariations(modelVars *[]models.ProductVariationsWithDetail) {
+	repository.DB.Table("store_product_variations As vars").
+		Select(`
+			vars.*,
+			prods.title,
+			prods.minimum_stock_level
+		`).
+		Joins("Left Join store_products As prods On prods.id = vars.product_id").
+		Scan(&modelVars)
 }

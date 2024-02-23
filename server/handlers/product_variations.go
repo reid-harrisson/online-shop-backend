@@ -54,15 +54,15 @@ func (h *HandlersProductVariations) Create(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} responses.ResponseProductVariation
+// @Success 200 {object} responses.ResponseProductVariationsInStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/variation [get]
 func (h *HandlersProductVariations) ReadAll(c echo.Context) error {
-	modelVars := make([]models.ProductVariations, 0)
+	modelVars := make([]models.ProductVariationsWithDetail, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadAllVariations(&modelVars)
 
-	return responses.NewResponseProductVariationWithProduct(c, http.StatusOK, modelVars)
+	return responses.NewResponseProductVariationsInStore(c, http.StatusOK, modelVars)
 }
 
 // Refresh godoc
