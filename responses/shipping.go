@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -42,24 +43,11 @@ func NewResponseShippingData(c echo.Context, statusCode int, modelShipData model
 	return Response(c, statusCode, responseShipData)
 }
 
-func NewResponseShippingMethod(c echo.Context, statusCode int, modelOptions []models.ShippingOptions) error {
+func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []models.ShippingMethods) error {
 	responseMethods := make([]ResponseShippingMethod, 0)
-	for _, modelOption := range modelOptions {
-		method := ""
-		switch modelOption.Method {
-		case models.MethodPickUp:
-			method = "Pick Up"
-		case models.MethodFlatRate:
-			method = "Flat Rate"
-		case models.MethodTableRate:
-			method = "Table Rate"
-		case models.MethodFreeShipping:
-			method = "Free Shipping"
-		case models.MethodRealTime:
-			method = "Real Time"
-		}
+	for _, modelMethod := range modelMethods {
 		responseMethods = append(responseMethods, ResponseShippingMethod{
-			Method: method,
+			Method: utils.ShippingMethodsToString(modelMethod.Method),
 		})
 	}
 	return Response(c, statusCode, responseMethods)

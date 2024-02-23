@@ -29,14 +29,14 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 	sku := modelProduct.Title
 	for _, modelValue := range modelValues {
 		lenAttr := len(modelValue.AttributeName)
-		lenVal := len(modelValue.Value)
+		lenVal := len(modelValue.AttributeValue)
 		if lenAttr > 3 {
 			lenAttr = 3
 		}
 		if lenVal > 3 {
 			lenVal = 3
 		}
-		sku += "-" + modelValue.AttributeName[0:lenAttr] + "-" + modelValue.Value[0:lenVal]
+		sku += "-" + modelValue.AttributeName[0:lenAttr] + "-" + modelValue.AttributeValue[0:lenVal]
 	}
 
 	service.DB.Where("sku = ?", sku).First(&modelVar)

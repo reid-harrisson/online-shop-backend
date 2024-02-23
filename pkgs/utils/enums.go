@@ -5,6 +5,12 @@ type StockLevelStatus int8
 type OutOfStockStatus int8
 type BackOrderStatus int8
 type ProductStatus int8
+type DiscountTypes int8
+
+const (
+	PercentageOff DiscountTypes = iota + 1
+	FixedAmountOff
+)
 
 const (
 	PickUp ShippingMethods = iota
@@ -99,9 +105,36 @@ func BackOrderStatusToString(backOrderStatus BackOrderStatus) string {
 	return "Off"
 }
 
-type DiscountTypes int8
+func ShippingMethodsToString(method ShippingMethods) string {
+	switch method {
+	case PickUp:
+		return "PickUp"
+	case FlatRate:
+		return "FlatRate"
+	case TableRate:
+		return "TableRate"
+	case RealTimeCarrierRate:
+		return "RealTimeCarrierRate"
+	case FreeShipping:
+		return "FreeShipping"
+	}
 
-const (
-	PercentageOff DiscountTypes = iota + 1
-	FixedAmountOff
-)
+	return "PickUp"
+}
+
+func ShippingMethodsFromString(method string) ShippingMethods {
+	switch method {
+	case "PickUp":
+		return PickUp
+	case "FlatRate":
+		return FlatRate
+	case "TableRate":
+		return TableRate
+	case "RealTimeCarrierRate":
+		return RealTimeCarrierRate
+	case "FreeShipping":
+		return FreeShipping
+	}
+
+	return PickUp
+}

@@ -15,6 +15,7 @@ type ResponseProduct struct {
 	ShortDescription string   `json:"short_description"`
 	LongDescription  string   `json:"long_description"`
 	ImageUrls        []string `json:"image_urls"`
+	CurrencyID       uint64   `json:"currency_id"`
 	Status           string   `json:"status"`
 }
 
@@ -44,6 +45,7 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		ShortDescription: modelProduct.ShortDescription,
 		LongDescription:  modelProduct.LongDescription,
 		ImageUrls:        imageUrls,
+		CurrencyID:       modelProduct.CurrencyID,
 		Status:           utils.ProductStatusToString(modelProduct.Status),
 	}
 	return Response(c, statusCode, responseProduct)
@@ -75,19 +77,20 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 
 	attributes := make([]string, 0)
 	for _, modelAttr := range modelDetail.Attributes {
-		attributes = append(attributes, modelAttr.Name)
+		attributes = append(attributes, modelAttr.AttributeName)
 	}
 
 	attributeValues := make(map[string][]string, 0)
 	for _, modelValue := range modelDetail.AttributeValues {
 		attributeName := modelValue.AttributeName
-		attributeValues[attributeName] = append(attributeValues[attributeName], modelValue.Value+modelValue.AttributeUnit)
+		attributeValues[attributeName] = append(attributeValues[attributeName], modelValue.AttributeValue+modelValue.AttributeUnit)
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{
 		ResponseProduct: ResponseProduct{
 			ID:               uint64(modelDetail.ID),
 			StoreID:          modelDetail.StoreID,
+			CurrencyID:       modelDetail.CurrencyID,
 			Title:            modelDetail.Title,
 			ShortDescription: modelDetail.ShortDescription,
 			LongDescription:  modelDetail.LongDescription,
@@ -120,6 +123,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			ID:               uint64(modelProduct.ID),
 			StoreID:          modelProduct.StoreID,
 			Title:            modelProduct.Title,
+			CurrencyID:       modelProduct.CurrencyID,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
 			ImageUrls:        imageUrls,
@@ -138,6 +142,7 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			ID:               uint64(modelProduct.ID),
 			StoreID:          modelProduct.StoreID,
 			Title:            modelProduct.Title,
+			CurrencyID:       modelProduct.CurrencyID,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
 			ImageUrls:        imageUrls,

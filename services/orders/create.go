@@ -32,7 +32,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.Ca
 		modelItems = append(modelItems, &models.OrderItems{
 			OrderID:          uint64(orderID),
 			StoreID:          modelCart.StoreID,
-			VariationID:      modelCart.ProductID,
+			VariationID:      modelCart.VariationID,
 			Price:            modelCart.UnitPrice,
 			Quantity:         modelCart.Quantity,
 			SubTotalPrice:    modelCart.TotalPrice,

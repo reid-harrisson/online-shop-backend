@@ -44,8 +44,8 @@ type Orders struct {
 	gorm.Model
 
 	CustomerID        uint64        `gorm:"column:customer_id; type:bigint(20) unsigned"`
-	BillingAddressID  string        `gorm:"column:billing_address_id; type:bigint(20) unsigned"`
-	ShippingAddressID string        `gorm:"column:shipping_address_id; type:bigint(20) unsigned"`
+	BillingAddressID  uint64        `gorm:"column:billing_address_id; type:bigint(20) unsigned"`
+	ShippingAddressID uint64        `gorm:"column:shipping_address_id; type:bigint(20) unsigned"`
 	Status            OrderStatuses `gorm:"column:status; type:tinyint(4)"`
 }
 

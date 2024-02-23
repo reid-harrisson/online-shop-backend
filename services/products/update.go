@@ -3,7 +3,6 @@ package prodsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
-	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"encoding/json"
 	"strings"
@@ -16,12 +15,6 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	modelProduct.LongDescription = req.LongDescirpiton
 	modelProduct.Status = utils.Draft
 
-	modelCurrenyID := models.ProductCurrencyID{}
-
-	productRepository := repositories.NewRepositoryProduct(service.DB)
-	productRepository.ReadCurrencyID(&modelCurrenyID, req.StoreID)
-
-	modelProduct.CurrencyID = modelCurrenyID.CurrencyID
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)
 

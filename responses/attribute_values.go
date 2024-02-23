@@ -18,7 +18,7 @@ func NewResponseProductAttributeValue(c echo.Context, statusCode int, modelValue
 	mapValues := make(map[string][]string)
 	mapIndexes := make(map[string]int)
 	for index, modelValue := range modelValues {
-		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], modelValue.Value+modelValue.AttributeUnit)
+		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], modelValue.AttributeValue+modelValue.AttributeUnit)
 		mapIndexes[modelValue.AttributeName] = index
 	}
 	for name, values := range mapValues {

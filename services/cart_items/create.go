@@ -12,8 +12,8 @@ func (service *Service) Create(modelCart *models.CartItems, customerID uint64, m
 		modelCart.VariationID = productID
 		modelCart.Quantity = quantity
 
-		if modelCart.Quantity > modelVariation.StockQuantity {
-			modelCart.Quantity = modelVariation.StockQuantity
+		if modelCart.Quantity > modelVariation.StockLevel {
+			modelCart.Quantity = modelVariation.StockLevel
 		}
 
 		return service.DB.Create(modelCart).Error
@@ -21,8 +21,8 @@ func (service *Service) Create(modelCart *models.CartItems, customerID uint64, m
 
 	modelCart.Quantity += quantity
 
-	if modelCart.Quantity > modelVariation.StockQuantity {
-		modelCart.Quantity = modelVariation.StockQuantity
+	if modelCart.Quantity > modelVariation.StockLevel {
+		modelCart.Quantity = modelVariation.StockLevel
 	}
 
 	return service.DB.Save(modelCart).Error

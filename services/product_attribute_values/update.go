@@ -9,7 +9,7 @@ import (
 func (service *Service) Update(attributeID uint64, productID uint64, modelValues *[]models.ProductAttributeValuesWithDetail, req *requests.RequestProductAttributeValue) {
 	filterKeys := make(map[string]int)
 	for _, modelVar := range *modelValues {
-		filterKeys[modelVar.Value] = 1
+		filterKeys[modelVar.AttributeValue] = 1
 	}
 	for _, value := range req.Values {
 		if filterKeys[value] == 1 {

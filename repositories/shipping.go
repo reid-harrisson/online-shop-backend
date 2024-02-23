@@ -18,6 +18,6 @@ func (repository *RepositoryShipping) ReadByProductID(modelShipData *models.Ship
 	repository.DB.Where("product_id = ?", productID).First(modelShipData)
 }
 
-func (repository *RepositoryShipping) ReadOptionsByStoreID(modelOptions *[]models.ShippingOptions, storeID uint64) {
+func (repository *RepositoryShipping) ReadOptionsByStoreID(modelOptions *[]models.ShippingMethods, storeID uint64) {
 	repository.DB.Where("store_id = ?", storeID).Find(modelOptions)
 }

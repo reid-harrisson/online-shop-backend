@@ -34,24 +34,24 @@ func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
 // @Router /store/api/v1/cart [post]
 func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+	variationID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
 
-	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
+	modelVar := models.ProductVariations{}
+	prodRepo := repositories.NewRepositoryVariation(h.server.DB)
+	prodRepo.ReadVariationByID(&modelVar, variationID)
+	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No product exists at this product ID.")
 	}
 
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByProductID(&modelItem, productID, customerID)
+	cartRepo.ReadByProductID(&modelItem, variationID, customerID)
 	if modelItem.ID != 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This cart item already exist in cart.")
 	}
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.Create(&modelItem, customerID, modelProduct, quantity)
+	cartService.Create(&modelItem, customerID, modelVar, quantity)
 
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	cartRepo.ReadDetail(&modelItems, customerID)
@@ -118,12 +118,12 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No cart item exist at this ID.")
 	}
 
-	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, modelItem.VariationID)
+	modelVar := models.ProductVariations{}
+	prodRepo := repositories.NewRepositoryVariation(h.server.DB)
+	prodRepo.ReadVariationByID(&modelVar, modelItem.VariationID)
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.UpdateQuantity(cartID, &modelItem, modelProduct, quantity)
+	cartService.UpdateQuantity(cartID, &modelItem, modelVar, quantity)
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	cartRepo.ReadDetail(&modelItems, modelItem.CustomerID)
 	return responses.NewResponseCart(c, http.StatusOK, modelItems)

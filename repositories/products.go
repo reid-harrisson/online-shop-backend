@@ -20,11 +20,11 @@ func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, pro
 }
 
 func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) {
-	repository.DB.Model(models.Products{}).
-		Select("store_products.*, links.is_up_cross As is_up_cross").
-		Joins("Join store_linked_products As links On links.linked_id = store_products.id").
+	repository.DB.Model("store_products As prods").
+		Select("prods.*, links.is_up_cross As is_up_cross").
+		Joins("Join store_linked_products As links On links.linked_id = prods.id").
 		Where("links.product_id = ?", productID).
-		Where("links.deleted_at Is Null").
+		Where("links.deleted_at Is Null And prds.deleted_at Is Null").
 		Scan(modelProducts)
 }
 
@@ -49,35 +49,34 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	shipRepo := NewRepositoryShipping(repository.DB)
 	shipRepo.ReadByProductID(&modelDetail.ShippingData, productID)
 
-	varRepo := NewRepositoryProductAttributeValue(repository.DB)
-	varRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
+	attrValRepo := NewRepositoryProductAttributeValue(repository.DB)
+	attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }
 
 func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.Model(models.Products{}).
-		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
+		Where("? = 0 Or store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
-		Where("prods.deleted_at Is Null And cates.deleted_at Is Null").
 		Count(totalCount).Offset(page).Limit(count).Find(modelProducts).Error
 }
 
 func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, storeID uint64, keyword string) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.
-		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
+		Where("? = 0 Or store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
 		Find(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadCurrencyID(modelCurrencyID *models.ProductCurrencyID, storeID uint64) error {
+func (repository *RepositoryProduct) ReadCurrencyID(modelProduct *models.Products, storeID uint64) error {
 	return repository.DB.
 		Model(models.Stores{}).
-		Select("cu.id").
+		Select("cu.id As currency_id").
 		Joins("LEFT JOIN users AS u ON u.id = owner_id").
 		Joins("LEFT JOIN countries AS ca ON ca.id = u.country_id").
 		Joins("LEFT JOIN currencies AS cu ON cu.`code` = ca.currency_code ").
 		Where("stores.id = ?", storeID).
-		Scan(modelCurrencyID).
+		Scan(modelProduct).
 		Error
 }

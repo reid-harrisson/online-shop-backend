@@ -2,27 +2,14 @@ package shipoptsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
-	"strings"
 )
 
 func (service *Service) Create(storeID uint64, req *requests.RequestShippingOption) error {
-	method := models.MethodPickUp
-	switch strings.ToLower(req.Method) {
-	case "pick up":
-		method = models.MethodPickUp
-	case "flat rate":
-		method = models.MethodFlatRate
-	case "table rate":
-		method = models.MethodTableRate
-	case "free shipping":
-		method = models.MethodFreeShipping
-	case "real time":
-		method = models.MethodRealTime
-	}
-	modelMethod := models.ShippingOptions{
+	modelMethod := models.ShippingMethods{
 		StoreID: storeID,
-		Method:  method,
+		Method:  utils.ShippingMethodsFromString(req.Method),
 	}
 	return service.DB.Create(&modelMethod).Error
 }

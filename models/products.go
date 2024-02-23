@@ -33,7 +33,7 @@ type Products struct {
 	ImageUrls         string              `gorm:"column:image_urls; type:varchar(1000)"`
 	MinimumStockLevel float64             `gorm:"column:minimum_stock_level; type;decimal(20,6)"`
 	CurrencyID        uint64              `gorm:"column:currency_id; type:bigint(20) unsigned"`
-	Status            utils.ProductStatus `gorm:"column:active; type:tinyint(4)"`
+	Status            utils.ProductStatus `gorm:"column:status; type:tinyint(4)"`
 }
 
 type ProductsWithDetail struct {
@@ -45,10 +45,6 @@ type ProductsWithDetail struct {
 	Attributes      []ProductAttributes                `gorm:"column:attributes"`
 	AttributeValues []ProductAttributeValuesWithDetail `gorm:"column:variations"`
 	ShippingData    ShippingData                       `gorm:"column:shipping_data"`
-}
-
-type ProductCurrencyID struct {
-	CurrencyID uint64 `gorm:"column:id"`
 }
 
 func (Products) TableName() string {

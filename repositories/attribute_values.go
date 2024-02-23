@@ -15,27 +15,27 @@ func NewRepositoryProductAttributeValue(db *gorm.DB) *RepositoryProductAttribute
 }
 
 func (repository *RepositoryProductAttributeValue) ReadByID(modelVars *[]models.ProductAttributeValuesWithDetail, attributeID uint64) {
-	repository.DB.Table("store_product_variations As vars").
-		Select("vars.*, attrs.name As attribute_name, attrs.unit As attribute_unit, attrs.product_id As product_id").
-		Joins("Join store_product_attributes As attrs On attrs.id = vars.attribute_id").
-		Where("attrs.deleted_at Is Null And vars.deleted_at Is Null").
-		Where("vars.attribute_id = ?", attributeID).
+	repository.DB.Table("store_product_attribute_values As vals").
+		Select("vals.*, attrs.attribute_name As attribute_name, attrs.unit As attribute_unit, attrs.product_id As product_id").
+		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
+		Where("attrs.deleted_at Is Null And vals.deleted_at Is Null").
+		Where("vals.attribute_id = ?", attributeID).
 		Scan(modelVars)
 }
 
 func (repository *RepositoryProductAttributeValue) ReadByProductID(modelVars *[]models.ProductAttributeValuesWithDetail, productID uint64) {
-	repository.DB.Table("store_product_variations As vars").
-		Select("vars.*, attrs.name As attribute_name, attrs.unit As attribute_unit, attrs.product_id As product_id").
-		Joins("Join store_product_attributes As attrs On attrs.id = vars.attribute_id").
-		Where("attrs.deleted_at Is Null And vars.deleted_at Is Null").
+	repository.DB.Table("store_product_attribute_values As vals").
+		Select("vals.*, attrs.attribute_name As attribute_name, attrs.unit As attribute_unit, attrs.product_id As product_id").
+		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
+		Where("attrs.deleted_at Is Null And vals.deleted_at Is Null").
 		Where("attrs.product_id = ?", productID).
-		Order("vars.attribute_id").
+		Order("vals.attribute_id").
 		Scan(modelVars)
 }
 
 func (repository *RepositoryProductAttributeValue) ReadByIDs(modelValues *[]models.ProductAttributeValuesWithDetail, attributeValueIDs []uint64) {
 	repository.DB.Table("store_product_attribute_values As vals").
-		Select("vals.*, attrs.name As attribute_name, attrs.unit As attribute_unit, attrs.product_id As product_id").
+		Select("vals.*, attrs.attribute_name As attribute_name, attrs.unit As attribute_unit, attrs.product_id As product_id").
 		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
 		Where("attrs.deleted_at Is Null And vals.deleted_at Is Null").
 		Where("vals.id In (?)", attributeValueIDs).

@@ -1,4 +1,4 @@
-package prodattrsvc
+package attrsvc
 
 import (
 	"OnlineStoreBackend/models"

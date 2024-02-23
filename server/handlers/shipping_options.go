@@ -44,7 +44,7 @@ func (h *HandlersShippingOptions) CreateShippingOption(c echo.Context) error {
 	if err := shipService.Create(storeID, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	modelOptions := make([]models.ShippingOptions, 0)
+	modelOptions := make([]models.ShippingMethods, 0)
 	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
 	shipRepo.ReadOptionsByStoreID(&modelOptions, storeID)
 	return responses.NewResponseShippingMethod(c, http.StatusCreated, modelOptions)
@@ -62,7 +62,7 @@ func (h *HandlersShippingOptions) CreateShippingOption(c echo.Context) error {
 // @Router /store/api/v1/shipping/store [get]
 func (h *HandlersShippingOptions) ReadShippingOption(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	modelOptions := make([]models.ShippingOptions, 0)
+	modelOptions := make([]models.ShippingMethods, 0)
 	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
 	shipRepo.ReadOptionsByStoreID(&modelOptions, storeID)
 	return responses.NewResponseShippingMethod(c, http.StatusOK, modelOptions)
