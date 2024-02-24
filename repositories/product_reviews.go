@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"OnlineStoreBackend/models"
-	"log"
 
 	"github.com/jinzhu/gorm"
 )
@@ -21,7 +20,6 @@ func (repository *RepositoryReview) ReadRate(modelProdRate *models.ProductRates,
 	modelProdRate.Customers = 0
 	modelProdRate.Rate = 0.0
 	for _, modelRate := range modelRates {
-		log.Println("*")
 		modelProdRate.Customers++
 		modelProdRate.Rate += modelRate.Rate
 	}

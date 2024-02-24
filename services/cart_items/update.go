@@ -4,7 +4,7 @@ import (
 	"OnlineStoreBackend/models"
 )
 
-func (service *Service) UpdateQuantity(cartID uint64, modelItem *models.CartItems, modelVar models.ProductVariations, quantity float64) {
+func (service *Service) UpdateQuantity(modelItem *models.CartItems, modelVar models.ProductVariations, quantity float64) {
 	modelItem.Quantity = quantity
 	if modelItem.Quantity > modelVar.StockLevel {
 		modelItem.Quantity = modelVar.StockLevel

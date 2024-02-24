@@ -4,26 +4,14 @@ import (
 	"OnlineStoreBackend/models"
 )
 
-func (service *Service) Create(modelCart *models.CartItems, customerID uint64, modelVariation models.ProductVariations, quantity float64) error {
-	productID := uint64(modelVariation.ID)
+func (service *Service) Create(modelItem *models.CartItems, customerID uint64, modelVariation *models.ProductVariations, quantity float64) error {
+	modelItem.CustomerID = customerID
+	modelItem.VariationID = uint64(modelVariation.ID)
+	modelItem.Quantity = quantity
 
-	if err := service.DB.Where("customer_id = ? And product_id = ?", customerID, productID).First(modelCart).Error; err != nil {
-		modelCart.CustomerID = customerID
-		modelCart.VariationID = productID
-		modelCart.Quantity = quantity
-
-		if modelCart.Quantity > modelVariation.StockLevel {
-			modelCart.Quantity = modelVariation.StockLevel
-		}
-
-		return service.DB.Create(modelCart).Error
+	if modelItem.Quantity > modelVariation.StockLevel {
+		modelItem.Quantity = modelVariation.StockLevel
 	}
 
-	modelCart.Quantity += quantity
-
-	if modelCart.Quantity > modelVariation.StockLevel {
-		modelCart.Quantity = modelVariation.StockLevel
-	}
-
-	return service.DB.Save(modelCart).Error
+	return service.DB.Create(modelItem).Error
 }

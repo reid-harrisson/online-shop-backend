@@ -31,9 +31,24 @@ func NewHandlersProductManagement(server *s.Server) *HandlersProductManagement {
 	return &HandlersProductManagement{server: server}
 }
 
-func MakeProductPending(db *gorm.DB, productID uint64) {
-	prodService := prodsvc.NewServiceProduct(db)
-	prodService.UpdateStatus(productID, "Pending")
+func ChangeToDraft(db *gorm.DB, modelProduct *models.Products) {
+	if modelProduct.Status == utils.Approved || modelProduct.Status == utils.Rejected {
+		prodService := prodsvc.NewServiceProduct(db)
+		prodService.UpdateStatus(modelProduct, utils.Draft)
+	}
+}
+
+func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) string {
+	prodRepo := repositories.NewRepositoryProduct(db)
+	prodRepo.ReadByID(modelProduct, productID)
+
+	if modelProduct.ID == 0 {
+		return "Product doesn't exist at this ID."
+	}
+	if modelProduct.Status == utils.Pending {
+		return "This product is on pending status."
+	}
+	return ""
 }
 
 // Refresh godoc
@@ -42,12 +57,12 @@ func MakeProductPending(db *gorm.DB, productID uint64) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param params body requests.RequestProduct true "Product Info"
-// @Success 201 {object} responses.ResponseProduct
+// @Param params body requests.RequestProductWithDetail true "Product Info"
+// @Success 201 {object} responses.ResponseProductWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product [post]
 func (h *HandlersProductManagement) Create(c echo.Context) error {
-	req := new(requests.RequestProduct)
+	req := new(requests.RequestProductWithDetail)
 
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -55,12 +70,16 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelProduct := models.Products{}
+	modelProduct := models.ProductsWithDetail{}
 
-	serviceProduct := prodsvc.NewServiceProduct(h.server.DB)
-	serviceProduct.Create(&modelProduct, req)
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	prodService.Create(&modelProduct.Products, req)
 
-	return responses.NewResponseProduct(c, http.StatusCreated, modelProduct)
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadDetail(&modelProduct, uint64(modelProduct.ID))
+
+	prodService.UpdateStatus(&modelProduct.Products, utils.Draft)
+	return responses.NewResponseProductWithDetail(c, http.StatusCreated, modelProduct)
 }
 
 // Refresh godoc
@@ -148,21 +167,22 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	if err := prodService.Update(&modelProduct, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
 // Refresh godoc
 // @Summary Approve product
-// @Tags Product Management
+// @Tags Product Management (Reviewer)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -170,14 +190,79 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/approve/{id} [put]
-func (h *HandlersProductManagement) UpdateStatusApproved(c echo.Context) error {
+func (h *HandlersProductManagement) Approve(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	prodService.UpdateStatus(productID, "Approved")
 
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	prodRepo.ReadByID(&modelProduct, productID)
+
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
+	}
+
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	prodService.UpdateStatus(&modelProduct, utils.Approved)
+
+	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
+}
+
+// Refresh godoc
+// @Summary Reject product
+// @Tags Product Management (Reviewer)
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} responses.ResponseProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/reject/{id} [put]
+func (h *HandlersProductManagement) Reject(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
+	}
+
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	prodService.UpdateStatus(&modelProduct, utils.Rejected)
+
+	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
+}
+
+// Refresh godoc
+// @Summary Publish product
+// @Tags Product Management (Reviewer)
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} responses.ResponseProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/publish/{id} [put]
+func (h *HandlersProductManagement) Publish(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
+
+	if modelProduct.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
+	}
+
+	modelVars := make([]models.ProductVariationsInProduct, 0)
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadByProduct(&modelVars, productID)
+	if len(modelVars) > 0 {
+		prodService := prodsvc.NewServiceProduct(h.server.DB)
+		prodService.UpdateStatus(&modelProduct, utils.Pending)
+	}
+
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
@@ -194,10 +279,14 @@ func (h *HandlersProductManagement) UpdateStatusApproved(c echo.Context) error {
 func (h *HandlersProductManagement) Delete(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	service := prodsvc.NewServiceProduct(h.server.DB)
-	if err := service.Delete(productID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
+
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	prodService.Delete(productID)
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.MessageResponse(c, http.StatusOK, "Product successfully deleted.")
 }
 
@@ -220,12 +309,19 @@ func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
+
 	modelCategories := make([]models.ProductCategoriesWithName, 0)
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByProductID(&modelCategories, productID)
 
-	service := prodcatesvc.NewServiceProductCategory(h.server.DB)
-	service.Update(&modelCategories, req, productID)
+	cateService := prodcatesvc.NewServiceProductCategory(h.server.DB)
+	cateService.Update(&modelCategories, req, productID)
+
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductCategories(c, http.StatusOK, modelCategories)
 }
 
@@ -248,10 +344,8 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelChannels := make([]models.ProductChannelsWithName, 0)
@@ -261,7 +355,7 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 	chanService := chansvc.NewServiceProductChannel(h.server.DB)
 	chanService.Update(&modelChannels, req, productID)
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductChannels(c, http.StatusOK, modelChannels)
 }
 
@@ -284,10 +378,8 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelContents := make([]models.ProductContentsWithTitle, 0)
@@ -297,7 +389,7 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 	contService := contsvc.NewServiceProductContent(h.server.DB)
 	contService.Update(&modelContents, req, productID)
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductContents(c, http.StatusOK, modelContents)
 }
 
@@ -320,10 +412,8 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelTags := make([]models.ProductTagsWithName, 0)
@@ -333,7 +423,7 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 	tagService := prodtagsvc.NewServiceProductTag(h.server.DB)
 	tagService.Update(&modelTags, req, productID)
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductTags(c, http.StatusOK, modelTags)
 }
 
@@ -356,10 +446,8 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelAttr := models.ProductAttributes{}
@@ -376,7 +464,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 	modelAttrs := make([]models.ProductAttributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductAttributes(c, http.StatusCreated, modelAttrs)
 }
 
@@ -401,10 +489,8 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelAttr := models.ProductAttributes{}
@@ -421,7 +507,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 	modelAttrs := make([]models.ProductAttributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductAttributes(c, http.StatusOK, modelAttrs)
 }
 
@@ -441,10 +527,8 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelAttr := models.ProductAttributes{}
@@ -458,23 +542,23 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
 	attrService.Delete(attributeID)
 
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductAttribute(c, http.StatusOK, modelAttr)
 }
 
 // Refresh godoc
-// @Summary Edit variations
+// @Summary Edit attribute values
 // @Tags Product Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Param attribute_id query int true "Attribute ID"
-// @Param params body requests.RequestProductVariation true "Attributes"
-// @Success 200 {object} []responses.ResponseProductVariation
+// @Param params body requests.RequestProductAttributeValue true "Attributes"
+// @Success 200 {object} []responses.ResponseProductAttributeValue
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/product/variation/{id} [put]
-func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
+// @Router /store/api/v1/product/attribute-value/{id} [put]
+func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
 	req := new(requests.RequestProductAttributeValue)
@@ -483,10 +567,8 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelAttr := models.ProductAttributes{}
@@ -501,11 +583,11 @@ func (h *HandlersProductManagement) UpdateVariations(c echo.Context) error {
 	varRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
 	varRepo.ReadByID(&modelVars, attributeID)
 
-	varService := prodattrvalsvc.NewServiceProductVariation(h.server.DB)
+	varService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
 	varService.Update(attributeID, productID, &modelVars, req)
 
 	varRepo.ReadByProductID(&modelVars, productID)
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelVars)
 }
 
@@ -528,17 +610,15 @@ func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) erro
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	if err := prodService.UpdateMinimumStockLevel(productID, req, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
@@ -561,10 +641,8 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelShipData := models.ShippingData{}
@@ -577,7 +655,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 	if err := shipService.Create(productID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseShippingData(c, http.StatusCreated, modelShipData)
 }
 
@@ -600,10 +678,8 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 	}
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelShipData := models.ShippingData{}
@@ -617,7 +693,7 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 	if err := shipService.Update(productID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseShippingData(c, http.StatusOK, modelShipData)
 }
 
@@ -636,10 +712,8 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-	if modelProduct.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at ths ID.")
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
 	modelShipData := models.ShippingData{}
@@ -648,12 +722,15 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 	if modelShipData.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
 	}
+	if modelProduct.Status == utils.Pending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This product is on pending status.")
+	}
 
 	shipService := shipsvc.NewServiceShippingData(h.server.DB)
 	if err := shipService.Delete(productID); err != nil {
 		return responses.MessageResponse(c, http.StatusOK, "Failed to delete shipping data")
 	}
-	MakeProductPending(h.server.DB, uint64(modelProduct.ID))
+	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.MessageResponse(c, http.StatusOK, "Shipping data is successfully deleted")
 }
 
@@ -663,8 +740,8 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param product_id query int false "Product ID"
-// @Param link_id query int false "Linked product ID"
+// @Param product_id query int true "Product ID"
+// @Param link_id query int true "Linked product ID"
 // @Param is_up_cross query int false "Is Up-Sell or Cross-Sell"
 // @Success 201 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked [post]
@@ -673,14 +750,19 @@ func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 	linkID, _ := strconv.ParseUint(c.QueryParam("link_id"), 10, 64)
 	isUpCross, _ := strconv.ParseUint(c.QueryParam("is_up_cross"), 10, 8)
 
-	linkedService := linksvc.NewServiceProductLinked(h.server.DB)
-	if err := linkedService.Create(productID, linkID, utils.SellTypes(isUpCross)); err != nil {
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
+
+	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	if err := linkService.Create(productID, linkID, utils.SellTypes(isUpCross)); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	modelProducts := make([]models.ProductsWithLink, 0)
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadProductLinks(&modelProducts, productID)
+	prodRepo.ReadLinkedProducts(&modelProducts, productID)
 
 	return responses.NewResponseLinkedProducts(c, http.StatusCreated, modelProducts)
 }
@@ -691,7 +773,7 @@ func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param product_id query int false "Product ID"
+// @Param product_id query int true "Product ID"
 // @Success 200 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked [get]
 func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
@@ -699,7 +781,7 @@ func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
 
 	modelProducts := make([]models.ProductsWithLink, 0)
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadProductLinks(&modelProducts, productID)
+	prodRepo.ReadLinkedProducts(&modelProducts, productID)
 
 	return responses.NewResponseLinkedProducts(c, http.StatusOK, modelProducts)
 }
@@ -711,19 +793,24 @@ func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int false "ID"
-// @Param product_id query int false "Product ID"
+// @Param product_id query int true "Product ID"
 // @Success 200 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked/{id} [delete]
 func (h *HandlersProductManagement) DeleteLinkedProduct(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
-	prodService := linksvc.NewServiceProductLinked(h.server.DB)
-	prodService.Delete(id)
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
+
+	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	linkService.Delete(id)
 
 	modelProducts := make([]models.ProductsWithLink, 0)
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadProductLinks(&modelProducts, productID)
+	prodRepo.ReadLinkedProducts(&modelProducts, productID)
 
 	return responses.NewResponseLinkedProducts(c, http.StatusOK, modelProducts)
 }

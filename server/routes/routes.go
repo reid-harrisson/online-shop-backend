@@ -92,7 +92,9 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/paging", handler.ReadPaging)
 	e.GET("/linked", handler.ReadLinkedProduct)
 	e.PUT("/:id", handler.Update)
-	e.PUT("/approve/:id", handler.UpdateStatusApproved)
+	e.PUT("/approve/:id", handler.Approve)
+	e.PUT("/reject/:id", handler.Reject)
+	e.PUT("/publish/:id", handler.Publish)
 	e.PUT("/attribute/:id", handler.UpdateAttributes)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
@@ -100,7 +102,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
 	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/tag/:id", handler.UpdateTags)
-	e.PUT("/variation/:id", handler.UpdateVariations)
+	e.PUT("/attribute-value/:id", handler.UpdateAttributeValues)
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/attribute/:id", handler.DeleteAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)
@@ -150,9 +152,9 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
-	e.PUT("/backorder/:id", handler.UpdateBackOrder)
-	e.PUT("/level/:id", handler.UpdateShowStockLevelStatus)
-	e.PUT("/out/:id", handler.UpdateShowOutOfStockStatus)
+	e.PUT("/backorder/:id", handler.UpdateBackOrderStatus)
+	e.PUT("/stock-level/:id", handler.UpdateShowStockLevelStatus)
+	e.PUT("/out-of-stock/:id", handler.UpdateShowOutOfStockStatus)
 }
 
 func GroupGeneralStoreOffering(server *s.Server, e *echo.Group) {
@@ -191,7 +193,8 @@ func GroupCustomers(server *s.Server, e *echo.Group) {
 func GroupVariations(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProductVariations(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.ReadAll)
+	e.GET("/store", handler.ReadVariationsInStore)
+	e.GET("/product", handler.ReadVariationsInProduct)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 	e.DELETE("/:id", handler.Delete)
 }

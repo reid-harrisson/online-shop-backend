@@ -38,7 +38,6 @@ func (h *HandlersGeneralStoreOffering) Create(c echo.Context) error {
 
 	modelStore := models.Stores{}
 	storeService := storesvc.NewServiceStore(h.server.DB)
-
 	if err := storeService.Create(&modelStore, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}

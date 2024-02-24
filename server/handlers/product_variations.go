@@ -49,20 +49,43 @@ func (h *HandlersProductVariations) Create(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read all product variation
+// @Summary Read all product variation in store
 // @Tags Product Variation
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} responses.ResponseProductVariation
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseProductVariationsInStore
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/variation [get]
-func (h *HandlersProductVariations) ReadAll(c echo.Context) error {
-	modelVars := make([]models.ProductVariations, 0)
-	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadAllVariations(&modelVars)
+// @Router /store/api/v1/variation/store [get]
+func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
-	return responses.NewResponseProductVariationWithProduct(c, http.StatusOK, modelVars)
+	modelVars := make([]models.ProductVariationsInStore, 0)
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadByStore(&modelVars, storeID)
+
+	return responses.NewResponseProductVariationsInStore(c, http.StatusOK, modelVars)
+}
+
+// Refresh godoc
+// @Summary Read all product variation in product
+// @Tags Product Variation
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id query int true "Product ID"
+// @Success 200 {object} []responses.ResponseProductVariationsInProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/variation/product [get]
+func (h *HandlersProductVariations) ReadVariationsInProduct(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+
+	modelVars := make([]models.ProductVariationsInProduct, 0)
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadByProduct(&modelVars, productID)
+
+	return responses.NewResponseProductVariationsInProduct(c, http.StatusOK, modelVars)
 }
 
 // Refresh godoc
@@ -82,7 +105,7 @@ func (h *HandlersProductVariations) UpdateStockLevel(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadVariationByID(&modelVar, variationID)
+	varRepo.ReadByID(&modelVar, variationID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
@@ -109,7 +132,7 @@ func (h *HandlersProductVariations) Delete(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadVariationByID(&modelVar, variationID)
+	varRepo.ReadByID(&modelVar, variationID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")

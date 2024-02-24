@@ -23,10 +23,10 @@ func (repository *RepositoryTag) ReadByProductID(modelTags *[]models.ProductTags
 		Scan(modelTags)
 }
 
-func (repository *RepositoryTag) ReadByName(modelTag *models.BaseTags, name string) {
+func (repository *RepositoryTag) ReadByName(modelTag *models.StoreTags, name string) {
 	repository.DB.Where("name = ?", name).First(modelTag)
 }
 
-func (repository *RepositoryTag) ReadAll(modelTags *[]models.BaseTags) {
+func (repository *RepositoryTag) ReadAll(modelTags *[]models.StoreTags) {
 	repository.DB.Find(modelTags)
 }

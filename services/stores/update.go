@@ -16,10 +16,10 @@ func (service *Service) UpdateBackOrder(storeID uint64, modelStore *models.Store
 func (service *Service) UpdateOutOfStockStatus(storeID uint64, modelStore *models.Stores) error {
 	service.DB.First(modelStore, storeID)
 
-	if modelStore.OutOfStockStatus == 0 {
-		modelStore.OutOfStockStatus = 1
+	if modelStore.ShowOutOfStockStatus == 0 {
+		modelStore.ShowOutOfStockStatus = 1
 	} else {
-		modelStore.OutOfStockStatus = 0
+		modelStore.ShowOutOfStockStatus = 0
 	}
 	return service.DB.Save(modelStore).Error
 }
@@ -27,10 +27,10 @@ func (service *Service) UpdateOutOfStockStatus(storeID uint64, modelStore *model
 func (service *Service) UpdateStockLevelStatus(storeID uint64, modelStore *models.Stores) error {
 	service.DB.First(modelStore, storeID)
 
-	if modelStore.StockLevelStatus == 0 {
-		modelStore.StockLevelStatus = 1
+	if modelStore.ShowStockLevelStatus == 0 {
+		modelStore.ShowStockLevelStatus = 1
 	} else {
-		modelStore.StockLevelStatus = 0
+		modelStore.ShowStockLevelStatus = 0
 	}
 	return service.DB.Save(modelStore).Error
 }

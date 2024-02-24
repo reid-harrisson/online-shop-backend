@@ -24,15 +24,20 @@ type ResponseProductsPaging struct {
 	TotalCount uint64            `json:"total_count"`
 }
 
+type ResponseAttributeValueItem struct {
+	ID    uint64 `json:"id"`
+	Value string `json:"value"`
+}
+
 type ResponseProductWithDetail struct {
 	ResponseProduct
-	RelatedChannels []uint64             `json:"related_channels"`
-	RelatedContents []uint64             `json:"related_contents"`
-	Tags            []string             `json:"tags"`
-	Attributes      []string             `json:"attributes"`
-	Categories      []string             `json:"categories"`
-	AttributeValues map[string][]string  `json:"variations"`
-	ShippingData    ResponseShippingData `json:"shipping_data"`
+	RelatedChannels []uint64                                `json:"related_channels"`
+	RelatedContents []uint64                                `json:"related_contents"`
+	Tags            []string                                `json:"tags"`
+	Attributes      []string                                `json:"attributes"`
+	Categories      []string                                `json:"categories"`
+	AttributeValues map[string][]ResponseAttributeValueItem `json:"variations"`
+	ShippingData    ResponseShippingData                    `json:"shipping_data"`
 }
 
 func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Products) error {
@@ -80,10 +85,12 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		attributes = append(attributes, modelAttr.AttributeName)
 	}
 
-	attributeValues := make(map[string][]string, 0)
+	attributeValues := make(map[string][]ResponseAttributeValueItem, 0)
 	for _, modelValue := range modelDetail.AttributeValues {
-		attributeName := modelValue.AttributeName
-		attributeValues[attributeName] = append(attributeValues[attributeName], modelValue.AttributeValue+modelValue.AttributeUnit)
+		attributeValues[modelValue.AttributeName] = append(attributeValues[modelValue.AttributeName], ResponseAttributeValueItem{
+			ID:    uint64(modelValue.ID),
+			Value: modelValue.AttributeValue + modelValue.Unit,
+		})
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{
