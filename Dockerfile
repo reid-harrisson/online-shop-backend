@@ -1,21 +1,24 @@
-# Start from golang base image
-FROM golang:1.20-alpine as builder
+# syntax=docker/dockerfile:1
 
-# Install git.
-# Git is required for fetching the dependencies.
-RUN apk update && apk add --no-cache git
+FROM golang:1.19
 
-# Set the current working directory inside the container
+# Set destination for COPY
 WORKDIR /app
 
-RUN go install github.com/githubnemo/CompileDaemon@latest
+# Prepare swag cli
 RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN export PATH=$(go env GOPATH)/bin:$PATH
 
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /wait
-RUN chmod +x /wait
+# Copy the source code. Note the slash at the end, as explained in
+COPY . .
 
-#Command to run the executable
-CMD swag init -g cmd/main.go\
-  && /wait \
-  && go run migrations/entry.go --verbose \
-  && CompileDaemon --build="go build cmd/main.go"  --command="./main" --color
+RUN swag init -g ./cmd/main.go
+
+# Download Go modules
+RUN go mod download
+
+RUN go build -o ./main ./cmd/main.go
+
+EXPOSE 8080
+
+CMD ["./main"]

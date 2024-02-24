@@ -1,0 +1,52 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "store-microservice"
+  labels:
+    app: "store-microservice"
+spec:
+  selector:
+    matchLabels:
+      app: "store-microservice"
+  template:
+    metadata:
+      labels:
+        app: "store-microservice"
+    spec:
+      containers:
+        - name: store-microservice-container
+          image: <DOCKER_IMAGE>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: "gcr-pull-secret"
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: store-microservice
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: store-microservice
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 50
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: store-microservice
+  name: store-microservice
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: store-microservice
+  type: LoadBalancer

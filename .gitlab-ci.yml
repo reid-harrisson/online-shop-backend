@@ -1,0 +1,102 @@
+variables:
+  APP_NAME: "store"
+  CLUSTER_NAME: "pockit-fusion-cluster"
+  REGION: "us-central1-a"
+
+.setup_context:
+  script:
+    - if [ $CI_COMMIT_BRANCH == main ]; then PROJECT_ID=pockittv-website-servers;
+      elif [ $CI_COMMIT_BRANCH == sandbox ]; then PROJECT_ID=pockittv-test-servers;
+      elif [ $CI_COMMIT_BRANCH == stg ]; then PROJECT_ID=pockittv-test-servers;
+      else PROJECT_ID=pockittv-development-servers;
+      fi
+    - if [ $CI_COMMIT_BRANCH == main ]; then cat $PROD_CONFIG_YAML > ${CI_PROJECT_DIR}/config.yaml;
+      elif [ $CI_COMMIT_BRANCH == sandbox ]; then cat $SANDBOX_CONFIG_YAML > ${CI_PROJECT_DIR}/config.yaml;
+      elif [ $CI_COMMIT_BRANCH == stg ]; then cat $STG_CONFIG_YAML > ${CI_PROJECT_DIR}/config.yaml;
+      else cat $DEV_CONFIG_YAML > ${CI_PROJECT_DIR}/config.yaml;
+      fi
+    - if [ $CI_COMMIT_BRANCH == main ]; then GCLOUD_SERVICE_KEY=$MAIN_SERVICE_ACCOUNT_FILE;
+      elif [ $CI_COMMIT_BRANCH == sandbox ]; then GCLOUD_SERVICE_KEY=$SANDBOX_SERVICE_ACCOUNT_FILE;
+      elif [ $CI_COMMIT_BRANCH == stg ]; then GCLOUD_SERVICE_KEY=$STG_SERVICE_ACCOUNT_FILE;
+      else GCLOUD_SERVICE_KEY=$DEV_SERVICE_ACCOUNT_FILE;
+      fi
+    - if [ $CI_COMMIT_BRANCH == stg ]; then VM_INSTANCE_NAME=$STG_VM_INSTANCE_NAME;
+      else VM_INSTANCE_NAME=$DEV_VM_INSTANCE_NAME;
+      fi
+    - if [ $CI_COMMIT_BRANCH == stg ]; then SSH_PRIVATE_KEY=$STG_SSH_PRIVATE_KEY;
+      else SSH_PRIVATE_KEY=$DEV_SSH_PRIVATE_KEY;
+      fi
+    - if [ $CI_COMMIT_BRANCH == stg ]; then SSH_PUBLIC_KEY=$STG_SSH_PUBLIC_KEY;
+      else SSH_PUBLIC_KEY=$DEV_SSH_PUBLIC_KEY;
+      fi
+    - export DOCKER_TAG=$CI_COMMIT_BRANCH-$CI_COMMIT_SHORT_SHA
+    - export DOCKER_IMAGE=gcr.io/$PROJECT_ID/$APP_NAME:$DOCKER_TAG
+    - export GCLOUD_SERVICE_KEY
+
+stages:
+  - test
+  - build
+  - k8s-deploy
+  - vm-deploy
+
+test:
+  stage: test
+  script:
+    - echo "Running the tests"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+build:
+  stage: build
+  image: docker:stable
+  script:
+    - !reference [.setup_context, script]
+    - cat $GCLOUD_SERVICE_KEY | docker login -u _json_key --password-stdin https://gcr.io
+    - echo "Building the application"
+    - docker build --build-arg ENVIRONMENT=$ENVIRONMENT -t $DOCKER_IMAGE .
+    - echo "Pushing Docker image to GCR..."
+    - docker tag $DOCKER_IMAGE $DOCKER_IMAGE
+    - docker push $DOCKER_IMAGE
+    - echo $DOCKER_IMAGE
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "sandbox"
+    - if: $CI_COMMIT_BRANCH == "stg"
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+k8s-deploy:
+  stage: k8s-deploy
+  image: google/cloud-sdk
+  script:
+    - !reference [.setup_context, script]
+    - cat $GCLOUD_SERVICE_KEY | docker login -u _json_key --password-stdin https://gcr.io
+    - echo "Deploying the application"
+    - gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
+    - gcloud config set project $PROJECT_ID
+    - gcloud config set container/cluster $CLUSTER_NAME
+    - gcloud config set compute/zone $REGION
+    - gcloud container clusters get-credentials $CLUSTER_NAME --zone $REGION --project $PROJECT_ID
+    - sed -i "s|<DOCKER_IMAGE>|${DOCKER_IMAGE}|g" deployment.yaml
+    - kubectl apply -f deployment.yaml
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "sandbox"
+
+vm-deploy:
+  stage: vm-deploy
+  image: google/cloud-sdk
+  script:
+    - !reference [.setup_context, script]
+    - cat $GCLOUD_SERVICE_KEY | docker login -u _json_key --password-stdin https://gcr.io
+    - echo "Deploying the application"
+    - gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
+    - gcloud config set project $PROJECT_ID
+    - echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
+    - echo "$SSH_PUBLIC_KEY" > /tmp/id_rsa.pub
+    - chmod 600 /tmp/id_rsa
+    - gcloud compute ssh --zone=us-central1-a $VM_INSTANCE_NAME --ssh-key-file=/tmp/id_rsa --quiet --ssh-flag="-l carlos" --command "gcloud auth activate-service-account --key-file=/home/carlos/service_account_key.json; docker stop store-server; docker rm store-server; docker rmi -f $(docker images -q store:server); cat /home/carlos/service_account_key.json | docker login -u _json_key --password-stdin https://gcr.io; docker pull $DOCKER_IMAGE; docker image tag $DOCKER_IMAGE store:server; docker run -p 8011:8080 -d --name store-server store:server;"
+
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stg"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  
