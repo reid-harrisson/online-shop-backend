@@ -16,14 +16,10 @@ type Config struct {
 
 	Log Log `koanf:"log"`
 
-	ListenAddress string  `koanf:"listen_address"`
-	ExternalURL   url.URL `koanf:"external_url"`
-	Session       Session `koanf:"session"`
-	DisplayName   string  `koanf:"display_name"`
+	CommonToolServiceURL url.URL `koanf:"common_tool_service_url"`
 
 	UserVerification        protocol.UserVerificationRequirement `koanf:"user_verification_requirement"`
 	AuthenticatorAttachment protocol.AuthenticatorAttachment     `koanf:"authenticator_attachment"`
-	ConveyancePreference    protocol.ConveyancePreference        `koanf:"conveyance_preference"`
 }
 
 func (c Config) AuthenticatorSelection(requirement protocol.ResidentKeyRequirement) (selection protocol.AuthenticatorSelection) {
@@ -76,13 +72,6 @@ type ConsoleLog struct {
 	Disable  bool           `koanf:"disable"`
 }
 
-type Session struct {
-	CookieName string `koanf:"cookie_name"`
-	Secure     bool   `koanf:"secure"`
-	Domain     string `koanf:"domain"`
-}
-
-// ////////////////////////////////////////////////
 type AuthConfig struct {
 	AccessSecret  string `koanf:"access_secret"`
 	RefreshSecret string `koanf:"refresh_secret"`

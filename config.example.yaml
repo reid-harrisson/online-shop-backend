@@ -11,3 +11,18 @@ db_config:
   name: test
   host: localhost
   port: 3306
+
+#Secret keys for the access token and refresh token signing
+auth_config:
+  access_secret: access_secret
+  refresh_secret: refresh_secret
+
+log:
+  level: debug
+  console:
+    encoding: json
+
+common_tool_service_url: https://auth.example.com
+
+authenticator_attachment: cross-platform
+user_verification_requirement: preferred
