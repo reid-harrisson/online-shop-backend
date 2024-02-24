@@ -23,9 +23,9 @@ type ResponseProductVariationsInStore struct {
 }
 
 type ResponseProductVariationAttribute struct {
-	AttributeID    uint64 `json:"attribute_id"`
-	AttributeName  string `json:"attribute_name"`
-	AttributeValue string `json:"attribute_value"`
+	AttributeValueID uint64 `json:"attribute_value_id"`
+	AttributeName    string `json:"attribute_name"`
+	AttributeValue   string `json:"attribute_value"`
 }
 type ResponseProductVariationsInProduct struct {
 	ResponseProductVariation
@@ -88,9 +88,9 @@ func NewResponseProductVariationsInProduct(c echo.Context, statusCode int, model
 		responseAttrs := make([]ResponseProductVariationAttribute, 0)
 		for _, index := range indexes {
 			responseAttrs = append(responseAttrs, ResponseProductVariationAttribute{
-				AttributeID:    modelVars[index].AttributeID,
-				AttributeName:  modelVars[index].AttributeName,
-				AttributeValue: modelVars[index].AttributeValue + modelVars[index].Unit,
+				AttributeValueID: modelVars[index].AttributeValueID,
+				AttributeName:    modelVars[index].AttributeName,
+				AttributeValue:   modelVars[index].AttributeValue + modelVars[index].Unit,
 			})
 		}
 		index := 0

@@ -32,7 +32,7 @@ func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
 // @Param customer_id query int true "Customer ID"
 // @Param product_id query int true "Product ID"
 // @Param quantity query string true "Quantity"
-// @Param params body requests.RequestProductVariation true "Variation Info"
+// @Param params body requests.RequestCart true "Variation Info"
 // @Success 201 {object} responses.ResponseCart
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [post]

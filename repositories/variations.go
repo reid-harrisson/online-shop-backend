@@ -38,7 +38,7 @@ func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.Product
 	repository.DB.Table("store_product_variations As vars").
 		Select(`
 			vars.*,
-			vals.attribute_id,
+			vals.id As attribute_value_id,
 			vals.attribute_value,
 			attrs.attribute_name,
 			attrs.unit

@@ -17,7 +17,7 @@ func GenerateSKU(modelProduct *models.Products, modelValues *[]models.ProductAtt
 		if lenAttr > 3 {
 			lenAttr = 3
 		}
-		if lenVal > 3 && modelValue.AttributeUnit == "" {
+		if lenVal > 3 && modelValue.Unit == "" {
 			lenVal = 3
 		}
 		sku += "-" + modelValue.AttributeName[0:lenAttr] + "-" + modelValue.AttributeValue[0:lenVal]

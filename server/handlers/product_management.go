@@ -57,7 +57,7 @@ func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) 
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param params body requests.RequestProduct true "Product Info"
+// @Param params body requests.RequestProductWithDetail true "Product Info"
 // @Success 201 {object} responses.ResponseProductWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product [post]

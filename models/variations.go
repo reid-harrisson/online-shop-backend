@@ -25,8 +25,8 @@ type ProductVariationsInStore struct {
 
 type ProductVariationsInProduct struct {
 	ProductVariations
-	AttributeID    uint64 `gomr:"column:attribute_id"`
-	AttributeName  string `gorm:"column:attribute_name"`
-	AttributeValue string `gorm:"column:attribute_value"`
-	Unit           string `gorm:"column:unit"`
+	AttributeValueID uint64 `gomr:"column:attribute_value_id"`
+	AttributeName    string `gorm:"column:attribute_name"`
+	AttributeValue   string `gorm:"column:attribute_value"`
+	Unit             string `gorm:"column:unit"`
 }

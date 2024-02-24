@@ -6,7 +6,7 @@ type CartItems struct {
 	gorm.Model
 
 	CustomerID  uint64  `gorm:"column:customer_id; type:bigint(20) unsigned"`
-	VariationID uint64  `gorm:"column:varition_id; type:bigint(20) unsigned"`
+	VariationID uint64  `gorm:"column:variation_id; type:bigint(20) unsigned"`
 	Quantity    float64 `gorm:"column:quantity; type:decimal(20,6)"`
 }
 

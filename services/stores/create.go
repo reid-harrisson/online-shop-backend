@@ -18,13 +18,13 @@ func (service *Service) Create(modelStore *models.Stores, req *requests.RequestS
 	modelStore.Terms = req.Terms
 
 	modelUser := models.Users{}
-	service.DB.Table("users As u").
+	service.DB.Table("users").
 		Select(`
-			u.email As contact_email,
-			u.mobile_no As contact_phone
+			users.email As contact_email,
+			users.mobile_no As contact_phone
 		`).
-		Where("u.id = ?", req.OwnerID).
-		Where("u.deleted_at Is Null").
+		Where("users.id = ?", req.OwnerID).
+		Where("users.deleted_at Is Null").
 		Scan(&modelUser)
 
 	modelStore.ContactEmail = modelUser.ContactEmail
