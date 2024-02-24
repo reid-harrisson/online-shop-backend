@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -12,25 +13,24 @@ type ResponseStore struct {
 	OwnerID              uint64 `json:"owner_id"`
 	ContactPhone         string `json:"contact_phone"`
 	ContactEmail         string `json:"contact_email"`
-	ShowStockLevelStatus int8   `json:"show_stock_level_status"`
-	ShowOutOfStockStatus int8   `json:"show_out_of_stock_status"`
-	IsBackOrder          int8   `json:"is_back_order"`
+	ShowStockLevelStatus string `json:"show_stock_level_status"`
+	ShowOutOfStockStatus string `json:"show_out_of_stock_status"`
+	BackOrderStatus      string `json:"back_order_status"`
 	DeliveryPolicy       string `json:"delivery_policy"`
 	ReturnsPolicy        string `json:"returns_policy"`
 	Terms                string `json:"terms"`
-	Active               int8   `json:"active"`
 }
 
-type ResponseShowOutOfStockStatus struct {
+type ResponseOutOfStockStatus struct {
 	ShowOutOfStockStatus string `json:"show_out_of_stock_status"`
 }
 
-type ResponseShowStockLevelStatus struct {
+type ResponseStockLevelStatus struct {
 	ShowStockLevelStatus string `json:"show_stock_level_status"`
 }
 
-type ResponseBackOrder struct {
-	IsBackOrder string `json:"back_order"`
+type ResponseBackOrderStatus struct {
+	BackOrderStatus string `json:"back_order_status"`
 }
 
 func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) error {
@@ -40,46 +40,30 @@ func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) 
 		OwnerID:              modelStore.OwnerID,
 		ContactPhone:         modelStore.ContactPhone,
 		ContactEmail:         modelStore.ContactEmail,
-		ShowStockLevelStatus: modelStore.ShowStockLevelStatus,
-		ShowOutOfStockStatus: modelStore.ShowOutOfStockStatus,
-		IsBackOrder:          modelStore.IsBackOrder,
+		ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),
+		ShowOutOfStockStatus: utils.SimpleStatusToString(modelStore.ShowOutOfStockStatus),
+		BackOrderStatus:      utils.SimpleStatusToString(modelStore.BackOrderStatus),
 		DeliveryPolicy:       modelStore.DeliveryPolicy,
 		ReturnsPolicy:        modelStore.ReturnsPolicy,
 		Terms:                modelStore.Terms,
-		Active:               modelStore.Active,
 	}
 	return Response(c, statusCode, responseStore)
 }
 
-func NewResponseShowOutOfStockStatus(c echo.Context, statusCode int, isShowOutOfStockStatus int8) error {
-	if isShowOutOfStockStatus == 0 {
-		return Response(c, statusCode, ResponseShowOutOfStockStatus{
-			ShowOutOfStockStatus: "Disabled",
-		})
-	}
-	return Response(c, statusCode, ResponseShowOutOfStockStatus{
-		ShowOutOfStockStatus: "Enabled",
+func NewResponseOutOfStockStatus(c echo.Context, statusCode int, outOfStockStatus utils.SimpleStatuses) error {
+	return Response(c, statusCode, ResponseOutOfStockStatus{
+		ShowOutOfStockStatus: utils.SimpleStatusToString(outOfStockStatus),
 	})
 }
 
-func NewResponseShowStockLevelStatus(c echo.Context, statusCode int, isShowStockLevelStatus int8) error {
-	if isShowStockLevelStatus == 0 {
-		return Response(c, statusCode, ResponseShowStockLevelStatus{
-			ShowStockLevelStatus: "Disabled",
-		})
-	}
-	return Response(c, statusCode, ResponseShowStockLevelStatus{
-		ShowStockLevelStatus: "Enabled",
+func NewResponseStockLevelStatus(c echo.Context, statusCode int, stockLevelStatus utils.SimpleStatuses) error {
+	return Response(c, statusCode, ResponseStockLevelStatus{
+		ShowStockLevelStatus: utils.SimpleStatusToString(stockLevelStatus),
 	})
 }
 
-func NewResponseBackOrder(c echo.Context, statusCode int, backOrder int8) error {
-	if backOrder == 0 {
-		return Response(c, statusCode, ResponseBackOrder{
-			IsBackOrder: "Disabled",
-		})
-	}
-	return Response(c, statusCode, ResponseBackOrder{
-		IsBackOrder: "Enabled",
+func NewResponseBackOrderStatus(c echo.Context, statusCode int, backOrderStatus utils.SimpleStatuses) error {
+	return Response(c, statusCode, ResponseBackOrderStatus{
+		BackOrderStatus: utils.SimpleStatusToString(backOrderStatus),
 	})
 }

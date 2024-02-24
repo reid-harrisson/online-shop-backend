@@ -30,7 +30,7 @@ func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManageme
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/inventory/backorder/{id} [put]
-func (h *HandlersInventoryManagement) UpdateBackOrder(c echo.Context) error {
+func (h *HandlersInventoryManagement) UpdateBackOrderStatus(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelStore := models.Stores{}
@@ -46,11 +46,11 @@ func (h *HandlersInventoryManagement) UpdateBackOrder(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	return responses.NewResponseBackOrder(c, http.StatusOK, modelStore.IsBackOrder)
+	return responses.NewResponseBackOrderStatus(c, http.StatusOK, modelStore.BackOrderStatus)
 }
 
 // Refresh godoc
-// @Summary Enable or disable stock tracking
+// @Summary Show or hide out of stock
 // @Tags Inventory Manangement
 // @Accept json
 // @Produce json
@@ -58,7 +58,7 @@ func (h *HandlersInventoryManagement) UpdateBackOrder(c echo.Context) error {
 // @Param id path int true "Store ID"
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/inventory/out/{id} [put]
+// @Router /store/api/v1/inventory/out-of-stock/{id} [put]
 func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -71,14 +71,14 @@ func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context)
 
 	storeService := storesvc.NewServiceStore(h.server.DB)
 
-	if err := storeService.UpdateShowOutOfStockStatus(id, &modelStore); err != nil {
+	if err := storeService.UpdateOutOfStockStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseShowOutOfStockStatus(c, http.StatusOK, modelStore.ShowOutOfStockStatus)
+	return responses.NewResponseOutOfStockStatus(c, http.StatusOK, modelStore.ShowOutOfStockStatus)
 }
 
 // Refresh godoc
-// @Summary Enable or disable stock level status
+// @Summary Show or hide stock level
 // @Tags Inventory Manangement
 // @Accept json
 // @Produce json
@@ -86,7 +86,7 @@ func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context)
 // @Param id path int true "Store ID"
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/inventory/level/{id} [put]
+// @Router /store/api/v1/inventory/stock-level/{id} [put]
 func (h *HandlersInventoryManagement) UpdateShowStockLevelStatus(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -99,8 +99,8 @@ func (h *HandlersInventoryManagement) UpdateShowStockLevelStatus(c echo.Context)
 
 	storeService := storesvc.NewServiceStore(h.server.DB)
 
-	if err := storeService.UpdateShowStockLevelStatus(id, &modelStore); err != nil {
+	if err := storeService.UpdateStockLevelStatus(id, &modelStore); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseShowStockLevelStatus(c, http.StatusOK, modelStore.ShowStockLevelStatus)
+	return responses.NewResponseStockLevelStatus(c, http.StatusOK, modelStore.ShowStockLevelStatus)
 }

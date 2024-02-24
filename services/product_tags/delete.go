@@ -6,7 +6,7 @@ import (
 )
 
 func (service *Service) Delete(tag string) {
-	modelTag := models.BaseTags{}
+	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
 	tagRepo.ReadByName(&modelTag, tag)
 	if modelTag.ID != 0 {

@@ -39,7 +39,7 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelCategory := models.BaseCategories{}
+	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByName(&modelCategory, req.Name, storeID)
 	if modelCategory.ID != 0 {
@@ -91,7 +91,7 @@ func (h *HandlersCategories) UpdateCategory(c echo.Context) error {
 	name := c.QueryParam("name")
 	parentID, _ := strconv.ParseUint(c.QueryParam("parent_id"), 10, 64)
 
-	modelCategory := models.BaseCategories{}
+	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByCategoryID(&modelCategory, categoryID)
 	if modelCategory.ID == 0 || modelCategory.StoreID != storeID {
@@ -120,7 +120,7 @@ func (h *HandlersCategories) DeleteCategory(c echo.Context) error {
 	categoryID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
-	modelCategory := models.BaseCategories{}
+	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByCategoryID(&modelCategory, categoryID)
 	if modelCategory.ID == 0 || modelCategory.StoreID != storeID {

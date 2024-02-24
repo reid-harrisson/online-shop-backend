@@ -2,25 +2,21 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 )
 
 type ResponseProduct struct {
-	ID                uint64   `json:"id"`
-	StoreID           uint64   `json:"store_id"`
-	Title             string   `json:"title"`
-	ShortDescription  string   `json:"short_description"`
-	LongDescription   string   `json:"long_description"`
-	ImageUrls         []string `json:"image_urls"`
-	SKU               string   `json:"sku"`
-	UnitPriceRegular  float64  `json:"unit_price_regular"`
-	UnitPriceSale     float64  `json:"unit_price_sale"`
-	MinimumStockLevel float64  `json:"minimum_stock_level"`
-	MaximumStockLevel float64  `json:"maximum_stock_level"`
-	StockQuantity     float64  `json:"stock_quantity"`
-	Active            int8     `json:"active"`
+	ID               uint64   `json:"id"`
+	StoreID          uint64   `json:"store_id"`
+	Title            string   `json:"title"`
+	ShortDescription string   `json:"short_description"`
+	LongDescription  string   `json:"long_description"`
+	ImageUrls        []string `json:"image_urls"`
+	CurrencyID       uint64   `json:"currency_id"`
+	Status           string   `json:"status"`
 }
 
 type ResponseProductsPaging struct {
@@ -28,15 +24,20 @@ type ResponseProductsPaging struct {
 	TotalCount uint64            `json:"total_count"`
 }
 
+type ResponseAttributeValueItem struct {
+	ID    uint64 `json:"id"`
+	Value string `json:"value"`
+}
+
 type ResponseProductWithDetail struct {
 	ResponseProduct
-	RelatedChannels []uint64             `json:"related_channels"`
-	RelatedContents []uint64             `json:"related_contents"`
-	Tags            []string             `json:"tags"`
-	Categories      []string             `json:"categories"`
-	Attributes      []string             `json:"attributes"`
-	Variations      map[string][]string  `json:"variations"`
-	ShippingData    ResponseShippingData `json:"shipping_data"`
+	RelatedChannels []uint64                                `json:"related_channels"`
+	RelatedContents []uint64                                `json:"related_contents"`
+	Tags            []string                                `json:"tags"`
+	Attributes      []string                                `json:"attributes"`
+	Categories      []string                                `json:"categories"`
+	AttributeValues map[string][]ResponseAttributeValueItem `json:"variations"`
+	ShippingData    ResponseShippingData                    `json:"shipping_data"`
 }
 
 func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Products) error {
@@ -48,12 +49,9 @@ func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Prod
 		Title:            modelProduct.Title,
 		ShortDescription: modelProduct.ShortDescription,
 		LongDescription:  modelProduct.LongDescription,
-		SKU:              modelProduct.SKU,
 		ImageUrls:        imageUrls,
-		UnitPriceRegular: modelProduct.UnitPriceRegular,
-		UnitPriceSale:    modelProduct.UnitPriceSale,
-		StockQuantity:    modelProduct.StockQuantity,
-		Active:           modelProduct.Active,
+		CurrencyID:       modelProduct.CurrencyID,
+		Status:           utils.ProductStatusToString(modelProduct.Status),
 	}
 	return Response(c, statusCode, responseProduct)
 }
@@ -72,48 +70,46 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		relatedContents = append(relatedContents, modelContent.ContentID)
 	}
 
-	tags := make([]string, 0)
-	for _, modelTag := range modelDetail.Tags {
-		tags = append(tags, modelTag.TagName)
-	}
-
 	categories := make([]string, 0)
 	for _, modelCategory := range modelDetail.Categories {
 		categories = append(categories, modelCategory.CategoryName)
 	}
 
-	attributes := make([]string, 0)
-	for _, modelAttr := range modelDetail.Attributes {
-		attributes = append(attributes, modelAttr.Name)
+	tags := make([]string, 0)
+	for _, modelTag := range modelDetail.Tags {
+		tags = append(tags, modelTag.TagName)
 	}
 
-	variations := make(map[string][]string, 0)
-	for _, modelVar := range modelDetail.Variations {
-		attributeName := modelVar.AttributeName
-		variations[attributeName] = append(variations[attributeName], modelVar.Variant+modelVar.AttributeUnit)
+	attributes := make([]string, 0)
+	for _, modelAttr := range modelDetail.Attributes {
+		attributes = append(attributes, modelAttr.AttributeName)
+	}
+
+	attributeValues := make(map[string][]ResponseAttributeValueItem, 0)
+	for _, modelValue := range modelDetail.AttributeValues {
+		attributeValues[modelValue.AttributeName] = append(attributeValues[modelValue.AttributeName], ResponseAttributeValueItem{
+			ID:    uint64(modelValue.ID),
+			Value: modelValue.AttributeValue + modelValue.Unit,
+		})
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{
 		ResponseProduct: ResponseProduct{
-			ID:                uint64(modelDetail.ID),
-			StoreID:           modelDetail.StoreID,
-			Title:             modelDetail.Title,
-			ShortDescription:  modelDetail.ShortDescription,
-			LongDescription:   modelDetail.LongDescription,
-			ImageUrls:         imageUrls,
-			SKU:               modelDetail.SKU,
-			UnitPriceRegular:  modelDetail.UnitPriceRegular,
-			UnitPriceSale:     modelDetail.UnitPriceSale,
-			MinimumStockLevel: modelDetail.MinimumStockLevel,
-			StockQuantity:     modelDetail.StockQuantity,
-			Active:            modelDetail.Active,
+			ID:               uint64(modelDetail.ID),
+			StoreID:          modelDetail.StoreID,
+			CurrencyID:       modelDetail.CurrencyID,
+			Title:            modelDetail.Title,
+			ShortDescription: modelDetail.ShortDescription,
+			LongDescription:  modelDetail.LongDescription,
+			ImageUrls:        imageUrls,
+			Status:           utils.ProductStatusToString(modelDetail.Status),
 		},
 		RelatedChannels: relatedChannels,
 		RelatedContents: relatedContents,
-		Tags:            tags,
 		Categories:      categories,
+		Tags:            tags,
 		Attributes:      attributes,
-		Variations:      variations,
+		AttributeValues: attributeValues,
 		ShippingData: ResponseShippingData{
 			ID:             uint64(modelDetail.ShippingData.ID),
 			Weight:         modelDetail.ShippingData.Weight,
@@ -134,14 +130,11 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			ID:               uint64(modelProduct.ID),
 			StoreID:          modelProduct.StoreID,
 			Title:            modelProduct.Title,
+			CurrencyID:       modelProduct.CurrencyID,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
-			SKU:              modelProduct.SKU,
 			ImageUrls:        imageUrls,
-			UnitPriceRegular: modelProduct.UnitPriceRegular,
-			UnitPriceSale:    modelProduct.UnitPriceSale,
-			StockQuantity:    modelProduct.StockQuantity,
-			Active:           modelProduct.Active,
+			Status:           utils.ProductStatusToString(modelProduct.Status),
 		})
 	}
 	return Response(c, statusCode, responseProducts)
@@ -156,14 +149,11 @@ func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []m
 			ID:               uint64(modelProduct.ID),
 			StoreID:          modelProduct.StoreID,
 			Title:            modelProduct.Title,
+			CurrencyID:       modelProduct.CurrencyID,
 			ShortDescription: modelProduct.ShortDescription,
 			LongDescription:  modelProduct.LongDescription,
-			SKU:              modelProduct.SKU,
 			ImageUrls:        imageUrls,
-			UnitPriceRegular: modelProduct.UnitPriceRegular,
-			UnitPriceSale:    modelProduct.UnitPriceSale,
-			StockQuantity:    modelProduct.StockQuantity,
-			Active:           modelProduct.Active,
+			Status:           utils.ProductStatusToString(modelProduct.Status),
 		})
 	}
 	return Response(c, statusCode, ResponseProductsPaging{

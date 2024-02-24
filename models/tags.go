@@ -2,10 +2,11 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type BaseTags struct {
+type StoreTags struct {
 	gorm.Model
 
-	Name string `gorm:"column:name; type:varchar(50)"`
+	StoreID uint64 `gorm:"column:store_id; type:bigint(20) unsigned"`
+	Name    string `gorm:"column:name; type:varchar(50)"`
 }
 
 type ProductTags struct {
@@ -15,7 +16,7 @@ type ProductTags struct {
 	TagID     uint64 `gorm:"column:tag_id; type:bigint(20) unsigned"`
 }
 
-func (BaseTags) TableName() string {
+func (StoreTags) TableName() string {
 	return "store_tags"
 }
 

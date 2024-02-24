@@ -17,7 +17,7 @@ func NewResponseProductAttribute(c echo.Context, statusCode int, modelAttr model
 	return Response(c, statusCode, ResponseProductAttribute{
 		ID:        uint64(modelAttr.ID),
 		ProductID: modelAttr.ProductID,
-		Name:      modelAttr.Name,
+		Name:      modelAttr.AttributeName,
 		Unit:      modelAttr.Unit,
 	})
 }
@@ -28,7 +28,7 @@ func NewResponseProductAttributes(c echo.Context, statusCode int, modelAttrs []m
 		responseAttrs = append(responseAttrs, ResponseProductAttribute{
 			ID:        uint64(modelAttr.ID),
 			ProductID: modelAttr.ProductID,
-			Name:      modelAttr.Name,
+			Name:      modelAttr.AttributeName,
 			Unit:      modelAttr.Unit,
 		})
 	}
