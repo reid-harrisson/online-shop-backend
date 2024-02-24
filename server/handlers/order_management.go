@@ -155,7 +155,7 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
 		HeaderPosterSloganTitle:    "ARE YOU READY?",
 	}
-	utils.HelperMail(h.server.Config.CommonToolServiceURL.String(), c, mailData)
+	utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
 
 	modelOrder := models.StoreOrders{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)

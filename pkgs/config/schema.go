@@ -1,56 +1,17 @@
 package config
 
 import (
-	"fmt"
-	"net/url"
-
-	"github.com/go-webauthn/webauthn/protocol"
 	"go.uber.org/zap/zapcore"
 )
 
 type Config struct {
-	Auth  AuthConfig  `koanf:"auth_config"`
-	DB    DBConfig    `koanf:"db_config"`
-	HTTP  HTTPConfig  `koanf:"http_config"`
-	Audit AuditConfig `koanf:"audit_config"`
+	Auth     AuthConfig     `koanf:"auth_config"`
+	DB       DBConfig       `koanf:"db_config"`
+	HTTP     HTTPConfig     `koanf:"http_config"`
+	Audit    AuditConfig    `koanf:"audit_config"`
+	Services ServicesConfig `koanf:"services_config"`
 
 	Log Log `koanf:"log"`
-
-	CommonToolServiceURL url.URL `koanf:"common_tool_service_url"`
-
-	UserVerification        protocol.UserVerificationRequirement `koanf:"user_verification_requirement"`
-	AuthenticatorAttachment protocol.AuthenticatorAttachment     `koanf:"authenticator_attachment"`
-}
-
-func (c Config) AuthenticatorSelection(requirement protocol.ResidentKeyRequirement) (selection protocol.AuthenticatorSelection) {
-	fmt.Println("AuthenticatorSelection", requirement)
-
-	selection = protocol.AuthenticatorSelection{
-		AuthenticatorAttachment: c.AuthenticatorAttachment,
-		UserVerification:        c.UserVerification,
-		ResidentKey:             requirement,
-	}
-
-	if selection.ResidentKey == "" {
-		selection.ResidentKey = protocol.ResidentKeyRequirementDiscouraged
-	}
-
-	switch selection.ResidentKey {
-	case protocol.ResidentKeyRequirementRequired:
-		selection.RequireResidentKey = protocol.ResidentKeyRequired()
-	case protocol.ResidentKeyRequirementDiscouraged:
-		selection.RequireResidentKey = protocol.ResidentKeyNotRequired()
-	}
-
-	if selection.AuthenticatorAttachment == "" {
-		selection.AuthenticatorAttachment = protocol.CrossPlatform
-	}
-
-	if selection.UserVerification == "" {
-		selection.UserVerification = protocol.VerificationPreferred
-	}
-
-	return selection
 }
 
 type Log struct {
@@ -94,4 +55,9 @@ type HTTPConfig struct {
 
 type AuditConfig struct {
 	Url string `koanf:"url"`
+}
+
+type ServicesConfig struct {
+	CommonTool string `koanf:"common_tool"`
+	Audit      string `koanf:"audit"`
 }

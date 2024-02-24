@@ -22,7 +22,9 @@ log:
   console:
     encoding: json
 
-common_tool_service_url: https://auth.example.com
+services_config:
+  common_tool: http://127.0.0.1:8013/api/v1
+  audit: http://127.0.0.1:8011/api/v1
 
 authenticator_attachment: cross-platform
 user_verification_requirement: preferred
