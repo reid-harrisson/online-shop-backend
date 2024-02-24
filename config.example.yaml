@@ -22,15 +22,9 @@ log:
   console:
     encoding: json
 
-session:
-  cookie_name: webauthn
-  secure: yes
-  domain: example.com
+services_config:
+  common_tool: http://127.0.0.1:8013/api/v1
+  audit: http://127.0.0.1:8011/api/v1
 
-listen_address: "0.0.0.0:8080"
-external_url: https://auth.example.com
-
-display_name: Webauthn
-conveyance_preference: indirect
 authenticator_attachment: cross-platform
 user_verification_requirement: preferred
