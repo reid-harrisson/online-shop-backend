@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -57,7 +58,7 @@ func NewResponseCustomerOrders(c echo.Context, statusCode int, modelOrders []mod
 	for _, modelOrder := range modelOrders {
 		responseOrders = append(responseOrders, ResponseCustomerOrder{
 			OrderID:           modelOrder.OrderID,
-			OrderStatus:       models.OrderStatusToString(modelOrder.OrderStatus),
+			OrderStatus:       utils.OrderStatusToString(modelOrder.OrderStatus),
 			TotalPrice:        modelOrder.TotalPrice,
 			BillingAddressID:  modelOrder.BillingAddressID,
 			ShippingAddressID: modelOrder.ShippingAddressID,
@@ -68,11 +69,11 @@ func NewResponseCustomerOrders(c echo.Context, statusCode int, modelOrders []mod
 
 func NewResponseCustomerOrdersWithDetail(c echo.Context, statusCode int, modelOrder models.CustomerOrdersWithAddress) error {
 	responseItems := make([]ResponseCustomerOrderItem, 0)
-	orderStatus := models.StatusOrderPending
+	orderStatus := utils.StatusOrderPending
 	for _, modelItem := range modelOrder.Items {
 		responseItems = append(responseItems, ResponseCustomerOrderItem{
 			StoreID:          modelItem.StoreID,
-			ProductStatus:    models.OrderStatusToString(modelItem.ProductStatus),
+			ProductStatus:    utils.OrderStatusToString(modelItem.ProductStatus),
 			ProductID:        modelItem.VariationID,
 			Price:            modelItem.Price,
 			Quantity:         modelItem.Quantity,
@@ -86,7 +87,7 @@ func NewResponseCustomerOrdersWithDetail(c echo.Context, statusCode int, modelOr
 		orderStatus = modelItem.OrderStatus
 	}
 	return Response(c, statusCode, ResponseCustomerOrderWithDetail{
-		OrderStatus: models.OrderStatusToString(orderStatus),
+		OrderStatus: utils.OrderStatusToString(orderStatus),
 		BillingAddress: ResponseCustomerAddress{
 			ID:           uint64(modelOrder.BillingAddress.ID),
 			AddressLine1: modelOrder.BillingAddress.AddressLine1,
@@ -128,7 +129,7 @@ func NewResponseStoreOrders(c echo.Context, statusCode int, modelOrders []models
 			ShippingMethodID:  modelOrder.ShippingMethodID,
 			ShippingPrice:     modelOrder.ShippingPrice,
 			TotalPrice:        modelOrder.TotalPrice,
-			ProductStatus:     models.OrderStatusToString(modelOrder.ProductStatus),
+			ProductStatus:     utils.OrderStatusToString(modelOrder.ProductStatus),
 		})
 	}
 	return Response(c, statusCode, responseOrders)
@@ -149,6 +150,6 @@ func NewResponseStoreOrder(c echo.Context, statusCode int, modelOrder models.Sto
 		ShippingMethodID:  modelOrder.ShippingMethodID,
 		ShippingPrice:     modelOrder.ShippingPrice,
 		TotalPrice:        modelOrder.TotalPrice,
-		ProductStatus:     models.OrderStatusToString(modelOrder.ProductStatus),
+		ProductStatus:     utils.OrderStatusToString(modelOrder.ProductStatus),
 	})
 }

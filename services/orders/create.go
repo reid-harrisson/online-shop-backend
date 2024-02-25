@@ -10,7 +10,7 @@ import (
 
 func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
 	modelOrder.CustomerID = customerID
-	modelOrder.Status = models.StatusOrderPending
+	modelOrder.Status = utils.StatusOrderPending
 
 	modelAddr := models.CustomerAddresses{}
 	addrRepo := repositories.NewRepositoryCustomer(service.DB)
@@ -41,7 +41,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.Ca
 			ShippingMethodID: 0,
 			ShippingPrice:    float64(0),
 			TotalPrice:       utils.Round(modelCart.TotalPrice + (modelCart.TotalPrice * modelTax.TaxRate / 100)),
-			Status:           models.StatusOrderPending,
+			Status:           utils.StatusOrderPending,
 		})
 	}
 	orderService.Create(modelItems)
