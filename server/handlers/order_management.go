@@ -289,7 +289,7 @@ func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {
 		return responses.Response(c, http.StatusBadRequest, "No record found.")
 	}
 
-	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
+	return responses.NewResponseEmailTemplate(c, http.StatusOK, &modelEmailTemplate)
 }
 
 // Refresh godoc
@@ -310,5 +310,5 @@ func (h *HandlersOrderManagement) DeleteEmailTemplate(c echo.Context) error {
 		return responses.Response(c, http.StatusBadRequest, "No record found.")
 	}
 
-	return responses.MessageResponse(c, http.StatusCreated, "Successfully deleted")
+	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
 }

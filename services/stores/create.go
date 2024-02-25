@@ -16,19 +16,8 @@ func (service *Service) Create(modelStore *models.Stores, req *requests.RequestS
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms
-
-	modelUser := models.Users{}
-	service.DB.Table("users").
-		Select(`
-			users.email As contact_email,
-			users.mobile_no As contact_phone
-		`).
-		Where("users.id = ?", req.OwnerID).
-		Where("users.deleted_at Is Null").
-		Scan(&modelUser)
-
-	modelStore.ContactEmail = modelUser.ContactEmail
-	modelStore.ContactPhone = modelUser.ContactPhone
+	modelStore.ContactEmail = req.ContactEmail
+	modelStore.ContactPhone = req.ContactPhone
 
 	return service.DB.Create(&modelStore).Error
 }

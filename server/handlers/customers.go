@@ -74,7 +74,7 @@ func (h *HandlersCustomers) ReadCustomerAddress(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Address ID"
 // @Param params body requests.RequestCustomerAddress true "Customer Address"
-// @Success 201 {object} []responses.ResponseCustomerAddress
+// @Success 200 {object} []responses.ResponseCustomerAddress
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/customer/address/{id} [put]
 func (h *HandlersCustomers) UpdateCustomerAddress(c echo.Context) error {
@@ -88,5 +88,5 @@ func (h *HandlersCustomers) UpdateCustomerAddress(c echo.Context) error {
 	addrService := addrsvc.NewServiceCustomerAddress(h.server.DB)
 	addrService.Update(&modelAddr, req, addressID)
 
-	return responses.NewResponseCustomerAddress(c, http.StatusCreated, modelAddr)
+	return responses.NewResponseCustomerAddress(c, http.StatusOK, modelAddr)
 }

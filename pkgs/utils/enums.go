@@ -36,8 +36,18 @@ const (
 	CrossSell
 )
 
-func ProductStatusToString(productStatus ProductStatus) string {
-	switch productStatus {
+func DiscountTypeToString(discountType DiscountTypes) string {
+	switch discountType {
+	case PercentageOff:
+		return "Percentage Off"
+	case FixedAmountOff:
+		return "Fixed Amount Off"
+	}
+	return "Fixed Amount Off"
+}
+
+func ProductStatusToString(status ProductStatus) string {
+	switch status {
 	case Draft:
 		return "Draft"
 	case Pending:

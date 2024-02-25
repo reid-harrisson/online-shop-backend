@@ -2,7 +2,6 @@ package prodvarsvc
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	prodvarsvc "OnlineStoreBackend/services/product_variation_details"
@@ -26,14 +25,6 @@ func GenerateSKU(modelProduct *models.Products, modelValues *[]models.ProductAtt
 }
 
 func (service *Service) Create(modelVar *models.ProductVariations, req *requests.RequestProductVariation, productID uint64) {
-	price := req.Price
-	switch req.Type {
-	case utils.PercentageOff:
-		price = price - price*req.Discount/100
-	case utils.FixedAmountOff:
-		price = price - req.Discount
-	}
-
 	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
 	valRepo := repositories.NewRepositoryProductAttributeValue(service.DB)
 	valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs)
@@ -49,7 +40,9 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 	if modelVar.ID == 0 {
 		modelVar.Sku = sku
 		modelVar.ProductID = productID
-		modelVar.Price = price
+		modelVar.Price = req.Price
+		modelVar.DiscountAmount = req.DiscountAmount
+		modelVar.DiscountType = req.DiscountType
 		modelVar.StockLevel = req.StockLevel
 
 		service.DB.Create(&modelVar)

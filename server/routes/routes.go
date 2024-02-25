@@ -63,7 +63,7 @@ func ConfigureRoutes(server *s.Server) {
 	GroupInventoryManagement(server, groupInventoryManagement)
 
 	groupGeneralStoreOffering := apiV1.Group("/store")
-	GroupGeneralStoreOffering(server, groupGeneralStoreOffering)
+	GroupStoreManagement(server, groupGeneralStoreOffering)
 
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
 	GroupSalesMetrices(server, groupSalesMetrics)
@@ -86,6 +86,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.POST("", handler.Create)
 	e.POST("/attribute/:id", handler.CreateAttributes)
 	e.POST("/shipping/:id", handler.CreateShippingData)
+	e.POST("/attribute-value/:id", handler.CreateAttributeValueByID)
 	e.POST("/linked", handler.CreateLinkedProduct)
 	e.GET("", handler.ReadAll)
 	e.GET("/:id", handler.ReadByID)
@@ -93,17 +94,18 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/linked", handler.ReadLinkedProduct)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/approve/:id", handler.Approve)
-	e.PUT("/reject/:id", handler.Reject)
-	e.PUT("/publish/:id", handler.Publish)
+	e.PUT("/attribute-value/:id", handler.UpdateAttributeValueByID)
 	e.PUT("/attribute/:id", handler.UpdateAttributes)
+	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
+	e.PUT("/publish/:id", handler.Publish)
+	e.PUT("/reject/:id", handler.Reject)
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
-	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/tag/:id", handler.UpdateTags)
-	e.PUT("/attribute-value/:id", handler.UpdateAttributeValues)
 	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/attribute-value/:id", handler.DeleteAttributeValueByID)
 	e.DELETE("/attribute/:id", handler.DeleteAttributes)
 	e.DELETE("/shipping/:id", handler.DeleteShippingData)
 	e.DELETE("/linked/:id", handler.DeleteLinkedProduct)
@@ -157,9 +159,12 @@ func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/out-of-stock/:id", handler.UpdateShowOutOfStockStatus)
 }
 
-func GroupGeneralStoreOffering(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersGeneralStoreOffering(server)
+func GroupStoreManagement(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersStoreManagement(server)
 	e.POST("", handler.Create)
+	e.GET("", handler.ReadAll)
+	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {

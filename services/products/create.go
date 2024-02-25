@@ -70,7 +70,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 			attributeID := modelAttr.ID
 			for index, value := range values {
 				if index != 0 {
-					valService.Create(uint64(attributeID), value, productID)
+					valService.Create(uint64(attributeID), value)
 				}
 			}
 		}

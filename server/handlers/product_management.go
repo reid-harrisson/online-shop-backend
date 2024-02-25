@@ -182,7 +182,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Approve product
-// @Tags Product Management (Reviewer)
+// @Tags Product Management (Moderation)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -209,7 +209,7 @@ func (h *HandlersProductManagement) Approve(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Reject product
-// @Tags Product Management (Reviewer)
+// @Tags Product Management (Moderation)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -236,7 +236,7 @@ func (h *HandlersProductManagement) Reject(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Publish product
-// @Tags Product Management (Reviewer)
+// @Tags Product Management (Moderation)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -429,7 +429,7 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Add attributes
-// @Tags Product Management
+// @Tags Product Management (Attribute)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -470,7 +470,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit attributes
-// @Tags Product Management
+// @Tags Product Management (Attribute)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -513,7 +513,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete attributes
-// @Tags Product Management
+// @Tags Product Management (Attribute)
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -546,18 +546,6 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 	return responses.NewResponseProductAttribute(c, http.StatusOK, modelAttr)
 }
 
-// Refresh godoc
-// @Summary Edit attribute values
-// @Tags Product Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Product ID"
-// @Param attribute_id query int true "Attribute ID"
-// @Param params body requests.RequestProductAttributeValue true "Attributes"
-// @Success 200 {object} []responses.ResponseProductAttributeValue
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/product/attribute-value/{id} [put]
 func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
@@ -589,6 +577,109 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 	varRepo.ReadByProductID(&modelVars, productID)
 	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelVars)
+}
+
+// Refresh godoc
+// @Summary Add attribute value
+// @Tags Product Management (Attribute)
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Param attribute_id path int true "Attribute ID"
+// @Param value query string true "Attribute Value"
+// @Success 200 {object} []responses.ResponseProductAttributeValue
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/attribute-value/{id} [post]
+func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
+	value := c.QueryParam("value")
+
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
+
+	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	if err := valService.Create(attributeID, value); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute value doesn't exist.")
+	}
+
+	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	valRepo.ReadByProductID(&modelValues, productID)
+
+	ChangeToDraft(h.server.DB, &modelProduct)
+	return responses.NewResponseProductAttributeValue(c, http.StatusCreated, modelValues)
+}
+
+// Refresh godoc
+// @Summary Edit attribute value
+// @Tags Product Management (Attribute)
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Param attribute_value_id query int true "Attribute Value ID"
+// @Param value query string true "Attribute Value"
+// @Success 200 {object} []responses.ResponseProductAttributeValue
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/attribute-value/{id} [put]
+func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	attributeValueID, _ := strconv.ParseUint(c.QueryParam("attribute_value_id"), 10, 64)
+	value := c.QueryParam("value")
+
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
+
+	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	if err := valService.UpdateByID(attributeValueID, value); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute value doesn't exist.")
+	}
+
+	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	valRepo.ReadByProductID(&modelValues, productID)
+
+	ChangeToDraft(h.server.DB, &modelProduct)
+	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelValues)
+}
+
+// Refresh godoc
+// @Summary Delete attribute value
+// @Tags Product Management (Attribute)
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Param attribute_value_id query int true "Attribute Value ID"
+// @Success 200 {object} []responses.ResponseProductAttributeValue
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/product/attribute-value/{id} [delete]
+func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	attributeValueID, _ := strconv.ParseUint(c.QueryParam("attribute_value_id"), 10, 64)
+
+	modelProduct := models.Products{}
+	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
+		return responses.ErrorResponse(c, http.StatusBadRequest, message)
+	}
+
+	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	if err := valService.DeleteByID(attributeValueID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute value doesn't exist.")
+	}
+
+	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	valRepo.ReadByProductID(&modelValues, productID)
+
+	ChangeToDraft(h.server.DB, &modelProduct)
+	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelValues)
 }
 
 // Refresh godoc
