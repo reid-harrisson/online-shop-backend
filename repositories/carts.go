@@ -38,7 +38,6 @@ func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartItemCount
 
 func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {
 	repository.DB.
-		LogMode(true).
 		Table("store_cart_items As carts").
 		Select(`carts.*,
 			prods.store_id As store_id,

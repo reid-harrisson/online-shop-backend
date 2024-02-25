@@ -15,7 +15,7 @@ func NewRepositoryInventory(db *gorm.DB) *RepositoryInventory {
 }
 
 func (repository *RepositoryInventory) ReadOne(modelStore *models.Stores, storeID uint64) error {
-	return repository.DB.LogMode(true).
+	return repository.DB.
 		Where("id = ?", storeID).
 		Find(modelStore).
 		Error

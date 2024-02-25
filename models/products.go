@@ -6,23 +6,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type ProductStatuses int8
-
-const (
-	StatusProductPending ProductStatuses = iota
-	StatusProductApproved
-)
-
-func ProductStatusToString(productStatus ProductStatuses) string {
-	switch productStatus {
-	case StatusProductApproved:
-		return "Approved"
-	case StatusProductPending:
-		return "Pending"
-	}
-	return ""
-}
-
 type Products struct {
 	gorm.Model
 

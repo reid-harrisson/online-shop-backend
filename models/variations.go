@@ -1,16 +1,20 @@
 package models
 
 import (
+	"OnlineStoreBackend/pkgs/utils"
+
 	"github.com/jinzhu/gorm"
 )
 
 type ProductVariations struct {
 	gorm.Model
 
-	ProductID  uint64  `gorm:"column:product_id; type:bigint(20) unsigned"`
-	Sku        string  `gorm:"column:sku; type:varchar(50)"`
-	Price      float64 `gorm:"column:price; type:decimal(20,6)"`
-	StockLevel float64 `gorm:"column:stock_level; type:decimal(20,6)"`
+	ProductID      uint64              `gorm:"column:product_id; type:bigint(20) unsigned"`
+	Sku            string              `gorm:"column:sku; type:varchar(50)"`
+	Price          float64             `gorm:"column:price; type:decimal(20,6)"`
+	StockLevel     float64             `gorm:"column:stock_level; type:decimal(20,6)"`
+	DiscountAmount float64             `gorm:"column:discount_amount; type:decimal(20,6)"`
+	DiscountType   utils.DiscountTypes `gorm:"column:discount_type; type:tinyint(4)"`
 }
 
 func (ProductVariations) TableName() string {

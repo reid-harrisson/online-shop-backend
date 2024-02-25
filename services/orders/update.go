@@ -2,29 +2,12 @@ package ordsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 )
 
 func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus string) {
-	status := models.StatusOrderPending
-	switch orderStatus {
-	case "Pending":
-		status = models.StatusOrderPending
-	case "Payment Processing":
-		status = models.StatusOrderPaymentProcessing
-	case "Paid":
-		status = models.StatusOrderPaid
-	case "Processing":
-		status = models.StatusOrderProcessing
-	case "Shipping Processing":
-		status = models.StatusOrderShippingProcessing
-	case "Shipping":
-		status = models.StatusOrderShipping
-	case "Shipped":
-		status = models.StatusOrderShipped
-	case "Completed":
-		status = models.StatusOrderCompleted
-	}
+	status := utils.OrderStatusFromString(orderStatus)
 	service.DB.Table("store_order_items").
 		Where("order_id = ? And store_id = ?", orderID, storeID).
 		Update("status", status)
@@ -35,19 +18,19 @@ func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus
 	flagCompleted := true
 	flagPending := true
 	for _, modelItem := range modelOrder.Items {
-		if modelItem.ProductStatus != models.StatusOrderCompleted {
+		if modelItem.ProductStatus != utils.StatusOrderCompleted {
 			flagCompleted = false
 		}
-		if modelItem.ProductStatus != models.StatusOrderPending {
+		if modelItem.ProductStatus != utils.StatusOrderPending {
 			flagPending = false
 		}
 	}
 	if flagCompleted {
-		status = models.StatusOrderCompleted
+		status = utils.StatusOrderCompleted
 	} else if flagPending {
-		status = models.StatusOrderPending
+		status = utils.StatusOrderPending
 	} else {
-		status = models.StatusOrderProcessing
+		status = utils.StatusOrderProcessing
 	}
 	service.DB.Table("store_orders").
 		Where("id = ?", orderID).

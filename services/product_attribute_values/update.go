@@ -23,10 +23,16 @@ func (service *Service) Update(attributeID uint64, productID uint64, modelValues
 		if key == 1 {
 			service.Delete(value, productID)
 		} else if key == 2 {
-			service.Create(attributeID, value, productID)
+			service.Create(attributeID, value)
 		}
 	}
 
 	varRepo := repositories.NewRepositoryProductAttributeValue(service.DB)
 	varRepo.ReadByID(modelValues, attributeID)
+}
+
+func (service *Service) UpdateByID(attributeValueID uint64, value string) error {
+	return service.DB.Model(&models.ProductAttributeValues{}).
+		Where("id = ?", attributeValueID).
+		Update("attribute_value", value).Error
 }

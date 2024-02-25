@@ -11,6 +11,3 @@ func (service *Service) Create(productID uint64, req *requests.RequestAttribute,
 	modelAttr.ProductID = productID
 	service.DB.Create(modelAttr)
 }
-
-func (service *Service) CreateAttribute(productID uint64, req *requests.RequestAttribute) {
-}
