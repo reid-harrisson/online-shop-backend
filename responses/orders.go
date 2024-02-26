@@ -37,20 +37,20 @@ type ResponseCustomerOrder struct {
 }
 
 type ResponseStoreOrder struct {
-	OrderID           uint64  `gorm:"column:order_id"`
-	CustomerID        uint64  `gorm:"column:customer_id"`
-	VariationID       uint64  `gorm:"column:variation_id"`
-	Price             float64 `gorm:"column:price"`
-	Quantity          float64 `gorm:"column:quantity"`
-	SubTotalPrice     float64 `gorm:"column:sub_total_price"`
-	BillingAddressID  uint64  `gorm:"column:billing_address"`
-	ShippingAddressID uint64  `gorm:"column:shipping_address"`
-	TaxRate           float64 `gorm:"column:tax_rate"`
-	TaxAmount         float64 `gorm:"column:tax_amount"`
-	ShippingMethodID  uint64  `gorm:"column:shipping_method_id"`
-	ShippingPrice     float64 `gorm:"column:shipping_price"`
-	TotalPrice        float64 `gorm:"column:total_price"`
-	ProductStatus     string  `gorm:"column:product_status"`
+	OrderID           uint64  `json:"order_id"`
+	CustomerID        uint64  `json:"customer_id"`
+	VariationID       uint64  `json:"variation_id"`
+	Price             float64 `json:"price"`
+	Quantity          float64 `json:"quantity"`
+	SubTotalPrice     float64 `json:"sub_total_price"`
+	BillingAddressID  uint64  `json:"billing_address"`
+	ShippingAddressID uint64  `json:"shipping_address"`
+	TaxRate           float64 `json:"tax_rate"`
+	TaxAmount         float64 `json:"tax_amount"`
+	ShippingMethodID  uint64  `json:"shipping_method_id"`
+	ShippingPrice     float64 `json:"shipping_price"`
+	TotalPrice        float64 `json:"total_price"`
+	ProductStatus     string  `json:"product_status"`
 }
 
 func NewResponseCustomerOrders(c echo.Context, statusCode int, modelOrders []models.CustomerOrders) error {

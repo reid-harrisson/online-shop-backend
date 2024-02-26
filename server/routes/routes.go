@@ -200,6 +200,7 @@ func GroupVariations(server *s.Server, e *echo.Group) {
 	e.POST("", handler.Create)
 	e.GET("/store", handler.ReadVariationsInStore)
 	e.GET("/product", handler.ReadVariationsInProduct)
+	e.PUT("/:id", handler.Update)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 	e.DELETE("/:id", handler.Delete)
 }
