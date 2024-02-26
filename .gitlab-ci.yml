@@ -1,7 +1,5 @@
 variables:
   APP_NAME: "store"
-  CLUSTER_NAME: "pockit-fusion-cluster"
-  REGION: "us-central1-a"
 
 .setup_context:
   script:
@@ -19,6 +17,12 @@ variables:
       elif [ $CI_COMMIT_BRANCH == sandbox ]; then GCLOUD_SERVICE_KEY=$SANDBOX_SERVICE_ACCOUNT_FILE;
       elif [ $CI_COMMIT_BRANCH == stg ]; then GCLOUD_SERVICE_KEY=$STG_SERVICE_ACCOUNT_FILE;
       else GCLOUD_SERVICE_KEY=$DEV_SERVICE_ACCOUNT_FILE;
+      fi
+    - if [ $CI_COMMIT_BRANCH == prod ]; then CLUSTER_NAME=$PROD_CLUSTER_NAME;
+      else CLUSTER_NAME=$SANDBOX_CLUSTER_NAME;
+      fi
+    - if [ $CI_COMMIT_BRANCH == prod ]; then CLUSTER_REGION=$PROD_CLUSTER_REGION;
+      else CLUSTER_REGION=$SANDBOX_CLUSTER_REGION;
       fi
     - if [ $CI_COMMIT_BRANCH == stg ]; then VM_INSTANCE_NAME=$STG_VM_INSTANCE_NAME;
       else VM_INSTANCE_NAME=$DEV_VM_INSTANCE_NAME;
@@ -74,8 +78,8 @@ k8s-deploy:
     - gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
     - gcloud config set project $PROJECT_ID
     - gcloud config set container/cluster $CLUSTER_NAME
-    - gcloud config set compute/zone $REGION
-    - gcloud container clusters get-credentials $CLUSTER_NAME --zone $REGION --project $PROJECT_ID
+    - gcloud config set compute/zone $CLUSTER_REGION
+    - gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_REGION --project $PROJECT_ID
     - sed -i "s|<DOCKER_IMAGE>|${DOCKER_IMAGE}|g" deployment.yaml
     - kubectl apply -f deployment.yaml
   rules:
