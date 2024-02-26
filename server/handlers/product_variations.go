@@ -118,6 +118,40 @@ func (h *HandlersProductVariations) UpdateStockLevel(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Update product variation
+// @Tags Product Variation
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Variation ID"
+// @Param params body requests.RequestProductVariation true "Variation Info"
+// @Success 200 {object} responses.ResponseProductVariation
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/variation/{id} [put]
+func (h *HandlersProductVariations) Update(c echo.Context) error {
+	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestProductVariation)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	} else if err := req.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Stock level and price are required.")
+	}
+
+	modelVar := models.ProductVariations{}
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadByID(&modelVar, variationID)
+
+	if modelVar.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
+	}
+
+	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService.Update(&modelVar, req)
+
+	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
+}
+
+// Refresh godoc
 // @Summary Delete product variation by ID
 // @Tags Product Variation
 // @Accept json
