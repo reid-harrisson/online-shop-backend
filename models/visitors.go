@@ -15,7 +15,6 @@ type Visitors struct {
 	Page        utils.PageTypes `gorm:"column:page; type:tinyint(4)"`
 	Bounce      uint64          `gorm:"column:bounce; type:bigint(20)"`
 	LoadingTime float64         `gorm:"column:loading_time; type:decimal(20,6)"`
-	ErrorCode   int             `gorm:"column:error_code; type:int"`
 }
 
 func (Visitors) TableName() string {
