@@ -207,7 +207,7 @@ func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
-	modelRates := make([]models.RepeatCustomerRate, 0)
+	modelRates := make([]models.RepeatCustomerRates, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
 	analyRepo.ReadRepeatCustomerRate(&modelRates, storeID)
 	return responses.NewResponseRepeatCustomerRate(c, http.StatusOK, modelRates)
@@ -232,7 +232,7 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
 
-	modelRate := models.CustomerChurnRate{}
+	modelRate := models.CustomerChurnRates{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
 	analyRepo.ReadCustomerChurnRate(&modelRate, storeID, startDate, endDate)
 	return responses.NewResponseCustomerChurnRate(c, http.StatusOK, modelRate)
@@ -259,8 +259,33 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
 
-	modelProduct := make([]models.TopSellingProducts, 0)
+	modelProducts := make([]models.TopSellingProducts, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadTopSellingProducts(&modelProduct, storeID, startDate, endDate, count)
-	return responses.NewResponseTopSellingProduct(c, http.StatusOK, modelProduct)
+	analyRepo.ReadTopSellingProducts(&modelProducts, storeID, startDate, endDate, count)
+	return responses.NewResponseTopSellingProduct(c, http.StatusOK, modelProducts)
+}
+
+// Refresh godoc
+// @Summary Analyse order trend by store
+// @Tags Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string true "Start Date"
+// @Param end_date query string true "End Date"
+// @Success 200 {object} []responses.ResponseOrderTrendAnalytic
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/order-trend [get]
+func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+
+	modelTrends := make([]models.OrderTrendAnalytics, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadOrderTrendAnalytics(&modelTrends, storeID, startDate, endDate)
+	return responses.NewResponseOrderTrendAnalytics(c, http.StatusOK, modelTrends)
 }

@@ -106,6 +106,7 @@ func GroupAnalytics(server *s.Server, e *echo.Group) {
 	e.GET("/repeat-rate", handler.ReadRepeatCustomerRate)
 	e.GET("/churn-rate", handler.ReadCustomerChurnRate)
 	e.GET("/top-selling", handler.ReadTopSellingProducts)
+	e.GET("/order-trend", handler.ReadOrderTrendAnalytics)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {

@@ -4,6 +4,7 @@ import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
 	"sort"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -118,6 +119,12 @@ type ResponseTopSellingProduct struct {
 	ProductID   uint64  `json:"product_id"`
 	ProductName string  `json:"product_name"`
 	Sales       float64 `json:"sales"`
+}
+
+type ResponseOrderTrendAnalytic struct {
+	Date  time.Time `json:"date"`
+	Count uint64    `json:"count"`
+	Sales float64   `json:"sales"`
 }
 
 func NewResponseSalesRevenue(c echo.Context, statusCode int, modelSale models.StoreSales) error {
@@ -278,7 +285,7 @@ func NewResponseProductViewAnalytics(c echo.Context, statusCode int, modelViews 
 	return Response(c, statusCode, responseViews)
 }
 
-func NewResponseRepeatCustomerRate(c echo.Context, statusCode int, modelRates []models.RepeatCustomerRate) error {
+func NewResponseRepeatCustomerRate(c echo.Context, statusCode int, modelRates []models.RepeatCustomerRates) error {
 	mapCount := make(map[uint64]int64)
 	for _, modelRate := range modelRates {
 		if mapCount[modelRate.ProductID] == int64(modelRate.CustomerID) {
@@ -300,7 +307,7 @@ func NewResponseRepeatCustomerRate(c echo.Context, statusCode int, modelRates []
 	})
 }
 
-func NewResponseCustomerChurnRate(c echo.Context, statusCode int, modelRate models.CustomerChurnRate) error {
+func NewResponseCustomerChurnRate(c echo.Context, statusCode int, modelRate models.CustomerChurnRates) error {
 	return Response(c, statusCode, ResponseCustomerChurnRate{
 		Rate: modelRate.Rate,
 	})
@@ -316,4 +323,16 @@ func NewResponseTopSellingProduct(c echo.Context, statusCode int, modelProducts 
 		})
 	}
 	return Response(c, statusCode, responseProducts)
+}
+
+func NewResponseOrderTrendAnalytics(c echo.Context, statusCode int, modelTrends []models.OrderTrendAnalytics) error {
+	responseTrends := make([]ResponseOrderTrendAnalytic, 0)
+	for _, modelTrend := range modelTrends {
+		responseTrends = append(responseTrends, ResponseOrderTrendAnalytic{
+			Date:  modelTrend.Date,
+			Count: modelTrend.Count,
+			Sales: modelTrend.Sales,
+		})
+	}
+	return Response(c, statusCode, responseTrends)
 }

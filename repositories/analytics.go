@@ -123,7 +123,7 @@ func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]mo
 		Scan(modelViews).Error
 }
 
-func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRate, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRates, storeID uint64) error {
 	return repository.DB.Table("store_order_items As items").
 		Select(`
 			vars.product_id,
@@ -137,7 +137,7 @@ func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]model
 		Error
 }
 
-func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.CustomerChurnRate, storeID uint64, startDate time.Time, endDate time.Time) error {
+func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.CustomerChurnRates, storeID uint64, startDate time.Time, endDate time.Time) error {
 	activeUser := uint64(0)
 	churnUser := 0
 	err := repository.DB.Model(models.Orders{}).
@@ -167,4 +167,16 @@ func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]m
 		Where("items.created_at > ? And items.created_at < ?", startDate, endDate).
 		Limit(count).
 		Scan(&modelProducts).Error
+}
+
+func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]models.OrderTrendAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Model(models.OrderItems{}).
+		Select(`
+			Date(created_at) As date,
+			Count(Distinct order_id) As count,
+			Sum(total_price) As sales
+		`).
+		Where("created_at Between ? And ?", startDate, endDate).
+		Group("Date(created_at)").
+		Scan(&modelTrends).Error
 }
