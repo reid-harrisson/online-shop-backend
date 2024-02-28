@@ -122,3 +122,10 @@ type CustomerSatisfaction struct {
 	AverageRating float64 `gorm:"column:average_rating"`
 	NPS           float64 `gorm:"column:nps"`
 }
+
+type PageLoadingTime struct {
+	Page        utils.PageTypes `gorm:"column:page"`
+	AverageTime float64         `json:"average_time"`
+	MaximumTime float64         `json:"maximum_time"`
+	MinimumTime float64         `json:"minimum_time"`
+}

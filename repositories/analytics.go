@@ -210,6 +210,21 @@ func (repository *RepositoryAnalytics) ReadCustomerSatisfaction(modelRates *[]mo
 		Joins("Left Join store_products As prods On prods.id = revs.product_id").
 		Where("prods.store_id = ?", storeID).
 		Where("revs.created_at Between ? And ?", startDate, endDate).
+		Where("revs.deleted_at Is Null And prods.deleted_at Is Null").
 		Group("prods.id").
 		Scan(modelRates).Error
+}
+
+func (repository *RepositoryAnalytics) ReadPageLoadingTime(modelTimes *[]models.PageLoadingTime, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Model(models.Visitors{}).
+		Select(`
+			page,
+			Avg(loading_time) As average_time,
+			Max(loading_time) As maximum_time,
+			Min(loading_time) As minimum_time
+		`).
+		Where("store_id = ?", storeID).
+		Where("created_at Between ? And ?", startDate, endDate).
+		Group("page").
+		Scan(modelTimes).Error
 }

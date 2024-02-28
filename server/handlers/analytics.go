@@ -348,3 +348,28 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 	analyRepo.ReadCustomerSatisfaction(&modelRates, storeID, startDate, endDate)
 	return responses.NewResponseCustomerSatisfaction(c, http.StatusOK, modelRates)
 }
+
+// Refresh godoc
+// @Summary Analyse page loading time by store
+// @Tags Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string true "Start Date"
+// @Param end_date query string true "End Date"
+// @Success 200 {object} []responses.ResponsePageLoadingTime
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/loading-time [get]
+func (h *HandlersAnalytics) ReadPageLoadingTime(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+
+	modelRates := make([]models.PageLoadingTime, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadPageLoadingTime(&modelRates, storeID, startDate, endDate)
+	return responses.NewResponsePageLoadingTime(c, http.StatusOK, modelRates)
+}

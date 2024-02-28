@@ -137,6 +137,13 @@ type ResponseCustomerSatisfaction struct {
 	NPS           float64 `json:"nps"`
 }
 
+type ResponsePageLoadingTime struct {
+	Page        string  `json:"page"`
+	AverageTime float64 `json:"average_time"`
+	MaximumTime float64 `json:"maximum_time"`
+	MinimumTime float64 `json:"minimum_time"`
+}
+
 func NewResponseSalesRevenue(c echo.Context, statusCode int, modelSale models.StoreSales) error {
 	return Response(c, statusCode, ResponseSalesRevenue{
 		StoreID: modelSale.StoreID,
@@ -357,6 +364,7 @@ func NewResponseCustomerDataByLocation(c echo.Context, statusCode int, modelLoca
 	}
 	return Response(c, statusCode, responseLocations)
 }
+
 func NewResponseCustomerSatisfaction(c echo.Context, statusCode int, modelRates []models.CustomerSatisfaction) error {
 	responseRates := make([]ResponseCustomerSatisfaction, 0)
 	for _, modelLocation := range modelRates {
@@ -366,4 +374,20 @@ func NewResponseCustomerSatisfaction(c echo.Context, statusCode int, modelRates 
 		})
 	}
 	return Response(c, statusCode, responseRates)
+}
+
+func NewResponsePageLoadingTime(c echo.Context, statusCode int, modelSteps []models.PageLoadingTime) error {
+	sort.Slice(modelSteps, func(i, j int) bool {
+		return modelSteps[i].Page < modelSteps[j].Page
+	})
+	responseSteps := make([]ResponsePageLoadingTime, 0)
+	for _, modelStep := range modelSteps {
+		responseSteps = append(responseSteps, ResponsePageLoadingTime{
+			Page:        utils.PageTypeToString(modelStep.Page),
+			AverageTime: utils.Round(modelStep.AverageTime),
+			MaximumTime: utils.Round(modelStep.MaximumTime),
+			MinimumTime: utils.Round(modelStep.MinimumTime),
+		})
+	}
+	return Response(c, statusCode, responseSteps)
 }
