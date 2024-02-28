@@ -8,7 +8,7 @@ import (
 	orditmsvc "OnlineStoreBackend/services/order_items"
 )
 
-func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
+func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
 	modelOrder.CustomerID = customerID
 	modelOrder.Status = utils.StatusOrderPending
 
@@ -28,19 +28,27 @@ func (service *Service) Create(modelOrder *models.Orders, modelCarts []models.Ca
 	orderID := modelOrder.ID
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
 	modelItems := make([]*models.OrderItems, 0)
-	for _, modelCart := range modelCarts {
+	for _, modelItem := range modelCartItems {
+		price := modelItem.Price
+		switch modelItem.DiscountType {
+		case utils.FixedAmountOff:
+			price -= modelItem.DiscountAmount
+		case utils.PercentageOff:
+			price -= modelItem.DiscountAmount * price / 100
+		}
+		totalPrice := price * modelItem.Quantity
 		modelItems = append(modelItems, &models.OrderItems{
 			OrderID:          uint64(orderID),
-			StoreID:          modelCart.StoreID,
-			VariationID:      modelCart.VariationID,
-			Price:            modelCart.UnitPrice,
-			Quantity:         modelCart.Quantity,
-			SubTotalPrice:    modelCart.TotalPrice,
+			StoreID:          modelItem.StoreID,
+			VariationID:      modelItem.VariationID,
+			Price:            price,
+			Quantity:         modelItem.Quantity,
+			SubTotalPrice:    totalPrice,
 			TaxRate:          modelTax.TaxRate,
-			TaxAmount:        utils.Round(modelTax.TaxRate * modelCart.TotalPrice / 100),
+			TaxAmount:        utils.Round(modelTax.TaxRate * totalPrice / 100),
 			ShippingMethodID: 0,
 			ShippingPrice:    float64(0),
-			TotalPrice:       utils.Round(modelCart.TotalPrice + (modelCart.TotalPrice * modelTax.TaxRate / 100)),
+			TotalPrice:       utils.Round(totalPrice + (totalPrice * modelTax.TaxRate / 100)),
 			Status:           utils.StatusOrderPending,
 		})
 	}

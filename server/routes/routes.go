@@ -79,6 +79,33 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupVariations := apiV1.Group("/variation")
 	GroupVariations(server, groupVariations)
+
+	groupAnalytics := apiV1.Group("/analytic")
+	GroupAnalytics(server, groupAnalytics)
+
+	groupVisitors := apiV1.Group("/visit")
+	GroupVisitors(server, groupVisitors)
+}
+
+func GroupVisitors(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersVisitors(server)
+	e.POST("", handler.Create)
+}
+
+func GroupAnalytics(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersAnalytics(server)
+	e.GET("/sales-report", handler.ReadSalesReports)
+	e.GET("/customer-insight", handler.ReadCustomerInsight)
+	e.GET("/stock-level", handler.ReadStockLevels)
+	e.GET("/visitor", handler.ReadVisitor)
+	e.GET("/convention-rate", handler.ReadConventionRate)
+	e.GET("/abandonment", handler.ReadShoppingCartAbandonment)
+	e.GET("/checkout-funnel", handler.ReadCheckoutFunnelAnalytics)
+	e.GET("/full-funnel", handler.ReadFullFunnelAnalytics)
+	e.GET("/product-view", handler.ReadProductViewAnalytics)
+	e.GET("/repeat-rate", handler.ReadRepeatCustomerRate)
+	e.GET("/churn-rate", handler.ReadCustomerChurnRate)
+	e.GET("/top-selling", handler.ReadTopSellingProducts)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {

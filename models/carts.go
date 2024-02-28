@@ -1,6 +1,10 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"OnlineStoreBackend/pkgs/utils"
+
+	"github.com/jinzhu/gorm"
+)
 
 type CartItems struct {
 	gorm.Model
@@ -13,12 +17,13 @@ type CartItems struct {
 type CartItemsWithDetail struct {
 	CartItems
 
-	StoreID     uint64  `gorm:"column:store_id"`
-	ProductName string  `gorm:"column:product_name"`
-	ImageUrl    string  `gorm:"column:image_url"`
-	UnitPrice   float64 `gorm:"column:unit_price"`
-	Category    string  `gorm:"column:category"`
-	TotalPrice  float64 `gorm:"column:total_price"`
+	StoreID        uint64              `gorm:"column:store_id"`
+	ProductName    string              `gorm:"column:product_name"`
+	ImageUrl       string              `gorm:"column:image_url"`
+	Price          float64             `gorm:"column:price"`
+	Category       string              `gorm:"column:category"`
+	DiscountAmount float64             `gorm:"column:discount_amount"`
+	DiscountType   utils.DiscountTypes `gorm:"column:discount_type"`
 }
 
 type CartItemCount struct {

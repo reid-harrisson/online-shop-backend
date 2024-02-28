@@ -41,8 +41,9 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 		Table("store_cart_items As carts").
 		Select(`carts.*,
 			prods.store_id As store_id,
-			vars.price * carts.quantity As total_price, 
 			vars.price As price,
+			vars.discount_amount,
+			vars.discount_type,
 			prods.image_urls As image_url,
 			prods.title As product_name,
 			Group_Concat(cates.name) As category`).

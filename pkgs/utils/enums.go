@@ -6,9 +6,21 @@ type ProductStatus int8
 type DiscountTypes int8
 type SellTypes int8
 type OrderStatuses int8
+type PageTypes int8
 
 const (
-	PercentageOff DiscountTypes = iota + 1
+	StorePage PageTypes = iota
+	ProductPage
+	ProductDetailPage
+	LoginPage
+	RegisterPage
+	CartPage
+	PaymentPage
+	PaymentConfirmPage
+)
+
+const (
+	PercentageOff DiscountTypes = iota
 	FixedAmountOff
 )
 
@@ -55,6 +67,50 @@ const (
 	StatusReviewApproved
 	StatusReviewBlocked
 )
+
+func PageTypeFromString(pageType string) PageTypes {
+	switch pageType {
+	case "Store":
+		return StorePage
+	case "Product":
+		return ProductPage
+	case "Product Detail":
+		return ProductDetailPage
+	case "Login":
+		return LoginPage
+	case "Register":
+		return RegisterPage
+	case "Cart":
+		return CartPage
+	case "Payment":
+		return PaymentPage
+	case "Payment Confirm":
+		return PaymentConfirmPage
+	}
+	return StorePage
+}
+
+func PageTypeToString(pageType PageTypes) string {
+	switch pageType {
+	case StorePage:
+		return "Store Page"
+	case ProductPage:
+		return "Product Page"
+	case ProductDetailPage:
+		return "Product Detail Page"
+	case LoginPage:
+		return "Login Page"
+	case RegisterPage:
+		return "Register Page"
+	case CartPage:
+		return "Cart Page"
+	case PaymentPage:
+		return "Payment Page"
+	case PaymentConfirmPage:
+		return "Payment Confirm Page"
+	}
+	return "Store Page"
+}
 
 func ReviewStatusFromString(status string) ReviewStatuses {
 	switch status {
