@@ -1,0 +1,15 @@
+package vistsvc
+
+import (
+	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
+	"OnlineStoreBackend/requests"
+)
+
+func (service *Service) Create(modelVisitor *models.Visitors, req *requests.RequestVisitor) {
+	modelVisitor.StoreID = req.StoreID
+	modelVisitor.IpAddress = req.IpAddress
+	modelVisitor.Page = utils.PageTypeFromString(req.Page)
+	modelVisitor.Bounce = req.Bounce
+	service.DB.Create(modelVisitor)
+}
