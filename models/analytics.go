@@ -112,3 +112,8 @@ type OrderTrendAnalytics struct {
 	Count uint64    `gorm:"column:count"`
 	Sales float64   `gorm:"column:sales"`
 }
+
+type CustomerDataByLocation struct {
+	Location  string `gorm:"column:location"`
+	Customers uint64 `gorm:"column:customers"`
+}

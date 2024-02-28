@@ -127,6 +127,11 @@ type ResponseOrderTrendAnalytic struct {
 	Sales float64   `json:"sales"`
 }
 
+type ResponseCustomerDataByLocation struct {
+	Location  string `json:"location"`
+	Customers uint64 `json:"customers"`
+}
+
 func NewResponseSalesRevenue(c echo.Context, statusCode int, modelSale models.StoreSales) error {
 	return Response(c, statusCode, ResponseSalesRevenue{
 		StoreID: modelSale.StoreID,
@@ -335,4 +340,15 @@ func NewResponseOrderTrendAnalytics(c echo.Context, statusCode int, modelTrends 
 		})
 	}
 	return Response(c, statusCode, responseTrends)
+}
+
+func NewResponseCustomerDataByLocation(c echo.Context, statusCode int, modelLocations []models.CustomerDataByLocation) error {
+	responseLocations := make([]ResponseCustomerDataByLocation, 0)
+	for _, modelLocation := range modelLocations {
+		responseLocations = append(responseLocations, ResponseCustomerDataByLocation{
+			Location:  modelLocation.Location,
+			Customers: modelLocation.Customers,
+		})
+	}
+	return Response(c, statusCode, responseLocations)
 }

@@ -165,6 +165,7 @@ func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]m
 		Order("sales Desc").
 		Where("prods.store_id = ?", storeID).
 		Where("items.created_at > ? And items.created_at < ?", startDate, endDate).
+		Where("items.deleted_at Is Null And prods.deleted_at Is Null And vars.deleted_at Is Null").
 		Limit(count).
 		Scan(&modelProducts).Error
 }
@@ -179,4 +180,20 @@ func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]mo
 		Where("created_at Between ? And ?", startDate, endDate).
 		Group("Date(created_at)").
 		Scan(&modelTrends).Error
+}
+
+func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations *[]models.CustomerDataByLocation, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_order_items As items").
+		Select(`
+			couns.name As location,
+			Count(Distinct users.id) As customers
+		`).
+		Joins("Left Join store_orders As ords On ords.id = items.order_id").
+		Joins("Left Join users On users.id = ords.customer_id").
+		Joins("Left Join countries As couns On couns.id = users.country_id").
+		Where("items.store_id = ?", storeID).
+		Where("items.created_at Between ? And ?", startDate, endDate).
+		Where("ords.deleted_at Is Null And users.deleted_at Is Null And couns.deleted_at Is Null And items.deleted_at Is Null").
+		Group("couns.id").
+		Scan(&modelLocations).Error
 }
