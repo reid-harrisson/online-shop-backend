@@ -8,11 +8,14 @@ import (
 )
 
 type ResponseVisitor struct {
-	ID        uint64 `json:"id"`
-	StoreID   uint64 `json:"store_id"`
-	IpAddress string `json:"ip_address"`
-	Page      string `json:"page"`
-	Bounce    uint64 `json:"bounce"`
+	ID          uint64  `json:"id"`
+	StoreID     uint64  `json:"store_id"`
+	ProductID   uint64  `json:"product_id"`
+	IpAddress   string  `json:"ip_address"`
+	Page        string  `json:"page"`
+	Bounce      uint64  `json:"bounce"`
+	LoadingTime float64 `json:"lodaing_time"`
+	ErrorCode   int     `json:"error_code"`
 }
 
 func NewResponseVisitor(c echo.Context, statusCode int, modelVisitor models.Visitors) error {
