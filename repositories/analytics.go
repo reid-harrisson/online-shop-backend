@@ -170,7 +170,7 @@ func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]m
 		Where("items.created_at > ? And items.created_at < ?", startDate, endDate).
 		Where("items.deleted_at Is Null And prods.deleted_at Is Null And vars.deleted_at Is Null").
 		Limit(count).
-		Scan(&modelProducts).Error
+		Scan(modelProducts).Error
 }
 
 func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]models.OrderTrendAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
@@ -182,7 +182,7 @@ func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]mo
 		`).
 		Where("created_at Between ? And ?", startDate, endDate).
 		Group("Date(created_at)").
-		Scan(&modelTrends).Error
+		Scan(modelTrends).Error
 }
 
 func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations *[]models.CustomerDataByLocation, storeID uint64, startDate time.Time, endDate time.Time) error {
@@ -198,5 +198,18 @@ func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations
 		Where("items.created_at Between ? And ?", startDate, endDate).
 		Where("ords.deleted_at Is Null And users.deleted_at Is Null And couns.deleted_at Is Null And items.deleted_at Is Null").
 		Group("couns.id").
-		Scan(&modelLocations).Error
+		Scan(modelLocations).Error
+}
+
+func (repository *RepositoryAnalytics) ReadCustomerSatisfaction(modelRates *[]models.CustomerSatisfaction, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_product_reviews As revs").
+		Select(`
+			Avg(revs.rate) As average_rating,
+			( Count(Distinct Case When revs.rate >= 4.5 Then revs.customer_id End) - Count(Distinct Case When revs.rate <= 3 Then revs.customer_id End)) / Count(Distinct revs.customer_id) As nps
+		`).
+		Joins("Left Join store_products As prods On prods.id = revs.product_id").
+		Where("prods.store_id = ?", storeID).
+		Where("revs.created_at Between ? And ?", startDate, endDate).
+		Group("prods.id").
+		Scan(modelRates).Error
 }

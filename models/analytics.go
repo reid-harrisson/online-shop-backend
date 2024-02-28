@@ -117,3 +117,8 @@ type CustomerDataByLocation struct {
 	Location  string `gorm:"column:location"`
 	Customers uint64 `gorm:"column:customers"`
 }
+
+type CustomerSatisfaction struct {
+	AverageRating float64 `gorm:"column:average_rating"`
+	NPS           float64 `gorm:"column:nps"`
+}

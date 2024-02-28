@@ -132,6 +132,11 @@ type ResponseCustomerDataByLocation struct {
 	Customers uint64 `json:"customers"`
 }
 
+type ResponseCustomerSatisfaction struct {
+	AverageRating float64 `json:"average_rating"`
+	NPS           float64 `json:"nps"`
+}
+
 func NewResponseSalesRevenue(c echo.Context, statusCode int, modelSale models.StoreSales) error {
 	return Response(c, statusCode, ResponseSalesRevenue{
 		StoreID: modelSale.StoreID,
@@ -351,4 +356,14 @@ func NewResponseCustomerDataByLocation(c echo.Context, statusCode int, modelLoca
 		})
 	}
 	return Response(c, statusCode, responseLocations)
+}
+func NewResponseCustomerSatisfaction(c echo.Context, statusCode int, modelRates []models.CustomerSatisfaction) error {
+	responseRates := make([]ResponseCustomerSatisfaction, 0)
+	for _, modelLocation := range modelRates {
+		responseRates = append(responseRates, ResponseCustomerSatisfaction{
+			AverageRating: utils.Round(modelLocation.AverageRating),
+			NPS:           utils.Round(modelLocation.NPS * 100),
+		})
+	}
+	return Response(c, statusCode, responseRates)
 }
