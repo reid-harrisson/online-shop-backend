@@ -45,13 +45,22 @@ func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string true "Start Date"
+// @Param end_date query string true "End Date"
 // @Success 200 {object} responses.ResponseCustomerInsight
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/customer-insight [get]
 func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+
 	modelInsight := models.CustomerInsights{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadCustomerInsights(&modelInsight)
+	analyRepo.ReadCustomerInsights(&modelInsight, storeID, startDate, endDate)
 	return responses.NewResponseCustomerInsights(c, http.StatusOK, modelInsight)
 }
 

@@ -32,8 +32,8 @@ func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.Sa
 		Scan(modelReports).Error
 }
 
-func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.CustomerInsights) error {
-	return repository.DB.Table("users").
+func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.CustomerInsights, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_order_items As items").
 		Select(`
 		  Min(users.age) As youngest_age,
     	Max(users.age) As oldest_age,
@@ -41,8 +41,11 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 			Count(Distinct Case When Lower(users.gender) = 'female' Then users.id End) As female_count,
     	Avg(Distinct users.age) AS average_age
 		`).
-		Joins("Left Join store_orders As ords On ords.customer_id = users.id").
-		Where("users.deleted_at Is Null And ords.deleted_at Is Null").
+		Joins("Left Join store_orders As ords On items.order_id = ords.id").
+		Joins("Left Join users On ords.customer_id = users.id").
+		Where("items.store_id = ?", storeID).
+		Where("users.deleted_at Is Null And ords.deleted_at Is Null And items.deleted_at Is Null").
+		Where("items.created_at Between ? And ?", startDate, endDate).
 		Scan(modelReport).Error
 }
 
