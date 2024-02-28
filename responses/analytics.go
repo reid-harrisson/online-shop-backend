@@ -3,6 +3,7 @@ package responses
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"sort"
 
 	"github.com/labstack/echo/v4"
 )
@@ -88,19 +89,21 @@ type ResponseShoppingCartAbandonment struct {
 	Rate float64 `json:"rate"`
 }
 
-type ResponseCheckoutFunnelAnalytics struct {
-	Steps map[string]uint64 `json:"steps"`
+type ResponseCheckoutFunnelAnalytic struct {
+	Page    string `json:"step"`
+	Visitor uint64 `json:"visitors"`
 }
 
-type ResponseFullFunnelAnalytics struct {
-	Steps map[string]uint64 `json:"steps"`
+type ResponseFullFunnelAnalytic struct {
+	Page    string `json:"step"`
+	Visitor uint64 `json:"visitors"`
 }
 
 type ResponseProductViewAnalytic struct {
-	ProductID   uint64 `gorm:"column:product_id"`
-	ProductName string `gorm:"column:product_name"`
-	PageView    uint64 `gorm:"column:page_views"`
-	Purchase    uint64 `gorm:"column:purchase"`
+	ProductID   uint64 `json:"product_id"`
+	ProductName string `json:"product_name"`
+	PageView    uint64 `json:"page_views"`
+	Purchase    uint64 `json:"purchase"`
 }
 
 type ResponseRepeatCustomerRate struct {
@@ -109,6 +112,12 @@ type ResponseRepeatCustomerRate struct {
 
 type ResponseCustomerChurnRate struct {
 	Rate float64 `json:"rate"`
+}
+
+type ResponseTopSellingProduct struct {
+	ProductID   uint64  `json:"product_id"`
+	ProductName string  `json:"product_name"`
+	Sales       float64 `json:"sales"`
 }
 
 func NewResponseSalesRevenue(c echo.Context, statusCode int, modelSale models.StoreSales) error {
@@ -229,23 +238,31 @@ func NewResponseShoppingCartAbandonment(c echo.Context, statusCode int, modelRat
 }
 
 func NewResponseCheckoutFunnelAnalytics(c echo.Context, statusCode int, modelSteps []models.CheckoutFunnelAnalytics) error {
-	steps := make(map[string]uint64)
-	for _, modelStep := range modelSteps {
-		steps[utils.PageTypeToString(modelStep.Page)] = modelStep.PageView
-	}
-	return Response(c, statusCode, ResponseCheckoutFunnelAnalytics{
-		Steps: steps,
+	sort.Slice(modelSteps, func(i, j int) bool {
+		return modelSteps[i].Page < modelSteps[j].Page
 	})
+	responseSteps := make([]ResponseCheckoutFunnelAnalytic, 0)
+	for _, modelStep := range modelSteps {
+		responseSteps = append(responseSteps, ResponseCheckoutFunnelAnalytic{
+			Page:    utils.PageTypeToString(modelStep.Page),
+			Visitor: modelStep.PageView,
+		})
+	}
+	return Response(c, statusCode, responseSteps)
 }
 
 func NewResponseFullFunnelAnalytics(c echo.Context, statusCode int, modelSteps []models.FullFunnelAnalytics) error {
-	steps := make(map[string]uint64)
-	for _, modelStep := range modelSteps {
-		steps[utils.PageTypeToString(modelStep.Page)] = modelStep.PageView
-	}
-	return Response(c, statusCode, ResponseFullFunnelAnalytics{
-		Steps: steps,
+	sort.Slice(modelSteps, func(i, j int) bool {
+		return modelSteps[i].Page < modelSteps[j].Page
 	})
+	responseSteps := make([]ResponseFullFunnelAnalytic, 0)
+	for _, modelStep := range modelSteps {
+		responseSteps = append(responseSteps, ResponseFullFunnelAnalytic{
+			Page:    utils.PageTypeToString(modelStep.Page),
+			Visitor: modelStep.PageView,
+		})
+	}
+	return Response(c, statusCode, responseSteps)
 }
 
 func NewResponseProductViewAnalytics(c echo.Context, statusCode int, modelViews []models.ProductViewAnalytics) error {
@@ -287,4 +304,16 @@ func NewResponseCustomerChurnRate(c echo.Context, statusCode int, modelRate mode
 	return Response(c, statusCode, ResponseCustomerChurnRate{
 		Rate: modelRate.Rate,
 	})
+}
+
+func NewResponseTopSellingProduct(c echo.Context, statusCode int, modelProducts []models.TopSellingProducts) error {
+	responseProducts := make([]ResponseTopSellingProduct, 0)
+	for _, modelProduct := range modelProducts {
+		responseProducts = append(responseProducts, ResponseTopSellingProduct{
+			ProductID:   modelProduct.ProductID,
+			ProductName: modelProduct.ProductName,
+			Sales:       modelProduct.Sales,
+		})
+	}
+	return Response(c, statusCode, responseProducts)
 }

@@ -8,11 +8,11 @@ import (
 )
 
 type ResponseVisitor struct {
-	ID        uint64 `gorm:"column:id"`
-	StoreID   uint64 `gorm:"column:store_id"`
-	IpAddress string `gorm:"column:ip_address"`
-	Page      string `gorm:"column:page"`
-	Bounce    uint64 `gorm:"column:bounce"`
+	ID        uint64 `json:"id"`
+	StoreID   uint64 `json:"store_id"`
+	IpAddress string `json:"ip_address"`
+	Page      string `json:"page"`
+	Bounce    uint64 `json:"bounce"`
 }
 
 func NewResponseVisitor(c echo.Context, statusCode int, modelVisitor models.Visitors) error {

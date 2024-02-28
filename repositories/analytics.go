@@ -97,7 +97,7 @@ func (repository *RepositoryAnalytics) ReadCheckoutFunnelAnalytics(modelSteps *[
 			Count(id) As page_views
 		`).
 		Group("page").
-		Where("store_id", storeID).
+		Where("store_id = ?", storeID).
 		Where("page In (?)", []utils.PageTypes{utils.CartPage, utils.PaymentPage, utils.PaymentConfirmPage}).
 		Scan(modelSteps).Error
 }
@@ -109,7 +109,7 @@ func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]mod
 			Count(id) As page_views
 		`).
 		Group("page").
-		Where("store_id", storeID).
+		Where("store_id = ?", storeID).
 		Scan(modelSteps).Error
 }
 
@@ -150,4 +150,21 @@ func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.C
 		Error
 	modelRate.Rate = float64(churnUser) / float64(activeUser)
 	return err
+}
+
+func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]models.TopSellingProducts, storeID uint64, startDate time.Time, endDate time.Time, count uint64) error {
+	return repository.DB.Table("store_order_items As items").
+		Select(`
+			prods.id As product_id,
+			prods.title As product_name,
+			Sum(items.quantity) As sales
+		`).
+		Joins("Join store_product_variations As vars On vars.id = items.variation_id").
+		Joins("Join store_products As prods On prods.id = vars.product_id").
+		Group("prods.id").
+		Order("sales Desc").
+		Where("prods.store_id = ?", storeID).
+		Where("items.created_at > ? And items.created_at < ?", startDate, endDate).
+		Limit(count).
+		Scan(&modelProducts).Error
 }

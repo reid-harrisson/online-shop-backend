@@ -144,7 +144,7 @@ func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Success 200 {object} responses.ResponseCheckoutFunnelAnalytics
+// @Success 200 {object} []responses.ResponseCheckoutFunnelAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/checkout-funnel [get]
 func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
@@ -163,7 +163,7 @@ func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Success 200 {object} responses.ResponseFullFunnelAnalytics
+// @Success 200 {object} []responses.ResponseFullFunnelAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/full-funnel [get]
 func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
@@ -236,4 +236,31 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
 	analyRepo.ReadCustomerChurnRate(&modelRate, storeID, startDate, endDate)
 	return responses.NewResponseCustomerChurnRate(c, http.StatusOK, modelRate)
+}
+
+// Refresh godoc
+// @Summary Analyse customer churn rate by store
+// @Tags Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string true "Start Date"
+// @Param end_date query string true "End Date"
+// @Param count query int true "Count"
+// @Success 200 {object} []responses.ResponseTopSellingProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/top-selling [get]
+func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	count, _ := strconv.ParseUint(c.QueryParam("count"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+
+	modelProduct := make([]models.TopSellingProducts, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadTopSellingProducts(&modelProduct, storeID, startDate, endDate, count)
+	return responses.NewResponseTopSellingProduct(c, http.StatusOK, modelProduct)
 }

@@ -97,3 +97,9 @@ type FullFunnelAnalytics struct {
 	Page     utils.PageTypes `gorm:"column:page"`
 	PageView uint64          `gorm:"column:page_views"`
 }
+
+type TopSellingProducts struct {
+	ProductID   uint64  `gorm:"column:product_id"`
+	ProductName string  `gorm:"column:product_name"`
+	Sales       float64 `gorm:"column:sales"`
+}
