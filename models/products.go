@@ -19,6 +19,7 @@ type Products struct {
 	Status            utils.ProductStatus `gorm:"column:status; type:tinyint(4)"`
 	Sku               string              `gorm:"column:sku; type:varchar(50)"`
 	Type              utils.ProductTypes  `gorm:"column:type; type:tinyint(4)"`
+	ShippingClass     string              `gorm:"column:shipping_class; type:varchar(100)"`
 }
 
 type ProductsWithDetail struct {

@@ -118,6 +118,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 		case "0":
 			modelProduct.Status = utils.Draft
 		}
+		modelProduct.ShippingClass = modelCsv.ShippingClass
 		modelProduct.Sku = modelCsv.Sku
 		modelProduct.Type = utils.Simple
 		service.DB.Create(modelProduct)
@@ -143,6 +144,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			modelProduct.Status = utils.Draft
 		}
 		modelProduct.Sku = modelCsv.Sku
+		modelProduct.ShippingClass = modelCsv.ShippingClass
 		modelProduct.Type = utils.Variable
 		service.DB.Create(modelProduct)
 
@@ -171,6 +173,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			}
 			modelProduct.Sku = modelCsv.Parent
 			modelProduct.Type = utils.Variable
+			modelProduct.ShippingClass = modelCsv.ShippingClass
 			service.DB.Create(modelProduct)
 
 			productID := uint64(modelProduct.ID)

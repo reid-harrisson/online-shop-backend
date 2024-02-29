@@ -111,12 +111,11 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		Attributes:      attributes,
 		AttributeValues: attributeValues,
 		ShippingData: ResponseShippingData{
-			ID:             uint64(modelDetail.ShippingData.ID),
-			Weight:         modelDetail.ShippingData.Weight,
-			Width:          modelDetail.ShippingData.Width,
-			Height:         modelDetail.ShippingData.Height,
-			Depth:          modelDetail.ShippingData.Length,
-			Classification: modelDetail.ShippingData.Classification,
+			ID:     uint64(modelDetail.ShippingData.ID),
+			Weight: modelDetail.ShippingData.Weight,
+			Width:  modelDetail.ShippingData.Width,
+			Height: modelDetail.ShippingData.Height,
+			Depth:  modelDetail.ShippingData.Length,
 		},
 	})
 }

@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
+	linksvc "OnlineStoreBackend/services/product_links"
 	prodsvc "OnlineStoreBackend/services/products"
 	"encoding/csv"
 	"encoding/json"
@@ -11,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -86,6 +89,8 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	modelCsvs := make([]models.CSVs, 0)
 	readCSV("./uploads/"+file.Filename, &modelCsvs)
 
+	mapSku := make(map[string]uint64)
+
 	modelProducts := make([]models.Products, 0)
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	for _, modelCsv := range modelCsvs {
@@ -93,6 +98,27 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		prodService.CreateWithCSV(&modelProduct, modelCsv, storeID)
 		if modelProduct.ID != 0 {
 			modelProducts = append(modelProducts, modelProduct)
+			mapSku[modelProduct.Sku] = uint64(modelProduct.ID)
+		}
+	}
+
+	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	for _, modelCsv := range modelCsvs {
+		upSells := strings.Split(modelCsv.Upsells, ",")
+		crossSells := strings.Split(modelCsv.CrossSells, ",")
+		sku := strings.TrimSpace(modelCsv.Sku)
+		if modelCsv.Parent != "" {
+			sku = strings.TrimSpace(modelCsv.Sku)
+		}
+		for _, upSell := range upSells {
+			if mapSku[sku] != 0 && mapSku[upSell] != 0 {
+				linkService.Create(mapSku[sku], mapSku[upSell], utils.UpSell)
+			}
+		}
+		for _, crossSell := range crossSells {
+			if mapSku[sku] != 0 && mapSku[crossSell] != 0 {
+				linkService.Create(mapSku[sku], mapSku[crossSell], utils.UpSell)
+			}
 		}
 	}
 

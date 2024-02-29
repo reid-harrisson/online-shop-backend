@@ -32,13 +32,12 @@ type ResponseShippingMethod struct {
 
 func NewResponseShippingData(c echo.Context, statusCode int, modelShipData models.ShippingData) error {
 	responseShipData := ResponseProductShippingData{
-		ID:             uint64(modelShipData.ID),
-		Weight:         modelShipData.Weight,
-		ProductID:      modelShipData.VariationID,
-		Width:          modelShipData.Width,
-		Height:         modelShipData.Height,
-		Depth:          modelShipData.Length,
-		Classification: modelShipData.Classification,
+		ID:        uint64(modelShipData.ID),
+		Weight:    modelShipData.Weight,
+		ProductID: modelShipData.VariationID,
+		Width:     modelShipData.Width,
+		Height:    modelShipData.Height,
+		Depth:     modelShipData.Length,
 	}
 	return Response(c, statusCode, responseShipData)
 }
