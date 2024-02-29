@@ -8,22 +8,20 @@ import (
 )
 
 type ResponseShippingData struct {
-	ID             uint64  `json:"id"`
-	Weight         float64 `json:"weight"`
-	Width          float64 `json:"width"`
-	Height         float64 `json:"height"`
-	Depth          float64 `json:"depth"`
-	Classification string  `json:"classification"`
+	ID     uint64  `json:"id"`
+	Weight float64 `json:"weight"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+	Length float64 `json:"length"`
 }
 
 type ResponseProductShippingData struct {
-	ID             uint64  `json:"id"`
-	ProductID      uint64  `json:"product_id"`
-	Weight         float64 `json:"weight"`
-	Width          float64 `json:"width"`
-	Height         float64 `json:"height"`
-	Depth          float64 `json:"depth"`
-	Classification string  `json:"classification"`
+	ID        uint64  `json:"id"`
+	ProductID uint64  `json:"product_id"`
+	Weight    float64 `json:"weight"`
+	Width     float64 `json:"width"`
+	Height    float64 `json:"height"`
+	Length    float64 `json:"length"`
 }
 
 type ResponseShippingMethod struct {
@@ -37,7 +35,7 @@ func NewResponseShippingData(c echo.Context, statusCode int, modelShipData model
 		ProductID: modelShipData.VariationID,
 		Width:     modelShipData.Width,
 		Height:    modelShipData.Height,
-		Depth:     modelShipData.Length,
+		Length:    modelShipData.Length,
 	}
 	return Response(c, statusCode, responseShipData)
 }

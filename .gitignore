@@ -2,8 +2,9 @@ main
 .yaml
 .env
 .env.testing
+uploads
 /.idea
-uploads/
+docs
 
 # Configuration
 config.yaml

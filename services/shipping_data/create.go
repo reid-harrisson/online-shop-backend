@@ -11,7 +11,7 @@ func (service *Service) Create(productID uint64, req *requests.RequestShippingDa
 	modelShipData.Weight = req.Weight
 	modelShipData.Width = req.Width
 	modelShipData.Height = req.Height
-	modelShipData.Length = req.Depth
+	modelShipData.Length = req.Length
 	modelShipData.VariationID = productID
 	service.DB.Create(&modelShipData)
 	return nil

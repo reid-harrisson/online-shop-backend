@@ -4883,13 +4883,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "food"
                 },
-                "depth": {
-                    "type": "number",
-                    "example": 8
-                },
                 "height": {
                     "type": "number",
                     "example": 118
+                },
+                "length": {
+                    "type": "number",
+                    "example": 8
                 },
                 "weight": {
                     "type": "number",
@@ -5846,17 +5846,14 @@ const docTemplate = `{
         "responses.ResponseShippingData": {
             "type": "object",
             "properties": {
-                "classification": {
-                    "type": "string"
-                },
-                "depth": {
-                    "type": "number"
-                },
                 "height": {
                     "type": "number"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "length": {
+                    "type": "number"
                 },
                 "weight": {
                     "type": "number"

@@ -283,11 +283,11 @@ definitions:
       classification:
         example: food
         type: string
-      depth:
-        example: 8
-        type: number
       height:
         example: 118
+        type: number
+      length:
+        example: 8
         type: number
       weight:
         example: 1.35
@@ -912,14 +912,12 @@ definitions:
     type: object
   responses.ResponseShippingData:
     properties:
-      classification:
-        type: string
-      depth:
-        type: number
       height:
         type: number
       id:
         type: integer
+      length:
+        type: number
       weight:
         type: number
       width:
