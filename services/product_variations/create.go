@@ -71,6 +71,7 @@ func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, 
 	modelVar.DiscountType = utils.FixedAmountOff
 	modelVar.Description = modelCsv.Description
 	modelVar.ImageUrls = string(imageUrls)
+	modelVar.Title = modelCsv.Name
 	service.DB.Create(modelVar)
 
 	if modelCsv.Weight != "" {

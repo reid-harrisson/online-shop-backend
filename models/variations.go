@@ -17,6 +17,7 @@ type ProductVariations struct {
 	DiscountType   utils.DiscountTypes `gorm:"column:discount_type; type:tinyint(4)"`
 	ImageUrls      string              `gorm:"column:image_urls; type:text"`
 	Description    string              `gorm:"column:description; type:text"`
+	Title          string              `gorm:"column:title; type:varchar(100)"`
 }
 
 func (ProductVariations) TableName() string {

@@ -7,7 +7,6 @@ import (
 	prodsvc "OnlineStoreBackend/services/products"
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -89,7 +88,6 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 
 	modelProducts := make([]models.Products, 0)
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	fmt.Println(len(modelCsvs))
 	for _, modelCsv := range modelCsvs {
 		modelProduct := models.Products{}
 		prodService.CreateWithCSV(&modelProduct, modelCsv, storeID)

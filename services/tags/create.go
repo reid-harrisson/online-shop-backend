@@ -2,6 +2,7 @@ package tagsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"strings"
 )
 
 func (service *Service) Create(tag string, modelTag *models.StoreTags) {
@@ -11,6 +12,12 @@ func (service *Service) Create(tag string, modelTag *models.StoreTags) {
 }
 
 func (service *Service) CreateWithCSV(modelTags *[]models.StoreTags, tags []string, storeID uint64) {
+	for i := range tags {
+		tags[i] = strings.TrimSpace(tags[i])
+		if len(tags[i]) == 0 {
+			tags = append(tags[:i], tags[i+1:]...)
+		}
+	}
 	if len(tags) == 0 {
 		return
 	}

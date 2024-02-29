@@ -3,6 +3,7 @@ package catesvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/requests"
+	"strings"
 )
 
 func (service *Service) Create(modelCategory *models.StoreCategories, req *requests.RequestCategory, storeID uint64) {
@@ -13,6 +14,12 @@ func (service *Service) Create(modelCategory *models.StoreCategories, req *reque
 }
 
 func (service *Service) CreateWithCSV(modelCategories *[]models.StoreCategories, categories []string, storeID uint64) {
+	for i := range categories {
+		categories[i] = strings.TrimSpace(categories[i])
+		if len(categories[i]) == 0 {
+			categories = append(categories[:i], categories[i+1:]...)
+		}
+	}
 	if len(categories) == 0 {
 		return
 	}
