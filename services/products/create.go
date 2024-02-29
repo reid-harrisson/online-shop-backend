@@ -149,10 +149,36 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 		productID := uint64(modelProduct.ID)
 		prodcateService.CreateWithCSV(modelCategories, productID)
 		prodtagService.CreateWithCSV(modelTags, productID)
-
-		modelAttrs := make([]models.ProductAttributes, 0)
-		attrService.CreateWithCSV(&modelAttrs, &modelCsv, productID)
+		attrService.CreateWithCSV(&modelCsv, productID)
 
 	case "variation":
+		service.DB.Where("sku = ?", modelCsv.Parent).First(&modelProduct)
+		modelVals := make([]models.ProductAttributeValues, 0)
+		if modelProduct.ID == 0 {
+			imageUrls := strings.Split(modelCsv.Images, ",")
+			images, _ := json.Marshal(imageUrls)
+			modelProduct.StoreID = storeID
+			modelProduct.Title = modelCsv.Name
+			modelProduct.ShortDescription = modelCsv.ShortDescription
+			modelProduct.LongDescription = modelCsv.Description
+			modelProduct.ImageUrls = string(images)
+			modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
+			switch modelCsv.Published {
+			case "1":
+				modelProduct.Status = utils.Approved
+			case "0":
+				modelProduct.Status = utils.Draft
+			}
+			modelProduct.Sku = modelCsv.Parent
+			modelProduct.Type = utils.Variable
+			service.DB.Create(modelProduct)
+
+			productID := uint64(modelProduct.ID)
+			prodcateService.CreateWithCSV(modelCategories, productID)
+			prodtagService.CreateWithCSV(modelTags, productID)
+		}
+		attrService.UpdateWithCSV(&modelVals, &modelCsv, uint64(modelProduct.ID))
+		modelVar := models.ProductVariations{}
+		varService.CreateVariableWithCSV(&modelVar, &modelCsv, uint64(modelProduct.ID), &modelVals)
 	}
 }

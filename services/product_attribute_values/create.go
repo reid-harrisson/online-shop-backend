@@ -8,3 +8,9 @@ func (service *Service) Create(attributeID uint64, value string) error {
 		AttributeValue: value,
 	}).Error
 }
+
+func (service *Service) CreateWithModel(modelVal *models.ProductAttributeValues, attributeID uint64, value string) error {
+	modelVal.AttributeID = attributeID
+	modelVal.AttributeValue = value
+	return service.DB.Create(&modelVal).Error
+}
