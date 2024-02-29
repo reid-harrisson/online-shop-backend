@@ -9,3 +9,23 @@ func (service *Service) Create(tag string, modelTag *models.StoreTags) {
 	service.DB.Where("name = ?", tag).First(modelTag)
 	service.DB.Save(modelTag)
 }
+
+func (service *Service) CreateWithCSV(modelTags *[]models.StoreTags, tags []string, storeID uint64) {
+	if len(tags) == 0 {
+		return
+	}
+	service.DB.Where("name In (?)", tags).Find(modelTags)
+	mapTag := make(map[string]int)
+	for index, modelTag := range *modelTags {
+		mapTag[modelTag.Name] = index + 1
+	}
+	for _, tag := range tags {
+		if mapTag[tag] == 0 {
+			modelTag := models.StoreTags{}
+			modelTag.Name = tag
+			modelTag.StoreID = storeID
+			service.DB.Create(&modelTag)
+			*modelTags = append(*modelTags, modelTag)
+		}
+	}
+}

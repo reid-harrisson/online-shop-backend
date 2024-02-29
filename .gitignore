@@ -3,7 +3,7 @@ main
 .env
 .env.testing
 /.idea
-docs
+uploads/
 
 # Configuration
 config.yaml

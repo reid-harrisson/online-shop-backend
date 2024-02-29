@@ -85,6 +85,9 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupVisitors := apiV1.Group("/visit")
 	GroupVisitors(server, groupVisitors)
+
+	groupUpload := apiV1.Group("/upload")
+	GroupUpload(server, groupUpload)
 }
 
 func GroupVisitors(server *s.Server, e *echo.Group) {
@@ -234,4 +237,9 @@ func GroupVariations(server *s.Server, e *echo.Group) {
 	e.PUT("/:id", handler.Update)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 	e.DELETE("/:id", handler.Delete)
+}
+
+func GroupUpload(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersUpload(server)
+	e.POST("/csv", handler.UploadCSV)
 }
