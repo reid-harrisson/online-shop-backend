@@ -7,6 +7,12 @@ type DiscountTypes int8
 type SellTypes int8
 type OrderStatuses int8
 type PageTypes int8
+type ProductTypes int8
+
+const (
+	Simple ProductTypes = iota
+	Variable
+)
 
 const (
 	StorePage PageTypes = iota

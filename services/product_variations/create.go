@@ -2,9 +2,11 @@ package prodvarsvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	prodvarsvc "OnlineStoreBackend/services/product_variation_details"
+	"strconv"
 	"strings"
 )
 
@@ -49,4 +51,19 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 		detailService := prodvarsvc.NewServiceProductVariationDetail(service.DB)
 		detailService.Create(uint64(modelVar.ID), req.AttributeValueIDs)
 	}
+}
+
+func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, modelCsv *models.CSVs, productID uint64) {
+	modelVar.ProductID = productID
+	modelVar.Sku = modelCsv.Sku
+	modelVar.Price, _ = strconv.ParseFloat(modelCsv.RegularPrice, 64)
+	modelVar.StockLevel, _ = strconv.ParseFloat(modelCsv.Stock, 64)
+	if modelCsv.SalePrice != "" {
+		salePrice, _ := strconv.ParseFloat(modelCsv.SalePrice, 64)
+		modelVar.DiscountAmount = modelVar.Price - salePrice
+	} else {
+		modelVar.DiscountAmount = 0
+	}
+	modelVar.DiscountType = utils.FixedAmountOff
+	service.DB.Create(modelVar)
 }
