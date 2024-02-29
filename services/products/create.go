@@ -100,6 +100,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 	prodtagService := prodtagsvc.NewServiceProductTag(service.DB)
 
 	varService := prodvarsvc.NewServiceProductVariation(service.DB)
+	attrService := prodattrsvc.NewServiceProductAttribute(service.DB)
 
 	switch modelCsv.Type {
 	case "simple":
@@ -127,6 +128,31 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 		modelVar := models.ProductVariations{}
 		varService.CreateSimpleWithCSV(&modelVar, &modelCsv, productID)
 	case "variable":
+		imageUrls := strings.Split(modelCsv.Images, ",")
+		images, _ := json.Marshal(imageUrls)
+		modelProduct.StoreID = storeID
+		modelProduct.Title = modelCsv.Name
+		modelProduct.ShortDescription = modelCsv.ShortDescription
+		modelProduct.LongDescription = modelCsv.Description
+		modelProduct.ImageUrls = string(images)
+		modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
+		switch modelCsv.Published {
+		case "1":
+			modelProduct.Status = utils.Approved
+		case "0":
+			modelProduct.Status = utils.Draft
+		}
+		modelProduct.Sku = modelCsv.Sku
+		modelProduct.Type = utils.Variable
+		service.DB.Create(modelProduct)
+
+		productID := uint64(modelProduct.ID)
+		prodcateService.CreateWithCSV(modelCategories, productID)
+		prodtagService.CreateWithCSV(modelTags, productID)
+
+		modelAttrs := make([]models.ProductAttributes, 0)
+		attrService.CreateWithCSV(&modelAttrs, &modelCsv, productID)
+
 	case "variation":
 	}
 }
