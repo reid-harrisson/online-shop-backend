@@ -6,6 +6,8 @@ import (
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	prodvarsvc "OnlineStoreBackend/services/product_variation_details"
+	shipsvc "OnlineStoreBackend/services/shipping_data"
+	"encoding/json"
 	"strconv"
 	"strings"
 )
@@ -54,6 +56,8 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 }
 
 func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, modelCsv *models.CSVs, productID uint64) {
+	images := strings.Split(modelCsv.Images, ",")
+	imageUrls, _ := json.Marshal(images)
 	modelVar.ProductID = productID
 	modelVar.Sku = modelCsv.Sku
 	modelVar.Price, _ = strconv.ParseFloat(modelCsv.RegularPrice, 64)
@@ -65,5 +69,12 @@ func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, 
 		modelVar.DiscountAmount = 0
 	}
 	modelVar.DiscountType = utils.FixedAmountOff
+	modelVar.Description = modelCsv.Description
+	modelVar.ImageUrls = string(imageUrls)
 	service.DB.Create(modelVar)
+
+	if modelCsv.Weight != "" {
+		shipService := shipsvc.NewServiceShippingData(service.DB)
+		shipService.CreateWithCSV(uint64(modelVar.ID), modelCsv)
+	}
 }

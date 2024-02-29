@@ -115,7 +115,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 			Weight:         modelDetail.ShippingData.Weight,
 			Width:          modelDetail.ShippingData.Width,
 			Height:         modelDetail.ShippingData.Height,
-			Depth:          modelDetail.ShippingData.Depth,
+			Depth:          modelDetail.ShippingData.Length,
 			Classification: modelDetail.ShippingData.Classification,
 		},
 	})

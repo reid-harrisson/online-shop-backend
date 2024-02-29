@@ -15,6 +15,8 @@ type ProductVariations struct {
 	StockLevel     float64             `gorm:"column:stock_level; type:decimal(20,6)"`
 	DiscountAmount float64             `gorm:"column:discount_amount; type:decimal(20,6)"`
 	DiscountType   utils.DiscountTypes `gorm:"column:discount_type; type:tinyint(4)"`
+	ImageUrls      string              `gorm:"column:image_urls; type:text"`
+	Description    string              `gorm:"column:description; type:text"`
 }
 
 func (ProductVariations) TableName() string {

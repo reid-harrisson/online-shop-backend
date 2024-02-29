@@ -34,10 +34,10 @@ func NewResponseShippingData(c echo.Context, statusCode int, modelShipData model
 	responseShipData := ResponseProductShippingData{
 		ID:             uint64(modelShipData.ID),
 		Weight:         modelShipData.Weight,
-		ProductID:      modelShipData.ProductID,
+		ProductID:      modelShipData.VariationID,
 		Width:          modelShipData.Width,
 		Height:         modelShipData.Height,
-		Depth:          modelShipData.Depth,
+		Depth:          modelShipData.Length,
 		Classification: modelShipData.Classification,
 	}
 	return Response(c, statusCode, responseShipData)
