@@ -50,6 +50,7 @@ func readCSV(filename string, modelCsvs *[]models.CSVs) {
 			}
 			jsonCsv, _ := json.Marshal(mapCsv)
 			modelCsv := models.CSVs{}
+			modelCsv.ID = record[0]
 			if err := json.Unmarshal(jsonCsv, &modelCsv); err == nil {
 				*modelCsvs = append(*modelCsvs, modelCsv)
 			}
@@ -90,15 +91,17 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	readCSV("./uploads/"+file.Filename, &modelCsvs)
 
 	mapSku := make(map[string]uint64)
+	mapIDs := make(map[string]string)
 
 	modelProducts := make([]models.Products, 0)
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	for _, modelCsv := range modelCsvs {
 		modelProduct := models.Products{}
-		prodService.CreateWithCSV(&modelProduct, modelCsv, storeID)
+		prodService.CreateWithCSV(&modelProduct, modelCsv, storeID, &mapIDs)
 		if modelProduct.ID != 0 {
 			modelProducts = append(modelProducts, modelProduct)
 			mapSku[modelProduct.Sku] = uint64(modelProduct.ID)
+			mapIDs[modelCsv.ID] = modelProduct.Sku
 		}
 	}
 
@@ -111,11 +114,19 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			sku = strings.TrimSpace(modelCsv.Sku)
 		}
 		for _, upSell := range upSells {
+			if len(upSell) > 3 && upSell[:3] == "id:" {
+				id := upSell[3:]
+				upSell = mapIDs[id]
+			}
 			if mapSku[sku] != 0 && mapSku[upSell] != 0 {
 				linkService.Create(mapSku[sku], mapSku[upSell], utils.UpSell)
 			}
 		}
 		for _, crossSell := range crossSells {
+			if len(crossSell) > 3 && crossSell[:3] == "id:" {
+				id := crossSell[3:]
+				crossSell = mapIDs[id]
+			}
 			if mapSku[sku] != 0 && mapSku[crossSell] != 0 {
 				linkService.Create(mapSku[sku], mapSku[crossSell], utils.UpSell)
 			}

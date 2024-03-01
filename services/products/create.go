@@ -84,7 +84,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	return nil
 }
 
-func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv models.CSVs, storeID uint64) {
+func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv models.CSVs, storeID uint64, mapIDs *map[string]string) {
 	modelCategories := make([]models.StoreCategories, 0)
 	categories := strings.Split(modelCsv.Categories, ">")
 	cateService := catesvc.NewServiceCategory(service.DB)
@@ -159,7 +159,19 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			attrService.CreateWithCSV(&modelCsv, productID)
 		}
 	case "variation":
-		service.DB.Where("sku = ?", modelCsv.Parent).First(&modelProduct)
+		parentSku := modelCsv.Parent
+		if parentSku[:3] == "id:" {
+			id := parentSku[3:]
+			parentSku = (*mapIDs)[id]
+			if parentSku == "" {
+				parentSku = utils.StyleSKU(strings.Split(modelCsv.Name, " - ")[0])
+				(*mapIDs)[id] = parentSku
+			}
+		}
+		if modelCsv.Sku == "" {
+			modelCsv.Sku = utils.StyleSKU(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
+		}
+		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
 		modelVals := make([]models.ProductAttributeValues, 0)
 		if modelProduct.ID == 0 {
 			imageUrls := strings.Split(modelCsv.Images, ",")
@@ -176,7 +188,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			case "0":
 				modelProduct.Status = utils.Draft
 			}
-			modelProduct.Sku = modelCsv.Parent
+			modelProduct.Sku = parentSku
 			modelProduct.Type = utils.Variable
 			modelProduct.ShippingClass = modelCsv.ShippingClass
 			service.DB.Create(modelProduct)
