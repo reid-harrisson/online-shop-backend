@@ -106,7 +106,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 	case "simple":
 		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
 		if modelProduct.ID == 0 {
-			imageUrls := strings.Split(modelCsv.Images, ",")
+			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
 			modelProduct.StoreID = storeID
 			modelProduct.Title = modelCsv.Name
@@ -134,7 +134,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 	case "variable":
 		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
 		if modelProduct.ID == 0 {
-			imageUrls := strings.Split(modelCsv.Images, ",")
+			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
 			modelProduct.StoreID = storeID
 			modelProduct.Title = modelCsv.Name
@@ -174,7 +174,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
 		modelVals := make([]models.ProductAttributeValues, 0)
 		if modelProduct.ID == 0 {
-			imageUrls := strings.Split(modelCsv.Images, ",")
+			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
 			modelProduct.StoreID = storeID
 			modelProduct.Title = modelCsv.Name

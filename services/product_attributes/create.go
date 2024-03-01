@@ -57,13 +57,15 @@ func (service *Service) UpdateWithCSV(modelVals *[]models.ProductAttributeValues
 			modelAttr.ProductID = productID
 			service.DB.Create(&modelAttr)
 		}
-		value := strings.TrimSpace(modelCsv.Attribute2Values)
-		modelVal := models.ProductAttributeValues{}
-		valService.DB.Where("attribute_id = ? And attribute_value = ?", modelAttr.ID, value).First(&modelVal)
-		if modelVal.ID == 0 {
-			valService.CreateWithModel(&modelVal, uint64(modelAttr.ID), strings.TrimSpace(value))
+		value := strings.TrimSpace(modelCsv.Attribute1Values)
+		if value != "" {
+			modelVal := models.ProductAttributeValues{}
+			valService.DB.Where("attribute_id = ? And attribute_value = ?", modelAttr.ID, value).First(&modelVal)
+			if modelVal.ID == 0 {
+				valService.CreateWithModel(&modelVal, uint64(modelAttr.ID), value)
+			}
+			*modelVals = append(*modelVals, modelVal)
 		}
-		*modelVals = append(*modelVals, modelVal)
 	}
 	if modelCsv.Attribute2Name != "" {
 		modelAttr := models.ProductAttributes{}
@@ -75,11 +77,13 @@ func (service *Service) UpdateWithCSV(modelVals *[]models.ProductAttributeValues
 			service.DB.Create(&modelAttr)
 		}
 		value := strings.TrimSpace(modelCsv.Attribute2Values)
-		modelVal := models.ProductAttributeValues{}
-		valService.DB.Where("attribute_id = ? And attribute_value = ?", modelAttr.ID, value).First(&modelVal)
-		if modelVal.ID == 0 {
-			valService.CreateWithModel(&modelVal, uint64(modelAttr.ID), strings.TrimSpace(value))
+		if value != "" {
+			modelVal := models.ProductAttributeValues{}
+			valService.DB.Where("attribute_id = ? And attribute_value = ?", modelAttr.ID, value).First(&modelVal)
+			if modelVal.ID == 0 {
+				valService.CreateWithModel(&modelVal, uint64(modelAttr.ID), value)
+			}
+			*modelVals = append(*modelVals, modelVal)
 		}
-		*modelVals = append(*modelVals, modelVal)
 	}
 }

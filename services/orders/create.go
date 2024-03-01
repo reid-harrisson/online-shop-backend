@@ -26,6 +26,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 	service.DB.Create(&modelOrder)
 
 	orderID := modelOrder.ID
+	shipRepo := repositories.NewRepositoryShipping(service.DB)
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
 	modelItems := make([]*models.OrderItems, 0)
 	for _, modelItem := range modelCartItems {
@@ -37,6 +38,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			price -= modelItem.DiscountAmount * price / 100
 		}
 		totalPrice := price * modelItem.Quantity
+		methodID := shipRepo.GetDefaultMethodID(modelItem.StoreID)
 		modelItems = append(modelItems, &models.OrderItems{
 			OrderID:          uint64(orderID),
 			StoreID:          modelItem.StoreID,
@@ -46,8 +48,8 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			SubTotalPrice:    totalPrice,
 			TaxRate:          modelTax.TaxRate,
 			TaxAmount:        utils.Round(modelTax.TaxRate * totalPrice / 100),
-			ShippingMethodID: 0,
-			ShippingPrice:    float64(0),
+			ShippingMethodID: methodID,
+			ShippingPrice:    shipRepo.GetDefaultShippingPrice(modelItem.VariationID, methodID, totalPrice, modelItem.Quantity),
 			TotalPrice:       utils.Round(totalPrice + (totalPrice * modelTax.TaxRate / 100)),
 			Status:           utils.StatusOrderPending,
 		})

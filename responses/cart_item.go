@@ -9,18 +9,15 @@ import (
 )
 
 type ResponseCartItem struct {
-	ID             uint64              `json:"id"`
-	ProductID      uint64              `json:"product_id"`
-	ProductName    string              `json:"product_name"`
-	ImageUrl       string              `json:"image_url"`
-	Category       string              `json:"category"`
-	Price          float64             `json:"price"`
-	ExchangeRate   float64             `json:"exchange_rate"`
-	ExchangePrice  float64             `json:"exchange_price"`
-	DiscountAmount float64             `json:"discount_amount"`
-	DiscountType   utils.DiscountTypes `json:"discount_type"`
-	Quantity       float64             `json:"quantity"`
-	TotalPrice     float64             `json:"total_price"`
+	ID           uint64   `json:"id"`
+	ProductID    uint64   `json:"product_id"`
+	ProductName  string   `json:"product_name"`
+	ImageUrls    []string `json:"image_urls"`
+	Categories   []string `json:"categories"`
+	SalePrice    float64  `json:"sale_price"`
+	RegularPrice float64  `json:"regular_price"`
+	Quantity     float64  `json:"quantity"`
+	TotalPrice   float64  `json:"total_price"`
 }
 
 type ResponseStoreCart struct {
@@ -51,28 +48,28 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 		totalCost := float64(0)
 		for _, cartItem := range modelCartItems {
 			imageUrls := make([]string, 0)
-			imageUrl := ""
-			json.Unmarshal([]byte(cartItem.ImageUrl), &imageUrls)
-			if len(imageUrls) > 0 {
-				imageUrl = string(imageUrls[0])
-			}
-			price := cartItem.Price
+			json.Unmarshal([]byte(cartItem.ImageUrls), &imageUrls)
+			categories := make([]string, 0)
+			json.Unmarshal([]byte("["+cartItem.Categories+"]"), &categories)
+			regularPrice := cartItem.Price
+			salePrice := cartItem.Price
 			switch cartItem.DiscountType {
 			case utils.FixedAmountOff:
-				price -= cartItem.DiscountAmount
+				salePrice -= cartItem.DiscountAmount
 			case utils.PercentageOff:
-				price -= cartItem.DiscountAmount * price / 100
+				salePrice -= cartItem.DiscountAmount * salePrice / 100
 			}
-			totalPrice := price * cartItem.Quantity
+			totalPrice := salePrice * cartItem.Quantity
 			responseCartItems = append(responseCartItems, ResponseCartItem{
-				ID:          uint64(cartItem.ID),
-				ProductID:   cartItem.VariationID,
-				ProductName: cartItem.ProductName,
-				ImageUrl:    imageUrl,
-				Price:       price,
-				Quantity:    cartItem.Quantity,
-				Category:    cartItem.Category,
-				TotalPrice:  totalPrice,
+				ID:           uint64(cartItem.ID),
+				ProductID:    cartItem.VariationID,
+				ProductName:  cartItem.VariationName,
+				ImageUrls:    imageUrls,
+				RegularPrice: regularPrice,
+				SalePrice:    salePrice,
+				Quantity:     cartItem.Quantity,
+				Categories:   categories,
+				TotalPrice:   totalPrice,
 			})
 			totalCost += totalPrice
 		}

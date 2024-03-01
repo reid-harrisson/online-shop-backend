@@ -38,15 +38,15 @@ func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartItemCount
 
 func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {
 	repository.DB.
-		Table("store_cart_items As carts").
+		Table("store_cart_items As carts").LogMode(true).
 		Select(`carts.*,
-			prods.store_id As store_id,
-			vars.price As price,
+			prods.store_id,
+			vars.price,
 			vars.discount_amount,
 			vars.discount_type,
-			prods.image_urls As image_url,
-			prods.title As product_name,
-			Group_Concat(cates.name) As category`).
+			vars.image_urls,
+			vars.title As variation_name,
+			Group_Concat(Concat('"', cates.name,'"') Separator ', ') As categories`).
 		Joins("Left Join store_product_variations As vars On vars.id = carts.variation_id").
 		Joins("Left Join store_products As prods On prods.id = vars.product_id").
 		Joins("Left Join store_product_categories As prodcates On prodcates.product_id = prods.id").

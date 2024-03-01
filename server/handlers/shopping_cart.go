@@ -8,7 +8,6 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	cartsvc "OnlineStoreBackend/services/cart_items"
-	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	"net/http"
 	"strconv"
 
@@ -58,14 +57,9 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
 	}
 
-	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
-	valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs)
-	sku := prodvarsvc.GenerateSKU(&modelProduct, &modelValues)
-
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadBySku(&modelVar, sku)
+	varRepo.ReadByAttributeValueIDs(&modelVar, req.AttributeValueIDs, productID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
@@ -76,9 +70,6 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	cartRepo.ReadByInfo(&modelItem, variationID, customerID)
-	if modelItem.ID != 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This cart item already exist in cart.")
-	}
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.Create(&modelItem, customerID, &modelVar, quantity)
