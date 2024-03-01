@@ -25,7 +25,12 @@ type ResponseProductShippingData struct {
 }
 
 type ResponseShippingMethod struct {
-	Method string `json:"method"`
+	Method        string  `json:"method"`
+	FlatRate      float64 `json:"flat_rate"`
+	BaseRate      float64 `json:"base_rate"`
+	RatePerItem   float64 `json:"rate_per_item"`
+	RatePerWeight float64 `json:"rate_per_weight"`
+	RatePerTotal  float64 `json:"rate_per_total"`
 }
 
 func NewResponseShippingData(c echo.Context, statusCode int, modelShipData models.ShippingData) error {

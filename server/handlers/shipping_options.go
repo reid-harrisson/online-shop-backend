@@ -76,17 +76,17 @@ func (h *HandlersShippingOptions) ReadShippingOption(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param order_id query int true "Order ID"
 // @Param store_id query int true "Store ID"
-// @Param method query string true "Shipping Method"
+// @Param method_id query string true "Shipping Method ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/order [put]
 func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
 	orderID, _ := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	method := c.QueryParam("method")
+	methodID, _ := strconv.ParseUint(c.QueryParam("method"), 10, 64)
 
 	orderService := orditmsvc.NewServiceOrderItem(h.server.DB)
-	if err := orderService.UpdateShippingMethod(storeID, orderID, method); err != nil {
+	if err := orderService.UpdateShippingMethod(storeID, orderID, methodID); err != nil {
 		return responses.Response(c, http.StatusBadRequest, "No recorde found.")
 	}
 
