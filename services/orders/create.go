@@ -38,7 +38,21 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			price -= modelItem.DiscountAmount * price / 100
 		}
 		totalPrice := price * modelItem.Quantity
-		methodID := shipRepo.GetDefaultMethodID(modelItem.StoreID)
+
+		modelMethod := models.ShippingMethods{}
+		shipRepo.ReadDefaultMethod(&modelMethod, modelItem.StoreID)
+		modelShip := models.ShippingData{}
+		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
+		shippingPrice := float64(0)
+		if modelMethod.ID != 0 {
+			switch modelMethod.Method {
+			case utils.FlatRate:
+				shippingPrice = modelMethod.FlatRate
+			case utils.TableRate:
+				shippingPrice = modelMethod.BaseRate + modelMethod.RatePerItem*modelItem.Quantity + modelMethod.RatePerTotal*totalPrice/100 + modelMethod.RatePerWeight*modelShip.Height
+			}
+		}
+
 		modelItems = append(modelItems, &models.OrderItems{
 			OrderID:          uint64(orderID),
 			StoreID:          modelItem.StoreID,
@@ -48,8 +62,8 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			SubTotalPrice:    totalPrice,
 			TaxRate:          modelTax.TaxRate,
 			TaxAmount:        utils.Round(modelTax.TaxRate * totalPrice / 100),
-			ShippingMethodID: methodID,
-			ShippingPrice:    shipRepo.GetDefaultShippingPrice(modelItem.VariationID, methodID, totalPrice, modelItem.Quantity),
+			ShippingMethodID: uint64(modelMethod.ID),
+			ShippingPrice:    shippingPrice,
 			TotalPrice:       utils.Round(totalPrice + (totalPrice * modelTax.TaxRate / 100)),
 			Status:           utils.StatusOrderPending,
 		})

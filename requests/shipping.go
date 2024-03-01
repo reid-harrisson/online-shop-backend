@@ -2,8 +2,8 @@ package requests
 
 import validation "github.com/go-ozzo/ozzo-validation"
 
-type RequestShippingOption struct {
-	Method        string  `json:"method" example:"flat rate"`
+type RequestShippingMethod struct {
+	Method        string  `json:"method" example:"FlatRate"`
 	FlatRate      float64 `json:"flat_rate" example:"5"`
 	BaseRate      float64 `json:"base_rate" example:"2"`
 	RatePerItem   float64 `json:"rate_per_item" example:"0.2"`
@@ -19,7 +19,7 @@ type RequestShippingData struct {
 	Classification string  `json:"classification" example:"food"`
 }
 
-func (request RequestShippingOption) Validate() error {
+func (request RequestShippingMethod) Validate() error {
 	return validation.ValidateStruct(&request,
 		validation.Field(&request.Method, validation.Required),
 	)

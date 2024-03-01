@@ -3,6 +3,7 @@ package orditmsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"OnlineStoreBackend/repositories"
 )
 
 func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus string) {
@@ -11,7 +12,27 @@ func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus
 		Update("status", status)
 }
 
-func (service *Service) UpdateShippingMethod(storeID uint64, orderID uint64, methodID uint64) error {
-	return service.DB.Model(models.OrderItems{}).Where("order_id = ? And store_id = ?", orderID, storeID).
-		Update("shipping_method_id", methodID).Error
+func (service *Service) UpdateShippingMethod(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, methodID uint64) {
+	service.DB.Where("order_id = ? And store_id = ?", orderID, storeID).Find(modelItems)
+	shipRepo := repositories.NewRepositoryShipping(service.DB)
+	for index := range *modelItems {
+		modelMethod := models.ShippingMethods{}
+		shipRepo.ReadByID(&modelMethod, methodID)
+		modelShip := models.ShippingData{}
+		shipRepo.ReadByVariationID(&modelShip, (*modelItems)[index].VariationID)
+		totalPrice := (*modelItems)[index].SubTotalPrice
+		shippingPrice := float64(0)
+		if modelMethod.ID != 0 {
+			switch modelMethod.Method {
+			case utils.FlatRate:
+				shippingPrice = modelMethod.FlatRate
+			case utils.TableRate:
+				shippingPrice = modelMethod.BaseRate + modelMethod.RatePerItem*(*modelItems)[index].Quantity + modelMethod.RatePerTotal*totalPrice/100 + modelMethod.RatePerWeight*modelShip.Height
+			}
+		}
+		(*modelItems)[index].ShippingMethodID = methodID
+		(*modelItems)[index].ShippingPrice = shippingPrice
+		(*modelItems)[index].TotalPrice = totalPrice + (*modelItems)[index].TaxAmount + shippingPrice
+		service.DB.Save(&(*modelItems)[index])
+	}
 }

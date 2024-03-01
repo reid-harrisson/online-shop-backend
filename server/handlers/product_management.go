@@ -738,7 +738,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
-	shipRepo.ReadByProductID(&modelShipData, productID)
+	shipRepo.ReadByVariationID(&modelShipData, productID)
 	if modelShipData.ID != 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data already exists in this product.")
 	}
@@ -775,7 +775,7 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
-	shipRepo.ReadByProductID(&modelShipData, productID)
+	shipRepo.ReadByVariationID(&modelShipData, productID)
 	if modelShipData.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
 	}
@@ -809,7 +809,7 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
-	shipRepo.ReadByProductID(&modelShipData, productID)
+	shipRepo.ReadByVariationID(&modelShipData, productID)
 	if modelShipData.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping data doesn't exist in this product.")
 	}

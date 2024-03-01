@@ -49,7 +49,12 @@ func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []mo
 	responseMethods := make([]ResponseShippingMethod, 0)
 	for _, modelMethod := range modelMethods {
 		responseMethods = append(responseMethods, ResponseShippingMethod{
-			Method: utils.ShippingMethodsToString(modelMethod.Method),
+			Method:        utils.ShippingMethodsToString(modelMethod.Method),
+			FlatRate:      modelMethod.FlatRate,
+			BaseRate:      modelMethod.BaseRate,
+			RatePerItem:   modelMethod.RatePerItem,
+			RatePerWeight: modelMethod.RatePerWeight,
+			RatePerTotal:  modelMethod.RatePerTotal,
 		})
 	}
 	return Response(c, statusCode, responseMethods)

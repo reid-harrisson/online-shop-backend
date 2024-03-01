@@ -217,7 +217,7 @@ func GroupTaxSettings(server *s.Server, e *echo.Group) {
 
 func GroupShippingOption(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShippingOptions(server)
-	e.POST("/store", handler.CreateShippingOption)
+	e.POST("/store", handler.CreateShippingMethod)
 	e.GET("/store", handler.ReadShippingOption)
 	e.PUT("/order", handler.UpdateShippingMethod)
 }
