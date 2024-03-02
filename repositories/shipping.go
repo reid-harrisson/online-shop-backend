@@ -14,10 +14,18 @@ func NewRepositoryShipping(db *gorm.DB) *RepositoryShipping {
 	return &RepositoryShipping{DB: db}
 }
 
-func (repository *RepositoryShipping) ReadByProductID(modelShipData *models.ShippingData, productID uint64) {
-	repository.DB.Where("product_id = ?", productID).First(modelShipData)
+func (repository *RepositoryShipping) ReadByVariationID(modelShip *models.ShippingData, variationID uint64) {
+	repository.DB.Where("variation_id = ?", variationID).First(modelShip)
 }
 
-func (repository *RepositoryShipping) ReadOptionsByStoreID(modelOptions *[]models.ShippingMethods, storeID uint64) {
-	repository.DB.Where("store_id = ?", storeID).Find(modelOptions)
+func (repository *RepositoryShipping) ReadByStoreID(modelMethods *[]models.ShippingMethods, storeID uint64) {
+	repository.DB.Where("store_id = ?", storeID).Find(modelMethods)
+}
+
+func (repository *RepositoryShipping) ReadDefaultMethod(modelMethod *models.ShippingMethods, storeID uint64) {
+	repository.DB.Where("store_id = ?", storeID).First(modelMethod)
+}
+
+func (repository *RepositoryShipping) ReadByID(modelMethod *models.ShippingMethods, methodID uint64) {
+	repository.DB.Where("id = ?", methodID).First(modelMethod)
 }

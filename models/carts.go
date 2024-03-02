@@ -18,10 +18,10 @@ type CartItemsWithDetail struct {
 	CartItems
 
 	StoreID        uint64              `gorm:"column:store_id"`
-	ProductName    string              `gorm:"column:product_name"`
-	ImageUrl       string              `gorm:"column:image_url"`
+	VariationName  string              `gorm:"column:variation_name"`
+	ImageUrls      string              `gorm:"column:image_urls"`
 	Price          float64             `gorm:"column:price"`
-	Category       string              `gorm:"column:category"`
+	Categories     string              `gorm:"column:categories"`
 	DiscountAmount float64             `gorm:"column:discount_amount"`
 	DiscountType   utils.DiscountTypes `gorm:"column:discount_type"`
 }

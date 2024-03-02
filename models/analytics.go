@@ -1,6 +1,9 @@
 package models
 
-import "OnlineStoreBackend/pkgs/utils"
+import (
+	"OnlineStoreBackend/pkgs/utils"
+	"time"
+)
 
 type StoreSales struct {
 	StoreID uint64  `gorm:"column:store_id; type:bigint(20) unsigned"`
@@ -84,12 +87,12 @@ type ProductViewAnalytics struct {
 	Purchase    uint64 `gorm:"column:purchase"`
 }
 
-type RepeatCustomerRate struct {
+type RepeatCustomerRates struct {
 	ProductID  uint64 `gorm:"column:product_id"`
 	CustomerID uint64 `gorm:"column:customer_id"`
 }
 
-type CustomerChurnRate struct {
+type CustomerChurnRates struct {
 	Rate float64 `gorm:"column:rate"`
 }
 
@@ -102,4 +105,27 @@ type TopSellingProducts struct {
 	ProductID   uint64  `gorm:"column:product_id"`
 	ProductName string  `gorm:"column:product_name"`
 	Sales       float64 `gorm:"column:sales"`
+}
+
+type OrderTrendAnalytics struct {
+	Date  time.Time `gorm:"column:date"`
+	Count uint64    `gorm:"column:count"`
+	Sales float64   `gorm:"column:sales"`
+}
+
+type CustomerDataByLocation struct {
+	Location  string `gorm:"column:location"`
+	Customers uint64 `gorm:"column:customers"`
+}
+
+type CustomerSatisfaction struct {
+	AverageRating float64 `gorm:"column:average_rating"`
+	NPS           float64 `gorm:"column:nps"`
+}
+
+type PageLoadingTime struct {
+	Page        utils.PageTypes `gorm:"column:page"`
+	AverageTime float64         `json:"average_time"`
+	MaximumTime float64         `json:"maximum_time"`
+	MinimumTime float64         `json:"minimum_time"`
 }

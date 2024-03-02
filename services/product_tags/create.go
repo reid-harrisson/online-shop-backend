@@ -19,3 +19,12 @@ func (service *Service) Create(tag string, productID uint64) {
 		ProductID: productID,
 	})
 }
+
+func (service *Service) CreateWithCSV(modelTags []models.StoreTags, productID uint64) {
+	for _, modelTag := range modelTags {
+		service.DB.Create(&models.ProductTags{
+			TagID:     uint64(modelTag.ID),
+			ProductID: productID,
+		})
+	}
+}

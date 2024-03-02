@@ -5,14 +5,19 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
+	catesvc "OnlineStoreBackend/services/categories"
 	prodattrvalsvc "OnlineStoreBackend/services/product_attribute_values"
 	prodattrsvc "OnlineStoreBackend/services/product_attributes"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
 	linksvc "OnlineStoreBackend/services/product_links"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
+	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	chansvc "OnlineStoreBackend/services/related_channels"
 	contsvc "OnlineStoreBackend/services/related_contents"
+	tagsvc "OnlineStoreBackend/services/tags"
 	"encoding/json"
+	"strconv"
+	"strings"
 )
 
 func (service *Service) Create(modelProduct *models.Products, req *requests.RequestProductWithDetail) error {
@@ -77,4 +82,126 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	}
 
 	return nil
+}
+
+func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv models.CSVs, storeID uint64, mapIDs *map[string]string) {
+	modelCategories := make([]models.StoreCategories, 0)
+	categories := strings.Split(modelCsv.Categories, ">")
+	cateService := catesvc.NewServiceCategory(service.DB)
+	cateService.CreateWithCSV(&modelCategories, categories, storeID)
+
+	prodcateService := prodcatesvc.NewServiceProductCategory(service.DB)
+
+	modelTags := make([]models.StoreTags, 0)
+	tags := strings.Split(modelCsv.Tags, ",")
+	tagService := tagsvc.NewServiceTag(service.DB)
+	tagService.CreateWithCSV(&modelTags, tags, storeID)
+
+	prodtagService := prodtagsvc.NewServiceProductTag(service.DB)
+
+	varService := prodvarsvc.NewServiceProductVariation(service.DB)
+	attrService := prodattrsvc.NewServiceProductAttribute(service.DB)
+
+	switch modelCsv.Type {
+	case "simple":
+		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
+		if modelProduct.ID == 0 {
+			imageUrls := strings.Split(modelCsv.Images, ", ")
+			images, _ := json.Marshal(imageUrls)
+			modelProduct.StoreID = storeID
+			modelProduct.Title = modelCsv.Name
+			modelProduct.ShortDescription = modelCsv.ShortDescription
+			modelProduct.LongDescription = modelCsv.Description
+			modelProduct.ImageUrls = string(images)
+			modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
+			switch modelCsv.Published {
+			case "1":
+				modelProduct.Status = utils.Approved
+			case "0":
+				modelProduct.Status = utils.Draft
+			}
+			modelProduct.ShippingClass = modelCsv.ShippingClass
+			modelProduct.Sku = modelCsv.Sku
+			modelProduct.Type = utils.Simple
+			service.DB.Create(modelProduct)
+
+			productID := uint64(modelProduct.ID)
+			prodcateService.CreateWithCSV(modelCategories, productID)
+			prodtagService.CreateWithCSV(modelTags, productID)
+			modelVar := models.ProductVariations{}
+			varService.CreateSimpleWithCSV(&modelVar, &modelCsv, productID)
+		}
+	case "variable":
+		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
+		if modelProduct.ID == 0 {
+			imageUrls := strings.Split(modelCsv.Images, ", ")
+			images, _ := json.Marshal(imageUrls)
+			modelProduct.StoreID = storeID
+			modelProduct.Title = modelCsv.Name
+			modelProduct.ShortDescription = modelCsv.ShortDescription
+			modelProduct.LongDescription = modelCsv.Description
+			modelProduct.ImageUrls = string(images)
+			modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
+			switch modelCsv.Published {
+			case "1":
+				modelProduct.Status = utils.Approved
+			case "0":
+				modelProduct.Status = utils.Draft
+			}
+			modelProduct.Sku = modelCsv.Sku
+			modelProduct.ShippingClass = modelCsv.ShippingClass
+			modelProduct.Type = utils.Variable
+			service.DB.Create(modelProduct)
+
+			productID := uint64(modelProduct.ID)
+			prodcateService.CreateWithCSV(modelCategories, productID)
+			prodtagService.CreateWithCSV(modelTags, productID)
+			attrService.CreateWithCSV(&modelCsv, productID)
+		}
+	case "variation":
+		parentSku := modelCsv.Parent
+		if parentSku[:3] == "id:" {
+			id := parentSku[3:]
+			parentSku = (*mapIDs)[id]
+			if parentSku == "" {
+				parentSku = utils.StyleSKU(strings.Split(modelCsv.Name, " - ")[0])
+				(*mapIDs)[id] = parentSku
+			}
+		}
+		if modelCsv.Sku == "" {
+			modelCsv.Sku = utils.StyleSKU(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
+		}
+		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
+		modelVals := make([]models.ProductAttributeValues, 0)
+		if modelProduct.ID == 0 {
+			imageUrls := strings.Split(modelCsv.Images, ", ")
+			images, _ := json.Marshal(imageUrls)
+			modelProduct.StoreID = storeID
+			modelProduct.Title = modelCsv.Name
+			modelProduct.ShortDescription = modelCsv.ShortDescription
+			modelProduct.LongDescription = modelCsv.Description
+			modelProduct.ImageUrls = string(images)
+			modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
+			switch modelCsv.Published {
+			case "1":
+				modelProduct.Status = utils.Approved
+			case "0":
+				modelProduct.Status = utils.Draft
+			}
+			modelProduct.Sku = parentSku
+			modelProduct.Type = utils.Variable
+			modelProduct.ShippingClass = modelCsv.ShippingClass
+			service.DB.Create(modelProduct)
+
+			productID := uint64(modelProduct.ID)
+			prodcateService.CreateWithCSV(modelCategories, productID)
+			prodtagService.CreateWithCSV(modelTags, productID)
+		}
+		attrService.UpdateWithCSV(&modelVals, &modelCsv, uint64(modelProduct.ID))
+		modelVar := models.ProductVariations{}
+		varService.DB.Where("sku = ?", modelCsv.Sku).First(&modelVar)
+		if modelVar.ID == 0 {
+			varService.CreateVariableWithCSV(&modelVar, &modelCsv, uint64(modelProduct.ID), &modelVals)
+		}
+	}
 }

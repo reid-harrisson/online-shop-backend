@@ -32,8 +32,8 @@ func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.Sa
 		Scan(modelReports).Error
 }
 
-func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.CustomerInsights) error {
-	return repository.DB.Table("users").
+func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.CustomerInsights, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_order_items As items").
 		Select(`
 		  Min(users.age) As youngest_age,
     	Max(users.age) As oldest_age,
@@ -41,8 +41,11 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 			Count(Distinct Case When Lower(users.gender) = 'female' Then users.id End) As female_count,
     	Avg(Distinct users.age) AS average_age
 		`).
-		Joins("Left Join store_orders As ords On ords.customer_id = users.id").
-		Where("users.deleted_at Is Null And ords.deleted_at Is Null").
+		Joins("Left Join store_orders As ords On items.order_id = ords.id").
+		Joins("Left Join users On ords.customer_id = users.id").
+		Where("items.store_id = ?", storeID).
+		Where("users.deleted_at Is Null And ords.deleted_at Is Null And items.deleted_at Is Null").
+		Where("items.created_at Between ? And ?", startDate, endDate).
 		Scan(modelReport).Error
 }
 
@@ -123,7 +126,7 @@ func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]mo
 		Scan(modelViews).Error
 }
 
-func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRate, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRates, storeID uint64) error {
 	return repository.DB.Table("store_order_items As items").
 		Select(`
 			vars.product_id,
@@ -137,7 +140,7 @@ func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]model
 		Error
 }
 
-func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.CustomerChurnRate, storeID uint64, startDate time.Time, endDate time.Time) error {
+func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.CustomerChurnRates, storeID uint64, startDate time.Time, endDate time.Time) error {
 	activeUser := uint64(0)
 	churnUser := 0
 	err := repository.DB.Model(models.Orders{}).
@@ -165,6 +168,63 @@ func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]m
 		Order("sales Desc").
 		Where("prods.store_id = ?", storeID).
 		Where("items.created_at > ? And items.created_at < ?", startDate, endDate).
+		Where("items.deleted_at Is Null And prods.deleted_at Is Null And vars.deleted_at Is Null").
 		Limit(count).
-		Scan(&modelProducts).Error
+		Scan(modelProducts).Error
+}
+
+func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]models.OrderTrendAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Model(models.OrderItems{}).
+		Select(`
+			Date(created_at) As date,
+			Count(Distinct order_id) As count,
+			Sum(total_price) As sales
+		`).
+		Where("created_at Between ? And ?", startDate, endDate).
+		Group("Date(created_at)").
+		Scan(modelTrends).Error
+}
+
+func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations *[]models.CustomerDataByLocation, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_order_items As items").
+		Select(`
+			couns.name As location,
+			Count(Distinct users.id) As customers
+		`).
+		Joins("Left Join store_orders As ords On ords.id = items.order_id").
+		Joins("Left Join users On users.id = ords.customer_id").
+		Joins("Left Join countries As couns On couns.id = users.country_id").
+		Where("items.store_id = ?", storeID).
+		Where("items.created_at Between ? And ?", startDate, endDate).
+		Where("ords.deleted_at Is Null And users.deleted_at Is Null And couns.deleted_at Is Null And items.deleted_at Is Null").
+		Group("couns.id").
+		Scan(modelLocations).Error
+}
+
+func (repository *RepositoryAnalytics) ReadCustomerSatisfaction(modelRates *[]models.CustomerSatisfaction, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_product_reviews As revs").
+		Select(`
+			Avg(revs.rate) As average_rating,
+			( Count(Distinct Case When revs.rate >= 4.5 Then revs.customer_id End) - Count(Distinct Case When revs.rate <= 3 Then revs.customer_id End)) / Count(Distinct revs.customer_id) As nps
+		`).
+		Joins("Left Join store_products As prods On prods.id = revs.product_id").
+		Where("prods.store_id = ?", storeID).
+		Where("revs.created_at Between ? And ?", startDate, endDate).
+		Where("revs.deleted_at Is Null And prods.deleted_at Is Null").
+		Group("prods.id").
+		Scan(modelRates).Error
+}
+
+func (repository *RepositoryAnalytics) ReadPageLoadingTime(modelTimes *[]models.PageLoadingTime, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Model(models.Visitors{}).
+		Select(`
+			page,
+			Avg(loading_time) As average_time,
+			Max(loading_time) As maximum_time,
+			Min(loading_time) As minimum_time
+		`).
+		Where("store_id = ?", storeID).
+		Where("created_at Between ? And ?", startDate, endDate).
+		Group("page").
+		Scan(modelTimes).Error
 }

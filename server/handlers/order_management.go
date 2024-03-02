@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -131,37 +130,34 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	status := c.QueryParam("status")
 
+	modelItems := make([]models.OrderItems, 0)
 	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	orderService.UpdateStatus(storeID, orderID, status)
+	orderService.UpdateStatus(&modelItems, storeID, orderID, status)
 
-	mailData := utils.MailData{
-		Name:            "PockitTV Contact Centre",
-		EmailFrom:       "araki@pockittv.com",
-		EmailTo:         "kaspersky3550879@gmail.com",
-		EmailPretext:    "Contact Centre",
-		Company:         "PockitTV",
-		Subject:         "Account Activation",
-		Phone:           "+12387621342",
-		SourceChannel:   "Sports",
-		BodyBlock:       "Body Block",
-		TargetTeam:      "PockitTv Contact Team",
-		BodyCtaBtnLabel: "ACTIVATE",
-		// BodyCtaBtnLink:             tempUser.ActivationLink,
-		BodyGreeting: "Hi",
-		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
-		CompanyID:    2,
-		// FirstName:                  tempUser.FirstName,
-		HeaderPosterImageUrl:       "",
-		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
-		HeaderPosterSloganTitle:    "ARE YOU READY?",
-	}
-	utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
+	// mailData := utils.MailData{
+	// 	Name:            "PockitTV Contact Centre",
+	// 	EmailFrom:       "araki@pockittv.com",
+	// 	EmailTo:         "kaspersky3550879@gmail.com",
+	// 	EmailPretext:    "Contact Centre",
+	// 	Company:         "PockitTV",
+	// 	Subject:         "Account Activation",
+	// 	Phone:           "+12387621342",
+	// 	SourceChannel:   "Sports",
+	// 	BodyBlock:       "Body Block",
+	// 	TargetTeam:      "PockitTv Contact Team",
+	// 	BodyCtaBtnLabel: "ACTIVATE",
+	// 	// BodyCtaBtnLink:             tempUser.ActivationLink,
+	// 	BodyGreeting: "Hi",
+	// 	BodyHeading:  "ACTIVATE YOUR ACCOUNT",
+	// 	CompanyID:    2,
+	// 	// FirstName:                  tempUser.FirstName,
+	// 	HeaderPosterImageUrl:       "",
+	// 	HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
+	// 	HeaderPosterSloganTitle:    "ARE YOU READY?",
+	// }
+	// utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
 
-	modelOrder := models.StoreOrders{}
-	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByStoreAndOrderID(&modelOrder, orderID, storeID)
-
-	return responses.NewResponseStoreOrder(c, http.StatusOK, modelOrder)
+	return responses.NewResponseOrderItems(c, http.StatusOK, modelItems)
 }
 
 // Refresh godoc

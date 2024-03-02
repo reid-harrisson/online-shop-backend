@@ -4,6 +4,7 @@ import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
 	"sort"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -118,6 +119,29 @@ type ResponseTopSellingProduct struct {
 	ProductID   uint64  `json:"product_id"`
 	ProductName string  `json:"product_name"`
 	Sales       float64 `json:"sales"`
+}
+
+type ResponseOrderTrendAnalytic struct {
+	Date  time.Time `json:"date"`
+	Count uint64    `json:"count"`
+	Sales float64   `json:"sales"`
+}
+
+type ResponseCustomerDataByLocation struct {
+	Location  string `json:"location"`
+	Customers uint64 `json:"customers"`
+}
+
+type ResponseCustomerSatisfaction struct {
+	AverageRating float64 `json:"average_rating"`
+	NPS           float64 `json:"nps"`
+}
+
+type ResponsePageLoadingTime struct {
+	Page        string  `json:"page"`
+	AverageTime float64 `json:"average_time"`
+	MaximumTime float64 `json:"maximum_time"`
+	MinimumTime float64 `json:"minimum_time"`
 }
 
 func NewResponseSalesRevenue(c echo.Context, statusCode int, modelSale models.StoreSales) error {
@@ -278,7 +302,7 @@ func NewResponseProductViewAnalytics(c echo.Context, statusCode int, modelViews 
 	return Response(c, statusCode, responseViews)
 }
 
-func NewResponseRepeatCustomerRate(c echo.Context, statusCode int, modelRates []models.RepeatCustomerRate) error {
+func NewResponseRepeatCustomerRate(c echo.Context, statusCode int, modelRates []models.RepeatCustomerRates) error {
 	mapCount := make(map[uint64]int64)
 	for _, modelRate := range modelRates {
 		if mapCount[modelRate.ProductID] == int64(modelRate.CustomerID) {
@@ -300,7 +324,7 @@ func NewResponseRepeatCustomerRate(c echo.Context, statusCode int, modelRates []
 	})
 }
 
-func NewResponseCustomerChurnRate(c echo.Context, statusCode int, modelRate models.CustomerChurnRate) error {
+func NewResponseCustomerChurnRate(c echo.Context, statusCode int, modelRate models.CustomerChurnRates) error {
 	return Response(c, statusCode, ResponseCustomerChurnRate{
 		Rate: modelRate.Rate,
 	})
@@ -316,4 +340,54 @@ func NewResponseTopSellingProduct(c echo.Context, statusCode int, modelProducts 
 		})
 	}
 	return Response(c, statusCode, responseProducts)
+}
+
+func NewResponseOrderTrendAnalytics(c echo.Context, statusCode int, modelTrends []models.OrderTrendAnalytics) error {
+	responseTrends := make([]ResponseOrderTrendAnalytic, 0)
+	for _, modelTrend := range modelTrends {
+		responseTrends = append(responseTrends, ResponseOrderTrendAnalytic{
+			Date:  modelTrend.Date,
+			Count: modelTrend.Count,
+			Sales: modelTrend.Sales,
+		})
+	}
+	return Response(c, statusCode, responseTrends)
+}
+
+func NewResponseCustomerDataByLocation(c echo.Context, statusCode int, modelLocations []models.CustomerDataByLocation) error {
+	responseLocations := make([]ResponseCustomerDataByLocation, 0)
+	for _, modelLocation := range modelLocations {
+		responseLocations = append(responseLocations, ResponseCustomerDataByLocation{
+			Location:  modelLocation.Location,
+			Customers: modelLocation.Customers,
+		})
+	}
+	return Response(c, statusCode, responseLocations)
+}
+
+func NewResponseCustomerSatisfaction(c echo.Context, statusCode int, modelRates []models.CustomerSatisfaction) error {
+	responseRates := make([]ResponseCustomerSatisfaction, 0)
+	for _, modelLocation := range modelRates {
+		responseRates = append(responseRates, ResponseCustomerSatisfaction{
+			AverageRating: utils.Round(modelLocation.AverageRating),
+			NPS:           utils.Round(modelLocation.NPS * 100),
+		})
+	}
+	return Response(c, statusCode, responseRates)
+}
+
+func NewResponsePageLoadingTime(c echo.Context, statusCode int, modelSteps []models.PageLoadingTime) error {
+	sort.Slice(modelSteps, func(i, j int) bool {
+		return modelSteps[i].Page < modelSteps[j].Page
+	})
+	responseSteps := make([]ResponsePageLoadingTime, 0)
+	for _, modelStep := range modelSteps {
+		responseSteps = append(responseSteps, ResponsePageLoadingTime{
+			Page:        utils.PageTypeToString(modelStep.Page),
+			AverageTime: utils.Round(modelStep.AverageTime),
+			MaximumTime: utils.Round(modelStep.MaximumTime),
+			MinimumTime: utils.Round(modelStep.MinimumTime),
+		})
+	}
+	return Response(c, statusCode, responseSteps)
 }

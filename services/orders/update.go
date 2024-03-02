@@ -3,25 +3,35 @@ package ordsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
-	"OnlineStoreBackend/repositories"
 )
 
-func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus string) {
+func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) {
 	status := utils.OrderStatusFromString(orderStatus)
-	service.DB.Table("store_order_items").
-		Where("order_id = ? And store_id = ?", orderID, storeID).
-		Update("status", status)
+	service.DB.Where("order_id = ?", orderID).Find(&modelItems)
 
-	modelOrder := models.CustomerOrdersWithAddress{}
-	orderRepo := repositories.NewRepositoryOrder(service.DB)
-	orderRepo.ReadByOrderID(&modelOrder, orderID)
 	flagCompleted := true
 	flagPending := true
-	for _, modelItem := range modelOrder.Items {
-		if modelItem.ProductStatus != utils.StatusOrderCompleted {
+	for index := range *modelItems {
+		modelItem := &(*modelItems)[index]
+		if modelItem.StoreID == storeID && modelItem.Status != status {
+			modelItem.Status = status
+			if status == utils.StatusOrderProcessing {
+				modelVar := models.ProductVariations{}
+				service.DB.First(&modelVar, modelItem.VariationID)
+				modelVar.StockLevel -= modelItem.Quantity
+				service.DB.Save(&modelVar)
+			} else if status == utils.StatusOrderPending {
+				modelVar := models.ProductVariations{}
+				service.DB.First(&modelVar, modelItem.VariationID)
+				modelVar.StockLevel += modelItem.Quantity
+				service.DB.Save(&modelVar)
+			}
+			service.DB.Save(modelItem)
+		}
+		if modelItem.Status != utils.StatusOrderCompleted {
 			flagCompleted = false
 		}
-		if modelItem.ProductStatus != utils.StatusOrderPending {
+		if modelItem.Status != utils.StatusOrderPending {
 			flagPending = false
 		}
 	}

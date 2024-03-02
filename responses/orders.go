@@ -7,6 +7,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type ResponseOrderItem struct {
+	ID               uint64  `json:"id"`
+	OrderID          uint64  `json:"order_id"`
+	StoreID          uint64  `json:"store_id"`
+	VariationID      uint64  `json:"variation_id"`
+	Price            float64 `json:"price"`
+	Quantity         float64 `json:"quantity"`
+	SubTotalPrice    float64 `json:"sub_total_price"`
+	TaxRate          float64 `json:"tax_rate"`
+	TaxAmount        float64 `json:"tax_amount"`
+	ShippingMethodID uint64  `json:"shipping_method_id"`
+	ShippingPrice    float64 `json:"shipping_price"`
+	TotalPrice       float64 `json:"total_price"`
+	Status           string  `json:"status"`
+}
+
 type ResponseCustomerOrderItem struct {
 	StoreID          uint64  `json:"store_id"`
 	ProductStatus    string  `json:"product_status"`
@@ -152,4 +168,26 @@ func NewResponseStoreOrder(c echo.Context, statusCode int, modelOrder models.Sto
 		TotalPrice:        modelOrder.TotalPrice,
 		ProductStatus:     utils.OrderStatusToString(modelOrder.ProductStatus),
 	})
+}
+
+func NewResponseOrderItems(c echo.Context, statusCode int, modelItems []models.OrderItems) error {
+	responseItems := make([]ResponseOrderItem, 0)
+	for _, modelItem := range modelItems {
+		responseItems = append(responseItems, ResponseOrderItem{
+			ID:               uint64(modelItem.ID),
+			OrderID:          modelItem.OrderID,
+			StoreID:          modelItem.StoreID,
+			VariationID:      modelItem.VariationID,
+			Price:            modelItem.Price,
+			Quantity:         modelItem.Quantity,
+			SubTotalPrice:    modelItem.SubTotalPrice,
+			TaxRate:          modelItem.TaxRate,
+			TaxAmount:        modelItem.TaxAmount,
+			ShippingMethodID: modelItem.ShippingMethodID,
+			ShippingPrice:    modelItem.ShippingPrice,
+			TotalPrice:       modelItem.TotalPrice,
+			Status:           utils.OrderStatusToString(modelItem.Status),
+		})
+	}
+	return Response(c, statusCode, responseItems)
 }
