@@ -7,10 +7,10 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	prodattrvalsvc "OnlineStoreBackend/services/product_attribute_values"
-	prodattrsvc "OnlineStoreBackend/services/product_attributes"
+	prodattrvalsvc "OnlineStoreBackend/services/attribute_values"
+	prodattrsvc "OnlineStoreBackend/services/attributes"
+	linksvc "OnlineStoreBackend/services/links"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
-	linksvc "OnlineStoreBackend/services/product_links"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
 	prodsvc "OnlineStoreBackend/services/products"
 	chansvc "OnlineStoreBackend/services/related_channels"
@@ -421,7 +421,7 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 	tagRepo.ReadByProductID(&modelTags, productID)
 
 	tagService := prodtagsvc.NewServiceProductTag(h.server.DB)
-	tagService.Update(&modelTags, req, productID)
+	tagService.Update(&modelTags, req, &modelProduct)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductTags(c, http.StatusOK, modelTags)
@@ -576,7 +576,7 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 
 	varRepo.ReadByProductID(&modelVars, productID)
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelVars)
+	return responses.NewResponseAttributeValueByProduct(c, http.StatusOK, modelVars)
 }
 
 // Refresh godoc
@@ -586,9 +586,9 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
-// @Param attribute_id path int true "Attribute ID"
+// @Param attribute_id query int true "Attribute ID"
 // @Param value query string true "Attribute Value"
-// @Success 200 {object} []responses.ResponseProductAttributeValue
+// @Success 200 {object} []responses.ResponseAttributeValue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute-value/{id} [post]
 func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) error {
@@ -611,7 +611,7 @@ func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) err
 	valRepo.ReadByProductID(&modelValues, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttributeValue(c, http.StatusCreated, modelValues)
+	return responses.NewResponseAttributeValueByProduct(c, http.StatusCreated, modelValues)
 }
 
 // Refresh godoc
@@ -623,7 +623,7 @@ func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) err
 // @Param id path int true "Product ID"
 // @Param attribute_value_id query int true "Attribute Value ID"
 // @Param value query string true "Attribute Value"
-// @Success 200 {object} []responses.ResponseProductAttributeValue
+// @Success 200 {object} []responses.ResponseAttributeValue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute-value/{id} [put]
 func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) error {
@@ -646,7 +646,7 @@ func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) err
 	valRepo.ReadByProductID(&modelValues, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelValues)
+	return responses.NewResponseAttributeValueByProduct(c, http.StatusOK, modelValues)
 }
 
 // Refresh godoc
@@ -657,7 +657,7 @@ func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) err
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Param attribute_value_id query int true "Attribute Value ID"
-// @Success 200 {object} []responses.ResponseProductAttributeValue
+// @Success 200 {object} []responses.ResponseAttributeValue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute-value/{id} [delete]
 func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) error {
@@ -679,7 +679,7 @@ func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) err
 	valRepo.ReadByProductID(&modelValues, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttributeValue(c, http.StatusOK, modelValues)
+	return responses.NewResponseAttributeValueByProduct(c, http.StatusOK, modelValues)
 }
 
 // Refresh godoc

@@ -5,16 +5,16 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
+	prodattrvalsvc "OnlineStoreBackend/services/attribute_values"
+	prodattrsvc "OnlineStoreBackend/services/attributes"
 	catesvc "OnlineStoreBackend/services/categories"
-	prodattrvalsvc "OnlineStoreBackend/services/product_attribute_values"
-	prodattrsvc "OnlineStoreBackend/services/product_attributes"
+	linksvc "OnlineStoreBackend/services/links"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
-	linksvc "OnlineStoreBackend/services/product_links"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
-	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	chansvc "OnlineStoreBackend/services/related_channels"
 	contsvc "OnlineStoreBackend/services/related_contents"
 	tagsvc "OnlineStoreBackend/services/tags"
+	prodvarsvc "OnlineStoreBackend/services/variations"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -25,6 +25,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
+	modelProduct.Sku = utils.StyleSKU(modelProduct.Title)
 
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
 	prodRepo.ReadCurrencyID(modelProduct, req.StoreID)
@@ -56,7 +57,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	}
 
 	for _, tag := range req.Tags {
-		tagService.Create(tag, productID)
+		tagService.Create(tag, modelProduct)
 	}
 
 	for _, linkID := range req.CrossSell {
@@ -177,7 +178,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
 			modelProduct.StoreID = storeID
-			modelProduct.Title = modelCsv.Name
+			modelProduct.Title = strings.Split(modelCsv.Name, " - ")[0]
 			modelProduct.ShortDescription = modelCsv.ShortDescription
 			modelProduct.LongDescription = modelCsv.Description
 			modelProduct.ImageUrls = string(images)

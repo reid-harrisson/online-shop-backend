@@ -24,20 +24,13 @@ type ResponseProductsPaging struct {
 	TotalCount uint64            `json:"total_count"`
 }
 
-type ResponseAttributeValueItem struct {
-	ID    uint64 `json:"id"`
-	Value string `json:"value"`
-}
-
 type ResponseProductWithDetail struct {
 	ResponseProduct
-	RelatedChannels []uint64                                `json:"related_channels"`
-	RelatedContents []uint64                                `json:"related_contents"`
-	Tags            []string                                `json:"tags"`
-	Attributes      []string                                `json:"attributes"`
-	Categories      []string                                `json:"categories"`
-	AttributeValues map[string][]ResponseAttributeValueItem `json:"variations"`
-	ShippingData    ResponseShippingData                    `json:"shipping_data"`
+	RelatedChannels []uint64                 `json:"related_channels"`
+	RelatedContents []uint64                 `json:"related_contents"`
+	Tags            []string                 `json:"tags"`
+	Categories      []string                 `json:"categories"`
+	AttributeValues []ResponseAttributeValue `json:"attributes"`
 }
 
 func NewResponseProduct(c echo.Context, statusCode int, modelProduct models.Products) error {
@@ -80,17 +73,25 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		tags = append(tags, modelTag.TagName)
 	}
 
-	attributes := make([]string, 0)
-	for _, modelAttr := range modelDetail.Attributes {
-		attributes = append(attributes, modelAttr.AttributeName)
-	}
-
-	attributeValues := make(map[string][]ResponseAttributeValueItem, 0)
-	for _, modelValue := range modelDetail.AttributeValues {
-		attributeValues[modelValue.AttributeName] = append(attributeValues[modelValue.AttributeName], ResponseAttributeValueItem{
-			ID:    uint64(modelValue.ID),
-			Value: modelValue.AttributeValue + modelValue.Unit,
+	responseValues := make([]ResponseAttributeValue, 0)
+	mapValues := make(map[string][]ResponseAttributeValueItem)
+	mapIndexes := make(map[string]int)
+	for index, modelValue := range modelDetail.AttributeValues {
+		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], ResponseAttributeValueItem{
+			AttributeValueID: uint64(modelValue.ID),
+			Value:            modelValue.AttributeValue + modelValue.Unit,
 		})
+		mapIndexes[modelValue.AttributeName] = index
+	}
+	for _, modelValue := range modelDetail.AttributeValues {
+		if mapIndexes[modelValue.AttributeName] != -1 {
+			responseValues = append(responseValues, ResponseAttributeValue{
+				AttributeID:   modelValue.AttributeID,
+				AttributeName: modelValue.AttributeName,
+				Values:        mapValues[modelValue.AttributeName],
+			})
+			mapIndexes[modelValue.AttributeName] = -1
+		}
 	}
 
 	return Response(c, statusCode, ResponseProductWithDetail{
@@ -108,15 +109,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 		RelatedContents: relatedContents,
 		Categories:      categories,
 		Tags:            tags,
-		Attributes:      attributes,
-		AttributeValues: attributeValues,
-		ShippingData: ResponseShippingData{
-			ID:     uint64(modelDetail.ShippingData.ID),
-			Weight: modelDetail.ShippingData.Weight,
-			Width:  modelDetail.ShippingData.Width,
-			Height: modelDetail.ShippingData.Height,
-			Length: modelDetail.ShippingData.Length,
-		},
+		AttributeValues: responseValues,
 	})
 }
 

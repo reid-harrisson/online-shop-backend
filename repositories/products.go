@@ -46,9 +46,6 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	contRepo := NewRepositoryProductContent(repository.DB)
 	contRepo.ReadByProductID(&modelDetail.RelatedContents, productID)
 
-	shipRepo := NewRepositoryShipping(repository.DB)
-	shipRepo.ReadByVariationID(&modelDetail.ShippingData, productID)
-
 	attrValRepo := NewRepositoryProductAttributeValue(repository.DB)
 	attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }

@@ -6,29 +6,37 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseProductAttributeValue struct {
-	ProductID     uint64   `json:"product_id"`
-	AttributeID   uint64   `json:"attribute_id"`
-	AttributeName string   `json:"attribute_name"`
-	Values        []string `json:"values"`
+type ResponseAttributeValueItem struct {
+	AttributeValueID uint64 `json:"attribute_value_id"`
+	Value            string `json:"value"`
 }
 
-func NewResponseProductAttributeValue(c echo.Context, statusCode int, modelValues []models.ProductAttributeValuesWithDetail) error {
-	responseValues := make([]ResponseProductAttributeValue, 0)
-	mapValues := make(map[string][]string)
+type ResponseAttributeValue struct {
+	AttributeID   uint64                       `json:"attribute_id"`
+	AttributeName string                       `json:"attribute_name"`
+	Values        []ResponseAttributeValueItem `json:"values"`
+}
+
+func NewResponseAttributeValueByProduct(c echo.Context, statusCode int, modelValues []models.ProductAttributeValuesWithDetail) error {
+	responseValues := make([]ResponseAttributeValue, 0)
+	mapValues := make(map[string][]ResponseAttributeValueItem)
 	mapIndexes := make(map[string]int)
 	for index, modelValue := range modelValues {
-		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], modelValue.AttributeValue+modelValue.Unit)
+		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], ResponseAttributeValueItem{
+			AttributeValueID: uint64(modelValue.ID),
+			Value:            modelValue.AttributeValue + modelValue.Unit,
+		})
 		mapIndexes[modelValue.AttributeName] = index
 	}
-	for name, values := range mapValues {
-		index := mapIndexes[name]
-		responseValues = append(responseValues, ResponseProductAttributeValue{
-			ProductID:     modelValues[index].ProductID,
-			AttributeID:   modelValues[index].AttributeID,
-			AttributeName: name,
-			Values:        values,
-		})
+	for _, modelValue := range modelValues {
+		if mapIndexes[modelValue.AttributeName] != -1 {
+			responseValues = append(responseValues, ResponseAttributeValue{
+				AttributeID:   modelValue.AttributeID,
+				AttributeName: modelValue.AttributeName,
+				Values:        mapValues[modelValue.AttributeName],
+			})
+			mapIndexes[modelValue.AttributeName] = -1
+		}
 	}
 	return Response(c, statusCode, responseValues)
 }

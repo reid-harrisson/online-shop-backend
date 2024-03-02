@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	linksvc "OnlineStoreBackend/services/product_links"
+	linksvc "OnlineStoreBackend/services/links"
 	prodsvc "OnlineStoreBackend/services/products"
 	"encoding/csv"
 	"encoding/json"

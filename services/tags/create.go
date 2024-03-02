@@ -5,8 +5,9 @@ import (
 	"strings"
 )
 
-func (service *Service) Create(tag string, modelTag *models.StoreTags) {
+func (service *Service) Create(tag string, modelTag *models.StoreTags, storeID uint64) {
 	modelTag.Name = tag
+	modelTag.StoreID = storeID
 	service.DB.Where("name = ?", tag).First(modelTag)
 	service.DB.Save(modelTag)
 }

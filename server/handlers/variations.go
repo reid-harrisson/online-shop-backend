@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	prodvarsvc "OnlineStoreBackend/services/product_variations"
+	prodvarsvc "OnlineStoreBackend/services/variations"
 	"net/http"
 	"strconv"
 

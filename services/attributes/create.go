@@ -3,7 +3,7 @@ package prodattrsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/requests"
-	prodattrvalsvc "OnlineStoreBackend/services/product_attribute_values"
+	prodattrvalsvc "OnlineStoreBackend/services/attribute_values"
 	"strings"
 )
 
@@ -50,7 +50,7 @@ func (service *Service) UpdateWithCSV(modelVals *[]models.ProductAttributeValues
 	valService := prodattrvalsvc.NewServiceProductAttributeValue(service.DB)
 	if modelCsv.Attribute1Name != "" {
 		modelAttr := models.ProductAttributes{}
-		service.DB.Where("attribute_name = ?", modelCsv.Attribute1Name).First(&modelAttr)
+		service.DB.Where("attribute_name = ? And product_id = ?", modelCsv.Attribute1Name, productID).First(&modelAttr)
 		if modelAttr.ID == 0 {
 			modelAttr.AttributeName = modelCsv.Attribute1Name
 			modelAttr.Unit = ""

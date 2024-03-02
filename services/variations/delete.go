@@ -2,7 +2,7 @@ package prodvarsvc
 
 import (
 	"OnlineStoreBackend/models"
-	prodvardetsvc "OnlineStoreBackend/services/product_variation_details"
+	prodvardetsvc "OnlineStoreBackend/services/variation_details"
 )
 
 func (service *Service) Delete(variationID uint64) {

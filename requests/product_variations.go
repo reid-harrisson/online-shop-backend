@@ -12,7 +12,8 @@ type RequestProductVariation struct {
 	StockLevel        float64             `json:"stock_level" example:"30"`
 	DiscountAmount    float64             `json:"discount_amount" example:"10"`
 	DiscountType      utils.DiscountTypes `json:"discount_type" example:"1"`
-	FreeShipping      float64             `json:"free_shipping" example:"20"`
+	ImageUrls         []string            `json:"image_urls" example:"image1,image2,image3"`
+	Description       string              `json:"description" example:"example description"`
 }
 
 func (request RequestProductVariation) Validate() error {
