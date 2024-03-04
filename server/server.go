@@ -7,8 +7,8 @@ import (
 
 	_ "OnlineStoreBackend/docs"
 
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type Server struct {

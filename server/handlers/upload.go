@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	linksvc "OnlineStoreBackend/services/product_links"
+	linksvc "OnlineStoreBackend/services/links"
 	prodsvc "OnlineStoreBackend/services/products"
 	"encoding/csv"
 	"encoding/json"
@@ -133,5 +133,5 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		}
 	}
 
-	return responses.NewResponseProducts(c, http.StatusBadRequest, modelProducts)
+	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
 }

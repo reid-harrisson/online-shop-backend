@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RepositoryAnalytics struct {
@@ -141,8 +141,8 @@ func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]model
 }
 
 func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.CustomerChurnRates, storeID uint64, startDate time.Time, endDate time.Time) error {
-	activeUser := uint64(0)
-	churnUser := 0
+	activeUser := int64(0)
+	churnUser := int64(0)
 	err := repository.DB.Model(models.Orders{}).
 		Select(`
 			Distinct customer_id
@@ -155,7 +155,7 @@ func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.C
 	return err
 }
 
-func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]models.TopSellingProducts, storeID uint64, startDate time.Time, endDate time.Time, count uint64) error {
+func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]models.TopSellingProducts, storeID uint64, startDate time.Time, endDate time.Time, count int) error {
 	return repository.DB.Table("store_order_items As items").
 		Select(`
 			prods.id As product_id,

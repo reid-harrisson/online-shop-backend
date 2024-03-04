@@ -1,6 +1,6 @@
 package prodattrvalsvc
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type Service struct {
 	DB *gorm.DB

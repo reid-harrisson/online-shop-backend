@@ -1,6 +1,6 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type ProductAttributeValues struct {
 	gorm.Model
@@ -15,7 +15,6 @@ func (ProductAttributeValues) TableName() string {
 
 type ProductAttributeValuesWithDetail struct {
 	ProductAttributeValues
-	ProductID     uint64 `gorm:"column:product_id"`
 	AttributeName string `gorm:"column:attribute_name"`
 	Unit          string `gomr:"column:attribute_unit"`
 }

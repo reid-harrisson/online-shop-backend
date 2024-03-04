@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RepositoryVariation struct {
@@ -30,7 +30,7 @@ func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.
 		ids = append(ids, strconv.FormatUint(uint64(valueID), 10))
 	}
 	temp := strings.Join(ids, ",")
-	repository.DB.Table("store_product_variations As vars").LogMode(true).
+	repository.DB.Table("store_product_variations As vars").
 		Select("vars.*, Group_Concat(dets.attribute_value_id) As ids").
 		Joins("Left Join store_product_variation_details As dets ON dets.variation_id = vars.id").
 		Group("vars.id").
@@ -64,6 +64,7 @@ func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.Product
 		Joins("Left Join store_product_variation_details As dets On dets.variation_id = vars.id").
 		Joins("Left Join store_product_attribute_values As vals On vals.id = dets.attribute_value_id").
 		Joins("Left Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
+		Where("vars.product_id = ?", productID).
 		Where("vars.deleted_at Is Null And dets.deleted_at Is Null And vals.deleted_at Is Null And attrs.deleted_at Is Null").
 		Scan(&modelVars)
 }

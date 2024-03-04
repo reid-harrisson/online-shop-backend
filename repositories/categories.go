@@ -3,7 +3,7 @@ package repositories
 import (
 	"OnlineStoreBackend/models"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RepositoryCategory struct {
@@ -32,7 +32,7 @@ func (repository *RepositoryCategory) ReadByCategoryID(modelCategory *models.Sto
 }
 
 func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.StoreCategoriesWithChildren, storeID uint64) {
-	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
+	modelCategories := make([]models.StoreCategories, 0)
 	repository.DB.Where("store_id = ?", storeID).Find(&modelCategories)
 	allChildrenIDs := make(map[uint64][]uint64)
 	for _, modelCategory := range modelCategories {
@@ -40,8 +40,11 @@ func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]mode
 		allChildrenIDs[parentID] = append(allChildrenIDs[parentID], uint64(modelCategory.ID))
 	}
 	for _, modelCategory := range modelCategories {
-		modelCategory.ChildrenIDs = make([]uint64, 0)
-		modelCategory.ChildrenIDs = append(modelCategory.ChildrenIDs, allChildrenIDs[uint64(modelCategory.ID)]...)
-		*modelStoreCategories = append(*modelStoreCategories, modelCategory)
+		childrenIDs := make([]uint64, 0)
+		childrenIDs = append(childrenIDs, allChildrenIDs[uint64(modelCategory.ID)]...)
+		*modelStoreCategories = append(*modelStoreCategories, models.StoreCategoriesWithChildren{
+			StoreCategories: modelCategory,
+			ChildrenIDs:     childrenIDs,
+		})
 	}
 }

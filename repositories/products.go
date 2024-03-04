@@ -4,7 +4,7 @@ import (
 	"OnlineStoreBackend/models"
 	"strings"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RepositoryProduct struct {
@@ -15,17 +15,17 @@ func NewRepositoryProduct(db *gorm.DB) *RepositoryProduct {
 	return &RepositoryProduct{DB: db}
 }
 
-func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) {
-	repository.DB.First(modelProduct, productID)
+func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) error {
+	return repository.DB.First(modelProduct, productID).Error
 }
 
-func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) {
-	repository.DB.Table("store_products As prods").
+func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) error {
+	return repository.DB.Table("store_products As prods").
 		Select("prods.*, links.is_up_cross As is_up_cross").
 		Joins("Join store_product_links As links On links.link_id = prods.id").
 		Where("links.product_id = ?", productID).
 		Where("links.deleted_at Is Null And prods.deleted_at Is Null").
-		Scan(modelProducts)
+		Scan(modelProducts).Error
 }
 
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {
@@ -46,14 +46,11 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	contRepo := NewRepositoryProductContent(repository.DB)
 	contRepo.ReadByProductID(&modelDetail.RelatedContents, productID)
 
-	shipRepo := NewRepositoryShipping(repository.DB)
-	shipRepo.ReadByVariationID(&modelDetail.ShippingData, productID)
-
 	attrValRepo := NewRepositoryProductAttributeValue(repository.DB)
 	attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }
 
-func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {
+func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page int, count int, storeID uint64, keyword string, totalCount *int64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.Model(models.Products{}).
 		Where("? = 0 Or store_id = ?", storeID, storeID).

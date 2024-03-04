@@ -6,17 +6,17 @@ import (
 	tagsvc "OnlineStoreBackend/services/tags"
 )
 
-func (service *Service) Create(tag string, productID uint64) {
+func (service *Service) Create(tag string, modelProduct *models.Products) {
 	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
 	tagRepo.ReadByName(&modelTag, tag)
 	if modelTag.ID == 0 {
 		tagService := tagsvc.NewServiceTag(service.DB)
-		tagService.Create(tag, &modelTag)
+		tagService.Create(tag, &modelTag, modelProduct.StoreID)
 	}
 	service.DB.Create(&models.ProductTags{
 		TagID:     uint64(modelTag.ID),
-		ProductID: productID,
+		ProductID: uint64(modelProduct.ID),
 	})
 }
 

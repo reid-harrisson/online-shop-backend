@@ -3,7 +3,7 @@ package models
 import (
 	"OnlineStoreBackend/pkgs/utils"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Products struct {
@@ -30,7 +30,6 @@ type ProductsWithDetail struct {
 	Categories      []ProductCategoriesWithName        `gorm:"categories"`
 	Attributes      []ProductAttributes                `gorm:"column:attributes"`
 	AttributeValues []ProductAttributeValuesWithDetail `gorm:"column:variations"`
-	ShippingData    ShippingData                       `gorm:"column:shipping_data"`
 }
 
 func (Products) TableName() string {

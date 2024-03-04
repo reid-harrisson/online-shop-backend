@@ -5,16 +5,16 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
+	prodattrvalsvc "OnlineStoreBackend/services/attribute_values"
+	prodattrsvc "OnlineStoreBackend/services/attributes"
 	catesvc "OnlineStoreBackend/services/categories"
-	prodattrvalsvc "OnlineStoreBackend/services/product_attribute_values"
-	prodattrsvc "OnlineStoreBackend/services/product_attributes"
+	linksvc "OnlineStoreBackend/services/links"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
-	linksvc "OnlineStoreBackend/services/product_links"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
-	prodvarsvc "OnlineStoreBackend/services/product_variations"
 	chansvc "OnlineStoreBackend/services/related_channels"
 	contsvc "OnlineStoreBackend/services/related_contents"
 	tagsvc "OnlineStoreBackend/services/tags"
+	prodvarsvc "OnlineStoreBackend/services/variations"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -25,6 +25,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
+	modelProduct.Sku = utils.CleanSpecialLetters(modelProduct.Title)
 
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
 	prodRepo.ReadCurrencyID(modelProduct, req.StoreID)
@@ -56,7 +57,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	}
 
 	for _, tag := range req.Tags {
-		tagService.Create(tag, productID)
+		tagService.Create(tag, modelProduct)
 	}
 
 	for _, linkID := range req.CrossSell {
@@ -104,7 +105,6 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 
 	switch modelCsv.Type {
 	case "simple":
-		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
 		if modelProduct.ID == 0 {
 			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
@@ -164,23 +164,18 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			id := parentSku[3:]
 			parentSku = (*mapIDs)[id]
 			if parentSku == "" {
-				parentSku = utils.StyleSKU(strings.Split(modelCsv.Name, " - ")[0])
+				parentSku = utils.CleanSpecialLetters(strings.Split(modelCsv.Name, " - ")[0])
 				(*mapIDs)[id] = parentSku
 			}
 		}
 		if modelCsv.Sku == "" {
-			modelCsv.Sku = utils.StyleSKU(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
+			modelCsv.Sku = utils.CleanSpecialLetters(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
 		}
 		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
 		modelVals := make([]models.ProductAttributeValues, 0)
 		if modelProduct.ID == 0 {
-			imageUrls := strings.Split(modelCsv.Images, ", ")
-			images, _ := json.Marshal(imageUrls)
 			modelProduct.StoreID = storeID
-			modelProduct.Title = modelCsv.Name
-			modelProduct.ShortDescription = modelCsv.ShortDescription
-			modelProduct.LongDescription = modelCsv.Description
-			modelProduct.ImageUrls = string(images)
+			modelProduct.Title = strings.Split(modelCsv.Name, " - ")[0]
 			modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
 			switch modelCsv.Published {
 			case "1":

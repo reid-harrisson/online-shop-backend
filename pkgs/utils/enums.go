@@ -258,3 +258,14 @@ func ShippingMethodsFromString(method string) ShippingMethods {
 
 	return PickUp
 }
+
+func SellTypesFromString(sellType string) SellTypes {
+	switch sellType {
+	case "UpSell":
+		return UpSell
+	case "CrossSell":
+		return CrossSell
+	}
+
+	return UpSell
+}
