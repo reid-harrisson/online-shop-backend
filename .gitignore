@@ -2,7 +2,7 @@ main
 .yaml
 .env
 .env.testing
-uploads
+uploads/*
 /.idea
 docs/
 
