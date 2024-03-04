@@ -19,8 +19,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type HandlersProductManagement struct {
@@ -135,13 +135,13 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 // @Router /store/api/v1/product/paging [get]
 func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
-	page, _ := strconv.ParseUint(c.QueryParam("page"), 10, 64)
-	count, _ := strconv.ParseUint(c.QueryParam("count"), 10, 64)
+	page, _ := strconv.ParseInt(c.QueryParam("page"), 10, 64)
+	count, _ := strconv.ParseInt(c.QueryParam("count"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	totalCount := uint64(0)
+	totalCount := int64(0)
 	modelProducts := make([]models.Products, 0)
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadPaging(&modelProducts, page, count, storeID, keyword, &totalCount)
+	prodRepo.ReadPaging(&modelProducts, int(page), int(count), storeID, keyword, &totalCount)
 	return responses.NewResponseProductsPaging(c, http.StatusOK, modelProducts, totalCount)
 }
 

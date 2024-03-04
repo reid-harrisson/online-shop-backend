@@ -6,10 +6,10 @@ import (
 )
 
 func (service *Service) Create(productID uint64, linkID uint64, isUpCross utils.SellTypes) error {
-	modelLink := models.ProductLinks{}
-	service.DB.Where("link_id = ? And product_id = ?", linkID, productID).First(&modelLink)
-	modelLink.ProductID = productID
-	modelLink.LinkID = linkID
-	modelLink.IsUpCross = isUpCross
-	return service.DB.Save(&modelLink).Error
+	return service.DB.Where("link_id = ? And product_id = ?", linkID, productID).
+		FirstOrCreate(&models.ProductLinks{
+			ProductID: productID,
+			LinkID:    linkID,
+			IsUpCross: isUpCross,
+		}).Error
 }

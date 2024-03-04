@@ -4,7 +4,7 @@ import (
 	"OnlineStoreBackend/models"
 	"strings"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RepositoryProduct struct {
@@ -50,7 +50,7 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }
 
-func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page uint64, count uint64, storeID uint64, keyword string, totalCount *uint64) error {
+func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page int, count int, storeID uint64, keyword string, totalCount *int64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
 	return repository.DB.Model(models.Products{}).
 		Where("? = 0 Or store_id = ?", storeID, storeID).

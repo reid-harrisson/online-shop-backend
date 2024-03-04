@@ -56,8 +56,6 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 }
 
 func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, modelCsv *models.CSVs, productID uint64) {
-	images := strings.Split(modelCsv.Images, ",")
-	imageUrls, _ := json.Marshal(images)
 	modelVar.ProductID = productID
 	modelVar.Sku = modelCsv.Sku
 	modelVar.Price, _ = strconv.ParseFloat(modelCsv.RegularPrice, 64)
@@ -69,8 +67,6 @@ func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, 
 		modelVar.DiscountAmount = 0
 	}
 	modelVar.DiscountType = utils.FixedAmountOff
-	modelVar.Description = modelCsv.Description
-	modelVar.ImageUrls = string(imageUrls)
 	modelVar.Title = modelCsv.Name
 	service.DB.Create(modelVar)
 
@@ -83,16 +79,16 @@ func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, 
 func (service *Service) CreateVariableWithCSV(modelVar *models.ProductVariations, modelCsv *models.CSVs, productID uint64, modelVals *[]models.ProductAttributeValues) {
 	images := strings.Split(modelCsv.Images, ",")
 	imageUrls, _ := json.Marshal(images)
-	modelVar.ProductID = productID
-	modelVar.Sku = modelCsv.Sku
-	modelVar.Price, _ = strconv.ParseFloat(modelCsv.RegularPrice, 64)
-	modelVar.StockLevel, _ = strconv.ParseFloat(modelCsv.Stock, 64)
 	if modelCsv.SalePrice != "" {
 		salePrice, _ := strconv.ParseFloat(modelCsv.SalePrice, 64)
 		modelVar.DiscountAmount = modelVar.Price - salePrice
 	} else {
 		modelVar.DiscountAmount = 0
 	}
+	modelVar.ProductID = productID
+	modelVar.Sku = modelCsv.Sku
+	modelVar.Price, _ = strconv.ParseFloat(modelCsv.RegularPrice, 64)
+	modelVar.StockLevel, _ = strconv.ParseFloat(modelCsv.Stock, 64)
 	modelVar.DiscountType = utils.FixedAmountOff
 	modelVar.Description = modelCsv.Description
 	modelVar.ImageUrls = string(imageUrls)

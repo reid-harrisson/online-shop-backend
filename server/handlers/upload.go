@@ -133,5 +133,5 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		}
 	}
 
-	return responses.NewResponseProducts(c, http.StatusBadRequest, modelProducts)
+	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
 }

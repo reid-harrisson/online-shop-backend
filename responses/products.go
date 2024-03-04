@@ -21,7 +21,7 @@ type ResponseProduct struct {
 
 type ResponseProductsPaging struct {
 	Data       []ResponseProduct `json:"data"`
-	TotalCount uint64            `json:"total_count"`
+	TotalCount int64             `json:"total_count"`
 }
 
 type ResponseProductWithDetail struct {
@@ -132,7 +132,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 	return Response(c, statusCode, responseProducts)
 }
 
-func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []models.Products, totalCount uint64) error {
+func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []models.Products, totalCount int64) error {
 	responseProducts := make([]ResponseProduct, 0)
 	for _, modelProduct := range modelProducts {
 		imageUrls := make([]string, 0)

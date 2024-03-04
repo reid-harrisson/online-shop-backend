@@ -262,7 +262,7 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 // @Router /store/api/v1/analytic/top-selling [get]
 func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	count, _ := strconv.ParseUint(c.QueryParam("count"), 10, 64)
+	count, _ := strconv.ParseInt(c.QueryParam("count"), 10, 64)
 
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
@@ -270,7 +270,7 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 
 	modelProducts := make([]models.TopSellingProducts, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadTopSellingProducts(&modelProducts, storeID, startDate, endDate, count)
+	analyRepo.ReadTopSellingProducts(&modelProducts, storeID, startDate, endDate, int(count))
 	return responses.NewResponseTopSellingProduct(c, http.StatusOK, modelProducts)
 }
 

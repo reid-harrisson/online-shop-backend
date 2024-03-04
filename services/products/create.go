@@ -175,13 +175,8 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
 		modelVals := make([]models.ProductAttributeValues, 0)
 		if modelProduct.ID == 0 {
-			imageUrls := strings.Split(modelCsv.Images, ", ")
-			images, _ := json.Marshal(imageUrls)
 			modelProduct.StoreID = storeID
 			modelProduct.Title = strings.Split(modelCsv.Name, " - ")[0]
-			modelProduct.ShortDescription = modelCsv.ShortDescription
-			modelProduct.LongDescription = modelCsv.Description
-			modelProduct.ImageUrls = string(images)
 			modelProduct.MinimumStockLevel, _ = strconv.ParseFloat(modelCsv.LowStockAmount, 64)
 			switch modelCsv.Published {
 			case "1":

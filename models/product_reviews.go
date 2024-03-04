@@ -3,7 +3,7 @@ package models
 import (
 	"OnlineStoreBackend/pkgs/utils"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type ProductReviews struct {

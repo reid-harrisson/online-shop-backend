@@ -3,7 +3,7 @@ package repositories
 import (
 	"OnlineStoreBackend/models"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RepositoryCustomer struct {
