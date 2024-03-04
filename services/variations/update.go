@@ -30,7 +30,7 @@ func (service *Service) Update(modelVar *models.ProductVariations, req *requests
 	}
 
 	modelVar.Title = title
-	modelVar.Sku = utils.StyleSKU(sku)
+	modelVar.Sku = utils.CleanSpecialLetters(sku)
 	modelVar.Price = req.Price
 	modelVar.StockLevel = req.StockLevel
 	modelVar.DiscountAmount = req.DiscountAmount

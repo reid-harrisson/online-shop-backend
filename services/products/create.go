@@ -25,7 +25,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
-	modelProduct.Sku = utils.StyleSKU(modelProduct.Title)
+	modelProduct.Sku = utils.CleanSpecialLetters(modelProduct.Title)
 
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
 	prodRepo.ReadCurrencyID(modelProduct, req.StoreID)
@@ -105,7 +105,6 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 
 	switch modelCsv.Type {
 	case "simple":
-		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
 		if modelProduct.ID == 0 {
 			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
@@ -165,12 +164,12 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			id := parentSku[3:]
 			parentSku = (*mapIDs)[id]
 			if parentSku == "" {
-				parentSku = utils.StyleSKU(strings.Split(modelCsv.Name, " - ")[0])
+				parentSku = utils.CleanSpecialLetters(strings.Split(modelCsv.Name, " - ")[0])
 				(*mapIDs)[id] = parentSku
 			}
 		}
 		if modelCsv.Sku == "" {
-			modelCsv.Sku = utils.StyleSKU(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
+			modelCsv.Sku = utils.CleanSpecialLetters(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
 		}
 		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
 		modelVals := make([]models.ProductAttributeValues, 0)

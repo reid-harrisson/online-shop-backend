@@ -15,17 +15,17 @@ func NewRepositoryProduct(db *gorm.DB) *RepositoryProduct {
 	return &RepositoryProduct{DB: db}
 }
 
-func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) {
-	repository.DB.First(modelProduct, productID)
+func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) error {
+	return repository.DB.First(modelProduct, productID).Error
 }
 
-func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) {
-	repository.DB.Table("store_products As prods").
+func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) error {
+	return repository.DB.Table("store_products As prods").
 		Select("prods.*, links.is_up_cross As is_up_cross").
 		Joins("Join store_product_links As links On links.link_id = prods.id").
 		Where("links.product_id = ?", productID).
 		Where("links.deleted_at Is Null And prods.deleted_at Is Null").
-		Scan(modelProducts)
+		Scan(modelProducts).Error
 }
 
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {

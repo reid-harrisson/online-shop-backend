@@ -32,7 +32,7 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 		}
 		title += modelValue.AttributeValue
 	}
-	sku = utils.StyleSKU(sku)
+	sku = utils.CleanSpecialLetters(sku)
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 
 	varRepo := repositories.NewRepositoryVariation(service.DB)

@@ -40,9 +40,9 @@ func ChangeToDraft(db *gorm.DB, modelProduct *models.Products) {
 
 func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) string {
 	prodRepo := repositories.NewRepositoryProduct(db)
-	prodRepo.ReadByID(modelProduct, productID)
+	err := prodRepo.ReadByID(modelProduct, productID)
 
-	if modelProduct.ID == 0 {
+	if err != gorm.ErrRecordNotFound {
 		return "Product doesn't exist at this ID."
 	}
 	if modelProduct.Status == utils.Pending {
@@ -833,13 +833,13 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
 // @Param link_id query int true "Linked product ID"
-// @Param is_up_cross query int false "Is Up-Sell or Cross-Sell"
+// @Param is_up_cross query string true "Is Up-Sell or Cross-Sell"
 // @Success 201 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked [post]
 func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 	linkID, _ := strconv.ParseUint(c.QueryParam("link_id"), 10, 64)
-	isUpCross, _ := strconv.ParseUint(c.QueryParam("is_up_cross"), 10, 8)
+	sellType := c.QueryParam("is_up_cross")
 
 	modelProduct := models.Products{}
 	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
@@ -847,7 +847,7 @@ func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 	}
 
 	linkService := linksvc.NewServiceProductLinked(h.server.DB)
-	if err := linkService.Create(productID, linkID, utils.SellTypes(isUpCross)); err != nil {
+	if err := linkService.Create(productID, linkID, utils.SellTypesFromString(sellType)); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
