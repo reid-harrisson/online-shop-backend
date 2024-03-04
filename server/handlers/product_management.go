@@ -104,7 +104,7 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 // @Tags Product Management
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// /@Security ApiKeyAuth
 // @Param store_id query int false "Store ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
@@ -863,7 +863,7 @@ func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 // @Tags Product Management
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// /@Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
 // @Success 200 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked [get]

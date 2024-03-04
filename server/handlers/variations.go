@@ -73,7 +73,7 @@ func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error 
 // @Tags Product Variation
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// /@Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
 // @Success 200 {object} []responses.ResponseProductVariationsInProduct
 // @Failure 400 {object} responses.Error

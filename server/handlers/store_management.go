@@ -51,7 +51,7 @@ func (h *HandlersStoreManagement) Create(c echo.Context) error {
 // @Tags Store Management
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// /@Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store [get]
