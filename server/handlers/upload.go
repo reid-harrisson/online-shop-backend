@@ -10,8 +10,8 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -26,14 +26,8 @@ func NewHandlersUpload(server *s.Server) *HandlersUpload {
 	return &HandlersUpload{server: server}
 }
 
-func readCSV(filename string, modelCsvs *[]models.CSVs) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	reader := csv.NewReader(file)
+func readCSV(file *multipart.File, modelCsvs *[]models.CSVs) {
+	reader := csv.NewReader(*file)
 
 	header, err := reader.Read()
 	if err != nil {
@@ -69,26 +63,19 @@ func readCSV(filename string, modelCsvs *[]models.CSVs) {
 // @Router /store/api/v1/upload/csv [post]
 func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	file, _ := c.FormFile("file")
 
+	file, err := c.FormFile("file")
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
 	src, err := file.Open()
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	defer src.Close()
 
-	dst, err := os.Create("./uploads/" + file.Filename)
-	if err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	defer dst.Close()
-
-	if _, err = io.Copy(dst, src); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
 	modelCsvs := make([]models.CSVs, 0)
-	readCSV("./uploads/"+file.Filename, &modelCsvs)
+	readCSV(&src, &modelCsvs)
 
 	mapSku := make(map[string]uint64)
 	mapIDs := make(map[string]string)
@@ -99,9 +86,11 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		modelProduct := models.Products{}
 		prodService.CreateWithCSV(&modelProduct, modelCsv, storeID, &mapIDs)
 		if modelProduct.ID != 0 {
-			modelProducts = append(modelProducts, modelProduct)
-			mapSku[modelProduct.Sku] = uint64(modelProduct.ID)
-			mapIDs[modelCsv.ID] = modelProduct.Sku
+			if mapSku[modelProduct.Sku] == 0 {
+				modelProducts = append(modelProducts, modelProduct)
+				mapSku[modelProduct.Sku] = uint64(modelProduct.ID)
+				mapIDs[modelCsv.ID] = modelProduct.Sku
+			}
 		}
 	}
 
