@@ -105,6 +105,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 
 	switch modelCsv.Type {
 	case "simple":
+		service.DB.Where("sku = ?", modelCsv.Sku).First(&modelProduct)
 		if modelProduct.ID == 0 {
 			imageUrls := strings.Split(modelCsv.Images, ", ")
 			images, _ := json.Marshal(imageUrls)
