@@ -14,6 +14,7 @@ type RequestProductVariation struct {
 	DiscountType      utils.DiscountTypes `json:"discount_type" example:"1"`
 	ImageUrls         []string            `json:"image_urls" example:"image1,image2,image3"`
 	Description       string              `json:"description" example:"example description"`
+	BackOrderAllowed  int8                `json:"back_order_allowed" example:"1"`
 }
 
 func (request RequestProductVariation) Validate() error {

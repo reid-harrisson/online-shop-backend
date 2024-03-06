@@ -12,7 +12,6 @@ func (service *Service) Create(modelStore *models.Stores, req *requests.RequestS
 	modelStore.ContactEmail = req.ContactEmail
 	modelStore.ShowStockLevelStatus = req.ShowStockLevelStatus
 	modelStore.ShowOutOfStockStatus = req.ShowOutOfStockStatus
-	modelStore.BackOrderStatus = req.BackOrderStatus
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms

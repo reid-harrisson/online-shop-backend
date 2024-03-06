@@ -45,6 +45,7 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 			vars.discount_amount,
 			vars.discount_type,
 			vars.image_urls,
+			vars.stock_level,
 			vars.title As variation_name,
 			Group_Concat(Concat('"', cates.name,'"') Separator ', ') As categories`).
 		Joins("Left Join store_product_variations As vars On vars.id = carts.variation_id").

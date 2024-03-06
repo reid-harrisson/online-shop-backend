@@ -18,8 +18,8 @@ func (repository *RepositoryCustomer) ReadAddressesByCustomerID(modelAddrs *[]mo
 	repository.DB.Where("customer_id = ? And active = 1", customerID).Find(modelAddrs)
 }
 
-func (repository *RepositoryCustomer) ReadAddressByCustomerID(modelAddr *models.CustomerAddresses, customerID uint64) {
-	repository.DB.Where("customer_id = ? And active = 1", customerID).First(modelAddr)
+func (repository *RepositoryCustomer) ReadAddressByCustomerID(modelAddr *models.CustomerAddresses, customerID uint64) error {
+	return repository.DB.Where("customer_id = ? And active = 1", customerID).First(modelAddr).Error
 }
 
 func (repository *RepositoryCustomer) ReadAddressByID(modelAddr *models.CustomerAddresses, addressID uint64) {
