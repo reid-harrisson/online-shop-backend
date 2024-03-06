@@ -21,35 +21,6 @@ func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManageme
 }
 
 // Refresh godoc
-// @Summary Enable or disable back order
-// @Tags Inventory Manangement
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Success 200 {object} responses.ResponseStore
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/inventory/backorder/{id} [put]
-func (h *HandlersInventoryManagement) UpdateBackOrderStatus(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelStore := models.Stores{}
-
-	repositoryInventory := repositories.NewRepositoryInventory(h.server.DB)
-	if err := repositoryInventory.ReadOne(&modelStore, id); err != nil {
-		return responses.ErrorResponse(c, http.StatusNotFound, "Data index not found")
-	}
-
-	storeService := storesvc.NewServiceStore(h.server.DB)
-
-	if err := storeService.UpdateBackOrder(id, &modelStore); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	return responses.NewResponseBackOrderStatus(c, http.StatusOK, modelStore.BackOrderStatus)
-}
-
-// Refresh godoc
 // @Summary Show or hide out of stock
 // @Tags Inventory Manangement
 // @Accept json

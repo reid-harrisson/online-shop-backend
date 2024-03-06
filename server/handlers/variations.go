@@ -23,7 +23,7 @@ func NewHandlersProductVariations(server *s.Server) *HandlersProductVariations {
 
 // Refresh godoc
 // @Summary Create product variation
-// @Tags Product Variation
+// @Tags Product Variation Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -50,7 +50,7 @@ func (h *HandlersProductVariations) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read all product variation in store
-// @Tags Product Variation
+// @Tags Product Variation Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -70,7 +70,7 @@ func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error 
 
 // Refresh godoc
 // @Summary Read all product variation in product
-// @Tags Product Variation
+// @Tags Product Variation Management
 // @Accept json
 // @Produce json
 // /@Security ApiKeyAuth
@@ -90,7 +90,7 @@ func (h *HandlersProductVariations) ReadVariationsInProduct(c echo.Context) erro
 
 // Refresh godoc
 // @Summary Update product variation stock level
-// @Tags Product Variation
+// @Tags Product Variation Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -118,8 +118,34 @@ func (h *HandlersProductVariations) UpdateStockLevel(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Enable or disable back order
+// @Tags Product Variation Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Variation ID"
+// @Success 200 {object} responses.ResponseStore
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/variation/backorder/{id} [put]
+func (h *HandlersProductVariations) UpdateBackOrder(c echo.Context) error {
+	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelVar := models.ProductVariations{}
+
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	if err := varRepo.ReadByID(&modelVar, variationID); err != nil {
+		return responses.ErrorResponse(c, http.StatusNotFound, err.Error())
+	}
+
+	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService.UpdateBackOrder(&modelVar)
+
+	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
+}
+
+// Refresh godoc
 // @Summary Update product variation
-// @Tags Product Variation
+// @Tags Product Variation Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -153,7 +179,7 @@ func (h *HandlersProductVariations) Update(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete product variation by ID
-// @Tags Product Variation
+// @Tags Product Variation Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

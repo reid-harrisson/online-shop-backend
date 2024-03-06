@@ -15,7 +15,6 @@ type ResponseStore struct {
 	ContactEmail         string `json:"contact_email"`
 	ShowStockLevelStatus string `json:"show_stock_level_status"`
 	ShowOutOfStockStatus string `json:"show_out_of_stock_status"`
-	BackOrderStatus      string `json:"back_order_status"`
 	DeliveryPolicy       string `json:"delivery_policy"`
 	ReturnsPolicy        string `json:"returns_policy"`
 	Terms                string `json:"terms"`
@@ -42,7 +41,6 @@ func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) 
 		ContactEmail:         modelStore.ContactEmail,
 		ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),
 		ShowOutOfStockStatus: utils.SimpleStatusToString(modelStore.ShowOutOfStockStatus),
-		BackOrderStatus:      utils.SimpleStatusToString(modelStore.BackOrderStatus),
 		DeliveryPolicy:       modelStore.DeliveryPolicy,
 		ReturnsPolicy:        modelStore.ReturnsPolicy,
 		Terms:                modelStore.Terms,
@@ -61,7 +59,6 @@ func NewResponseStores(c echo.Context, statusCode int, modelStores []models.Stor
 			ContactEmail:         modelStore.ContactEmail,
 			ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),
 			ShowOutOfStockStatus: utils.SimpleStatusToString(modelStore.ShowOutOfStockStatus),
-			BackOrderStatus:      utils.SimpleStatusToString(modelStore.BackOrderStatus),
 			DeliveryPolicy:       modelStore.DeliveryPolicy,
 			ReturnsPolicy:        modelStore.ReturnsPolicy,
 			Terms:                modelStore.Terms,
@@ -79,11 +76,5 @@ func NewResponseOutOfStockStatus(c echo.Context, statusCode int, outOfStockStatu
 func NewResponseStockLevelStatus(c echo.Context, statusCode int, stockLevelStatus utils.SimpleStatuses) error {
 	return Response(c, statusCode, ResponseStockLevelStatus{
 		ShowStockLevelStatus: utils.SimpleStatusToString(stockLevelStatus),
-	})
-}
-
-func NewResponseBackOrderStatus(c echo.Context, statusCode int, backOrderStatus utils.SimpleStatuses) error {
-	return Response(c, statusCode, ResponseBackOrderStatus{
-		BackOrderStatus: utils.SimpleStatusToString(backOrderStatus),
 	})
 }

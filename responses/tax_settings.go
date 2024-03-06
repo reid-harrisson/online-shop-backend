@@ -14,8 +14,9 @@ type ResponseTaxSetting struct {
 
 func NewResponseTaxSetting(c echo.Context, statusCode int, modelTax models.TaxSettings) error {
 	responseTax := ResponseTaxSetting{
-		CountryID: modelTax.CountryID,
-		TaxRate:   modelTax.TaxRate,
+		CustomerID: modelTax.CustomerID,
+		CountryID:  modelTax.CountryID,
+		TaxRate:    modelTax.TaxRate,
 	}
 
 	return Response(c, statusCode, responseTax)

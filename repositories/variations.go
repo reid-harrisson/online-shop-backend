@@ -16,8 +16,8 @@ func NewRepositoryVariation(db *gorm.DB) *RepositoryVariation {
 	return &RepositoryVariation{DB: db}
 }
 
-func (repository *RepositoryVariation) ReadByID(modelVar *models.ProductVariations, variationID uint64) {
-	repository.DB.First(modelVar, variationID)
+func (repository *RepositoryVariation) ReadByID(modelVar *models.ProductVariations, variationID uint64) error {
+	return repository.DB.First(modelVar, variationID).Error
 }
 
 func (repository *RepositoryVariation) ReadBySku(modelVar *models.ProductVariations, sku string) {

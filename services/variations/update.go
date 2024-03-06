@@ -36,11 +36,22 @@ func (service *Service) Update(modelVar *models.ProductVariations, req *requests
 	modelVar.DiscountAmount = req.DiscountAmount
 	modelVar.DiscountType = req.DiscountType
 	modelVar.Description = req.Description
+	modelVar.BackOrderStatus = utils.SimpleStatuses(req.BackOrderAllowed)
 
 	service.DB.Save(modelVar)
 
 	detService := prodvardetsvc.NewServiceProductVariationDetail(service.DB)
 	detService.Update(uint64(modelVar.ID), req.AttributeValueIDs)
+}
+
+func (service *Service) UpdateBackOrder(modelVar *models.ProductVariations) {
+	switch modelVar.BackOrderStatus {
+	case utils.Disabled:
+		modelVar.BackOrderStatus = utils.Enabled
+	case utils.Enabled:
+		modelVar.BackOrderStatus = utils.Disabled
+	}
+	service.DB.Save(modelVar)
 }
 
 func (service *Service) UpdateStockLevel(modelVar *models.ProductVariations, stockLevel float64) {

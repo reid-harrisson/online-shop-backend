@@ -191,7 +191,6 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
-	e.PUT("/backorder/:id", handler.UpdateBackOrderStatus)
 	e.PUT("/stock-level/:id", handler.UpdateShowStockLevelStatus)
 	e.PUT("/out-of-stock/:id", handler.UpdateShowOutOfStockStatus)
 }
@@ -238,6 +237,7 @@ func GroupVariations(server *s.Server, e *echo.Group) {
 	e.GET("/store", handler.ReadVariationsInStore)
 	e.GET("/product", handler.ReadVariationsInProduct)
 	e.PUT("/:id", handler.Update)
+	e.PUT("/back-order/:id", handler.UpdateBackOrder)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 	e.DELETE("/:id", handler.Delete)
 }

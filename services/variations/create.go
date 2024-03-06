@@ -48,6 +48,7 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 		modelVar.DiscountType = req.DiscountType
 		modelVar.StockLevel = req.StockLevel
 		modelVar.Description = req.Description
+		modelVar.BackOrderStatus = utils.SimpleStatuses(req.BackOrderAllowed)
 
 		service.DB.Create(&modelVar)
 		detService := prodvardetsvc.NewServiceProductVariationDetail(service.DB)
@@ -65,6 +66,11 @@ func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, 
 		modelVar.DiscountAmount = modelVar.Price - salePrice
 	} else {
 		modelVar.DiscountAmount = 0
+	}
+	if modelCsv.BackordersAllowed == "1" {
+		modelVar.BackOrderStatus = utils.Enabled
+	} else {
+		modelVar.BackOrderStatus = utils.Disabled
 	}
 	modelVar.DiscountType = utils.FixedAmountOff
 	modelVar.Title = modelCsv.Name
