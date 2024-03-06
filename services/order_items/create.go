@@ -4,8 +4,6 @@ import (
 	"OnlineStoreBackend/models"
 )
 
-func (service *Service) Create(modelItems []*models.OrderItems) {
-	for _, modelItem := range modelItems {
-		service.DB.Create(modelItem)
-	}
+func (service *Service) Create(modelItems *[]models.OrderItems) {
+	service.DB.Create(modelItems)
 }

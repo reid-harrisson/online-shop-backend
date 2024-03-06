@@ -9,5 +9,5 @@ func (service *Service) Delete(cartID uint64) {
 }
 
 func (service *Service) DeleteAll(customerID uint64) error {
-	return service.DB.Where("customer_id = ?", customerID).Delete(models.CartItems{}).Error
+	return service.DB.Where("customer_id = ?", customerID).Delete(&models.CartItems{}).Error
 }

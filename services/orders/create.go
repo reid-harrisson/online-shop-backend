@@ -9,26 +9,24 @@ import (
 )
 
 func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
-	modelOrder.CustomerID = customerID
-	modelOrder.Status = utils.StatusOrderPending
-
 	modelAddr := models.CustomerAddresses{}
-	addrRepo := repositories.NewRepositoryCustomer(service.DB)
-	addrRepo.ReadAddressByCustomerID(&modelAddr, customerID)
 
-	if modelAddr.ID == 0 {
+	addrRepo := repositories.NewRepositoryCustomer(service.DB)
+	shipRepo := repositories.NewRepositoryShipping(service.DB)
+	orderService := orditmsvc.NewServiceOrderItem(service.DB)
+	if err := addrRepo.ReadAddressByCustomerID(&modelAddr, customerID); err != nil {
 		addrService := addrsvc.NewServiceCustomerAddress(service.DB)
 		addrService.CreateFromUser(&modelAddr, customerID)
 	}
 
+	modelOrder.CustomerID = customerID
 	modelOrder.BillingAddressID = uint64(modelAddr.ID)
 	modelOrder.ShippingAddressID = uint64(modelAddr.ID)
-	service.DB.Create(&modelOrder)
 
-	orderID := modelOrder.ID
-	shipRepo := repositories.NewRepositoryShipping(service.DB)
-	orderService := orditmsvc.NewServiceOrderItem(service.DB)
-	modelItems := make([]*models.OrderItems, 0)
+	orderStatus := utils.StatusOrderPending
+
+	modelItems := make([]models.OrderItems, 0)
+
 	for _, modelItem := range modelCartItems {
 		price := modelItem.Price
 		switch modelItem.DiscountType {
@@ -39,11 +37,14 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 		}
 		totalPrice := price * modelItem.Quantity
 
-		modelMethod := models.ShippingMethods{}
-		shipRepo.ReadDefaultMethod(&modelMethod, modelItem.StoreID)
 		modelShip := models.ShippingData{}
+		modelMethod := models.ShippingMethods{}
+
+		shipRepo.ReadDefaultMethod(&modelMethod, modelItem.StoreID)
 		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
+
 		shippingPrice := float64(0)
+
 		if modelMethod.ID != 0 {
 			switch modelMethod.Method {
 			case utils.FlatRate:
@@ -53,8 +54,14 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			}
 		}
 
-		modelItems = append(modelItems, &models.OrderItems{
-			OrderID:          uint64(orderID),
+		itemStatus := utils.StatusOrderPending
+		if modelItem.StockLevel < modelItem.Quantity {
+			itemStatus = utils.StatusOrderBackOrdered
+			orderStatus = utils.StatusOrderBackOrdered
+		}
+
+		modelItems = append(modelItems, models.OrderItems{
+			OrderID:          0,
 			StoreID:          modelItem.StoreID,
 			VariationID:      modelItem.VariationID,
 			Price:            price,
@@ -65,8 +72,13 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			ShippingMethodID: uint64(modelMethod.ID),
 			ShippingPrice:    shippingPrice,
 			TotalPrice:       utils.Round(totalPrice + (totalPrice * modelTax.TaxRate / 100)),
-			Status:           utils.StatusOrderPending,
+			Status:           itemStatus,
 		})
 	}
-	orderService.Create(modelItems)
+	modelOrder.Status = orderStatus
+	service.DB.Create(&modelOrder)
+	for index := range modelItems {
+		modelItems[index].OrderID = uint64(modelOrder.ID)
+	}
+	orderService.Create(&modelItems)
 }

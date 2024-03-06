@@ -124,9 +124,9 @@ func (h *HandlersProductVariations) UpdateStockLevel(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Variation ID"
-// @Success 200 {object} responses.ResponseStore
+// @Success 200 {object} responses.ResponseProductVariation
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/variation/backorder/{id} [put]
+// @Router /store/api/v1/variation/back-order/{id} [put]
 func (h *HandlersProductVariations) UpdateBackOrder(c echo.Context) error {
 	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 

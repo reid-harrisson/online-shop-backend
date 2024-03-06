@@ -57,6 +57,7 @@ const (
 
 const (
 	StatusOrderPending OrderStatuses = iota + 1
+	StatusOrderBackOrdered
 	StatusOrderPaymentProcessing
 	StatusOrderPaid
 	StatusOrderProcessing
@@ -134,6 +135,8 @@ func OrderStatusToString(status OrderStatuses) string {
 	switch status {
 	case StatusOrderPending:
 		return "Pending"
+	case StatusOrderBackOrdered:
+		return "Back Ordered"
 	case StatusOrderPaymentProcessing:
 		return "Payment Processing"
 	case StatusOrderPaid:
