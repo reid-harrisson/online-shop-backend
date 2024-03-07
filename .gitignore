@@ -5,6 +5,7 @@ main
 uploads/*
 /.idea
 docs/
+migration
 
 # Configuration
 config.yaml
