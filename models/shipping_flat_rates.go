@@ -16,5 +16,5 @@ type ShippingFlatRates struct {
 }
 
 func (ShippingFlatRates) TableName() string {
-	return "shipping_flat_rates"
+	return "store_shipping_flat_rates"
 }
