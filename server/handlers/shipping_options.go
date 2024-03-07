@@ -8,6 +8,7 @@ import (
 	s "OnlineStoreBackend/server"
 	orditmsvc "OnlineStoreBackend/services/order_items"
 	shipmthsvc "OnlineStoreBackend/services/shipping_methods"
+	zonesvc "OnlineStoreBackend/services/shipping_zones"
 	"net/http"
 	"strconv"
 
@@ -20,6 +21,30 @@ type HandlersShippingOptions struct {
 
 func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 	return &HandlersShippingOptions{server: server}
+}
+
+// Refresh godoc
+// @Summary Add shipping zone to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingZone true "Zone Info"
+// @Success 201 {object} responses.ResponseShippingZone
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/zone [post]
+func (h *HandlersShippingOptions) CreateShippingZone(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingZone)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelZone := models.ShippingZonesWithPlace{}
+	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
+	zoneService.Create(storeID, req, &modelZone)
+	return responses.NewResponseShippingZone(c, http.StatusCreated, modelZone)
 }
 
 // Refresh godoc

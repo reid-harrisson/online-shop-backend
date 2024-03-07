@@ -4,25 +4,44 @@ import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/requests"
 	"strconv"
+	"strings"
 )
 
-func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone, modelZones *[]models.ShippingZones) error {
+func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone, modelZone *models.ShippingZonesWithPlace) {
+	modelZone.StoreID = storeID
+	modelZone.Name = req.Name
+	modelZone.Description = req.Description
+
+	service.DB.Where("name = ?", req.Name).FirstOrCreate(&modelZone.ShippingZones)
+	if modelZone.Description != req.Description {
+		service.DB.Model(models.ShippingZones{}).Update("description", req.Description)
+	}
+
+	zoneID := uint64(modelZone.ID)
 	places := []string{}
 	indices := map[string]int{}
+	modelPlaces := []models.ShippingPlaces{}
 	for index, place := range req.Places {
-		places = append(places, strconv.FormatUint(storeID, 10)+":"+place)
-		*modelZones = append(*modelZones, models.ShippingZones{
-			StoreID: storeID,
-			Name:    place,
+		modelPlaces = append(modelPlaces, models.ShippingPlaces{
+			ZoneID: zoneID,
+			Name:   place,
 		})
+		places = append(places, strconv.FormatUint(zoneID, 10)+":"+place)
 		indices[place] = index
 	}
 
-	modelNewZones := []models.ShippingZones{}
-	service.DB.Where("Concat(store_id, ':', name) In (?)", places).Find(modelNewZones)
-	for _, modelZone := range modelNewZones {
-		index := indices[modelZone.Name]
-		(*modelZones)[index].ID = modelZone.ID
+	modelNewPlaces := []models.ShippingPlaces{}
+	service.DB.Where("Concat(zone_id, ':', name) In (?)", places).Find(&modelNewPlaces)
+	service.DB.Where("Concat(zone_id, ':', name) Not In (?)", places).Delete(&models.ShippingPlaces{})
+	for _, modelPlace := range modelNewPlaces {
+		index := indices[modelPlace.Name]
+		(modelPlaces)[index].ID = modelPlace.ID
 	}
-	return service.DB.Save(modelZones).Error
+	service.DB.Save(modelPlaces)
+	placeIDs := []string{}
+	for _, modelPlace := range modelPlaces {
+		placeIDs = append(placeIDs, strconv.FormatUint(uint64(modelPlace.ID), 10))
+	}
+	modelZone.PlaceIDs = strings.Join(placeIDs, ",")
+	modelZone.PlaceNames = strings.Join(req.Places, ",")
 }

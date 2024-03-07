@@ -12,6 +12,12 @@ type ShippingZones struct {
 	Description string `gorm:"type:text"`
 }
 
+type ShippingZonesWithPlace struct {
+	ShippingZones
+	PlaceIDs   string
+	PlaceNames string
+}
+
 func (ShippingZones) TableName() string {
 	return "store_shipping_zones"
 }
