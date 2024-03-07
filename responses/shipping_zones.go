@@ -32,12 +32,11 @@ func NewResponseShippingZone(c echo.Context, statusCode int, modelZone models.Sh
 			Name: placeNames[index],
 		})
 	}
-	responseZone := ResponseShippingZone{
+	return Response(c, statusCode, ResponseShippingZone{
 		ID:          uint64(modelZone.ID),
 		Name:        modelZone.Name,
 		StoreID:     modelZone.StoreID,
 		Description: modelZone.Description,
 		Places:      responsePlaces,
-	}
-	return Response(c, statusCode, responseZone)
+	})
 }

@@ -7,6 +7,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	orditmsvc "OnlineStoreBackend/services/order_items"
+	classsvc "OnlineStoreBackend/services/shipping_classes"
 	shipmthsvc "OnlineStoreBackend/services/shipping_methods"
 	zonesvc "OnlineStoreBackend/services/shipping_zones"
 	"net/http"
@@ -45,6 +46,82 @@ func (h *HandlersShippingOptions) CreateShippingZone(c echo.Context) error {
 	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
 	zoneService.Create(storeID, req, &modelZone)
 	return responses.NewResponseShippingZone(c, http.StatusCreated, modelZone)
+}
+
+// Refresh godoc
+// @Summary Update shipping zone
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Zone ID"
+// @Param params body requests.RequestShippingZone true "Zone Info"
+// @Success 201 {object} responses.ResponseShippingZone
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/zone/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingZone(c echo.Context) error {
+	zoneID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestShippingZone)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelZone := models.ShippingZonesWithPlace{}
+	zoneRepo := repositories.NewRepositoryShippingZone(h.server.DB)
+	zoneRepo.ReadDetailByID(&modelZone, zoneID)
+	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
+	zoneService.Update(req, &modelZone)
+	return responses.NewResponseShippingZone(c, http.StatusOK, modelZone)
+}
+
+// Refresh godoc
+// @Summary Add shipping class to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingClass true "Class Info"
+// @Success 201 {object} responses.ResponseShippingClass
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/class [post]
+func (h *HandlersShippingOptions) CreateShippingClass(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingClass)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelClass := models.ShippingClasses{}
+	classervice := classsvc.NewServiceShippingClass(h.server.DB)
+	classervice.Create(storeID, req, &modelClass)
+	return responses.NewResponseShippingClass(c, http.StatusCreated, modelClass)
+}
+
+// Refresh godoc
+// @Summary Update shipping class
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Class ID"
+// @Param params body requests.RequestShippingClass true "Class Info"
+// @Success 201 {object} responses.ResponseShippingClass
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/class/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingClass(c echo.Context) error {
+	classID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestShippingClass)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelClass := models.ShippingClasses{}
+	classRepo := repositories.NewRepositoryShippingClass(h.server.DB)
+	classRepo.ReadByID(&modelClass, classID)
+	classService := classsvc.NewServiceShippingClass(h.server.DB)
+	classService.Update(req, &modelClass)
+	return responses.NewResponseShippingClass(c, http.StatusOK, modelClass)
 }
 
 // Refresh godoc
