@@ -8,6 +8,7 @@ type ShippingZones struct {
 	gorm.Model
 
 	Name        string `gorm:"type:varchar(100)"`
+	StoreID     uint64 `gorm:"type:bigint(20)"`
 	Description string `gorm:"type:text"`
 }
 
