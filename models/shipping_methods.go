@@ -9,13 +9,22 @@ import (
 type ShippingMethods struct {
 	gorm.Model
 
-	StoreID       uint64                `gorm:"column:store_id; type:bigint(20) unsigned"`
-	Method        utils.ShippingMethods `gorm:"column:method; type:tinyint(4)"`
-	FlatRate      float64               `gorm:"column:flat_rate; type:decimal(20,6)"`
-	BaseRate      float64               `gorm:"column:base_rate; type:decimal(20,6)"`
-	RatePerItem   float64               `gorm:"column:rate_per_item; type:decimal(20,6)"`
-	RatePerWeight float64               `gorm:"column:rate_per_weight; type:decimal(20,6)"`
-	RatePerTotal  float64               `gorm:"column:rate_per_total; type:decimal(20,6)"`
+	ZoneID              uint64                `gorm:"type:bigint(20)"`
+	StoreID             uint64                `gorm:"type:bigint(20)"`
+	Method              utils.ShippingMethods `gorm:"type:shipping_methods"` //Free Shipping | Local Pickup | Flat Rate | Table Rate
+	Requirement         int8                  `gorm:"type:requirements"`     //Free Shipping
+	MinimumOrderAmount  float64               `gorm:"type:decimal(20,6)"`    //Free Shipping
+	TaxStatus           int8                  `gorm:"type:tax_statuses"`     //Flat Rate, Local Pickup
+	Cost                float64               `gorm:"type:decimal(20,6)"`    //Flat Rate, Local Pickup
+	TaxIncluded         int8                  `gorm:"type:tinyint(4)"`       //Table Rate
+	HandlingFee         float64               `gorm:"type:decimal(20,6)"`    //Table Rate
+	MaximumShippingCost float64               `gorm:"type:decimal(20,6)"`    //Table Rate
+	CalculationType     int8                  `gorm:"type:tinyint(4)"`       //Table Rate
+	HandlingFeePerClass float64               `gorm:"type:decima(20,6)"`     //Table Rate
+	MinimumCostPerClass float64               `gorm:"type:decima(20,6)"`     //Table Rate
+	MaximumCostPerClass float64               `gorm:"type:decima(20,6)"`     //Table Rate
+	DiscountInMinMax    int8                  `gorm:"type:tinyint(4)"`       //Table Rate
+	TaxInMinMax         int8                  `gorm:"type:tinyint(4)"`       //Table Rate
 }
 
 func (ShippingMethods) TableName() string {

@@ -1,14 +1,25 @@
 package requests
 
-import validation "github.com/go-ozzo/ozzo-validation"
+import (
+	validation "github.com/go-ozzo/ozzo-validation"
+)
 
 type RequestShippingMethod struct {
-	Method        string  `json:"method" example:"FlatRate"`
-	FlatRate      float64 `json:"flat_rate" example:"5"`
-	BaseRate      float64 `json:"base_rate" example:"2"`
-	RatePerItem   float64 `json:"rate_per_item" example:"0.2"`
-	RatePerWeight float64 `json:"rate_per_weight" example:"0.1"`
-	RatePerTotal  float64 `json:"rate_per_total" example:"5"`
+	ZoneID              uint64  `json:"zone_id"`
+	Method              string  `json:"method"`
+	Requirement         int8    `json:"requirement"`
+	MinimumOrderAmount  float64 `json:"minimum_order_amount"`
+	TaxStatus           int8    `json:"tax_status"`
+	Cost                float64 `json:"cost"`
+	TaxIncluded         int8    `json:"tax_included"`
+	HandlingFee         float64 `json:"handling_fee"`
+	MaximumShippingCost float64 `json:"maximum_shipping_cost"`
+	CalculationType     int8    `json:"calculation_type"`
+	HandlingFeePerClass float64 `json:"handling_fee_per_class"`
+	MinimumCostPerClass float64 `json:"minimum_cost_per_class"`
+	MaximumCostPerClass float64 `json:"maximum_cost_per_class"`
+	DiscountInMinMax    int8    `json:"discount_in_min_max"`
+	TaxInMinMax         int8    `json:"tax_in_min_max"`
 }
 
 type RequestShippingData struct {

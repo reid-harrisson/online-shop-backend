@@ -25,9 +25,9 @@ func (service *Service) UpdateShippingMethod(modelItems *[]models.OrderItems, st
 		if modelMethod.ID != 0 {
 			switch modelMethod.Method {
 			case utils.FlatRate:
-				shippingPrice = modelMethod.FlatRate
+				shippingPrice = 0
 			case utils.TableRate:
-				shippingPrice = modelMethod.BaseRate + modelMethod.RatePerItem*(*modelItems)[index].Quantity + modelMethod.RatePerTotal*totalPrice/100 + modelMethod.RatePerWeight*modelShip.Height
+				shippingPrice = 0
 			}
 		}
 		(*modelItems)[index].ShippingMethodID = methodID

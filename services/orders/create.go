@@ -48,9 +48,9 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 		if modelMethod.ID != 0 {
 			switch modelMethod.Method {
 			case utils.FlatRate:
-				shippingPrice = modelMethod.FlatRate
+				shippingPrice = 0
 			case utils.TableRate:
-				shippingPrice = modelMethod.BaseRate + modelMethod.RatePerItem*modelItem.Quantity + modelMethod.RatePerTotal*totalPrice/100 + modelMethod.RatePerWeight*modelShip.Height
+				shippingPrice = 0
 			}
 		}
 
