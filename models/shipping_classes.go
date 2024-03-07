@@ -9,6 +9,7 @@ type ShippingClasses struct {
 
 	Name        string `gorm:"type:varchar(100)"`
 	Description string `gorm:"type:text"`
+	Priority    int8   `gorm:"type:tinyint(4)"`
 }
 
 func (ShippingClasses) TableName() string {
