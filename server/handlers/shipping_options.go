@@ -217,6 +217,118 @@ func (h *HandlersShippingOptions) ReadAllShippingMethod(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Read local pickup method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Success 200 {object} responses.ResponseShippingLocalPickup
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/local-pickup/{id} [get]
+func (h *HandlersShippingOptions) ReadShippingLocalPickup(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelMethod := models.ShippingMethods{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	if err := methRepo.ReadByID(&modelMethod, methodID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No method has this id.")
+	}
+	if modelMethod.Method != utils.PickUp {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not local pickup method.")
+	}
+	return responses.NewResponseShippingLocalPickup(c, http.StatusOK, modelMethod)
+}
+
+// Refresh godoc
+// @Summary Read free shipping method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Success 200 {object} responses.ResponseShippingFree
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/free/{id} [get]
+func (h *HandlersShippingOptions) ReadShippingFree(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelMethod := models.ShippingMethods{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	if err := methRepo.ReadByID(&modelMethod, methodID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No method has this id.")
+	}
+	if modelMethod.Method != utils.FreeShipping {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not free shipping method.")
+	}
+	return responses.NewResponseShippingFree(c, http.StatusOK, modelMethod)
+}
+
+// Refresh godoc
+// @Summary Read flat rate shipping method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Success 200 {object} responses.ResponseShippingFlatRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/flat-rate/{id} [get]
+func (h *HandlersShippingOptions) ReadShippingFlatRate(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelMethod := models.ShippingMethods{}
+	modelRates := []models.ShippingFlatRates{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	if err := methRepo.ReadFlatRateByID(&modelMethod, &modelRates, methodID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No method has this id.")
+	}
+	if modelMethod.Method != utils.FlatRate {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not local pickup method.")
+	}
+	classIDs := []uint64{}
+	for _, modelRate := range modelRates {
+		classIDs = append(classIDs, modelRate.ClassID)
+	}
+	modelClasses := []models.ShippingClasses{}
+	classRepo := repositories.NewRepositoryShippingClass(h.server.DB)
+	classRepo.ReadByIDs(&modelClasses, classIDs)
+	return responses.NewResponseShippingFlatRate(c, http.StatusOK, modelMethod, modelRates, modelClasses)
+}
+
+// Refresh godoc
+// @Summary Read flat rate shipping method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Success 200 {object} responses.ResponseShippingFlatRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/table-rate/{id} [get]
+func (h *HandlersShippingOptions) ReadShippingTableRate(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelMethod := models.ShippingMethods{}
+	modelRates := []models.ShippingTableRates{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	if err := methRepo.ReadTableRateByID(&modelMethod, &modelRates, methodID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No method has this id.")
+	}
+	if modelMethod.Method != utils.TableRate {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not local pickup method.")
+	}
+	classIDs := []uint64{}
+	for _, modelRate := range modelRates {
+		classIDs = append(classIDs, modelRate.ClassID)
+	}
+	modelClasses := []models.ShippingClasses{}
+	classRepo := repositories.NewRepositoryShippingClass(h.server.DB)
+	classRepo.ReadByIDs(&modelClasses, classIDs)
+	return responses.NewResponseShippingTableRate(c, http.StatusOK, modelMethod, modelRates, modelClasses)
+}
+
+// Refresh godoc
 // @Summary Update local pickup method
 // @Tags Shipping Options
 // @Accept json
