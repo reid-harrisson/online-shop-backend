@@ -12,7 +12,7 @@ type ShippingMethods struct {
 	ZoneID              uint64                `gorm:"type:bigint(20)"`
 	StoreID             uint64                `gorm:"type:bigint(20)"`
 	Method              utils.ShippingMethods `gorm:"type:tinyint(4)"`    //Free Shipping | Local Pickup | Flat Rate | Table Rate
-	Requirement         int8                  `gorm:"type:tinyint(4)"`    //Free Shipping
+	Requirement         utils.Requirements    `gorm:"type:tinyint(4)"`    //Free Shipping
 	MinimumOrderAmount  float64               `gorm:"type:decimal(20,6)"` //Free Shipping
 	TaxStatus           int8                  `gorm:"type:tinyint(4)"`    //Flat Rate, Local Pickup
 	Cost                float64               `gorm:"type:decimal(20,6)"` //Flat Rate, Local Pickup

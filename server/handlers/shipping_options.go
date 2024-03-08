@@ -26,6 +26,34 @@ func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 }
 
 // Refresh godoc
+// @Summary Add shipping method to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingMethod true "Shipping Option"
+// @Success 201 {object} responses.ResponseShippingMethod
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/store [post]
+func (h *HandlersShippingOptions) CreateShippingMethod(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingMethod)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	shipService := methodsvc.NewServiceShippingMethod(h.server.DB)
+	if err := shipService.Create(storeID, req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+	modelMethods := make([]models.ShippingMethods, 0)
+	shipRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	shipRepo.ReadByStoreID(&modelMethods, storeID)
+	return responses.NewResponseShippingMethod(c, http.StatusCreated, modelMethods)
+}
+
+// Refresh godoc
 // @Summary Add shipping zone to store
 // @Tags Shipping Options
 // @Accept json
@@ -47,32 +75,6 @@ func (h *HandlersShippingOptions) CreateShippingZone(c echo.Context) error {
 	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
 	zoneService.Create(storeID, req, &modelZone)
 	return responses.NewResponseShippingZone(c, http.StatusCreated, modelZone)
-}
-
-// Refresh godoc
-// @Summary Update shipping zone
-// @Tags Shipping Options
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Zone ID"
-// @Param params body requests.RequestShippingZone true "Zone Info"
-// @Success 201 {object} responses.ResponseShippingZone
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/shipping/zone/{id} [put]
-func (h *HandlersShippingOptions) UpdateShippingZone(c echo.Context) error {
-	zoneID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestShippingZone)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelZone := models.ShippingZonesWithPlace{}
-	zoneRepo := repositories.NewRepositoryShippingZone(h.server.DB)
-	zoneRepo.ReadDetailByID(&modelZone, zoneID)
-	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
-	zoneService.Update(req, &modelZone)
-	return responses.NewResponseShippingZone(c, http.StatusOK, modelZone)
 }
 
 // Refresh godoc
@@ -100,7 +102,7 @@ func (h *HandlersShippingOptions) CreateShippingClass(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Add local pickup to store
+// @Summary Add local pickup method to store
 // @Tags Shipping Options
 // @Accept json
 // @Produce json
@@ -126,13 +128,57 @@ func (h *HandlersShippingOptions) CreateShippingLocalPickup(c echo.Context) erro
 }
 
 // Refresh godoc
+// @Summary Add free shipping method to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingFree true "Class Info"
+// @Success 201 {object} responses.ResponseShippingFree
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/free [post]
+func (h *HandlersShippingOptions) CreateShippingFree(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingFree)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethod := models.ShippingMethods{}
+	metService := methodsvc.NewServiceShippingMethod(h.server.DB)
+	if err := metService.CreateShippingFree(storeID, req, &modelMethod); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
+	}
+	return responses.NewResponseShippingFree(c, http.StatusCreated, modelMethod)
+}
+
+// Refresh godoc
+// @Summary Read shipping method of store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseShippingMethod
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/store [get]
+func (h *HandlersShippingOptions) ReadShippingOption(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	modelOptions := make([]models.ShippingMethods, 0)
+	shipRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	shipRepo.ReadByStoreID(&modelOptions, storeID)
+	return responses.NewResponseShippingMethod(c, http.StatusOK, modelOptions)
+}
+
+// Refresh godoc
 // @Summary Update local pickup method
 // @Tags Shipping Options
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id query int path "Method ID"
-// @Param params body requests.RequestShippingLocalPickup true "Class Info"
+// @Param id path int true "Method ID"
+// @Param params body requests.RequestShippingLocalPickup true "Method Info"
 // @Success 201 {object} responses.ResponseShippingLocalPickup
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/local-pickup/{id} [put]
@@ -153,7 +199,38 @@ func (h *HandlersShippingOptions) UpdateShippingLocalPickup(c echo.Context) erro
 	if err := methService.UpdateShippingLocalPickup(req, &modelMethod); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
 	}
-	return responses.NewResponseShippingLocalPickup(c, http.StatusCreated, modelMethod)
+	return responses.NewResponseShippingLocalPickup(c, http.StatusOK, modelMethod)
+}
+
+// Refresh godoc
+// @Summary Update free shipping method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Param params body requests.RequestShippingFree true "Method Info"
+// @Success 201 {object} responses.ResponseShippingFree
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/free/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingFree(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestShippingFree)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethod := models.ShippingMethods{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	methRepo.ReadByID(&modelMethod, methodID)
+	if modelMethod.Method != utils.FreeShipping {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not free shipping method.")
+	}
+	methService := methodsvc.NewServiceShippingMethod(h.server.DB)
+	if err := methService.UpdateShippingFree(req, &modelMethod); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
+	}
+	return responses.NewResponseShippingFree(c, http.StatusOK, modelMethod)
 }
 
 // Refresh godoc
@@ -183,52 +260,6 @@ func (h *HandlersShippingOptions) UpdateShippingClass(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Add shipping method to store
-// @Tags Shipping Options
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param store_id query int true "Store ID"
-// @Param params body requests.RequestShippingMethod true "Shipping Option"
-// @Success 201 {object} responses.ResponseShippingMethod
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/shipping/store [post]
-func (h *HandlersShippingOptions) CreateShippingMethod(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	req := new(requests.RequestShippingMethod)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	shipService := methodsvc.NewServiceShippingMethod(h.server.DB)
-	if err := shipService.Create(storeID, req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	modelMethods := make([]models.ShippingMethods, 0)
-	shipRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
-	shipRepo.ReadByStoreID(&modelMethods, storeID)
-	return responses.NewResponseShippingMethod(c, http.StatusCreated, modelMethods)
-}
-
-// Refresh godoc
-// @Summary Read shipping method of store
-// @Tags Shipping Options
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param store_id query int true "Store ID"
-// @Success 200 {object} responses.ResponseShippingMethod
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/shipping/store [get]
-func (h *HandlersShippingOptions) ReadShippingOption(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	modelOptions := make([]models.ShippingMethods, 0)
-	shipRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
-	shipRepo.ReadByStoreID(&modelOptions, storeID)
-	return responses.NewResponseShippingMethod(c, http.StatusOK, modelOptions)
-}
-
-// Refresh godoc
 // @Summary Update shipping method of order
 // @Tags Shipping Options
 // @Accept json
@@ -250,4 +281,30 @@ func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
 	orderService.UpdateShippingMethod(&modelItems, storeID, orderID, methodID)
 
 	return responses.NewResponseOrderItems(c, http.StatusOK, modelItems)
+}
+
+// Refresh godoc
+// @Summary Update shipping zone
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Zone ID"
+// @Param params body requests.RequestShippingZone true "Zone Info"
+// @Success 201 {object} responses.ResponseShippingZone
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/zone/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingZone(c echo.Context) error {
+	zoneID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestShippingZone)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelZone := models.ShippingZonesWithPlace{}
+	zoneRepo := repositories.NewRepositoryShippingZone(h.server.DB)
+	zoneRepo.ReadDetailByID(&modelZone, zoneID)
+	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
+	zoneService.Update(req, &modelZone)
+	return responses.NewResponseShippingZone(c, http.StatusOK, modelZone)
 }

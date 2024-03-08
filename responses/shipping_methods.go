@@ -9,7 +9,7 @@ import (
 
 type ResponseShippingMethod struct {
 	Method              string  `json:"method"`
-	Requirement         int8    `json:"requirement"`
+	Requirement         string  `json:"requirement"`
 	MinimumOrderAmount  float64 `json:"minimum_order_amount"`
 	TaxStatus           int8    `json:"tax_status"`
 	Cost                float64 `json:"cost"`
@@ -25,7 +25,7 @@ type ResponseShippingMethod struct {
 }
 
 type ResponseShippingLocalPickup struct {
-	ID        uint64  `json:"ID"`
+	ID        uint64  `json:"id"`
 	ZoneID    uint64  `json:"zone_id"`
 	StoreID   uint64  `json:"store_id"`
 	Method    string  `json:"method"`
@@ -33,12 +33,21 @@ type ResponseShippingLocalPickup struct {
 	Cost      float64 `json:"cost"`
 }
 
+type ResponseShippingFree struct {
+	ID                 uint64  `json:"id"`
+	ZoneID             uint64  `json:"zone_id"`
+	StoreID            uint64  `json:"store_id"`
+	Method             string  `json:"method"`
+	Requirement        string  `json:"requirement"`
+	MinimumOrderAmount float64 `json:"minimum_order_amount"`
+}
+
 func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []models.ShippingMethods) error {
 	responseMethods := make([]ResponseShippingMethod, 0)
 	for _, modelMethod := range modelMethods {
 		responseMethods = append(responseMethods, ResponseShippingMethod{
 			Method:              utils.ShippingMethodsToString(modelMethod.Method),
-			Requirement:         modelMethod.Requirement,
+			Requirement:         utils.RequirementToString(modelMethod.Requirement),
 			MinimumOrderAmount:  modelMethod.MinimumOrderAmount,
 			TaxStatus:           modelMethod.TaxStatus,
 			Cost:                modelMethod.Cost,
@@ -64,5 +73,16 @@ func NewResponseShippingLocalPickup(c echo.Context, statusCode int, modelMethod 
 		Method:    utils.ShippingMethodsToString(modelMethod.Method),
 		TaxStatus: modelMethod.TaxStatus,
 		Cost:      modelMethod.Cost,
+	})
+}
+
+func NewResponseShippingFree(c echo.Context, statusCode int, modelMethod models.ShippingMethods) error {
+	return Response(c, statusCode, ResponseShippingFree{
+		ID:                 uint64(modelMethod.ID),
+		StoreID:            modelMethod.StoreID,
+		ZoneID:             modelMethod.ZoneID,
+		Method:             utils.ShippingMethodsToString(modelMethod.Method),
+		Requirement:        utils.RequirementToString(modelMethod.Requirement),
+		MinimumOrderAmount: modelMethod.MinimumOrderAmount,
 	})
 }

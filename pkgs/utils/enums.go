@@ -8,6 +8,15 @@ type SellTypes int8
 type OrderStatuses int8
 type PageTypes int8
 type ProductTypes int8
+type Requirements int8
+
+const (
+	NoRequirement Requirements = iota
+	ValidFreeShippingCoupon
+	MinimumOrderAmount
+	MinimumOrderAmountOrCoupon
+	MinimumOrderAmountAndCoupon
+)
 
 const (
 	Simple ProductTypes = iota
@@ -74,6 +83,20 @@ const (
 	StatusReviewApproved
 	StatusReviewBlocked
 )
+
+func RequirementToString(requirement Requirements) string {
+	switch requirement {
+	case ValidFreeShippingCoupon:
+		return "A valid free shipping coupon"
+	case MinimumOrderAmount:
+		return "A minimum order amount"
+	case MinimumOrderAmountOrCoupon:
+		return "A minimum order amount OR coupon"
+	case MinimumOrderAmountAndCoupon:
+		return "A minimum order amount AND coupon"
+	}
+	return "No requirement"
+}
 
 func PageTypeFromString(pageType string) PageTypes {
 	switch pageType {

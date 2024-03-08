@@ -35,3 +35,12 @@ func (service *Service) CreateShippingLocalPickup(storeID uint64, req *requests.
 	modelMethod.Cost = req.Cost
 	return service.DB.Create(modelMethod).Error
 }
+
+func (service *Service) CreateShippingFree(storeID uint64, req *requests.RequestShippingFree, modelMethod *models.ShippingMethods) error {
+	modelMethod.Method = utils.FreeShipping
+	modelMethod.StoreID = storeID
+	modelMethod.ZoneID = req.ZoneID
+	modelMethod.Requirement = req.Requirement
+	modelMethod.MinimumOrderAmount = req.MinimumOrderAmount
+	return service.DB.Create(modelMethod).Error
+}
