@@ -194,6 +194,29 @@ func (h *HandlersShippingOptions) CreateShippingTableRate(c echo.Context) error 
 }
 
 // Refresh godoc
+// @Summary Read all shipping method of store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseShippingMethod
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping [get]
+func (h *HandlersShippingOptions) ReadAllShippingMethod(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingTableRate)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethods := []models.ShippingMethods{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	methRepo.ReadByStoreID(&modelMethods, storeID)
+	return responses.NewResponseShippingMethods(c, http.StatusOK, modelMethods)
+}
+
+// Refresh godoc
 // @Summary Update local pickup method
 // @Tags Shipping Options
 // @Accept json
@@ -201,7 +224,7 @@ func (h *HandlersShippingOptions) CreateShippingTableRate(c echo.Context) error 
 // @Security ApiKeyAuth
 // @Param id path int true "Method ID"
 // @Param params body requests.RequestShippingLocalPickup true "Method Info"
-// @Success 201 {object} responses.ResponseShippingLocalPickup
+// @Success 200 {object} responses.ResponseShippingLocalPickup
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/local-pickup/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingLocalPickup(c echo.Context) error {
@@ -234,7 +257,7 @@ func (h *HandlersShippingOptions) UpdateShippingLocalPickup(c echo.Context) erro
 // @Security ApiKeyAuth
 // @Param id path int true "Method ID"
 // @Param params body requests.RequestShippingFree true "Method Info"
-// @Success 201 {object} responses.ResponseShippingFree
+// @Success 200 {object} responses.ResponseShippingFree
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/free/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingFree(c echo.Context) error {
@@ -267,7 +290,7 @@ func (h *HandlersShippingOptions) UpdateShippingFree(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Method ID"
 // @Param params body requests.RequestShippingFlatRate true "Method Info"
-// @Success 201 {object} responses.ResponseShippingFlatRate
+// @Success 200 {object} responses.ResponseShippingFlatRate
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/flat-rate/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingFlatRate(c echo.Context) error {
@@ -308,7 +331,7 @@ func (h *HandlersShippingOptions) UpdateShippingFlatRate(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Method ID"
 // @Param params body requests.RequestShippingFlatRate true "Method Info"
-// @Success 201 {object} responses.ResponseShippingFlatRate
+// @Success 200 {object} responses.ResponseShippingFlatRate
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/table-rate/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingTableRate(c echo.Context) error {
@@ -349,7 +372,7 @@ func (h *HandlersShippingOptions) UpdateShippingTableRate(c echo.Context) error 
 // @Security ApiKeyAuth
 // @Param id path int true "Class ID"
 // @Param params body requests.RequestShippingClass true "Class Info"
-// @Success 201 {object} responses.ResponseShippingClass
+// @Success 200 {object} responses.ResponseShippingClass
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/class/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingClass(c echo.Context) error {
@@ -399,7 +422,7 @@ func (h *HandlersShippingOptions) UpdateShippingMethod(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Zone ID"
 // @Param params body requests.RequestShippingZone true "Zone Info"
-// @Success 201 {object} responses.ResponseShippingZone
+// @Success 200 {object} responses.ResponseShippingZone
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/shipping/zone/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingZone(c echo.Context) error {

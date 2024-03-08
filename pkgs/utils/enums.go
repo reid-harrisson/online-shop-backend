@@ -277,34 +277,32 @@ func SimpleStatusToString(status SimpleStatuses) string {
 func ShippingMethodsToString(method ShippingMethods) string {
 	switch method {
 	case PickUp:
-		return "PickUp"
+		return "Local pickup"
 	case FlatRate:
-		return "FlatRate"
+		return "Flat rate"
 	case TableRate:
-		return "TableRate"
+		return "Table rate"
 	case RealTimeCarrierRate:
-		return "RealTimeCarrierRate"
+		return "Real time carrier rate"
 	case FreeShipping:
-		return "FreeShipping"
+		return "Free shipping"
 	}
-
-	return "PickUp"
+	return "Pick up"
 }
 
 func ShippingMethodsFromString(method string) ShippingMethods {
 	switch method {
-	case "PickUp":
+	case "Local pickup":
 		return PickUp
-	case "FlatRate":
+	case "Flat rate":
 		return FlatRate
-	case "TableRate":
+	case "Table rate":
 		return TableRate
-	case "RealTimeCarrierRate":
+	case "Real time carrier rate":
 		return RealTimeCarrierRate
-	case "FreeShipping":
+	case "Free shipping":
 		return FreeShipping
 	}
-
 	return PickUp
 }
 

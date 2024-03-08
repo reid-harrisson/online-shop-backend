@@ -225,6 +225,7 @@ func GroupShippingOptions(server *s.Server, e *echo.Group) {
 	e.POST("/free", handler.CreateShippingFree)
 	e.POST("/flat-rate", handler.CreateShippingFlatRate)
 	e.POST("/table-rate", handler.CreateShippingTableRate)
+	e.GET("", handler.ReadAllShippingMethod)
 	e.PUT("/order", handler.UpdateShippingMethod)
 	e.PUT("/class/:id", handler.UpdateShippingClass)
 	e.PUT("/zone/:id", handler.UpdateShippingZone)

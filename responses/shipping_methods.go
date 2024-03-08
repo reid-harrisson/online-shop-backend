@@ -61,6 +61,28 @@ type ResponseShippingTableRate struct {
 	Rates               []ResponseTableRate `json:"rates"`
 }
 
+type ResponseShippingMethod struct {
+	ID          uint64 `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	ZoneID      uint64 `json:"zone_id"`
+	Method      string `json:"method"`
+}
+
+func NewResponseShippingMethods(c echo.Context, statusCode int, modelMethods []models.ShippingMethods) error {
+	responseMethods := []ResponseShippingMethod{}
+	for _, modelMethod := range modelMethods {
+		responseMethods = append(responseMethods, ResponseShippingMethod{
+			ID:          uint64(modelMethod.ID),
+			Title:       modelMethod.Title,
+			Description: modelMethod.Description,
+			ZoneID:      modelMethod.ZoneID,
+			Method:      utils.ShippingMethodsToString(modelMethod.Method),
+		})
+	}
+	return Response(c, statusCode, responseMethods)
+}
+
 func NewResponseShippingLocalPickup(c echo.Context, statusCode int, modelMethod models.ShippingMethods) error {
 	return Response(c, statusCode, ResponseShippingLocalPickup{
 		ID:          uint64(modelMethod.ID),
@@ -117,6 +139,7 @@ func NewResponseShippingFlatRate(c echo.Context, statusCode int, modelMethod mod
 		Rates:       responseRates,
 	})
 }
+
 func NewResponseShippingTableRate(c echo.Context, statusCode int, modelMethod models.ShippingMethods, modelRates []models.ShippingTableRates, modelClasses []models.ShippingClasses) error {
 	indices := map[uint64]int{}
 	for index, modelClass := range modelClasses {
