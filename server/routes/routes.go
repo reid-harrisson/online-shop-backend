@@ -224,12 +224,14 @@ func GroupShippingOptions(server *s.Server, e *echo.Group) {
 	e.POST("/local-pickup", handler.CreateShippingLocalPickup)
 	e.POST("/free", handler.CreateShippingFree)
 	e.POST("/flat-rate", handler.CreateShippingFlatRate)
+	e.POST("/table-rate", handler.CreateShippingTableRate)
 	e.PUT("/order", handler.UpdateShippingMethod)
 	e.PUT("/class/:id", handler.UpdateShippingClass)
 	e.PUT("/zone/:id", handler.UpdateShippingZone)
 	e.PUT("/free/:id", handler.UpdateShippingFree)
 	e.PUT("/local-pickup/:id", handler.UpdateShippingLocalPickup)
 	e.PUT("/flat-rate/:id", handler.UpdateShippingFlatRate)
+	e.PUT("/table-rate/:id", handler.UpdateShippingTableRate)
 }
 
 func GroupCustomers(server *s.Server, e *echo.Group) {

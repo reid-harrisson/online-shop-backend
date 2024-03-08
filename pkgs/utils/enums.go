@@ -9,6 +9,15 @@ type OrderStatuses int8
 type PageTypes int8
 type ProductTypes int8
 type Requirements int8
+type Conditions int8
+
+const (
+	None Conditions = iota
+	Price
+	Weight
+	ItemCount
+	ItemCountSameClass
+)
 
 const (
 	NoRequirement Requirements = iota
@@ -83,6 +92,20 @@ const (
 	StatusReviewApproved
 	StatusReviewBlocked
 )
+
+func ConditionToString(condition Conditions) string {
+	switch condition {
+	case Price:
+		return "Price"
+	case Weight:
+		return "Weight"
+	case ItemCount:
+		return "Item Count"
+	case ItemCountSameClass:
+		return "Item Count (same class)"
+	}
+	return "None"
+}
 
 func RequirementToString(requirement Requirements) string {
 	switch requirement {

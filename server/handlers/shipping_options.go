@@ -160,6 +160,40 @@ func (h *HandlersShippingOptions) CreateShippingFlatRate(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Add table rate shipping method to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingTableRate true "Class Info"
+// @Success 201 {object} responses.ResponseShippingTableRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/table-rate [post]
+func (h *HandlersShippingOptions) CreateShippingTableRate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingTableRate)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethod := models.ShippingMethods{}
+	modelRates := []models.ShippingTableRates{}
+	metService := methsvc.NewServiceShippingMethod(h.server.DB)
+	if err := metService.CreateShippingTableRate(storeID, req, &modelMethod, &modelRates); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
+	}
+	classIDs := []uint64{}
+	for _, modelRate := range modelRates {
+		classIDs = append(classIDs, modelRate.ClassID)
+	}
+	modelClasses := []models.ShippingClasses{}
+	classRepo := repositories.NewRepositoryShippingClass(h.server.DB)
+	classRepo.ReadByIDs(&modelClasses, classIDs)
+	return responses.NewResponseShippingTableRate(c, http.StatusCreated, modelMethod, modelRates, modelClasses)
+}
+
+// Refresh godoc
 // @Summary Update local pickup method
 // @Tags Shipping Options
 // @Accept json
@@ -264,6 +298,47 @@ func (h *HandlersShippingOptions) UpdateShippingFlatRate(c echo.Context) error {
 	classRepo := repositories.NewRepositoryShippingClass(h.server.DB)
 	classRepo.ReadByIDs(&modelClasses, classIDs)
 	return responses.NewResponseShippingFlatRate(c, http.StatusOK, modelMethod, modelRates, modelClasses)
+}
+
+// Refresh godoc
+// @Summary Update flat rate shipping method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Param params body requests.RequestShippingFlatRate true "Method Info"
+// @Success 201 {object} responses.ResponseShippingFlatRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/table-rate/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingTableRate(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestShippingTableRate)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethod := models.ShippingMethods{}
+	modelRates := []models.ShippingTableRates{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	if err := methRepo.ReadTableRateByID(&modelMethod, &modelRates, methodID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No method has this id.")
+	}
+	if modelMethod.Method != utils.TableRate {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not local pickup method.")
+	}
+	methService := methsvc.NewServiceShippingMethod(h.server.DB)
+	if err := methService.UpdateShippingTableRate(req, &modelMethod, &modelRates); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
+	}
+	classIDs := []uint64{}
+	for _, modelRate := range modelRates {
+		classIDs = append(classIDs, modelRate.ClassID)
+	}
+	modelClasses := []models.ShippingClasses{}
+	classRepo := repositories.NewRepositoryShippingClass(h.server.DB)
+	classRepo.ReadByIDs(&modelClasses, classIDs)
+	return responses.NewResponseShippingTableRate(c, http.StatusOK, modelMethod, modelRates, modelClasses)
 }
 
 // Refresh godoc

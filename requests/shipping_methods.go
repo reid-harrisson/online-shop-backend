@@ -39,6 +39,36 @@ type RequestShippingFlatRate struct {
 	Rates       []RequestFlatRate `json:"rates"`
 }
 
+type RequestTableRate struct {
+	ClassID     uint64           `json:"class_id" example:"2"`
+	Condition   utils.Conditions `json:"condition" example:"1"`
+	Min         float64          `json:"min" example:"0"`
+	Max         float64          `json:"max" example:"100"`
+	Break       int8             `json:"break" example:"0"`
+	Abort       int8             `json:"abort" example:"0"`
+	RowCost     float64          `json:"row_cost" example:"2"`
+	ItemCost    float64          `json:"item_cost" example:"3"`
+	CostPerKg   float64          `json:"cost_per_kg" example:"2"`
+	PercentCost float64          `json:"percent_cost" example:"1"`
+}
+
+type RequestShippingTableRate struct {
+	Title               string             `json:"title" example:"Table rate"`
+	Description         string             `json:"description" example:"Table rate shipping allows you to set numerous rates based on location and specified conditions. Click the headlines on left to expand or hide additional settings."`
+	ZoneID              uint64             `json:"zone_id" example:"2"`
+	TaxStatus           int8               `json:"tax_status" example:"0"`
+	TaxIncluded         int8               `json:"tax_included" example:"0"`
+	HandlingFee         float64            `json:"handling_fee" example:"1"`
+	MaximumShippingCost float64            `json:"maximum_shipping_cost" example:"60"`
+	CalculationType     int8               `json:"calculation_type" example:"1"`
+	HandlingFeePerClass float64            `json:"handling_fee_per_class" example:"2"`
+	MinimumCostPerClass float64            `json:"minimum_cost_per_class" example:"3"`
+	MaximumCostPerClass float64            `json:"maximum_cost_per_class" example:"10"`
+	DiscountInMinMax    int8               `json:"discount_in_min_max" example:"0"`
+	TaxInMinMax         int8               `json:"tax_in_min_max" example:"0"`
+	Rates               []RequestTableRate `json:"rates"`
+}
+
 func (request RequestShippingLocalPickup) Validate() error {
 	return validation.ValidateStruct(&request,
 		validation.Field(&request.ZoneID, validation.Required),

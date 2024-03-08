@@ -32,3 +32,10 @@ func (repository *RepositoryShippingMethod) ReadFlatRateByID(modelMethod *models
 	}
 	return repository.DB.Where("method_id = ?", methodID).Find(modelRates).Error
 }
+
+func (repository *RepositoryShippingMethod) ReadTableRateByID(modelMethod *models.ShippingMethods, modelRates *[]models.ShippingTableRates, methodID uint64) error {
+	if err := repository.DB.Where("id = ?", methodID).First(modelMethod).Error; err != nil {
+		return err
+	}
+	return repository.DB.Where("method_id = ?", methodID).Find(modelRates).Error
+}

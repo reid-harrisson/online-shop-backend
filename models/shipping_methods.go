@@ -16,7 +16,7 @@ type ShippingMethods struct {
 	Method              utils.ShippingMethods `gorm:"type:tinyint(4)"`    //Free Shipping | Local Pickup | Flat Rate | Table Rate
 	Requirement         utils.Requirements    `gorm:"type:tinyint(4)"`    //Free Shipping
 	MinimumOrderAmount  float64               `gorm:"type:decimal(20,6)"` //Free Shipping
-	TaxStatus           int8                  `gorm:"type:tinyint(4)"`    //Flat Rate, Local Pickup
+	TaxStatus           int8                  `gorm:"type:tinyint(4)"`    //Flat Rate, Local Pickup, Table Rate
 	Cost                float64               `gorm:"type:decimal(20,6)"` //Flat Rate, Local Pickup
 	TaxIncluded         int8                  `gorm:"type:tinyint(4)"`    //Table Rate
 	HandlingFee         float64               `gorm:"type:decimal(20,6)"` //Table Rate
