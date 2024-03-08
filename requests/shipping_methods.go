@@ -27,3 +27,17 @@ func (request RequestShippingMethod) Validate() error {
 		validation.Field(&request.Method, validation.Required),
 	)
 }
+
+type RequestShippingLocalPickup struct {
+	ZoneID    uint64  `gorm:"type:bigint(20)"`
+	TaxStatus int8    `gorm:"type:tinyint(4)"`
+	Cost      float64 `gorm:"type:decimal(20,6)"`
+}
+
+func (request RequestShippingLocalPickup) Validate() error {
+	return validation.ValidateStruct(&request,
+		validation.Field(&request.ZoneID, validation.Required),
+		validation.Field(&request.TaxStatus, validation.Required),
+		validation.Field(&request.Cost, validation.Required),
+	)
+}

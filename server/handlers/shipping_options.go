@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	orditmsvc "OnlineStoreBackend/services/order_items"
 	classsvc "OnlineStoreBackend/services/shipping_classes"
-	shipmthsvc "OnlineStoreBackend/services/shipping_methods"
+	methodsvc "OnlineStoreBackend/services/shipping_methods"
 	zonesvc "OnlineStoreBackend/services/shipping_zones"
 	"net/http"
 	"strconv"
@@ -93,9 +94,66 @@ func (h *HandlersShippingOptions) CreateShippingClass(c echo.Context) error {
 	}
 
 	modelClass := models.ShippingClasses{}
-	classervice := classsvc.NewServiceShippingClass(h.server.DB)
-	classervice.Create(storeID, req, &modelClass)
+	classService := classsvc.NewServiceShippingClass(h.server.DB)
+	classService.Create(storeID, req, &modelClass)
 	return responses.NewResponseShippingClass(c, http.StatusCreated, modelClass)
+}
+
+// Refresh godoc
+// @Summary Add local pickup to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestShippingLocalPickup true "Class Info"
+// @Success 201 {object} responses.ResponseShippingLocalPickup
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/local-pickup [post]
+func (h *HandlersShippingOptions) CreateShippingLocalPickup(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestShippingLocalPickup)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethod := models.ShippingMethods{}
+	metService := methodsvc.NewServiceShippingMethod(h.server.DB)
+	if err := metService.CreateShippingLocalPickup(storeID, req, &modelMethod); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
+	}
+	return responses.NewResponseShippingLocalPickup(c, http.StatusCreated, modelMethod)
+}
+
+// Refresh godoc
+// @Summary Update local pickup method
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query int path "Method ID"
+// @Param params body requests.RequestShippingLocalPickup true "Class Info"
+// @Success 201 {object} responses.ResponseShippingLocalPickup
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/local-pickup/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingLocalPickup(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestShippingLocalPickup)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelMethod := models.ShippingMethods{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	methRepo.ReadByID(&modelMethod, methodID)
+	if modelMethod.Method != utils.PickUp {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This method is not local pickup method.")
+	}
+	methService := methodsvc.NewServiceShippingMethod(h.server.DB)
+	if err := methService.UpdateShippingLocalPickup(req, &modelMethod); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Shipping zone in this method doesn't exist.")
+	}
+	return responses.NewResponseShippingLocalPickup(c, http.StatusCreated, modelMethod)
 }
 
 // Refresh godoc
@@ -142,12 +200,12 @@ func (h *HandlersShippingOptions) CreateShippingMethod(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	shipService := shipmthsvc.NewServiceShippingMethod(h.server.DB)
+	shipService := methodsvc.NewServiceShippingMethod(h.server.DB)
 	if err := shipService.Create(storeID, req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	modelMethods := make([]models.ShippingMethods, 0)
-	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
+	shipRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
 	shipRepo.ReadByStoreID(&modelMethods, storeID)
 	return responses.NewResponseShippingMethod(c, http.StatusCreated, modelMethods)
 }
@@ -165,7 +223,7 @@ func (h *HandlersShippingOptions) CreateShippingMethod(c echo.Context) error {
 func (h *HandlersShippingOptions) ReadShippingOption(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	modelOptions := make([]models.ShippingMethods, 0)
-	shipRepo := repositories.NewRepositoryShipping(h.server.DB)
+	shipRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
 	shipRepo.ReadByStoreID(&modelOptions, storeID)
 	return responses.NewResponseShippingMethod(c, http.StatusOK, modelOptions)
 }

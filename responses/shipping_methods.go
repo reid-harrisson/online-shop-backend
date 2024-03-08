@@ -7,23 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseShippingData struct {
-	ID     uint64  `json:"id"`
-	Weight float64 `json:"weight"`
-	Width  float64 `json:"width"`
-	Height float64 `json:"height"`
-	Length float64 `json:"length"`
-}
-
-type ResponseProductShippingData struct {
-	ID        uint64  `json:"id"`
-	ProductID uint64  `json:"product_id"`
-	Weight    float64 `json:"weight"`
-	Width     float64 `json:"width"`
-	Height    float64 `json:"height"`
-	Length    float64 `json:"length"`
-}
-
 type ResponseShippingMethod struct {
 	Method              string  `json:"method"`
 	Requirement         int8    `json:"requirement"`
@@ -41,16 +24,13 @@ type ResponseShippingMethod struct {
 	TaxInMinMax         int8    `json:"tax_in_min_max"`
 }
 
-func NewResponseShippingData(c echo.Context, statusCode int, modelShipData models.ShippingData) error {
-	responseShipData := ResponseProductShippingData{
-		ID:        uint64(modelShipData.ID),
-		Weight:    modelShipData.Weight,
-		ProductID: modelShipData.VariationID,
-		Width:     modelShipData.Width,
-		Height:    modelShipData.Height,
-		Length:    modelShipData.Length,
-	}
-	return Response(c, statusCode, responseShipData)
+type ResponseShippingLocalPickup struct {
+	ID        uint64  `json:"ID"`
+	ZoneID    uint64  `json:"zone_id"`
+	StoreID   uint64  `json:"store_id"`
+	Method    string  `json:"method"`
+	TaxStatus int8    `json:"tax_status"`
+	Cost      float64 `json:"cost"`
 }
 
 func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []models.ShippingMethods) error {
@@ -74,4 +54,15 @@ func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []mo
 		})
 	}
 	return Response(c, statusCode, responseMethods)
+}
+
+func NewResponseShippingLocalPickup(c echo.Context, statusCode int, modelMethod models.ShippingMethods) error {
+	return Response(c, statusCode, ResponseShippingLocalPickup{
+		ID:        uint64(modelMethod.ID),
+		StoreID:   modelMethod.StoreID,
+		ZoneID:    modelMethod.ZoneID,
+		Method:    utils.ShippingMethodsToString(modelMethod.Method),
+		TaxStatus: modelMethod.TaxStatus,
+		Cost:      modelMethod.Cost,
+	})
 }

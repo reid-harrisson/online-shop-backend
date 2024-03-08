@@ -1,4 +1,4 @@
-package shipmthsvc
+package methsvc
 
 import "gorm.io/gorm"
 

@@ -1,4 +1,4 @@
-package shipmthsvc
+package methsvc
 
 import (
 	"OnlineStoreBackend/models"
@@ -25,4 +25,13 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingMeth
 		TaxInMinMax:         req.TaxInMinMax,
 	}
 	return service.DB.Create(&modelMethod).Error
+}
+
+func (service *Service) CreateShippingLocalPickup(storeID uint64, req *requests.RequestShippingLocalPickup, modelMethod *models.ShippingMethods) error {
+	modelMethod.Method = utils.PickUp
+	modelMethod.StoreID = storeID
+	modelMethod.ZoneID = req.ZoneID
+	modelMethod.TaxStatus = req.TaxStatus
+	modelMethod.Cost = req.Cost
+	return service.DB.Create(modelMethod).Error
 }

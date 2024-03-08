@@ -12,7 +12,8 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 	modelAddr := models.CustomerAddresses{}
 
 	addrRepo := repositories.NewRepositoryCustomer(service.DB)
-	shipRepo := repositories.NewRepositoryShipping(service.DB)
+	shipRepo := repositories.NewRepositoryShippingData(service.DB)
+	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
 	if err := addrRepo.ReadAddressByCustomerID(&modelAddr, customerID); err != nil {
 		addrService := addrsvc.NewServiceCustomerAddress(service.DB)
@@ -40,7 +41,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 		modelShip := models.ShippingData{}
 		modelMethod := models.ShippingMethods{}
 
-		shipRepo.ReadDefaultMethod(&modelMethod, modelItem.StoreID)
+		methRepo.ReadDefaultMethod(&modelMethod, modelItem.StoreID)
 		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
 
 		shippingPrice := float64(0)
