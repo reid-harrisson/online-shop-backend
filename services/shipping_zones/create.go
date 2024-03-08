@@ -7,14 +7,18 @@ import (
 	"strings"
 )
 
-func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone, modelZone *models.ShippingZonesWithPlace) {
+func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone, modelZone *models.ShippingZonesWithPlace) error {
+	err := service.DB.Where("name = ?", req.Name).First(&modelZone.ShippingZones).Error
 	modelZone.StoreID = storeID
 	modelZone.Name = req.Name
 	modelZone.Description = req.Description
-
-	service.DB.Where("name = ?", req.Name).FirstOrCreate(&modelZone.ShippingZones)
-	if modelZone.Description != req.Description {
-		service.DB.Model(models.ShippingZones{}).Update("description", req.Description)
+	if err != nil {
+		if err = service.DB.Create(modelZone).Error; err != nil {
+			return err
+		}
+	}
+	if err = service.DB.Save(modelZone).Error; err != nil {
+		return err
 	}
 
 	zoneID := uint64(modelZone.ID)
@@ -22,19 +26,21 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone
 	indices := map[string]int{}
 	modelPlaces := []models.ShippingPlaces{}
 	for index, place := range req.Places {
-		modelPlaces = append(modelPlaces, models.ShippingPlaces{
-			ZoneID: zoneID,
-			Name:   place,
-		})
-		places = append(places, strconv.FormatUint(zoneID, 10)+":"+place)
-		indices[place] = index
+		if indices[place] == 0 {
+			modelPlaces = append(modelPlaces, models.ShippingPlaces{
+				ZoneID: zoneID,
+				Name:   place,
+			})
+			places = append(places, strconv.FormatUint(zoneID, 10)+":"+place)
+			indices[place] = index + 1
+		}
 	}
 
 	modelNewPlaces := []models.ShippingPlaces{}
 	service.DB.Where("Concat(zone_id, ':', name) In (?)", places).Find(&modelNewPlaces)
-	service.DB.Where("Concat(zone_id, ':', name) Not In (?)", places).Delete(&models.ShippingPlaces{})
+	service.DB.Where("Concat(zone_id, ':', name) Not In (?) And zone_id = ?", places, zoneID).Delete(&models.ShippingPlaces{})
 	for _, modelPlace := range modelNewPlaces {
-		index := indices[modelPlace.Name]
+		index := indices[modelPlace.Name] - 1
 		(modelPlaces)[index].ID = modelPlace.ID
 	}
 	service.DB.Save(modelPlaces)
@@ -44,4 +50,5 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone
 	}
 	modelZone.PlaceIDs = strings.Join(placeIDs, ",")
 	modelZone.PlaceNames = strings.Join(req.Places, ",")
+	return nil
 }

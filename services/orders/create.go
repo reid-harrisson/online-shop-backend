@@ -41,7 +41,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 		modelShip := models.ShippingData{}
 		modelMethod := models.ShippingMethods{}
 
-		methRepo.ReadDefaultMethod(&modelMethod, modelItem.StoreID)
+		methRepo.ReadDefault(&modelMethod, modelItem.StoreID)
 		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
 
 		shippingPrice := float64(0)

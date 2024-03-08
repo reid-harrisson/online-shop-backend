@@ -9,6 +9,8 @@ import (
 type ShippingMethods struct {
 	gorm.Model
 
+	Title               string                `gorm:"type:varchar(100)"`
+	Description         string                `gorm:"type:text"`
 	ZoneID              uint64                `gorm:"type:bigint(20)"`
 	StoreID             uint64                `gorm:"type:bigint(20)"`
 	Method              utils.ShippingMethods `gorm:"type:tinyint(4)"`    //Free Shipping | Local Pickup | Flat Rate | Table Rate
