@@ -31,14 +31,14 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone
 				ZoneID: zoneID,
 				Name:   place,
 			})
-			places = append(places, strconv.FormatUint(zoneID, 10)+":"+place)
+			places = append(places, place)
 			indices[place] = index + 1
 		}
 	}
 
 	modelNewPlaces := []models.ShippingPlaces{}
-	service.DB.Where("Concat(zone_id, ':', name) In (?)", places).Find(&modelNewPlaces)
-	service.DB.Where("Concat(zone_id, ':', name) Not In (?) And zone_id = ?", places, zoneID).Delete(&models.ShippingPlaces{})
+	service.DB.Where("zone_id = ? And name In (?)", zoneID, places).Find(&modelNewPlaces)
+	service.DB.Where("zone_id = ? And name Not In (?)", zoneID, places).Delete(&models.ShippingPlaces{})
 	for _, modelPlace := range modelNewPlaces {
 		index := indices[modelPlace.Name] - 1
 		(modelPlaces)[index].ID = modelPlace.ID
