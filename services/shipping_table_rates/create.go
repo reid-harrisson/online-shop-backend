@@ -6,17 +6,18 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(methodID uint64, req *requests.RequestTableRate, modelRates *models.ShippingTableRates) error {
-	err := service.DB.Where("`condition` = ? And min = ? And max = ?", req.Condition, req.Min, req.Max).First(&modelRates).Error
-	modelRates.Condition = req.Condition
-	modelRates.Min = req.Min
-	modelRates.Max = req.Max
-	modelRates.RowCost = req.RowCost
-	modelRates.ItemCost = req.ItemCost
-	modelRates.CostPerKg = req.CostPerKg
-	modelRates.PercentCost = req.PercentCost
+func (service *Service) Create(methodID uint64, req *requests.RequestTableRate, modelRate *models.ShippingTableRates) error {
+	err := service.DB.Where("`condition` = ? And min = ? And max = ?", req.Condition, req.Min, req.Max).First(&modelRate).Error
+	modelRate.Condition = req.Condition
+	modelRate.Min = req.Min
+	modelRate.Max = req.Max
+	modelRate.RowCost = req.RowCost
+	modelRate.ItemCost = req.ItemCost
+	modelRate.CostPerKg = req.CostPerKg
+	modelRate.PercentCost = req.PercentCost
+	modelRate.MethodID = methodID
 	if err != nil {
-		return service.DB.Create(modelRates).Error
+		return service.DB.Create(modelRate).Error
 	}
 	return nil
 }

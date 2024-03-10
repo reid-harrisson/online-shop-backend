@@ -156,7 +156,7 @@ func NewResponseShippingTableRate(c echo.Context, statusCode int, modelMethod mo
 			ItemCost:    modelRate.ItemCost,
 			CostPerKg:   modelRate.CostPerKg,
 			PercentCost: modelRate.PercentCost,
-			ClassName:   modelClasses[indices[modelRate.ClassID]].Name,
+			// ClassName:   modelClasses[indices[modelRate.ClassID]].Name,
 		})
 	}
 	return Response(c, statusCode, ResponseShippingTableRate{

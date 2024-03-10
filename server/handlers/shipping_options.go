@@ -212,9 +212,12 @@ func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	modelMethod := models.ShippingMethods{}
 	modelRate := models.ShippingTableRates{}
+	methService := methsvc.NewServiceShippingMethod(h.server.DB)
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
-	if err := tableService.Create(storeID, req, &modelRate); err != nil {
+	methService.Create(storeID, &modelMethod)
+	if err := tableService.Create(uint64(modelMethod.ID), req, &modelRate); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This condition already exist.")
 	}
 	return responses.NewResponseTableRate(c, http.StatusCreated, modelRate)

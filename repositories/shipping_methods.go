@@ -18,7 +18,7 @@ func (repository *RepositoryShippingMethod) ReadByStoreID(modelMethods *[]models
 	return repository.DB.Where("store_id = ?", storeID).Find(modelMethods).Error
 }
 
-func (repository *RepositoryShippingMethod) ReadDefault(modelMethod *models.ShippingMethods, storeID uint64) error {
+func (repository *RepositoryShippingMethod) ReadTableRateMethodByStoreID(modelMethod *models.ShippingMethods, storeID uint64) error {
 	return repository.DB.Where("store_id = ?", storeID).First(modelMethod).Error
 }
 
@@ -41,5 +41,8 @@ func (repository *RepositoryShippingMethod) ReadTableRateByID(modelMethod *model
 }
 
 func (repository *RepositoryShippingMethod) ReadRates(modelRates *[]models.ShippingTableRates, storeID uint64) error {
-	return repository.DB.Where("store_id = ?", storeID).Find(modelRates).Error
+	return repository.DB.Table("store_shipping_table_rates As tables").
+		Joins("Join store_shipping_methods As methods On methods.id = tables.method_id").
+		Where("methods.store_id = ? And tables.deleted_at Is Null And methods.deleted_at Is Null", storeID).
+		Find(modelRates).Error
 }

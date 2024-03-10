@@ -19,6 +19,26 @@ func GetSalePrice(modelItem models.CartItemsWithDetail) float64 {
 	return float64(price)
 }
 
+func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64, quantity float64, modelShip models.ShippingData) float64 {
+	shippingPrice := float64(0)
+	for _, modelRate := range modelRates {
+		compare := float64(0)
+		switch modelRate.Condition {
+		case utils.Price:
+			compare = totalPrice
+		case utils.Weight:
+			compare = modelShip.Weight
+		case utils.ItemCount:
+			compare = quantity
+		}
+		if compare >= modelRate.Min && compare <= modelRate.Max {
+			shippingPrice += modelRate.CostPerKg*modelShip.Weight + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
+		}
+	}
+
+	return shippingPrice
+}
+
 func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
 	modelAddr := models.CustomerAddresses{}
 
@@ -45,20 +65,13 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 
 		modelShip := models.ShippingData{}
 		modelMethod := models.ShippingMethods{}
+		modelRates := []models.ShippingTableRates{}
 
-		methRepo.ReadDefault(&modelMethod, modelItem.StoreID)
+		methRepo.ReadRates(&modelRates, modelItem.StoreID)
+		methRepo.ReadTableRateMethodByStoreID(&modelMethod, modelItem.StoreID)
 		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
 
-		shippingPrice := float64(0)
-
-		if modelMethod.ID != 0 {
-			switch modelMethod.Method {
-			case utils.FlatRate:
-				shippingPrice = 0
-			case utils.TableRate:
-				shippingPrice = 0
-			}
-		}
+		shippingPrice := GetShippingPrice(modelRates, totalPrice, modelItem.Quantity, modelShip)
 
 		itemStatus := utils.StatusOrderPending
 		if modelItem.StockLevel < modelItem.Quantity {
@@ -77,7 +90,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			SubTotalPrice:    totalPrice,
 			TaxRate:          modelTax.TaxRate,
 			TaxAmount:        utils.Round(taxAmount),
-			ShippingMethodID: uint64(modelMethod.ID),
+			ShippingMethodID: 0,
 			ShippingPrice:    shippingPrice,
 			TotalPrice:       utils.Round(totalPrice + taxAmount),
 			Status:           itemStatus,

@@ -8,6 +8,16 @@ import (
 	tablesvc "OnlineStoreBackend/services/shipping_table_rates"
 )
 
+func (service *Service) Create(storeID uint64, modelMethod *models.ShippingMethods) error {
+	err := service.DB.Where("store_id = ?", storeID).First(modelMethod).Error
+	if err != nil {
+		modelMethod.StoreID = storeID
+		modelMethod.Method = utils.TableRate
+		return service.DB.Create(modelMethod).Error
+	}
+	return nil
+}
+
 func (service *Service) CreateShippingLocalPickup(storeID uint64, req *requests.RequestShippingLocalPickup, modelMethod *models.ShippingMethods) error {
 	err := service.DB.Where("title = ?", req.Title).First(modelMethod).Error
 	modelMethod.Method = utils.PickUp
