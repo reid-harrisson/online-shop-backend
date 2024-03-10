@@ -149,12 +149,9 @@ func NewResponseShippingTableRate(c echo.Context, statusCode int, modelMethod mo
 	for _, modelRate := range modelRates {
 		responseRates = append(responseRates, ResponseTableRate{
 			ID:          uint64(modelRate.ID),
-			ClassID:     modelRate.ClassID,
 			Condition:   utils.ConditionToString(modelRate.Condition),
 			Min:         modelRate.Min,
 			Max:         modelRate.Max,
-			Break:       modelRate.Break,
-			Abort:       modelRate.Abort,
 			RowCost:     modelRate.RowCost,
 			ItemCost:    modelRate.ItemCost,
 			CostPerKg:   modelRate.CostPerKg,
@@ -181,4 +178,34 @@ func NewResponseShippingTableRate(c echo.Context, statusCode int, modelMethod mo
 		TaxInMinMax:         modelMethod.TaxInMinMax,
 		Rates:               responseRates,
 	})
+}
+
+func NewResponseTableRate(c echo.Context, statusCode int, modelRate models.ShippingTableRates) error {
+	return Response(c, statusCode, ResponseTableRate{
+		ID:          uint64(modelRate.ID),
+		Condition:   utils.ConditionToString(modelRate.Condition),
+		Min:         modelRate.Min,
+		Max:         modelRate.Max,
+		RowCost:     modelRate.RowCost,
+		ItemCost:    modelRate.ItemCost,
+		CostPerKg:   modelRate.CostPerKg,
+		PercentCost: modelRate.PercentCost,
+	})
+}
+
+func NewResponseTableRates(c echo.Context, statusCode int, modelRates []models.ShippingTableRates) error {
+	responseRates := []ResponseTableRate{}
+	for _, modelRate := range modelRates {
+		responseRates = append(responseRates, ResponseTableRate{
+			ID:          uint64(modelRate.ID),
+			Condition:   utils.ConditionToString(modelRate.Condition),
+			Min:         modelRate.Min,
+			Max:         modelRate.Max,
+			RowCost:     modelRate.RowCost,
+			ItemCost:    modelRate.ItemCost,
+			CostPerKg:   modelRate.CostPerKg,
+			PercentCost: modelRate.PercentCost,
+		})
+	}
+	return Response(c, statusCode, responseRates)
 }

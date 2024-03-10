@@ -40,12 +40,9 @@ type RequestShippingFlatRate struct {
 }
 
 type RequestTableRate struct {
-	ClassID     uint64           `json:"class_id" example:"2"`
 	Condition   utils.Conditions `json:"condition" example:"1"`
 	Min         float64          `json:"min" example:"0"`
 	Max         float64          `json:"max" example:"100"`
-	Break       int8             `json:"break" example:"0"`
-	Abort       int8             `json:"abort" example:"0"`
 	RowCost     float64          `json:"row_cost" example:"2"`
 	ItemCost    float64          `json:"item_cost" example:"3"`
 	CostPerKg   float64          `json:"cost_per_kg" example:"2"`

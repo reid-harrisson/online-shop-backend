@@ -39,3 +39,7 @@ func (repository *RepositoryShippingMethod) ReadTableRateByID(modelMethod *model
 	}
 	return repository.DB.Where("method_id = ?", methodID).Find(modelRates).Error
 }
+
+func (repository *RepositoryShippingMethod) ReadRates(modelRates *[]models.ShippingTableRates, storeID uint64) error {
+	return repository.DB.Where("store_id = ?", storeID).Find(modelRates).Error
+}

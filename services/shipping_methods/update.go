@@ -56,5 +56,5 @@ func (service *Service) UpdateShippingTableRate(req *requests.RequestShippingTab
 		return err
 	}
 	tableService := tablesvc.NewServiceShippingTableRate(service.DB)
-	return tableService.Create(uint64(modelMethod.ID), req.Rates, modelRates)
+	return tableService.CreateMany(uint64(modelMethod.ID), req.Rates, modelRates)
 }

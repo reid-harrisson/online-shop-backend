@@ -6,20 +6,32 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(methodID uint64, req []requests.RequestTableRate, modelRates *[]models.ShippingTableRates) error {
+func (service *Service) Create(methodID uint64, req *requests.RequestTableRate, modelRates *models.ShippingTableRates) error {
+	err := service.DB.Where("`condition` = ? And min = ? And max = ?", req.Condition, req.Min, req.Max).First(&modelRates).Error
+	modelRates.Condition = req.Condition
+	modelRates.Min = req.Min
+	modelRates.Max = req.Max
+	modelRates.RowCost = req.RowCost
+	modelRates.ItemCost = req.ItemCost
+	modelRates.CostPerKg = req.CostPerKg
+	modelRates.PercentCost = req.PercentCost
+	if err != nil {
+		return service.DB.Create(modelRates).Error
+	}
+	return nil
+}
+
+func (service *Service) CreateMany(methodID uint64, req []requests.RequestTableRate, modelRates *[]models.ShippingTableRates) error {
 	matches := []string{}
 	indices := map[string]int{}
 	for index, rate := range req {
-		match := fmt.Sprintf("%d:%d:%f:%f", rate.ClassID, rate.Condition, rate.Min, rate.Max)
+		match := fmt.Sprintf("%d:%f:%f", rate.Condition, rate.Min, rate.Max)
 		if indices[match] == 0 {
 			*modelRates = append(*modelRates, models.ShippingTableRates{
 				MethodID:    methodID,
-				ClassID:     rate.ClassID,
 				Condition:   rate.Condition,
 				Min:         rate.Min,
 				Max:         rate.Max,
-				Break:       rate.Break,
-				Abort:       rate.Abort,
 				RowCost:     rate.RowCost,
 				ItemCost:    rate.ItemCost,
 				CostPerKg:   rate.CostPerKg,

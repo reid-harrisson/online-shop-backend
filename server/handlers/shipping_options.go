@@ -10,6 +10,7 @@ import (
 	orditmsvc "OnlineStoreBackend/services/order_items"
 	classsvc "OnlineStoreBackend/services/shipping_classes"
 	methsvc "OnlineStoreBackend/services/shipping_methods"
+	tablesvc "OnlineStoreBackend/services/shipping_table_rates"
 	zonesvc "OnlineStoreBackend/services/shipping_zones"
 	"net/http"
 	"strconv"
@@ -194,6 +195,32 @@ func (h *HandlersShippingOptions) CreateShippingTableRate(c echo.Context) error 
 }
 
 // Refresh godoc
+// @Summary Add table rate shipping method to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param params body requests.RequestTableRate true "Class Info"
+// @Success 201 {object} responses.ResponseShippingTableRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/rate [post]
+func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	req := new(requests.RequestTableRate)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelRate := models.ShippingTableRates{}
+	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
+	if err := tableService.Create(storeID, req, &modelRate); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This condition already exist.")
+	}
+	return responses.NewResponseTableRate(c, http.StatusCreated, modelRate)
+}
+
+// Refresh godoc
 // @Summary Read all shipping method of store
 // @Tags Shipping Options
 // @Accept json
@@ -214,6 +241,24 @@ func (h *HandlersShippingOptions) ReadAllShippingMethod(c echo.Context) error {
 	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
 	methRepo.ReadByStoreID(&modelMethods, storeID)
 	return responses.NewResponseShippingMethods(c, http.StatusOK, modelMethods)
+}
+
+// Refresh godoc
+// @Summary Read rates
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} []responses.ResponseTableRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/rate [get]
+func (h *HandlersShippingOptions) ReadShippingRate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	modelRates := []models.ShippingTableRates{}
+	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
+	methRepo.ReadRates(&modelRates, storeID)
+	return responses.NewResponseTableRates(c, http.StatusOK, modelRates)
 }
 
 // Refresh godoc
@@ -395,6 +440,32 @@ func (h *HandlersShippingOptions) UpdateShippingFree(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Update table rate shipping method to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Method ID"
+// @Param params body requests.RequestTableRate true "Class Info"
+// @Success 201 {object} responses.ResponseShippingTableRate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/rate/{id} [put]
+func (h *HandlersShippingOptions) UpdateShippingRate(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestTableRate)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelRate := models.ShippingTableRates{}
+	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
+	if err := tableService.Update(methodID, req, &modelRate); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Failed to update shipping rate.")
+	}
+	return responses.NewResponseTableRate(c, http.StatusOK, modelRate)
+}
+
+// Refresh godoc
 // @Summary Update flat rate shipping method
 // @Tags Shipping Options
 // @Accept json
@@ -550,4 +621,24 @@ func (h *HandlersShippingOptions) UpdateShippingZone(c echo.Context) error {
 	zoneService := zonesvc.NewServiceShippingZone(h.server.DB)
 	zoneService.Update(req, &modelZone)
 	return responses.NewResponseShippingZone(c, http.StatusOK, modelZone)
+}
+
+// Refresh godoc
+// @Summary Delete table rate shipping method to store
+// @Tags Shipping Options
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Rate ID"
+// @Success 201 {object} responses.Data
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/shipping/rate/{id} [delete]
+func (h *HandlersShippingOptions) DeleteShippingRate(c echo.Context) error {
+	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
+	if err := tableService.Delete(methodID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Failed to delete rate.")
+	}
+	return responses.MessageResponse(c, http.StatusOK, "Shipping rate successfullly deleted.")
 }
