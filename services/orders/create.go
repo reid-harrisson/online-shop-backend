@@ -32,7 +32,7 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 			compare = quantity
 		}
 		if compare >= modelRate.Min && compare <= modelRate.Max {
-			shippingPrice += modelRate.CostPerKg*modelShip.Weight + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
+			shippingPrice += modelRate.CostPerKg*modelShip.Weight*quantity + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
 		}
 	}
 
@@ -92,7 +92,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			TaxAmount:        utils.Round(taxAmount),
 			ShippingMethodID: uint64(modelMethod.ID),
 			ShippingPrice:    shippingPrice,
-			TotalPrice:       utils.Round(totalPrice + taxAmount),
+			TotalPrice:       utils.Round(totalPrice + taxAmount + shippingPrice),
 			Status:           itemStatus,
 		})
 	}

@@ -172,7 +172,7 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 // @Param code query string ture "Coupon Code"
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/status/{id} [put]
+// @Router /store/api/v1/order/coupon/{id} [put]
 func (h *HandlersOrderManagement) UpdateCoupon(c echo.Context) error {
 	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -180,7 +180,7 @@ func (h *HandlersOrderManagement) UpdateCoupon(c echo.Context) error {
 
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	if err := couRepo.ReadByCode(&modelCoupon, code); err != nil {
+	if err := couRepo.ReadByCode(&modelCoupon, code); err != nil || modelCoupon.StoreID != storeID {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code doesn't exist.")
 	}
 
