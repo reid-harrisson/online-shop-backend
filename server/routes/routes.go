@@ -85,6 +85,17 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupUpload := apiV1.Group("/upload")
 	GroupUpload(server, groupUpload)
+
+	groupCoupon := apiV1.Group("/coupon")
+	GroupCoupon(server, groupCoupon)
+}
+
+func GroupCoupon(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCoupons(server)
+	e.POST("", handler.Create)
+	e.GET("", handler.Read)
+	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
 }
 
 func GroupVisitors(server *s.Server, e *echo.Group) {
