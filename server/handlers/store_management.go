@@ -9,7 +9,6 @@ import (
 	catesvc "OnlineStoreBackend/services/categories"
 	storesvc "OnlineStoreBackend/services/stores"
 	tagsvc "OnlineStoreBackend/services/tags"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -144,12 +143,29 @@ func (h *HandlersStoreManagement) Read(c echo.Context) error {
 func (h *HandlersStoreManagement) ReadCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	fmt.Println("|-|", storeID)
-
 	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	cateRepo.ReadByStoreID(&modelCategories, storeID)
 	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
+}
+
+// Refresh godoc
+// @Summary Read tag
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Success 200 {object} []responses.ResponseStoreTag
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id}/tag [post]
+func (h *HandlersStoreManagement) ReadTag(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelTags := make([]models.StoreTags, 0)
+	tagRepo := repositories.NewRepositoryTag(h.server.DB)
+	tagRepo.ReadByStoreID(&modelTags, storeID)
+	return responses.NewResponseStoreTags(c, http.StatusOK, modelTags)
 }
 
 // Refresh godoc
