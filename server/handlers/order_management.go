@@ -162,6 +162,19 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Update order item status
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param order_item_id query int true "Order Item ID"
+// @Param status query string ture "Status"
+// @Success 200 {object} responses.ResponseStoreOrder
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/status [put]
+func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {}
+
+// Refresh godoc
 // @Summary Edit order billing address
 // @Tags Order Management
 // @Accept json
