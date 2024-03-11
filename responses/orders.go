@@ -184,8 +184,8 @@ func NewResponseOrderItems(c echo.Context, statusCode int, modelItems []models.O
 			TaxRate:          modelItem.TaxRate,
 			TaxAmount:        modelItem.TaxAmount,
 			ShippingMethodID: modelItem.ShippingMethodID,
-			ShippingPrice:    modelItem.ShippingPrice,
-			TotalPrice:       modelItem.TotalPrice,
+			ShippingPrice:    utils.Round(modelItem.ShippingPrice),
+			TotalPrice:       utils.Round(modelItem.TotalPrice),
 			Status:           utils.OrderStatusToString(modelItem.Status),
 		})
 	}

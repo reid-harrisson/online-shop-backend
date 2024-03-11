@@ -3,6 +3,7 @@ package ordsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"OnlineStoreBackend/repositories"
 )
 
 func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) {
@@ -53,4 +54,35 @@ func (service *Service) UpdateBillingAddress(orderID uint64, addressID uint64) {
 
 func (service *Service) UpdateShippingAddress(orderID uint64, addressID uint64) {
 	service.DB.Model(models.Orders{}).Update("shipping_address_id", addressID)
+}
+
+func (service *Service) UpdateCoupon(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, modelCoupon *models.Coupons) error {
+	service.DB.Where("order_id = ? And store_id = ?", orderID, storeID).Find(modelItems)
+	size := len(*modelItems)
+	if size == 0 {
+		return nil
+	}
+
+	modelRates := []models.ShippingTableRates{}
+	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
+	methRepo.ReadRates(&modelRates, storeID)
+
+	for index := range *modelItems {
+		modelShip := models.ShippingData{}
+		shipRepo := repositories.NewRepositoryShippingData(service.DB)
+		shipRepo.ReadByVariationID(&modelShip, (*modelItems)[index].VariationID)
+		if modelCoupon.DiscountType == utils.FixedProductDiscount {
+			(*modelItems)[index].Price -= modelCoupon.CouponAmount
+			(*modelItems)[index].SubTotalPrice = (*modelItems)[index].Price * (*modelItems)[index].Quantity
+		} else if modelCoupon.DiscountType == utils.FixedCartDiscount {
+			(*modelItems)[index].SubTotalPrice -= modelCoupon.CouponAmount / float64(size)
+		} else if modelCoupon.DiscountType == utils.PercentageDiscount {
+			(*modelItems)[index].SubTotalPrice *= (100 - modelCoupon.CouponAmount) / 100
+		}
+		(*modelItems)[index].TaxAmount = (*modelItems)[index].SubTotalPrice * (*modelItems)[index].TaxRate / 100
+		(*modelItems)[index].ShippingPrice = GetShippingPrice(modelRates, (*modelItems)[index].SubTotalPrice, (*modelItems)[index].Quantity, modelShip)
+		(*modelItems)[index].TotalPrice = (*modelItems)[index].ShippingPrice + (*modelItems)[index].SubTotalPrice + (*modelItems)[index].TaxAmount
+	}
+	service.DB.Delete(modelCoupon)
+	return service.DB.Save(modelItems).Error
 }

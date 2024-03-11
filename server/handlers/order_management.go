@@ -49,8 +49,8 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	cartService.DeleteAll(customerID)
 
 	modelOrder := models.Orders{}
-	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	orderService.Create(&modelOrder, modelCarts, modelTax, customerID)
+	ordService := ordsvc.NewServiceOrder(h.server.DB)
+	ordService.Create(&modelOrder, modelCarts, modelTax, customerID)
 	modelItems := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
@@ -132,8 +132,8 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 	status := c.QueryParam("status")
 
 	modelItems := make([]models.OrderItems, 0)
-	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	orderService.UpdateStatus(&modelItems, storeID, orderID, status)
+	ordService := ordsvc.NewServiceOrder(h.server.DB)
+	ordService.UpdateStatus(&modelItems, storeID, orderID, status)
 
 	mailData := utils.MailData{
 		Name:            "PockitTV Contact Centre",
@@ -162,6 +162,36 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Update coupon
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Order ID"
+// @Param store_id query int true "Store ID"
+// @Param code query string ture "Coupon Code"
+// @Success 200 {object} responses.ResponseStoreOrder
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/coupon/{id} [put]
+func (h *HandlersOrderManagement) UpdateCoupon(c echo.Context) error {
+	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	code := c.QueryParam("code")
+
+	modelCoupon := models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	if err := couRepo.ReadByCode(&modelCoupon, code); err != nil || modelCoupon.StoreID != storeID {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code doesn't exist.")
+	}
+
+	modelItems := make([]models.OrderItems, 0)
+	ordService := ordsvc.NewServiceOrder(h.server.DB)
+	ordService.UpdateCoupon(&modelItems, storeID, orderID, &modelCoupon)
+
+	return responses.NewResponseOrderItems(c, http.StatusOK, modelItems)
+}
+
+// Refresh godoc
 // @Summary Edit order billing address
 // @Tags Order Management
 // @Accept json
@@ -176,8 +206,8 @@ func (h *HandlersOrderManagement) UpdateBillingAddress(c echo.Context) error {
 	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	addressID, _ := strconv.ParseUint(c.QueryParam("address_id"), 10, 64)
 
-	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	orderService.UpdateBillingAddress(orderID, addressID)
+	ordService := ordsvc.NewServiceOrder(h.server.DB)
+	ordService.UpdateBillingAddress(orderID, addressID)
 
 	modelOrder := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
@@ -201,8 +231,8 @@ func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
 	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	addressID, _ := strconv.ParseUint(c.QueryParam("address_id"), 10, 64)
 
-	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	orderService.UpdateShippingAddress(orderID, addressID)
+	ordService := ordsvc.NewServiceOrder(h.server.DB)
+	ordService.UpdateShippingAddress(orderID, addressID)
 
 	modelOrder := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)

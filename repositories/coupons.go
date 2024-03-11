@@ -21,3 +21,7 @@ func (repository *RepositoryCoupon) ReadByStoreID(modelCoupons *[]models.Coupons
 func (repository *RepositoryCoupon) ReadByID(modelCoupon *models.Coupons, couponID uint64) error {
 	return repository.DB.First(modelCoupon, couponID).Error
 }
+
+func (repository *RepositoryCoupon) ReadByCode(modelCoupon *models.Coupons, code string) error {
+	return repository.DB.Where("coupon_code = ?", code).First(modelCoupon).Error
+}

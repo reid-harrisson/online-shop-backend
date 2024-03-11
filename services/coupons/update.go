@@ -2,13 +2,14 @@ package cousvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
 	"time"
 )
 
 func (service *Service) Update(modelCoupon *models.Coupons, req *requests.RequestCoupon) error {
 	modelCoupon.CouponCode = req.CouponCode
-	modelCoupon.DiscountType = req.DiscountType
+	modelCoupon.DiscountType = utils.CouponTypeFromString(req.DiscountType)
 	modelCoupon.CouponAmount = req.CouponAmount
 	modelCoupon.AllowFreeShipping = req.AllowFreeShipping
 	modelCoupon.ExpiryDate, _ = time.Parse("2006-01-02", req.ExpiryDate)

@@ -7,8 +7,10 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	cousvc "OnlineStoreBackend/services/coupons"
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,6 +21,17 @@ type HandlersCoupons struct {
 
 func NewHandlersCoupons(server *s.Server) *HandlersCoupons {
 	return &HandlersCoupons{server: server}
+}
+
+var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func randomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }
 
 // Refresh godoc
@@ -39,7 +52,16 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	if req.CouponCode == "" {
+		req.CouponCode = randomString(10)
+	}
+
 	modelCoupon := models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code already exist.")
+	}
+
 	couService := cousvc.NewServiceCoupon(h.server.DB)
 	couService.Create(&modelCoupon, req, storeID)
 
@@ -88,6 +110,9 @@ func (h *HandlersCoupons) Update(c echo.Context) error {
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon doesn't exist.")
+	}
+	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code already exist.")
 	}
 	couService := cousvc.NewServiceCoupon(h.server.DB)
 	if err := couService.Update(&modelCoupon, req); err != nil {
