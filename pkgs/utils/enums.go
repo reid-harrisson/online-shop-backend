@@ -16,6 +16,9 @@ const (
 	Price
 	Weight
 	ItemCount
+	Width
+	Length
+	Height
 	ItemCountSameClass
 )
 
@@ -101,10 +104,34 @@ func ConditionToString(condition Conditions) string {
 		return "Weight"
 	case ItemCount:
 		return "Item Count"
+	case Width:
+		return "Width"
+	case Length:
+		return "Length"
+	case Height:
+		return "Height"
 	case ItemCountSameClass:
 		return "Item Count (same class)"
 	}
 	return "None"
+}
+
+func ConditionFromString(condition string) Conditions {
+	switch condition {
+	case "Price":
+		return Price
+	case "Weight":
+		return Weight
+	case "Item Count":
+		return ItemCount
+	case "Width":
+		return Width
+	case "Length":
+		return Length
+	case "Height":
+		return Height
+	}
+	return None
 }
 
 func RequirementToString(requirement Requirements) string {
