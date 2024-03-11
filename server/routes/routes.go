@@ -95,6 +95,7 @@ func GroupCoupon(server *s.Server, e *echo.Group) {
 	e.POST("", handler.Create)
 	e.GET("", handler.Read)
 	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
 }
 
 func GroupVisitors(server *s.Server, e *echo.Group) {

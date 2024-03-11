@@ -86,9 +86,39 @@ func (h *HandlersCoupons) Update(c echo.Context) error {
 
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	couRepo.ReadByID(&modelCoupon, couponID)
+	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon doesn't exist.")
+	}
 	couService := cousvc.NewServiceCoupon(h.server.DB)
-	couService.Update(&modelCoupon, req)
+	if err := couService.Update(&modelCoupon, req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Fail to delete coupon.")
+	}
 
 	return responses.NewResponseCoupon(c, http.StatusOK, modelCoupon)
+}
+
+// Refresh godoc
+// @Summary Delete coupon
+// @Tags Coupon
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Coupon ID"
+// @Success 200 {object} responses.Data
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/coupon/{id} [delete]
+func (h *HandlersCoupons) Delete(c echo.Context) error {
+	couponID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelCoupon := models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon doesn't exist.")
+	}
+	couService := cousvc.NewServiceCoupon(h.server.DB)
+	if err := couService.Delete(couponID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Fail to delete coupon.")
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, "Coupon successfully deleted.")
 }
