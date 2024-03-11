@@ -158,7 +158,7 @@ func (h *HandlersStoreManagement) ReadCategory(c echo.Context) error {
 // @Param id path int true "Store ID"
 // @Success 200 {object} []responses.ResponseStoreTag
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/tag [post]
+// @Router /store/api/v1/store/{id}/tag [get]
 func (h *HandlersStoreManagement) ReadTag(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -231,6 +231,40 @@ func (h *HandlersStoreManagement) UpdateCategory(c echo.Context) error {
 	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
 	cateRepo.ReadByStoreID(&modelCategories, storeID)
 	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
+}
+
+// Refresh godoc
+// @Summary Update tag
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Param tag_id path int true "Tag ID"
+// @Param params body requests.RequestTag true "Tag"
+// @Success 200 {object} []responses.ResponseStoreTag
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id}/tag/{tag_id} [put]
+func (h *HandlersStoreManagement) UpdateTag(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	tagID, _ := strconv.ParseUint(c.Param("tag_id"), 10, 64)
+	req := new(requests.RequestTag)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelTag := models.StoreTags{}
+	tagRepo := repositories.NewRepositoryTag(h.server.DB)
+	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
+	}
+
+	tagService := tagsvc.NewServiceTag(h.server.DB)
+	tagService.Update(&modelTag, req, storeID)
+
+	modelTags := make([]models.StoreTags, 0)
+	tagRepo.ReadByStoreID(&modelTags, storeID)
+	return responses.NewResponseStoreTags(c, http.StatusCreated, modelTags)
 }
 
 // Refresh godoc

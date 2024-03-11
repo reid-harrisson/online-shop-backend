@@ -188,10 +188,13 @@ func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersStoreManagement(server)
 	e.POST("", handler.Create)
 	e.POST("/:id/category", handler.CreateCategory)
+	e.POST("/:id/tag", handler.CreateTag)
 	e.GET("", handler.Read)
 	e.GET("/:id/category", handler.ReadCategory)
+	e.GET("/:id/tag", handler.ReadTag)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/:id/category/:category_id", handler.UpdateCategory)
+	e.PUT("/:id/tag/:tag_id", handler.UpdateTag)
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/:id/category/:category_id", handler.DeleteCategory)
 }

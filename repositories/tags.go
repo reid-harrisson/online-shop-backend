@@ -28,5 +28,9 @@ func (repository *RepositoryTag) ReadByName(modelTag *models.StoreTags, name str
 }
 
 func (repository *RepositoryTag) ReadByStoreID(modelTags *[]models.StoreTags, storeID uint64) {
-	repository.DB.Find(modelTags)
+	repository.DB.Where("store_id = ?", storeID).Find(modelTags)
+}
+
+func (repository *RepositoryTag) ReadByID(modelTag *models.StoreTags, tagID uint64) error {
+	return repository.DB.First(modelTag, tagID).Error
 }
