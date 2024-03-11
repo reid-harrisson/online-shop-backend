@@ -10,6 +10,13 @@ type PageTypes int8
 type ProductTypes int8
 type Requirements int8
 type Conditions int8
+type CouponTypes int8
+
+const (
+	PercentageDiscount CouponTypes = iota
+	FixedCartDiscount
+	FixedProductDiscount
+)
 
 const (
 	None Conditions = iota
@@ -95,6 +102,30 @@ const (
 	StatusReviewApproved
 	StatusReviewBlocked
 )
+
+func CouponTypeToString(couponType CouponTypes) string {
+	switch couponType {
+	case PercentageDiscount:
+		return "Percentage discount"
+	case FixedCartDiscount:
+		return "Fixed cart discount"
+	case FixedProductDiscount:
+		return "Fixed product discount"
+	}
+	return "Percentage discount"
+}
+
+func CouponTypeFromString(couponType string) CouponTypes {
+	switch couponType {
+	case "Percentage discount":
+		return PercentageDiscount
+	case "Fixed cart discount":
+		return FixedCartDiscount
+	case "Fixed product discount":
+		return FixedProductDiscount
+	}
+	return PercentageDiscount
+}
 
 func ConditionToString(condition Conditions) string {
 	switch condition {

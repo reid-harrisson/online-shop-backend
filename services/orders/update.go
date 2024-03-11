@@ -54,3 +54,7 @@ func (service *Service) UpdateBillingAddress(orderID uint64, addressID uint64) {
 func (service *Service) UpdateShippingAddress(orderID uint64, addressID uint64) {
 	service.DB.Model(models.Orders{}).Update("shipping_address_id", addressID)
 }
+
+func (service *Service) UpdateCoupon(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, modelCoupon *models.Coupons) {
+
+}
