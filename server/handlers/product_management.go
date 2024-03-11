@@ -683,37 +683,6 @@ func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) err
 }
 
 // Refresh godoc
-// @Summary Set minimum stock level of product
-// @Tags Product Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Product ID"
-// @Param params body requests.RequestMinimumStockLevel true "Minimum Stock Level"
-// @Success 200 {object} responses.ResponseProduct
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/product/min-stock-level/{id} [put]
-func (h *HandlersProductManagement) UpdateMinimumStockLevel(c echo.Context) error {
-	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestMinimumStockLevel)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelProduct := models.Products{}
-	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
-		return responses.ErrorResponse(c, http.StatusBadRequest, message)
-	}
-
-	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	if err := prodService.UpdateMinimumStockLevel(productID, req, &modelProduct); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
-}
-
-// Refresh godoc
 // @Summary Add shipping data
 // @Tags Product Management
 // @Accept json
