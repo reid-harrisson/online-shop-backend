@@ -90,7 +90,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			SubTotalPrice:    totalPrice,
 			TaxRate:          modelTax.TaxRate,
 			TaxAmount:        utils.Round(taxAmount),
-			ShippingMethodID: 0,
+			ShippingMethodID: uint64(modelMethod.ID),
 			ShippingPrice:    shippingPrice,
 			TotalPrice:       utils.Round(totalPrice + taxAmount),
 			Status:           itemStatus,

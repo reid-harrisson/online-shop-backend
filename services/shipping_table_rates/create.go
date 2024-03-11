@@ -2,13 +2,15 @@ package tablesvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
 	"fmt"
 )
 
 func (service *Service) Create(methodID uint64, req *requests.RequestTableRate, modelRate *models.ShippingTableRates) error {
-	err := service.DB.Where("`condition` = ? And min = ? And max = ?", req.Condition, req.Min, req.Max).First(&modelRate).Error
-	modelRate.Condition = req.Condition
+	condition := utils.ConditionFromString(req.Condition)
+	err := service.DB.Where("`condition` = ? And min = ? And max = ?", condition, req.Min, req.Max).First(&modelRate).Error
+	modelRate.Condition = condition
 	modelRate.Min = req.Min
 	modelRate.Max = req.Max
 	modelRate.RowCost = req.RowCost
@@ -26,11 +28,12 @@ func (service *Service) CreateMany(methodID uint64, req []requests.RequestTableR
 	matches := []string{}
 	indices := map[string]int{}
 	for index, rate := range req {
-		match := fmt.Sprintf("%d:%f:%f", rate.Condition, rate.Min, rate.Max)
+		condition := utils.ConditionFromString(rate.Condition)
+		match := fmt.Sprintf("%d:%f:%f", condition, rate.Min, rate.Max)
 		if indices[match] == 0 {
 			*modelRates = append(*modelRates, models.ShippingTableRates{
 				MethodID:    methodID,
-				Condition:   rate.Condition,
+				Condition:   condition,
 				Min:         rate.Min,
 				Max:         rate.Max,
 				RowCost:     rate.RowCost,

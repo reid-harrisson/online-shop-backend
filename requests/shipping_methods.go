@@ -40,13 +40,13 @@ type RequestShippingFlatRate struct {
 }
 
 type RequestTableRate struct {
-	Condition   utils.Conditions `json:"condition" example:"1"`
-	Min         float64          `json:"min" example:"0"`
-	Max         float64          `json:"max" example:"100"`
-	RowCost     float64          `json:"row_cost" example:"2"`
-	ItemCost    float64          `json:"item_cost" example:"3"`
-	CostPerKg   float64          `json:"cost_per_kg" example:"2"`
-	PercentCost float64          `json:"percent_cost" example:"1"`
+	Condition   string  `json:"condition" example:"Price"`
+	Min         float64 `json:"min" example:"0"`
+	Max         float64 `json:"max" example:"100"`
+	RowCost     float64 `json:"row_cost" example:"2"`
+	ItemCost    float64 `json:"item_cost" example:"3"`
+	CostPerKg   float64 `json:"cost_per_kg" example:"2"`
+	PercentCost float64 `json:"percent_cost" example:"1"`
 }
 
 type RequestShippingTableRate struct {

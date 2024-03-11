@@ -8,6 +8,7 @@ import (
 func (service *Service) Create(modelStore *models.Stores, req *requests.RequestStore) error {
 	modelStore.CompanyID = req.CompanyID
 	modelStore.OwnerID = req.OwnerID
+	modelStore.Name = req.Name
 	modelStore.ContactPhone = req.ContactPhone
 	modelStore.ContactEmail = req.ContactEmail
 	modelStore.ShowStockLevelStatus = req.ShowStockLevelStatus

@@ -2,16 +2,12 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	orditmsvc "OnlineStoreBackend/services/order_items"
-	classsvc "OnlineStoreBackend/services/shipping_classes"
 	methsvc "OnlineStoreBackend/services/shipping_methods"
 	tablesvc "OnlineStoreBackend/services/shipping_table_rates"
-	zonesvc "OnlineStoreBackend/services/shipping_zones"
 	"net/http"
 	"strconv"
 
@@ -26,6 +22,7 @@ func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 	return &HandlersShippingOptions{server: server}
 }
 
+/*
 // Refresh godoc
 // @Summary Add shipping zone to store
 // @Tags Shipping Options
@@ -193,7 +190,7 @@ func (h *HandlersShippingOptions) CreateShippingTableRate(c echo.Context) error 
 	classRepo.ReadByIDs(&modelClasses, classIDs)
 	return responses.NewResponseShippingTableRate(c, http.StatusCreated, modelMethod, modelRates, modelClasses)
 }
-
+*/
 // Refresh godoc
 // @Summary Add table rate shipping method to store
 // @Tags Shipping Options
@@ -223,6 +220,7 @@ func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
 	return responses.NewResponseTableRate(c, http.StatusCreated, modelRate)
 }
 
+/*
 // Refresh godoc
 // @Summary Read all shipping method of store
 // @Tags Shipping Options
@@ -245,7 +243,7 @@ func (h *HandlersShippingOptions) ReadAllShippingMethod(c echo.Context) error {
 	methRepo.ReadByStoreID(&modelMethods, storeID)
 	return responses.NewResponseShippingMethods(c, http.StatusOK, modelMethods)
 }
-
+*/
 // Refresh godoc
 // @Summary Read rates
 // @Tags Shipping Options
@@ -264,6 +262,7 @@ func (h *HandlersShippingOptions) ReadShippingRate(c echo.Context) error {
 	return responses.NewResponseTableRates(c, http.StatusOK, modelRates)
 }
 
+/*
 // Refresh godoc
 // @Summary Read local pickup method
 // @Tags Shipping Options
@@ -441,7 +440,7 @@ func (h *HandlersShippingOptions) UpdateShippingFree(c echo.Context) error {
 	}
 	return responses.NewResponseShippingFree(c, http.StatusOK, modelMethod)
 }
-
+*/
 // Refresh godoc
 // @Summary Update table rate shipping method to store
 // @Tags Shipping Options
@@ -468,6 +467,7 @@ func (h *HandlersShippingOptions) UpdateShippingRate(c echo.Context) error {
 	return responses.NewResponseTableRate(c, http.StatusOK, modelRate)
 }
 
+/*
 // Refresh godoc
 // @Summary Update flat rate shipping method
 // @Tags Shipping Options
@@ -625,7 +625,7 @@ func (h *HandlersShippingOptions) UpdateShippingZone(c echo.Context) error {
 	zoneService.Update(req, &modelZone)
 	return responses.NewResponseShippingZone(c, http.StatusOK, modelZone)
 }
-
+*/
 // Refresh godoc
 // @Summary Delete table rate shipping method to store
 // @Tags Shipping Options
