@@ -5,7 +5,8 @@ import (
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	storesvc "OnlineStoreBackend/services/stores"
+	prodsvc "OnlineStoreBackend/services/products"
+	prodvarsvc "OnlineStoreBackend/services/variations"
 	"net/http"
 	"strconv"
 
@@ -21,57 +22,57 @@ func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManageme
 }
 
 // Refresh godoc
-// @Summary Show or hide out of stock
-// @Tags Inventory Manangement
+// @Summary Set minimum stock level of product
+// @Tags Inventory Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Success 200 {object} responses.ResponseStore
+// @Param id path int true "Product ID"
+// @Param minimum_stock_level query string true "Minimum Stock Level"
+// @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/inventory/out-of-stock/{id} [put]
-func (h *HandlersInventoryManagement) UpdateShowOutOfStockStatus(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+// @Router /store/api/v1/inventory/min-stock-level/{id} [put]
+func (h *HandlersInventoryManagement) UpdateMinimumStockLevel(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	minimumStockLevel, _ := strconv.ParseFloat(c.QueryParam("minimum_stock_level"), 64)
 
-	modelStore := models.Stores{}
+	modelProduct := models.Products{}
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByID(&modelProduct, productID)
 
-	repositoryInventory := repositories.NewRepositoryInventory(h.server.DB)
-	if err := repositoryInventory.ReadOne(&modelStore, id); err != nil {
-		return responses.ErrorResponse(c, http.StatusNotFound, "Data index not found")
-	}
-
-	storeService := storesvc.NewServiceStore(h.server.DB)
-
-	if err := storeService.UpdateOutOfStockStatus(id, &modelStore); err != nil {
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	if err := prodService.UpdateMinimumStockLevel(productID, minimumStockLevel, &modelProduct); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	return responses.NewResponseOutOfStockStatus(c, http.StatusOK, modelStore.ShowOutOfStockStatus)
+	ChangeToDraft(h.server.DB, &modelProduct)
+	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
 // Refresh godoc
-// @Summary Show or hide stock level
-// @Tags Inventory Manangement
+// @Summary Set stock level of variation
+// @Tags Inventory Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Success 200 {object} responses.ResponseStore
+// @Param id path int true "Variation ID"
+// @Param stock_level query string true "Stock Level"
+// @Success 200 {object} responses.ResponseProductVariation
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/inventory/stock-level/{id} [put]
-func (h *HandlersInventoryManagement) UpdateShowStockLevelStatus(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+func (h *HandlersInventoryManagement) UpdateStockLevel(c echo.Context) error {
+	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	stockLevel, _ := strconv.ParseFloat(c.QueryParam("stock_level"), 64)
 
-	modelStore := models.Stores{}
+	modelVar := models.ProductVariations{}
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadByID(&modelVar, variationID)
 
-	repositoryInventory := repositories.NewRepositoryInventory(h.server.DB)
-	if err := repositoryInventory.ReadOne(&modelStore, id); err != nil {
-		return responses.ErrorResponse(c, http.StatusNotFound, "Data index not found")
+	if modelVar.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
 	}
 
-	storeService := storesvc.NewServiceStore(h.server.DB)
+	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService.UpdateStockLevel(&modelVar, stockLevel)
 
-	if err := storeService.UpdateStockLevelStatus(id, &modelStore); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-	return responses.NewResponseStockLevelStatus(c, http.StatusOK, modelStore.ShowStockLevelStatus)
+	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
 }

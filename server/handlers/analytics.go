@@ -22,7 +22,7 @@ func NewHandlersAnalytics(server *s.Server) *HandlersAnalytics {
 
 // Refresh godoc
 // @Summary Analyse sales reports by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -40,8 +40,103 @@ func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Show Revenue
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseSalesRevenue
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/sales/revenue [get]
+func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	modelSale := models.StoreSales{}
+	orderRepo := repositories.NewRepositorySales(h.server.DB)
+	orderRepo.ReadRevenue(&modelSale, storeID)
+	return responses.NewResponseSalesRevenue(c, http.StatusOK, modelSale)
+}
+
+// Refresh godoc
+// @Summary Show average order value(AOV)
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseSalesAOV
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/sales/aov [get]
+func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	modelSale := models.StoreSales{}
+	orderRepo := repositories.NewRepositorySales(h.server.DB)
+	orderRepo.ReadAOV(&modelSale, storeID)
+	return responses.NewResponseSalesRevenue(c, http.StatusOK, modelSale)
+}
+
+// Refresh godoc
+// @Summary Show sales by product
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseSalesByProduct
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/sales/product [get]
+func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	modelSales := make([]models.ProductSales, 0)
+	orderRepo := repositories.NewRepositorySales(h.server.DB)
+	orderRepo.ReadSalesByProduct(&modelSales, storeID)
+	return responses.NewResponseSalesByProduct(c, http.StatusOK, modelSales, storeID)
+}
+
+// Refresh godoc
+// @Summary Show sales by category
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseSalesByCategory
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/sales/category [get]
+func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	modelSales := make([]models.CategorySales, 0)
+	orderRepo := repositories.NewRepositorySales(h.server.DB)
+	orderRepo.ReadSalesByCategory(&modelSales, storeID)
+	return responses.NewResponseSalesByCategory(c, http.StatusOK, modelSales, storeID)
+}
+
+// Refresh godoc
+// @Summary Show customer lifetime value(CLV)
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Success 200 {object} responses.ResponseSalesCLV
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/sales/clv [get]
+func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	modelSales := make([]models.CustomerSales, 0)
+	orderRepo := repositories.NewRepositorySales(h.server.DB)
+	orderRepo.ReadCLV(&modelSales, storeID)
+	return responses.NewResponseSalesCLV(c, http.StatusOK, modelSales, storeID)
+}
+
+// Refresh godoc
 // @Summary Analyse customer insights by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -66,7 +161,7 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read stock levels by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -85,7 +180,7 @@ func (h *HandlersAnalytics) ReadStockLevels(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse vistors by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -110,7 +205,7 @@ func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse convention rate by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -129,7 +224,7 @@ func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse shopping cart abandonment by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -148,7 +243,7 @@ func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse checkout funnel by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -167,7 +262,7 @@ func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse full funnel by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -186,7 +281,7 @@ func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse product views by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -205,7 +300,7 @@ func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse repeat customer rate by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -224,7 +319,7 @@ func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer churn rate by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -249,7 +344,7 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer churn rate by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -276,7 +371,7 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse order trend by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -301,7 +396,7 @@ func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer data by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -326,7 +421,7 @@ func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer customer satisfaction by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -351,7 +446,7 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse page loading time by store
-// @Tags Analytics
+// @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

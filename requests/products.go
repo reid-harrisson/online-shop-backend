@@ -20,10 +20,6 @@ type RequestProductWithDetail struct {
 	CrossSell       []uint64            `json:"cross_sell" example:"3,6,8"`
 }
 
-type RequestMinimumStockLevel struct {
-	Level float64 `json:"level" example:"57"`
-}
-
 type RequestProductPrice struct {
 	Price float64 `json:"price" example:"57"`
 }
