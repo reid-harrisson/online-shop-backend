@@ -11,6 +11,7 @@ type ResponseStore struct {
 	ID                   uint64 `json:"id"`
 	CompanyID            uint64 `json:"company_id"`
 	OwnerID              uint64 `json:"owner_id"`
+	Name                 string `json:"name"`
 	ContactPhone         string `json:"contact_phone"`
 	ContactEmail         string `json:"contact_email"`
 	ShowStockLevelStatus string `json:"show_stock_level_status"`
@@ -37,6 +38,7 @@ func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) 
 		ID:                   uint64(modelStore.ID),
 		CompanyID:            modelStore.CompanyID,
 		OwnerID:              modelStore.OwnerID,
+		Name:                 modelStore.Name,
 		ContactPhone:         modelStore.ContactPhone,
 		ContactEmail:         modelStore.ContactEmail,
 		ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),
@@ -55,6 +57,7 @@ func NewResponseStores(c echo.Context, statusCode int, modelStores []models.Stor
 			ID:                   uint64(modelStore.ID),
 			CompanyID:            modelStore.CompanyID,
 			OwnerID:              modelStore.OwnerID,
+			Name:                 modelStore.Name,
 			ContactPhone:         modelStore.ContactPhone,
 			ContactEmail:         modelStore.ContactEmail,
 			ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),

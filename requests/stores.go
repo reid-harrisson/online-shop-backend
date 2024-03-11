@@ -9,6 +9,7 @@ import (
 type RequestStore struct {
 	CompanyID            uint64               `json:"company_id" example:"2"`
 	OwnerID              uint64               `json:"owner_id" example:"1427"`
+	Name                 string               `json:"name" example:"The Che Gourmet Shop"`
 	ContactPhone         string               `json:"contact_phone" example:"7184756027"`
 	ContactEmail         string               `json:"contact_email" example:"example@sample.com"`
 	ShowStockLevelStatus utils.SimpleStatuses `json:"show_stock_level_status" example:"0"`
