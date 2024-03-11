@@ -197,6 +197,7 @@ func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/:id/tag/:tag_id", handler.UpdateTag)
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/:id/category/:category_id", handler.DeleteCategory)
+	e.DELETE("/:id/tag/:tag_id", handler.DeleteTag)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {

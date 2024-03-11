@@ -268,6 +268,26 @@ func (h *HandlersStoreManagement) UpdateTag(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Delete store
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Success 200 {object} responses.ResponseStore
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id} [delete]
+func (h *HandlersStoreManagement) Delete(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	storeService := storesvc.NewServiceStore(h.server.DB)
+	if err := storeService.Delete(storeID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
+	}
+	return responses.ErrorResponse(c, http.StatusOK, "Store successfully deleted.")
+}
+
+// Refresh godoc
 // @Summary Delete category
 // @Tags Store Management
 // @Accept json
@@ -297,21 +317,30 @@ func (h *HandlersStoreManagement) DeleteCategory(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Delete store
+// @Summary Delete tag
 // @Tags Store Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Store ID"
-// @Success 200 {object} responses.ResponseStore
+// @Param tag_id path int true "Tag ID"
+// @Success 200 {object} []responses.ResponseStoreTag
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id} [delete]
-func (h *HandlersStoreManagement) Delete(c echo.Context) error {
+// @Router /store/api/v1/store/{id}/tag/{tag_id} [delete]
+func (h *HandlersStoreManagement) DeleteTag(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	tagID, _ := strconv.ParseUint(c.Param("tag_id"), 10, 64)
 
-	storeService := storesvc.NewServiceStore(h.server.DB)
-	if err := storeService.Delete(storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
+	modelTag := models.StoreTags{}
+	tagRepo := repositories.NewRepositoryTag(h.server.DB)
+	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
 	}
-	return responses.ErrorResponse(c, http.StatusOK, "Store successfully deleted.")
+
+	tagService := tagsvc.NewServiceTag(h.server.DB)
+	tagService.Delete(tagID)
+
+	modelTags := make([]models.StoreTags, 0)
+	tagRepo.ReadByStoreID(&modelTags, storeID)
+	return responses.NewResponseStoreTags(c, http.StatusCreated, modelTags)
 }
