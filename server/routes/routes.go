@@ -47,14 +47,14 @@ func ConfigureRoutes(server *s.Server) {
 	apiV1.Use(middleware.Logger())
 	apiV1.Use(middleware.Recover())
 
+	groupStoreManagement := apiV1.Group("/store")
+	GroupStoreManagement(server, groupStoreManagement)
+
 	groupProductManagement := apiV1.Group("/product")
 	GroupProductManagement(server, groupProductManagement)
 
 	groupShoppingCart := apiV1.Group("/cart")
 	GroupShoppingCart(server, groupShoppingCart)
-
-	groupCategory := apiV1.Group("/category")
-	GroupCategory(server, groupCategory)
 
 	groupProductReviews := apiV1.Group("/review")
 	GroupProductReviews(server, groupProductReviews)
@@ -64,9 +64,6 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
-
-	groupGeneralStoreOffering := apiV1.Group("/store")
-	GroupStoreManagement(server, groupGeneralStoreOffering)
 
 	groupSalesMetrics := apiV1.Group("/analytic/sales")
 	GroupSalesMetrices(server, groupSalesMetrics)
@@ -148,14 +145,6 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/linked/:id", handler.DeleteLinkedProduct)
 }
 
-func GroupCategory(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersCategories(server)
-	e.POST("", handler.CreateCategory)
-	e.GET("", handler.ReadCategory)
-	e.PUT("/:id", handler.UpdateCategory)
-	e.DELETE("/:id", handler.DeleteCategory)
-}
-
 func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
@@ -198,9 +187,13 @@ func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersStoreManagement(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.ReadAll)
+	e.POST("/:id/category", handler.CreateCategory)
+	e.GET("", handler.Read)
+	e.GET("/:id/category", handler.ReadCategory)
 	e.PUT("/:id", handler.Update)
+	e.PUT("/:id/category/:category_id", handler.UpdateCategory)
 	e.DELETE("/:id", handler.Delete)
+	e.DELETE("/:id/category/:category_id", handler.DeleteCategory)
 }
 
 func GroupSalesMetrices(server *s.Server, e *echo.Group) {

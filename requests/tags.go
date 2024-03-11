@@ -1,5 +1,9 @@
 package requests
 
+type RequestProductTag struct {
+	Tags []string `json:"tags" example:"Apple,Fruit,Food"`
+}
+
 type RequestTag struct {
-	Tags []string `json:"tags" example:"apple,fruit,food"`
+	Name string `json:"tag" example:"Apple"`
 }

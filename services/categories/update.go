@@ -2,14 +2,11 @@ package catesvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelCategory *models.StoreCategories, name string, parentID uint64) {
-	if len(name) > 0 {
-		modelCategory.Name = name
-	}
-	if parentID != 0 {
-		modelCategory.ParentID = parentID
-	}
+func (service *Service) Update(modelCategory *models.StoreCategories, req *requests.RequestCategory) {
+	modelCategory.Name = req.Name
+	modelCategory.ParentID = req.ParentID
 	service.DB.Save(modelCategory)
 }

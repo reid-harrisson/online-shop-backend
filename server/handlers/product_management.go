@@ -406,7 +406,7 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 // @Router /store/api/v1/product/tag/{id} [put]
 func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestTag)
+	req := new(requests.RequestProductTag)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
