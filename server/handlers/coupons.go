@@ -63,5 +63,32 @@ func (h *HandlersCoupons) Read(c echo.Context) error {
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	couRepo.ReadByStoreID(&modelCoupons, storeID)
 
-	return responses.NewResponseCoupons(c, http.StatusCreated, modelCoupons)
+	return responses.NewResponseCoupons(c, http.StatusOK, modelCoupons)
+}
+
+// Refresh godoc
+// @Summary Update coupon
+// @Tags Coupon
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Coupon ID"
+// @Param params body requests.RequestCoupon true "Coupon"
+// @Success 200 {object} responses.ResponseCoupon
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/coupon/{id} [put]
+func (h *HandlersCoupons) Update(c echo.Context) error {
+	couponID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestCoupon)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelCoupon := models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	couRepo.ReadByID(&modelCoupon, couponID)
+	couService := cousvc.NewServiceCoupon(h.server.DB)
+	couService.Update(&modelCoupon, req)
+
+	return responses.NewResponseCoupon(c, http.StatusOK, modelCoupon)
 }

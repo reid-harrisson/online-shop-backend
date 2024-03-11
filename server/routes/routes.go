@@ -94,6 +94,7 @@ func GroupCoupon(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersCoupons(server)
 	e.POST("", handler.Create)
 	e.GET("", handler.Read)
+	e.PUT("/:id", handler.Update)
 }
 
 func GroupVisitors(server *s.Server, e *echo.Group) {
