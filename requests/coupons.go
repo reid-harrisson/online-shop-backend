@@ -1,19 +1,15 @@
 package requests
 
-import validation "github.com/go-ozzo/ozzo-validation"
+import (
+	"time"
+)
 
-type RequestCoupons struct {
-	StoreID uint64  `json:"store_id" example:"1"`
-	Code    string  `json:"code" example:"20percent"`
-	Rule    string  `json:"type" example:"percent"`
-	Amount  float64 `json:"amount" example:"10"`
-}
-
-func (request RequestCoupons) Validate() error {
-	return validation.ValidateStruct(&request,
-		validation.Field(&request.StoreID, validation.Required),
-		validation.Field(&request.Code, validation.Required),
-		validation.Field(&request.Rule, validation.Required),
-		validation.Field(&request.Amount, validation.Required),
-	)
+type RequestCoupon struct {
+	CouponCode        string    `json:"coupon_code"`
+	DiscountType      int8      `json:"discount_type"`
+	CouponAmount      float64   `json:"coupon_amount"`
+	AllowFreeShipping int8      `json:"allow_free_shipping"`
+	ExpiryDate        time.Time `json:"expiry_date"`
+	MinimumSpend      float64   `json:"minimum_spend"`
+	MaximumSpend      float64   `json:"maximum_spend"`
 }
