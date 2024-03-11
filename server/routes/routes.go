@@ -65,9 +65,6 @@ func ConfigureRoutes(server *s.Server) {
 	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
 
-	groupSalesMetrics := apiV1.Group("/analytic/sales")
-	GroupSalesMetrices(server, groupSalesMetrics)
-
 	groupTaxSettings := apiV1.Group("/tax")
 	GroupTaxSettings(server, groupTaxSettings)
 
@@ -113,6 +110,11 @@ func GroupAnalytics(server *s.Server, e *echo.Group) {
 	e.GET("/customer-location", handler.ReadCustomerDataByLocation)
 	e.GET("/satisfaction", handler.ReadCustomerSatisfaction)
 	e.GET("/loading-time", handler.ReadPageLoadingTime)
+	e.GET("/sales/revenue", handler.ReadRevenue)
+	e.GET("/sales/aov", handler.ReadAOV)
+	e.GET("/sales/product", handler.ReadSalesByProduct)
+	e.GET("/sales/category", handler.ReadSalesByCategory)
+	e.GET("/sales/clv", handler.ReadCLV)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {
@@ -198,15 +200,6 @@ func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/:id/category/:category_id", handler.DeleteCategory)
 	e.DELETE("/:id/tag/:tag_id", handler.DeleteTag)
-}
-
-func GroupSalesMetrices(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersSalesMetrics(server)
-	e.GET("/revenue", handler.ReadRevenue)
-	e.GET("/aov", handler.ReadAOV)
-	e.GET("/product", handler.ReadSalesByProduct)
-	e.GET("/category", handler.ReadSalesByCategory)
-	e.GET("/clv", handler.ReadCLV)
 }
 
 func GroupTaxSettings(server *s.Server, e *echo.Group) {
