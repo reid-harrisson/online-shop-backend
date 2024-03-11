@@ -14,10 +14,11 @@ func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus
 
 func (service *Service) UpdateShippingMethod(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, methodID uint64) {
 	service.DB.Where("order_id = ? And store_id = ?", orderID, storeID).Find(modelItems)
-	shipRepo := repositories.NewRepositoryShipping(service.DB)
+	shipRepo := repositories.NewRepositoryShippingData(service.DB)
+	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
 	for index := range *modelItems {
 		modelMethod := models.ShippingMethods{}
-		shipRepo.ReadByID(&modelMethod, methodID)
+		methRepo.ReadByID(&modelMethod, methodID)
 		modelShip := models.ShippingData{}
 		shipRepo.ReadByVariationID(&modelShip, (*modelItems)[index].VariationID)
 		totalPrice := (*modelItems)[index].SubTotalPrice
@@ -25,9 +26,9 @@ func (service *Service) UpdateShippingMethod(modelItems *[]models.OrderItems, st
 		if modelMethod.ID != 0 {
 			switch modelMethod.Method {
 			case utils.FlatRate:
-				shippingPrice = modelMethod.FlatRate
+				shippingPrice = 0
 			case utils.TableRate:
-				shippingPrice = modelMethod.BaseRate + modelMethod.RatePerItem*(*modelItems)[index].Quantity + modelMethod.RatePerTotal*totalPrice/100 + modelMethod.RatePerWeight*modelShip.Height
+				shippingPrice = 0
 			}
 		}
 		(*modelItems)[index].ShippingMethodID = methodID

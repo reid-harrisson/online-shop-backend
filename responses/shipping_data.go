@@ -2,7 +2,6 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/pkgs/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,15 +23,6 @@ type ResponseProductShippingData struct {
 	Length    float64 `json:"length"`
 }
 
-type ResponseShippingMethod struct {
-	Method        string  `json:"method"`
-	FlatRate      float64 `json:"flat_rate"`
-	BaseRate      float64 `json:"base_rate"`
-	RatePerItem   float64 `json:"rate_per_item"`
-	RatePerWeight float64 `json:"rate_per_weight"`
-	RatePerTotal  float64 `json:"rate_per_total"`
-}
-
 func NewResponseShippingData(c echo.Context, statusCode int, modelShipData models.ShippingData) error {
 	responseShipData := ResponseProductShippingData{
 		ID:        uint64(modelShipData.ID),
@@ -43,19 +33,4 @@ func NewResponseShippingData(c echo.Context, statusCode int, modelShipData model
 		Length:    modelShipData.Length,
 	}
 	return Response(c, statusCode, responseShipData)
-}
-
-func NewResponseShippingMethod(c echo.Context, statusCode int, modelMethods []models.ShippingMethods) error {
-	responseMethods := make([]ResponseShippingMethod, 0)
-	for _, modelMethod := range modelMethods {
-		responseMethods = append(responseMethods, ResponseShippingMethod{
-			Method:        utils.ShippingMethodsToString(modelMethod.Method),
-			FlatRate:      modelMethod.FlatRate,
-			BaseRate:      modelMethod.BaseRate,
-			RatePerItem:   modelMethod.RatePerItem,
-			RatePerWeight: modelMethod.RatePerWeight,
-			RatePerTotal:  modelMethod.RatePerTotal,
-		})
-	}
-	return Response(c, statusCode, responseMethods)
 }

@@ -8,6 +8,24 @@ type SellTypes int8
 type OrderStatuses int8
 type PageTypes int8
 type ProductTypes int8
+type Requirements int8
+type Conditions int8
+
+const (
+	None Conditions = iota
+	Price
+	Weight
+	ItemCount
+	ItemCountSameClass
+)
+
+const (
+	NoRequirement Requirements = iota
+	ValidFreeShippingCoupon
+	MinimumOrderAmount
+	MinimumOrderAmountOrCoupon
+	MinimumOrderAmountAndCoupon
+)
 
 const (
 	Simple ProductTypes = iota
@@ -74,6 +92,34 @@ const (
 	StatusReviewApproved
 	StatusReviewBlocked
 )
+
+func ConditionToString(condition Conditions) string {
+	switch condition {
+	case Price:
+		return "Price"
+	case Weight:
+		return "Weight"
+	case ItemCount:
+		return "Item Count"
+	case ItemCountSameClass:
+		return "Item Count (same class)"
+	}
+	return "None"
+}
+
+func RequirementToString(requirement Requirements) string {
+	switch requirement {
+	case ValidFreeShippingCoupon:
+		return "A valid free shipping coupon"
+	case MinimumOrderAmount:
+		return "A minimum order amount"
+	case MinimumOrderAmountOrCoupon:
+		return "A minimum order amount OR coupon"
+	case MinimumOrderAmountAndCoupon:
+		return "A minimum order amount AND coupon"
+	}
+	return "No requirement"
+}
 
 func PageTypeFromString(pageType string) PageTypes {
 	switch pageType {
@@ -231,34 +277,32 @@ func SimpleStatusToString(status SimpleStatuses) string {
 func ShippingMethodsToString(method ShippingMethods) string {
 	switch method {
 	case PickUp:
-		return "PickUp"
+		return "Local pickup"
 	case FlatRate:
-		return "FlatRate"
+		return "Flat rate"
 	case TableRate:
-		return "TableRate"
+		return "Table rate"
 	case RealTimeCarrierRate:
-		return "RealTimeCarrierRate"
+		return "Real time carrier rate"
 	case FreeShipping:
-		return "FreeShipping"
+		return "Free shipping"
 	}
-
-	return "PickUp"
+	return "Pick up"
 }
 
 func ShippingMethodsFromString(method string) ShippingMethods {
 	switch method {
-	case "PickUp":
+	case "Local pickup":
 		return PickUp
-	case "FlatRate":
+	case "Flat rate":
 		return FlatRate
-	case "TableRate":
+	case "Table rate":
 		return TableRate
-	case "RealTimeCarrierRate":
+	case "Real time carrier rate":
 		return RealTimeCarrierRate
-	case "FreeShipping":
+	case "Free shipping":
 		return FreeShipping
 	}
-
 	return PickUp
 }
 
