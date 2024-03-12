@@ -40,14 +40,14 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 }
 
 func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
-	modelAddr := models.CustomerAddresses{}
+	modelAddr := models.Addresses{}
 
 	addrRepo := repositories.NewRepositoryCustomer(service.DB)
 	shipRepo := repositories.NewRepositoryShippingData(service.DB)
 	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
 	if err := addrRepo.ReadAddressByCustomerID(&modelAddr, customerID); err != nil {
-		addrService := addrsvc.NewServiceCustomerAddress(service.DB)
+		addrService := addrsvc.NewServiceAddress(service.DB)
 		addrService.CreateFromUser(&modelAddr, customerID)
 	}
 

@@ -71,9 +71,6 @@ func ConfigureRoutes(server *s.Server) {
 	groupShippingOptions := apiV1.Group("/shipping")
 	GroupShippingOptions(server, groupShippingOptions)
 
-	groupCustomers := apiV1.Group("/customer")
-	GroupCustomers(server, groupCustomers)
-
 	groupVariations := apiV1.Group("/variation")
 	GroupVariations(server, groupVariations)
 
@@ -242,13 +239,6 @@ func GroupShippingOptions(server *s.Server, e *echo.Group) {
 	// e.PUT("/table-rate/:id", handler.UpdateShippingTableRate)
 	e.PUT("/rate/:id", handler.UpdateShippingRate)
 	e.DELETE("/rate/:id", handler.DeleteShippingRate)
-}
-
-func GroupCustomers(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersCustomers(server)
-	e.POST("/address", handler.CreateCustomerAddress)
-	e.GET("/address", handler.ReadCustomerAddress)
-	e.PUT("/address/:id", handler.UpdateCustomerAddress)
 }
 
 func GroupVariations(server *s.Server, e *echo.Group) {

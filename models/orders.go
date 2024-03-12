@@ -58,8 +58,8 @@ type CustomerOrderItems struct {
 }
 
 type CustomerOrdersWithAddress struct {
-	BillingAddress  CustomerAddresses    `gorm:"column:billing_address"`
-	ShippingAddress CustomerAddresses    `gorm:"column:shipping_address"`
+	BillingAddress  Addresses            `gorm:"column:billing_address"`
+	ShippingAddress Addresses            `gorm:"column:shipping_address"`
 	Items           []CustomerOrderItems `gorm:"column:items"`
 }
 

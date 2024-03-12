@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseCustomerAddress struct {
+type ResponseAddress struct {
 	ID           uint64 `json:"id"`
 	AddressLine1 string `json:"address_line1"`
 	AddressLine2 string `json:"address_line2"`
@@ -17,8 +17,8 @@ type ResponseCustomerAddress struct {
 	PostalCode   string `json:"postal_code"`
 }
 
-func NewResponseCustomerAddress(c echo.Context, statusCode int, modelAddr models.CustomerAddresses) error {
-	return Response(c, statusCode, ResponseCustomerAddress{
+func NewResponseAddress(c echo.Context, statusCode int, modelAddr models.Addresses) error {
+	return Response(c, statusCode, ResponseAddress{
 		ID:           uint64(modelAddr.ID),
 		AddressLine1: modelAddr.AddressLine1,
 		AddressLine2: modelAddr.AddressLine2,
@@ -30,10 +30,10 @@ func NewResponseCustomerAddress(c echo.Context, statusCode int, modelAddr models
 	})
 }
 
-func NewResponseCustomerAddresses(c echo.Context, statusCode int, modelAddrs []models.CustomerAddresses) error {
-	responseAddrs := make([]ResponseCustomerAddress, 0)
+func NewResponseAddresses(c echo.Context, statusCode int, modelAddrs []models.Addresses) error {
+	responseAddrs := make([]ResponseAddress, 0)
 	for _, modelAddr := range modelAddrs {
-		responseAddrs = append(responseAddrs, ResponseCustomerAddress{
+		responseAddrs = append(responseAddrs, ResponseAddress{
 			ID:           uint64(modelAddr.ID),
 			AddressLine1: modelAddr.AddressLine1,
 			AddressLine2: modelAddr.AddressLine2,
