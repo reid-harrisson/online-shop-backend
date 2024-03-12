@@ -85,6 +85,18 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupCoupon := apiV1.Group("/coupon")
 	GroupCoupon(server, groupCoupon)
+
+	groupCheckout := apiV1.Group("/checkout")
+	GroupCheckout(server, groupCheckout)
+}
+
+func GroupCheckout(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCheckoutProcess(server)
+	e.POST("/address", handler.CreateAddress)
+	e.GET("", handler.Read)
+	e.GET("/address", handler.ReadAddresses)
+	e.PUT("", handler.Update)
+	e.PUT("/address/:id", handler.UpdateAddress)
 }
 
 func GroupCoupon(server *s.Server, e *echo.Group) {

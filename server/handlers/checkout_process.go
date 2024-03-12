@@ -2,15 +2,19 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	addrsvc "OnlineStoreBackend/services/customer_addresses"
+	ordsvc "OnlineStoreBackend/services/orders"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type HandlersCheckoutProcess struct {
@@ -37,12 +41,12 @@ func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	cartRepo.ReadDetail(&modelItems, customerID)
-	return responses.NewResponseCart(c, http.StatusOK, modelItems)
+	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, models.Addresses{}, []models.Coupons{}))
 }
 
 // Refresh godoc
 // @Summary Create address to customer
-// @Tags Customer
+// @Tags Checkout Process
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -67,7 +71,7 @@ func (h *HandlersCheckoutProcess) CreateAddress(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read addresses
-// @Tags Customer
+// @Tags Checkout Process
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -87,12 +91,12 @@ func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read coupon
-// @Tags Customer
+// @Tags Checkout Process
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param code query string true "Customer ID"
-// @Success 200 {object} []responses.ResponseCoupon
+// @Success 200 {object} responses.ResponseCoupon
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/coupon [get]
 func (h *HandlersCheckoutProcess) ReadCoupon(c echo.Context) error {
@@ -107,7 +111,7 @@ func (h *HandlersCheckoutProcess) ReadCoupon(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Update address to customer
-// @Tags Customer
+// @Tags Checkout Process
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -137,7 +141,7 @@ func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param customer_id query int true "Customer ID"
-// @Success 200 {object} []responses.RequestCheckout
+// @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout [put]
@@ -149,8 +153,94 @@ func (h *HandlersCheckoutProcess) Update(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	modelItems := make([]models.CartItemsWithDetail, 0)
+	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	cartRepo.ReadDetail(&modelItems, customerID)
-	return responses.NewResponseCart(c, http.StatusOK, modelItems)
+
+	modelAddr := models.Addresses{}
+	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
+	addrRepo.ReadAddressByID(&modelAddr, req.ShippingAddressID)
+
+	modelCoupons := []models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+
+	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, modelAddr, modelCoupons))
+}
+
+func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, modelAddr models.Addresses, modelCoupons []models.Coupons) []responses.ResponseCheckoutStore {
+	mapStore := map[uint64]int{}
+	mapCoupon := map[uint64]int{}
+	responseStores := []responses.ResponseCheckoutStore{}
+	for index, modelCoupon := range modelCoupons {
+		mapCoupon[modelCoupon.StoreID] = index
+	}
+	for _, modelItem := range modelItems {
+		storeID := modelItem.StoreID
+		if mapStore[storeID] == 0 {
+			responseStores = append(responseStores, responses.ResponseCheckoutStore{
+				StoreID: storeID,
+			})
+			mapStore[storeID] = len(responseStores)
+		}
+		storeIndex := mapStore[storeID] - 1
+		imageUrls := make([]string, 0)
+		json.Unmarshal([]byte(modelItem.ImageUrls), &imageUrls)
+		categories := make([]string, 0)
+		json.Unmarshal([]byte("["+modelItem.Categories+"]"), &categories)
+		salePrice := ordsvc.GetSalePrice(modelItem)
+		responseStores[storeIndex].Variations = append(responseStores[storeIndex].Variations, responses.ResponseCheckoutVariation{
+			ID:            uint64(modelItem.ID),
+			VariationID:   modelItem.VariationID,
+			VariationName: modelItem.VariationName,
+			ImageUrls:     imageUrls,
+			Categories:    categories,
+			SalePrice:     salePrice,
+			RegularPrice:  modelItem.Price,
+			Quantity:      modelItem.Quantity,
+			StockLevel:    modelItem.StockLevel,
+			TotalPrice:    modelItem.Quantity * salePrice,
+		})
+	}
+	modelTax := models.Taxes{}
+	taxRepo := repositories.NewRepositoryTax(db)
+	taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
+	tableRepo := repositories.NewRepositoryShippingMethod(db)
+	for index := range responseStores {
+		modelRates := []models.ShippingTableRates{}
+		tableRepo.ReadRates(&modelRates, responseStores[index].StoreID)
+		subTotal := 0.0
+		shippingPrice := 0.0
+		quantity := 0.0
+		for _, responseVar := range responseStores[index].Variations {
+			modelShip := models.ShippingData{}
+			shipRepo := repositories.NewRepositoryShippingData(db)
+			shipRepo.ReadByVariationID(&modelShip, responseVar.VariationID)
+
+			subTotal += responseVar.TotalPrice
+			shippingPrice += ordsvc.GetShippingPrice(modelRates, responseVar.TotalPrice, responseVar.Quantity, modelShip)
+			quantity += responseVar.Quantity
+		}
+		if len(modelCoupons) > 0 {
+			couIndex := mapCoupon[responseStores[index].StoreID]
+			if modelCoupons[couIndex].AllowFreeShipping == 1 {
+				shippingPrice = 0
+			}
+			switch modelCoupons[couIndex].DiscountType {
+			case utils.FixedCartDiscount:
+				subTotal -= modelCoupons[couIndex].CouponAmount
+			case utils.FixedProductDiscount:
+				subTotal -= modelCoupons[couIndex].CouponAmount * quantity
+			case utils.PercentageDiscount:
+				subTotal *= (100 - modelCoupons[couIndex].CouponAmount) / 100
+			}
+		}
+		taxAmount := modelTax.TaxRate * (subTotal + shippingPrice) / 100
+		responseStores[index].ShippingPrice = utils.Round(shippingPrice)
+		responseStores[index].SubTotal = utils.Round(subTotal)
+		responseStores[index].TaxRate = utils.Round(modelTax.TaxRate)
+		responseStores[index].TaxAmount = utils.Round(taxAmount)
+		responseStores[index].TotalPrice = utils.Round(shippingPrice + subTotal + taxAmount)
+	}
+	return responseStores
 }

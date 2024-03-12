@@ -39,7 +39,7 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 	return shippingPrice
 }
 
-func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
+func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.Taxes, customerID uint64) {
 	modelAddr := models.Addresses{}
 
 	addrRepo := repositories.NewRepositoryAddresses(service.DB)

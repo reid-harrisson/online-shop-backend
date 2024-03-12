@@ -38,9 +38,9 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	modelCarts := make([]models.CartItemsWithDetail, 0)
-	modelTax := models.TaxSettings{}
+	modelTax := models.Taxes{}
 	taxRepo := repositories.NewRepositoryTax(h.server.DB)
-	taxRepo.ReadTaxSetting(&modelTax, customerID)
+	taxRepo.ReadByCustomerID(&modelTax, customerID)
 
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	cartRepo.ReadDetail(&modelCarts, customerID)

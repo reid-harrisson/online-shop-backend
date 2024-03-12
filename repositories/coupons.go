@@ -25,3 +25,7 @@ func (repository *RepositoryCoupon) ReadByID(modelCoupon *models.Coupons, coupon
 func (repository *RepositoryCoupon) ReadByCode(modelCoupon *models.Coupons, code string) error {
 	return repository.DB.Where("coupon_code = ?", code).First(modelCoupon).Error
 }
+
+func (repository *RepositoryCoupon) ReadByIDs(modelCoupon *[]models.Coupons, ids []uint64) error {
+	return repository.DB.Where("id In (?)", ids).Find(modelCoupon).Error
+}
