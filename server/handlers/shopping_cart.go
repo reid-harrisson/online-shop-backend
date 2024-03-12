@@ -28,18 +28,11 @@ func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
-// @Param product_id query int true "Product ID"
-// @Param quantity query string true "Quantity"
 // @Param params body requests.RequestCart true "Variation Info"
 // @Success 201 {object} responses.ResponseCart
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [post]
 func (h *HandlersShoppingCart) Create(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
-	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
-
 	req := new(requests.RequestCart)
 
 	if err := c.Bind(req); err != nil {
@@ -48,9 +41,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-
-	if modelProduct.ID == 0 {
+	if err := prodRepo.ReadByID(&modelProduct, req.ProductID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
 	}
 	if modelProduct.Status != utils.Approved {
@@ -59,7 +50,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByAttributeValueIDs(&modelVar, req.AttributeValueIDs, productID)
+	varRepo.ReadByAttributeValueIDs(&modelVar, req.AttributeValueIDs, req.ProductID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
@@ -69,14 +60,12 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByInfo(&modelItem, variationID, customerID)
+	cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.Create(&modelItem, customerID, &modelVar, quantity)
+	cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
 
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, customerID)
-	return responses.NewResponseCart(c, http.StatusCreated, modelItems)
+	return responses.NewResponseCartItem(c, http.StatusCreated, modelItem)
 }
 
 // Refresh godoc

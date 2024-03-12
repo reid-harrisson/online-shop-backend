@@ -9,15 +9,15 @@ import (
 )
 
 type ResponseCartItem struct {
-	ID           uint64   `json:"id"`
-	ProductID    uint64   `json:"product_id"`
-	ProductName  string   `json:"product_name"`
-	ImageUrls    []string `json:"image_urls"`
-	Categories   []string `json:"categories"`
-	SalePrice    float64  `json:"sale_price"`
-	RegularPrice float64  `json:"regular_price"`
-	Quantity     float64  `json:"quantity"`
-	TotalPrice   float64  `json:"total_price"`
+	ID            uint64   `json:"id"`
+	VariationID   uint64   `json:"variation_id"`
+	VariationName string   `json:"variation_name"`
+	ImageUrls     []string `json:"image_urls"`
+	Categories    []string `json:"categories"`
+	SalePrice     float64  `json:"sale_price"`
+	RegularPrice  float64  `json:"regular_price"`
+	Quantity      float64  `json:"quantity"`
+	TotalPrice    float64  `json:"total_price"`
 }
 
 type ResponseStoreCart struct {
@@ -32,6 +32,10 @@ type ResponseCart struct {
 
 type ResponseCartCount struct {
 	Count uint64 `json:"count"`
+}
+
+func NewResponseCartItem(c echo.Context, statusCode int, modelItem models.CartItems) error {
+	return Response(c, statusCode, modelItem)
 }
 
 func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.CartItemsWithDetail) error {
@@ -61,15 +65,15 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 			}
 			totalPrice := salePrice * cartItem.Quantity
 			responseCartItems = append(responseCartItems, ResponseCartItem{
-				ID:           uint64(cartItem.ID),
-				ProductID:    cartItem.VariationID,
-				ProductName:  cartItem.VariationName,
-				ImageUrls:    imageUrls,
-				RegularPrice: regularPrice,
-				SalePrice:    salePrice,
-				Quantity:     cartItem.Quantity,
-				Categories:   categories,
-				TotalPrice:   totalPrice,
+				ID:            uint64(cartItem.ID),
+				VariationID:   cartItem.VariationID,
+				VariationName: cartItem.VariationName,
+				ImageUrls:     imageUrls,
+				RegularPrice:  regularPrice,
+				SalePrice:     salePrice,
+				Quantity:      cartItem.Quantity,
+				Categories:    categories,
+				TotalPrice:    totalPrice,
 			})
 			totalCost += totalPrice
 		}

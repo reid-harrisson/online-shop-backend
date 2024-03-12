@@ -242,7 +242,7 @@ func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read Email Templates By Store ID
+// @Summary Create Email Template
 // @Tags Order Management
 // @Accept json
 // @Produce json
