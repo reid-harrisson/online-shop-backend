@@ -66,7 +66,7 @@ func (h *HandlersCheckoutProcess) CreateAddress(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read address to customer
+// @Summary Read addresses
 // @Tags Customer
 // @Accept json
 // @Produce json
@@ -79,10 +79,30 @@ func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	modelAddrs := make([]models.Addresses, 0)
-	addrRepo := repositories.NewRepositoryCustomer(h.server.DB)
+	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
 	addrRepo.ReadAddressesByCustomerID(&modelAddrs, customerID)
 
 	return responses.NewResponseAddresses(c, http.StatusOK, modelAddrs)
+}
+
+// Refresh godoc
+// @Summary Read coupon
+// @Tags Customer
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param code query string true "Customer ID"
+// @Success 200 {object} []responses.ResponseCoupon
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/checkout/coupon [get]
+func (h *HandlersCheckoutProcess) ReadCoupon(c echo.Context) error {
+	code := c.QueryParam("code")
+
+	modelCoupon := models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	couRepo.ReadByCode(&modelCoupon, code)
+
+	return responses.NewResponseCoupon(c, http.StatusOK, modelCoupon)
 }
 
 // Refresh godoc
