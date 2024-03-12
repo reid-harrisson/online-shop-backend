@@ -26,7 +26,7 @@ func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItem
 	repository.DB.Where("customer_id = ?", customerID).Find(modelItems)
 }
 
-func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartItemCount, customerID uint64) {
+func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartCount, customerID uint64) {
 	repository.DB.
 		Model(models.CartItems{}).
 		Select(`
