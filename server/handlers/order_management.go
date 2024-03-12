@@ -167,12 +167,43 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param order_item_id query int true "Order Item ID"
+// @Param order_id query int true "Order Item ID"
 // @Param status query string ture "Status"
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/status [put]
-func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {}
+func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {
+	orderID, _ := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
+	status := c.QueryParam("status")
+
+	orderService := ordsvc.NewServiceOrder(h.server.DB)
+	orderService.UpdateOrderItemStatus(orderID, status)
+
+	mailData := utils.MailData{
+		Name:            "PockitTV Contact Centre",
+		EmailFrom:       "araki@pockittv.com",
+		EmailTo:         "kaspersky3550879@gmail.com",
+		EmailPretext:    "Contact Centre",
+		Company:         "PockitTV",
+		Subject:         "Account Activation",
+		Phone:           "+12387621342",
+		SourceChannel:   "Sports",
+		BodyBlock:       "Body Block",
+		TargetTeam:      "PockitTv Contact Team",
+		BodyCtaBtnLabel: "ACTIVATE",
+		// BodyCtaBtnLink:             tempUser.ActivationLink,
+		BodyGreeting: "Hi",
+		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
+		CompanyID:    2,
+		// FirstName:                  tempUser.FirstName,
+		HeaderPosterImageUrl:       "",
+		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
+		HeaderPosterSloganTitle:    "ARE YOU READY?",
+	}
+	utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
+
+	return responses.MessageResponse(c, http.StatusAccepted, "Order status just updated")
+}
 
 // Refresh godoc
 // @Summary Edit order billing address
