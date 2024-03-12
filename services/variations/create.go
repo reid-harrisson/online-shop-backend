@@ -36,7 +36,7 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 
 	varRepo := repositories.NewRepositoryVariation(service.DB)
-	varRepo.ReadByAttributeValueIDs(modelVar, req.AttributeValueIDs, productID)
+	varRepo.ReadByValueIDs(modelVar, req.AttributeValueIDs, productID)
 
 	if modelVar.ID == 0 {
 		modelVar.Sku = sku

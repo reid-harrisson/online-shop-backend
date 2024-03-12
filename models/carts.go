@@ -27,7 +27,7 @@ type CartItemsWithDetail struct {
 	StockLevel     float64             `gorm:"column:stock_level"`
 }
 
-type CartItemCount struct {
+type CartCount struct {
 	Count uint64 `gorm:"column:count"`
 }
 

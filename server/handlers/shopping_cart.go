@@ -28,12 +28,12 @@ func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param params body requests.RequestCart true "Variation Info"
-// @Success 201 {object} responses.ResponseCart
+// @Param params body requests.RequestCartItem true "Variation Info"
+// @Success 201 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [post]
 func (h *HandlersShoppingCart) Create(c echo.Context) error {
-	req := new(requests.RequestCart)
+	req := new(requests.RequestCartItem)
 
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -50,7 +50,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByAttributeValueIDs(&modelVar, req.AttributeValueIDs, req.ProductID)
+	varRepo.ReadByValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
@@ -69,22 +69,22 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read item count
+// @Summary Read count
 // @Tags Shopping Cart
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param customer_id query int true "Customer ID"
-// @Success 200 {object} []responses.ResponseCart
+// @Success 200 {object} responses.ResponseCartCount
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart/count [get]
-func (h *HandlersShoppingCart) ReadItemCount(c echo.Context) error {
+func (h *HandlersShoppingCart) ReadCount(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
+	modelCount := models.CartCount{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	modelCount := models.CartItemCount{}
 	cartRepo.ReadItemCount(&modelCount, customerID)
-	return responses.NewResponseCartItemCount(c, http.StatusOK, modelCount)
+	return responses.NewResponseCartCount(c, http.StatusOK, modelCount)
 }
 
 // Refresh godoc
@@ -135,22 +135,20 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.UpdateQuantity(&modelItem, modelVar, quantity)
 
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, modelItem.CustomerID)
-	return responses.NewResponseCart(c, http.StatusOK, modelItems)
+	return responses.NewResponseCartItem(c, http.StatusOK, modelItem)
 }
 
 // Refresh godoc
-// @Summary Delete cart item by ID
+// @Summary Delete a item
 // @Tags Shopping Cart
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Cart ID"
-// @Success 200 {object} responses.ResponseCart
+// @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart/{id} [delete]
-func (h *HandlersShoppingCart) DeleteByID(c echo.Context) error {
+func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelItem := models.CartItems{}
@@ -164,9 +162,7 @@ func (h *HandlersShoppingCart) DeleteByID(c echo.Context) error {
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.Delete(cartID)
 
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, modelItem.CustomerID)
-	return responses.NewResponseCart(c, http.StatusOK, modelItems)
+	return responses.MessageResponse(c, http.StatusOK, "This cart item successfullly deleted.")
 }
 
 // Refresh godoc

@@ -2,13 +2,13 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/pkgs/utils"
+	ordsvc "OnlineStoreBackend/services/orders"
 	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseCartItem struct {
+type ResponseCartVariation struct {
 	ID            uint64   `json:"id"`
 	VariationID   uint64   `json:"variation_id"`
 	VariationName string   `json:"variation_name"`
@@ -20,13 +20,20 @@ type ResponseCartItem struct {
 	TotalPrice    float64  `json:"total_price"`
 }
 
-type ResponseStoreCart struct {
-	Items      []ResponseCartItem `json:"items"`
-	StoreTotal float64            `json:"store_total"`
+type ResponseCartItem struct {
+	ID          uint64  `json:"id"`
+	CustomerID  uint64  `json:"customer_id"`
+	VariationID uint64  `json:"variation_id"`
+	Quantity    float64 `json:"quantity"`
+}
+
+type ResponseCartStore struct {
+	Variations []ResponseCartVariation `json:"variations"`
+	TotalPrice float64                 `json:"total_price"`
 }
 
 type ResponseCart struct {
-	Stores     []ResponseStoreCart `json:"stores"`
+	Stores     []ResponseCartStore `json:"stores"`
 	TotalPrice float64             `json:"total_price"`
 }
 
@@ -35,12 +42,17 @@ type ResponseCartCount struct {
 }
 
 func NewResponseCartItem(c echo.Context, statusCode int, modelItem models.CartItems) error {
-	return Response(c, statusCode, modelItem)
+	return Response(c, statusCode, ResponseCartItem{
+		ID:          uint64(modelItem.ID),
+		CustomerID:  modelItem.CustomerID,
+		VariationID: modelItem.VariationID,
+		Quantity:    modelItem.Quantity,
+	})
 }
 
 func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.CartItemsWithDetail) error {
 	allCartItems := make(map[uint64][]models.CartItemsWithDetail)
-	responseStoreCarts := make([]ResponseStoreCart, 0)
+	responseStoreCarts := make([]ResponseCartStore, 0)
 
 	for _, modelCartItem := range modelCartItems {
 		allCartItems[modelCartItem.StoreID] = append(allCartItems[modelCartItem.StoreID], modelCartItem)
@@ -48,23 +60,17 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 
 	totalPrice := float64(0)
 	for _, modelCartItems := range allCartItems {
-		responseCartItems := make([]ResponseCartItem, 0)
-		totalCost := float64(0)
+		responseCartItems := make([]ResponseCartVariation, 0)
+		storeTotal := float64(0)
 		for _, cartItem := range modelCartItems {
 			imageUrls := make([]string, 0)
 			json.Unmarshal([]byte(cartItem.ImageUrls), &imageUrls)
 			categories := make([]string, 0)
 			json.Unmarshal([]byte("["+cartItem.Categories+"]"), &categories)
 			regularPrice := cartItem.Price
-			salePrice := cartItem.Price
-			switch cartItem.DiscountType {
-			case utils.FixedAmountOff:
-				salePrice -= cartItem.DiscountAmount
-			case utils.PercentageOff:
-				salePrice -= cartItem.DiscountAmount * salePrice / 100
-			}
+			salePrice := ordsvc.GetSalePrice(cartItem)
 			totalPrice := salePrice * cartItem.Quantity
-			responseCartItems = append(responseCartItems, ResponseCartItem{
+			responseCartItems = append(responseCartItems, ResponseCartVariation{
 				ID:            uint64(cartItem.ID),
 				VariationID:   cartItem.VariationID,
 				VariationName: cartItem.VariationName,
@@ -75,13 +81,13 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 				Categories:    categories,
 				TotalPrice:    totalPrice,
 			})
-			totalCost += totalPrice
+			storeTotal += totalPrice
 		}
-		responseStoreCarts = append(responseStoreCarts, ResponseStoreCart{
-			Items:      responseCartItems,
-			StoreTotal: totalCost,
+		responseStoreCarts = append(responseStoreCarts, ResponseCartStore{
+			Variations: responseCartItems,
+			TotalPrice: storeTotal,
 		})
-		totalPrice += totalCost
+		totalPrice += storeTotal
 	}
 
 	return Response(c, statusCode, ResponseCart{
@@ -90,7 +96,7 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 	})
 }
 
-func NewResponseCartItemCount(c echo.Context, statusCode int, modelCount models.CartItemCount) error {
+func NewResponseCartCount(c echo.Context, statusCode int, modelCount models.CartCount) error {
 	return Response(c, statusCode, ResponseCartCount{
 		Count: modelCount.Count,
 	})

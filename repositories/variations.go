@@ -24,7 +24,7 @@ func (repository *RepositoryVariation) ReadBySku(modelVar *models.ProductVariati
 	repository.DB.Where("sku = ?", sku).First(modelVar)
 }
 
-func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.ProductVariations, valueIDs []uint64, productID uint64) {
+func (repository *RepositoryVariation) ReadByValueIDs(modelVar *models.ProductVariations, valueIDs []uint64, productID uint64) {
 	ids := make([]string, 0)
 	for _, valueID := range valueIDs {
 		ids = append(ids, strconv.FormatUint(uint64(valueID), 10))
