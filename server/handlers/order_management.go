@@ -79,7 +79,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 		PaymentType: utils.StorePurchase,
 		RequestID:   uint64(modelOrder.ID),
 	}
-	utils.HelperInvoke("PUT", h.server.Config.Services.OnlineStore+"/order/status", c, invokeData)
+	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
 
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
 }
