@@ -38,7 +38,7 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 	return shippingPrice
 }
 
-func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64) {
+func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64, modelCombo models.Combos) {
 	mapCoupon := map[uint64]int{}
 	for index, modelCoupon := range modelCoupons {
 		mapCoupon[modelCoupon.StoreID] = index
@@ -76,13 +76,22 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 		methRepo.ReadTableRateMethodByStoreID(&modelMethod, modelItem.StoreID)
 		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
 
+		if modelCombo.ID != 0 {
+			switch modelCombo.DiscountType {
+			case utils.PercentageOff:
+				totalPrice *= (100 - modelCombo.DiscountAmount) / 100
+			case utils.FixedAmountOff:
+				totalPrice -= modelCombo.DiscountAmount / float64(len(modelCartItems))
+			}
+		}
+
 		if len(modelCoupons) > 0 {
 			couIndex := mapCoupon[modelItem.StoreID]
 			switch modelCoupons[couIndex].DiscountType {
 			case utils.FixedCartDiscount:
-				totalPrice -= modelCoupons[couIndex].CouponAmount
+				totalPrice -= modelCoupons[couIndex].CouponAmount / float64(len(modelCartItems))
 			case utils.FixedProductDiscount:
-				totalPrice -= modelCoupons[couIndex].CouponAmount
+				totalPrice -= modelCoupons[couIndex].CouponAmount * modelItem.Quantity
 			case utils.PercentageDiscount:
 				totalPrice *= (100 - modelCoupons[couIndex].CouponAmount) / 100
 			}

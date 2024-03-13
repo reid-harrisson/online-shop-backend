@@ -60,7 +60,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 
 	modelOrder := models.Orders{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID)
+	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, models.Combos{})
 
 	modelItems := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
@@ -83,6 +83,72 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 		RequestID:   uint64(modelOrder.ID),
 	}
 	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
+
+	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
+}
+
+// Refresh godoc
+// @Summary Add order with combo
+// @Tags Order Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param customer_id query int true "Customer ID"
+// @Param combo_id query int true "Combo ID"
+// @Param params body requests.RequestCheckout true "Address and coupon"
+// @Success 201 {object} responses.ResponseCustomerOrderWithDetail
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/order/combo [post]
+func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
+
+	req := new(requests.RequestCheckout)
+
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	if err := req.RequestCheckoutValidate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
+	}
+
+	modelCombo := models.Combos{}
+	combRepo := repositories.NewRepositoryCombo(h.server.DB)
+	combRepo.ReadByID(&modelCombo, comboID)
+
+	modelCoupons := []models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+
+	modelCarts := make([]models.CartItemsWithDetail, 0)
+	combRepo.ReadDetail(&modelCarts, comboID)
+
+	modelOrder := models.Orders{}
+	ordService := ordsvc.NewServiceOrder(h.server.DB)
+	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, modelCombo)
+
+	modelItems := models.CustomerOrdersWithAddress{}
+	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
+	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
+
+	var totalAmount float64
+
+	orderRepo.CalcTotalAmount(&totalAmount, modelOrder.ID)
+
+	// currency := "usd"
+
+	// invokeData := utils.InvokeData{
+	// 	CardNumber:  req.CardNumber,
+	// 	ExpMonth:    req.ExpMonth,
+	// 	ExpYear:     req.ExpYear,
+	// 	CVC:         req.CVC,
+	// 	Amount:      totalAmount,
+	// 	Currency:    currency,
+	// 	PaymentType: utils.StorePurchase,
+	// 	RequestID:   uint64(modelOrder.ID),
+	// }
+	// utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
 
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
 }
