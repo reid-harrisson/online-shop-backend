@@ -93,9 +93,9 @@ func ConfigureRoutes(server *s.Server) {
 func GroupCheckout(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersCheckoutProcess(server)
 	e.POST("/address", handler.CreateAddress)
-	e.GET("", handler.Read)
+	e.POST("", handler.Read)
 	e.GET("/address", handler.ReadAddresses)
-	e.PUT("", handler.Update)
+	e.GET("/coupon", handler.ReadCoupon)
 	e.PUT("/address/:id", handler.UpdateAddress)
 }
 
@@ -170,7 +170,6 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
 	e.GET("", handler.Read)
-	e.GET("/count", handler.ReadCount)
 	e.PUT("/:id", handler.UpdateQuantity)
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("", handler.DeleteAll)
@@ -229,26 +228,8 @@ func GroupTaxSettings(server *s.Server, e *echo.Group) {
 
 func GroupShippingOptions(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShippingOptions(server)
-	// e.POST("/zone", handler.CreateShippingZone)
-	// e.POST("/class", handler.CreateShippingClass)
-	// e.POST("/local-pickup", handler.CreateShippingLocalPickup)
-	// e.POST("/free", handler.CreateShippingFree)
-	// e.POST("/flat-rate", handler.CreateShippingFlatRate)
-	// e.POST("/table-rate", handler.CreateShippingTableRate)
 	e.POST("/rate", handler.CreateShippingRate)
-	// e.GET("", handler.ReadAllShippingMethod)
 	e.GET("/rate", handler.ReadShippingRate)
-	// e.GET("/free/:id", handler.ReadShippingFree)
-	// e.GET("/local-pickup/:id", handler.ReadShippingLocalPickup)
-	// e.GET("/flat-rate/:id", handler.ReadShippingFlatRate)
-	// e.GET("/table-rate/:id", handler.ReadShippingTableRate)
-	// e.PUT("/order", handler.UpdateShippingMethod)
-	// e.PUT("/class/:id", handler.UpdateShippingClass)
-	// e.PUT("/zone/:id", handler.UpdateShippingZone)
-	// e.PUT("/free/:id", handler.UpdateShippingFree)
-	// e.PUT("/local-pickup/:id", handler.UpdateShippingLocalPickup)
-	// e.PUT("/flat-rate/:id", handler.UpdateShippingFlatRate)
-	// e.PUT("/table-rate/:id", handler.UpdateShippingTableRate)
 	e.PUT("/rate/:id", handler.UpdateShippingRate)
 	e.DELETE("/rate/:id", handler.DeleteShippingRate)
 }

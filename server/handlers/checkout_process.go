@@ -26,25 +26,6 @@ func NewHandlersCheckoutProcess(server *s.Server) *HandlersCheckoutProcess {
 }
 
 // Refresh godoc
-// @Summary Read checkout
-// @Tags Checkout Process
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
-// @Success 200 {object} []responses.ResponseCheckout
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/checkout [get]
-func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, customerID)
-	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, models.Addresses{}, []models.Coupons{}))
-}
-
-// Refresh godoc
 // @Summary Create address to customer
 // @Tags Checkout Process
 // @Accept json
@@ -95,7 +76,7 @@ func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param code query string true "Customer ID"
+// @Param code query string true "Coupon code"
 // @Success 200 {object} responses.ResponseCoupon
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/coupon [get]
@@ -135,7 +116,7 @@ func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Update checkout
+// @Summary Read checkout
 // @Tags Checkout Process
 // @Accept json
 // @Produce json
@@ -144,8 +125,8 @@ func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/checkout [put]
-func (h *HandlersCheckoutProcess) Update(c echo.Context) error {
+// @Router /store/api/v1/checkout [post]
+func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
