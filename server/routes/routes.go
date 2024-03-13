@@ -192,7 +192,7 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	e.GET("/store", handler.ReadByStoreID)
 	e.GET("/email-template/:id", handler.ReadEmailTemplateByStoreID)
 	e.PUT("/status/:id", handler.UpdateStatus)
-	e.PUT("/coupon/:id", handler.UpdateCoupon)
+	e.PUT("/status", handler.UpdateOrderItemStatus)
 	e.PUT("/billing-address/:id", handler.UpdateBillingAddress)
 	e.PUT("/shipping-address/:id", handler.UpdateShippingAddress)
 	e.PUT("/email-template/:id", handler.UpdateEmailTemplate)

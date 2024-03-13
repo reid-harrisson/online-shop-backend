@@ -167,33 +167,47 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Update coupon
+// @Summary Update order item status
 // @Tags Order Management
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "Order ID"
-// @Param store_id query int true "Store ID"
-// @Param code query string ture "Coupon Code"
+// @Param order_id query int true "Order Item ID"
+// @Param status query string ture "Status"
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/coupon/{id} [put]
-func (h *HandlersOrderManagement) UpdateCoupon(c echo.Context) error {
-	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	code := c.QueryParam("code")
+// @Router /store/api/v1/order/status [put]
+func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {
+	orderID, _ := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
+	status := c.QueryParam("status")
 
-	modelCoupon := models.Coupons{}
-	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	if err := couRepo.ReadByCode(&modelCoupon, code); err != nil || modelCoupon.StoreID != storeID {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code doesn't exist.")
+	orderService := ordsvc.NewServiceOrder(h.server.DB)
+	orderService.UpdateOrderItemStatus(orderID, status)
+
+	mailData := utils.MailData{
+		Name:            "PockitTV Contact Centre",
+		EmailFrom:       "araki@pockittv.com",
+		EmailTo:         "kaspersky3550879@gmail.com",
+		EmailPretext:    "Contact Centre",
+		Company:         "PockitTV",
+		Subject:         "Account Activation",
+		Phone:           "+12387621342",
+		SourceChannel:   "Sports",
+		BodyBlock:       "Body Block",
+		TargetTeam:      "PockitTv Contact Team",
+		BodyCtaBtnLabel: "ACTIVATE",
+		// BodyCtaBtnLink:             tempUser.ActivationLink,
+		BodyGreeting: "Hi",
+		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
+		CompanyID:    2,
+		// FirstName:                  tempUser.FirstName,
+		HeaderPosterImageUrl:       "",
+		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
+		HeaderPosterSloganTitle:    "ARE YOU READY?",
 	}
+	utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
 
-	modelItems := make([]models.OrderItems, 0)
-	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.UpdateCoupon(&modelItems, storeID, orderID, &modelCoupon)
-
-	return responses.NewResponseOrderItems(c, http.StatusOK, modelItems)
+	return responses.MessageResponse(c, http.StatusAccepted, "Order status just updated")
 }
 
 // Refresh godoc
