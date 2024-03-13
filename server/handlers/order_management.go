@@ -8,7 +8,6 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	cartsvc "OnlineStoreBackend/services/cart_items"
-	etsvc "OnlineStoreBackend/services/email_templates"
 	ordsvc "OnlineStoreBackend/services/orders"
 	"net/http"
 	"strconv"
@@ -167,22 +166,22 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 	ordService.UpdateStatus(&modelItems, storeID, orderID, status)
 
 	mailData := utils.MailData{
-		Name:            "PockitTV Contact Centre",
-		EmailFrom:       "araki@pockittv.com",
-		EmailTo:         "kaspersky3550879@gmail.com",
-		EmailPretext:    "Contact Centre",
-		Company:         "PockitTV",
-		Subject:         "Account Activation",
-		Phone:           "+12387621342",
-		SourceChannel:   "Sports",
-		BodyBlock:       "Body Block",
-		TargetTeam:      "PockitTv Contact Team",
-		BodyCtaBtnLabel: "ACTIVATE",
-		// BodyCtaBtnLink:             tempUser.ActivationLink,
-		BodyGreeting: "Hi",
-		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
-		CompanyID:    2,
-		// FirstName:                  tempUser.FirstName,
+		Name:                       "PockitTV Contact Centre",
+		EmailFrom:                  "araki@pockittv.com",
+		EmailTo:                    "kaspersky3550879@gmail.com",
+		EmailPretext:               "Contact Centre",
+		Company:                    "PockitTV",
+		Subject:                    "Account Activation",
+		Phone:                      "+12387621342",
+		SourceChannel:              "Sports",
+		BodyBlock:                  "Body Block",
+		TargetTeam:                 "PockitTv Contact Team",
+		BodyCtaBtnLabel:            "ACTIVATE",
+		BodyCtaBtnLink:             "",
+		BodyGreeting:               "Hi",
+		BodyHeading:                "ACTIVATE YOUR ACCOUNT",
+		CompanyID:                  2,
+		FirstName:                  "",
 		HeaderPosterImageUrl:       "",
 		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
 		HeaderPosterSloganTitle:    "ARE YOU READY?",
@@ -211,22 +210,22 @@ func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {
 	orderService.UpdateOrderItemStatus(orderID, status)
 
 	mailData := utils.MailData{
-		Name:            "PockitTV Contact Centre",
-		EmailFrom:       "araki@pockittv.com",
-		EmailTo:         "kaspersky3550879@gmail.com",
-		EmailPretext:    "Contact Centre",
-		Company:         "PockitTV",
-		Subject:         "Account Activation",
-		Phone:           "+12387621342",
-		SourceChannel:   "Sports",
-		BodyBlock:       "Body Block",
-		TargetTeam:      "PockitTv Contact Team",
-		BodyCtaBtnLabel: "ACTIVATE",
-		// BodyCtaBtnLink:             tempUser.ActivationLink,
-		BodyGreeting: "Hi",
-		BodyHeading:  "ACTIVATE YOUR ACCOUNT",
-		CompanyID:    2,
-		// FirstName:                  tempUser.FirstName,
+		Name:                       "PockitTV Contact Centre",
+		EmailFrom:                  "araki@pockittv.com",
+		EmailTo:                    "kaspersky3550879@gmail.com",
+		EmailPretext:               "Contact Centre",
+		Company:                    "PockitTV",
+		Subject:                    "Account Activation",
+		Phone:                      "+12387621342",
+		SourceChannel:              "Sports",
+		BodyBlock:                  "Body Block",
+		TargetTeam:                 "PockitTv Contact Team",
+		BodyCtaBtnLabel:            "ACTIVATE",
+		BodyCtaBtnLink:             "",
+		BodyGreeting:               "Hi",
+		BodyHeading:                "ACTIVATE YOUR ACCOUNT",
+		CompanyID:                  2,
+		FirstName:                  "",
 		HeaderPosterImageUrl:       "",
 		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
 		HeaderPosterSloganTitle:    "ARE YOU READY?",
@@ -234,153 +233,4 @@ func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {
 	utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
 
 	return responses.MessageResponse(c, http.StatusAccepted, "Order status just updated")
-}
-
-// Refresh godoc
-// @Summary Edit order billing address
-// @Tags Order Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Order ID"
-// @Param address_id query int true "Address ID"
-// @Success 200 {object} responses.ResponseCustomerOrderWithDetail
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/billing-address/{id} [put]
-func (h *HandlersOrderManagement) UpdateBillingAddress(c echo.Context) error {
-	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	addressID, _ := strconv.ParseUint(c.QueryParam("address_id"), 10, 64)
-
-	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.UpdateBillingAddress(orderID, addressID)
-
-	modelOrder := models.CustomerOrdersWithAddress{}
-	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByOrderID(&modelOrder, orderID)
-
-	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
-}
-
-// Refresh godoc
-// @Summary Edit order shipping address
-// @Tags Order Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Order ID"
-// @Param address_id query int true "Address ID"
-// @Success 200 {object} responses.ResponseCustomerOrderWithDetail
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/shipping-address/{id} [put]
-func (h *HandlersOrderManagement) UpdateShippingAddress(c echo.Context) error {
-	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	addressID, _ := strconv.ParseUint(c.QueryParam("address_id"), 10, 64)
-
-	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.UpdateShippingAddress(orderID, addressID)
-
-	modelOrder := models.CustomerOrdersWithAddress{}
-	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByOrderID(&modelOrder, orderID)
-
-	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrder)
-}
-
-// Refresh godoc
-// @Summary Create Email Template
-// @Tags Order Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param params body requests.RequestEmailTemplate true "Email Template Data"
-// @Success 200 {object} responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/email-template [post]
-func (h *HandlersOrderManagement) CreateEmailTemplate(c echo.Context) error {
-	requestEmailTemplate := new(requests.RequestEmailTemplate)
-
-	if err := c.Bind(requestEmailTemplate); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := requestEmailTemplate.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelEmailTemplate := models.EmailTemplate{}
-	prodService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	prodService.Create(&modelEmailTemplate, requestEmailTemplate)
-
-	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelEmailTemplate)
-}
-
-// Refresh godoc
-// @Summary Read Email Templates By Store ID
-// @Tags Order Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Success 200 {object} []responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/email-template/{id} [get]
-func (h *HandlersOrderManagement) ReadEmailTemplateByStoreID(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelEmailTemplates := make([]models.EmailTemplate, 0)
-
-	emailTemplateRepository := repositories.NewRepositoryEmailTemplate(h.server.DB)
-	emailTemplateRepository.ReadEmailTemplateByStoreID(&modelEmailTemplates, storeID)
-
-	return responses.NewResponseEmailTemplates(c, http.StatusOK, modelEmailTemplates)
-}
-
-// Refresh godoc
-// @Summary Update Email Template
-// @Tags Order Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Email Template ID"
-// @Param params body requests.RequestEmailTemplate true "Email Template Data"
-// @Success 200 {object} responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/email-template/{id} [put]
-func (h *HandlersOrderManagement) UpdateEmailTemplate(c echo.Context) error {
-	emailTemplateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	requestEmailTemplate := new(requests.RequestEmailTemplate)
-
-	if err := c.Bind(requestEmailTemplate); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := requestEmailTemplate.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelEmailTemplate := models.EmailTemplate{}
-
-	emailTemplateService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := emailTemplateService.Update(emailTemplateID, &modelEmailTemplate, requestEmailTemplate); err != nil {
-		return responses.Response(c, http.StatusBadRequest, "No record found.")
-	}
-
-	return responses.NewResponseEmailTemplate(c, http.StatusOK, &modelEmailTemplate)
-}
-
-// Refresh godoc
-// @Summary Delete Email Template
-// @Tags Order Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Email Template ID"
-// @Success 200 {object} []responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/order/email-template/{id} [delete]
-func (h *HandlersOrderManagement) DeleteEmailTemplate(c echo.Context) error {
-	emailTemplateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	emailTemplateService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := emailTemplateService.Delete(emailTemplateID); err != nil {
-		return responses.Response(c, http.StatusBadRequest, "No record found.")
-	}
-
-	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
 }

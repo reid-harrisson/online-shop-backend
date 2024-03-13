@@ -31,6 +31,6 @@ func (repository *RepositoryTag) ReadByStoreID(modelTags *[]models.StoreTags, st
 	repository.DB.Where("store_id = ?", storeID).Find(modelTags)
 }
 
-func (repository *RepositoryTag) ReadByID(modelTag *models.StoreTags, tagID uint64) error {
-	return repository.DB.First(modelTag, tagID).Error
+func (repository *RepositoryTag) ReadByID(modelTag *models.StoreTags, tagID uint64, storeID uint64) error {
+	return repository.DB.Where("id = ? And store_id = ?", tagID, storeID).First(modelTag).Error
 }

@@ -7,6 +7,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	catesvc "OnlineStoreBackend/services/categories"
+	etsvc "OnlineStoreBackend/services/email_templates"
 	storesvc "OnlineStoreBackend/services/stores"
 	tagsvc "OnlineStoreBackend/services/tags"
 	"net/http"
@@ -221,8 +222,7 @@ func (h *HandlersStoreManagement) UpdateCategory(c echo.Context) error {
 
 	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByCategoryID(&modelCategory, categoryID)
-	if modelCategory.ID == 0 || modelCategory.StoreID != storeID {
+	if err := cateRepo.ReadByID(&modelCategory, categoryID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
 	}
 	cateService := catesvc.NewServiceCategory(h.server.DB)
@@ -255,7 +255,7 @@ func (h *HandlersStoreManagement) UpdateTag(c echo.Context) error {
 
 	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
+	if err := tagRepo.ReadByID(&modelTag, tagID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
 	}
 
@@ -304,8 +304,7 @@ func (h *HandlersStoreManagement) DeleteCategory(c echo.Context) error {
 
 	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByCategoryID(&modelCategory, categoryID)
-	if modelCategory.ID == 0 || modelCategory.StoreID != storeID {
+	if err := cateRepo.ReadByID(&modelCategory, categoryID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
 	}
 	cateService := catesvc.NewServiceCategory(h.server.DB)
@@ -333,7 +332,7 @@ func (h *HandlersStoreManagement) DeleteTag(c echo.Context) error {
 
 	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
+	if err := tagRepo.ReadByID(&modelTag, tagID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
 	}
 
@@ -343,4 +342,112 @@ func (h *HandlersStoreManagement) DeleteTag(c echo.Context) error {
 	modelTags := make([]models.StoreTags, 0)
 	tagRepo.ReadByStoreID(&modelTags, storeID)
 	return responses.NewResponseStoreTags(c, http.StatusCreated, modelTags)
+}
+
+// Refresh godoc
+// @Summary Create email template
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Param params body requests.RequestEmailTemplate true "Email Template Data"
+// @Success 200 {object} responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id}/template [post]
+func (h *HandlersStoreManagement) CreateTemplate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	req := new(requests.RequestEmailTemplate)
+
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	} else if err := req.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelTemplate := models.EmailTemplates{}
+	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
+	if err := temService.Create(&modelTemplate, req, storeID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
+	}
+
+	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelTemplate)
+}
+
+// Refresh godoc
+// @Summary Read email templates
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Success 200 {object} []responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id}/template [get]
+func (h *HandlersStoreManagement) ReadTemplate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelTemplates := make([]models.EmailTemplates, 0)
+
+	temRepo := repositories.NewRepositoryEmailTemplate(h.server.DB)
+	temRepo.ReadByStoreID(&modelTemplates, storeID)
+
+	return responses.NewResponseEmailTemplates(c, http.StatusOK, modelTemplates)
+}
+
+// Refresh godoc
+// @Summary Update email template
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Param template_id path int true "Template ID"
+// @Param params body requests.RequestEmailTemplate true "Email Template Data"
+// @Success 200 {object} responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id}/template/{template_id} [put]
+func (h *HandlersStoreManagement) UpdateTemplate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	templateID, _ := strconv.ParseUint(c.Param("template_id"), 10, 64)
+
+	req := new(requests.RequestEmailTemplate)
+
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	} else if err := req.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelTemplate := models.EmailTemplates{}
+
+	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
+	if err := temService.Update(storeID, templateID, &modelTemplate, req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No template exist at this ID.")
+	}
+
+	return responses.NewResponseEmailTemplate(c, http.StatusOK, &modelTemplate)
+}
+
+// Refresh godoc
+// @Summary Delete email template
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Param template_id path int true "Template ID"
+// @Success 200 {object} []responses.ResponseEmailTemplate
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/{id}/template/{template_id} [delete]
+func (h *HandlersStoreManagement) DeleteTemplate(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	templateID, _ := strconv.ParseUint(c.Param("template_id"), 10, 64)
+
+	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
+	if err := temService.Delete(storeID, templateID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No template exist at this ID.")
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
 }

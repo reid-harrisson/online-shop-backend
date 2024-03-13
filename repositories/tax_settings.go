@@ -30,7 +30,7 @@ func (repository *RepositoryTax) ReadByCustomerID(modelTax *models.Taxes, custom
 func (repository *RepositoryTax) ReadByCountryID(modelTax *models.Taxes, countryID uint64) error {
 	return repository.DB.Table("countries").
 		Select("tax_rate, id As country_id").
-		Where("id = ? && deleted_at Is Null", countryID).
+		Where("id = ? And deleted_at Is Null", countryID).
 		Limit(1).
 		Scan(modelTax).
 		Error

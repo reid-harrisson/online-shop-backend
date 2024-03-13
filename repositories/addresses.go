@@ -25,3 +25,7 @@ func (repository *RepositoryAddresses) ReadAddressByCustomerID(modelAddr *models
 func (repository *RepositoryAddresses) ReadAddressByID(modelAddr *models.Addresses, addressID uint64) {
 	repository.DB.First(modelAddr, addressID)
 }
+
+func (repository *RepositoryAddresses) ReadByID(modelAddr *models.Addresses, addressID uint64, customerID uint64) {
+	repository.DB.Where("id = ? And customer_id = ?", addressID, customerID).First(modelAddr)
+}

@@ -5,25 +5,24 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelEmailTemplate *models.EmailTemplate, requestEmailTemplate *requests.RequestEmailTemplate) error {
-	modelEmailTemplate.StoreID = requestEmailTemplate.StoreID
-	modelEmailTemplate.OrderStatus = requestEmailTemplate.OrderStatus
-	modelEmailTemplate.CompanyName = requestEmailTemplate.CompanyName
-	modelEmailTemplate.CompanyLink = requestEmailTemplate.CompanyLink
-	modelEmailTemplate.CompanyLogoUrl = requestEmailTemplate.CompanyLogoUrl
-	modelEmailTemplate.CompanyPrimaryColor = requestEmailTemplate.CompanyPrimaryColor
-	modelEmailTemplate.EmailPretext = requestEmailTemplate.EmailPretext
-	modelEmailTemplate.HeaderPosterSloganTitle = requestEmailTemplate.HeaderPosterSloganTitle
-	modelEmailTemplate.HeaderPosterSloganSubtitle = requestEmailTemplate.HeaderPosterSloganSubtitle
-	modelEmailTemplate.BodyGreeting = requestEmailTemplate.BodyGreeting
-	modelEmailTemplate.FirstName = requestEmailTemplate.FirstName
-	modelEmailTemplate.BodyMessage = requestEmailTemplate.BodyMessage
-	modelEmailTemplate.BodyCtaBtnLink = requestEmailTemplate.BodyCtaBtnLink
-	modelEmailTemplate.BodyCtaBtnLabel = requestEmailTemplate.BodyCtaBtnLabel
-	modelEmailTemplate.BodySecondaryMessage = requestEmailTemplate.BodySecondaryMessage
-	modelEmailTemplate.UnsubscribeLink = requestEmailTemplate.UnsubscribeLink
-	modelEmailTemplate.UnsubscribeSafeLink = requestEmailTemplate.UnsubscribeSafeLink
+func (service *Service) Create(modelTemplate *models.EmailTemplates, req *requests.RequestEmailTemplate, storeID uint64) error {
+	modelTemplate.StoreID = storeID
+	modelTemplate.OrderStatus = req.OrderStatus
+	modelTemplate.CompanyName = req.CompanyName
+	modelTemplate.CompanyLink = req.CompanyLink
+	modelTemplate.CompanyLogoUrl = req.CompanyLogoUrl
+	modelTemplate.CompanyPrimaryColor = req.CompanyPrimaryColor
+	modelTemplate.EmailPretext = req.EmailPretext
+	modelTemplate.HeaderPosterSloganTitle = req.HeaderPosterSloganTitle
+	modelTemplate.HeaderPosterSloganSubtitle = req.HeaderPosterSloganSubtitle
+	modelTemplate.BodyGreeting = req.BodyGreeting
+	modelTemplate.FirstName = req.FirstName
+	modelTemplate.BodyMessage = req.BodyMessage
+	modelTemplate.BodyCtaBtnLink = req.BodyCtaBtnLink
+	modelTemplate.BodyCtaBtnLabel = req.BodyCtaBtnLabel
+	modelTemplate.BodySecondaryMessage = req.BodySecondaryMessage
+	modelTemplate.UnsubscribeLink = req.UnsubscribeLink
+	modelTemplate.UnsubscribeSafeLink = req.UnsubscribeSafeLink
 
-	service.DB.Create(&modelEmailTemplate)
-	return nil
+	return service.DB.Create(&modelTemplate).Error
 }

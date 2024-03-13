@@ -140,16 +140,55 @@ func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 
 	modelAddr := models.Addresses{}
 	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
-	addrRepo.ReadAddressByID(&modelAddr, req.ShippingAddressID)
+	addrRepo.ReadByID(&modelAddr, req.ShippingAddressID, customerID)
 
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
 
-	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, modelAddr, modelCoupons))
+	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, modelAddr, modelCoupons, models.Combos{}))
 }
 
-func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, modelAddr models.Addresses, modelCoupons []models.Coupons) []responses.ResponseCheckoutStore {
+// Refresh godoc
+// @Summary Read checkout from combo
+// @Tags Checkout Process
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param customer_id query int true "Customer ID"
+// @Param combo_id query int true "Combo ID"
+// @Param params body requests.RequestCheckout true "Address and coupon"
+// @Success 200 {object} []responses.ResponseCheckout
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/checkout/combo [post]
+func (h *HandlersCheckoutProcess) ReadCombo(c echo.Context) error {
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
+
+	req := new(requests.RequestCheckout)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	modelCombo := models.Combos{}
+	combRepo := repositories.NewRepositoryCombo(h.server.DB)
+	combRepo.ReadByID(&modelCombo, comboID)
+
+	modelItems := make([]models.CartItemsWithDetail, 0)
+	combRepo.ReadDetail(&modelItems, comboID)
+
+	modelAddr := models.Addresses{}
+	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
+	addrRepo.ReadByID(&modelAddr, req.ShippingAddressID, customerID)
+
+	modelCoupons := []models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+
+	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, modelAddr, modelCoupons, modelCombo))
+}
+
+func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, modelAddr models.Addresses, modelCoupons []models.Coupons, modelCombo models.Combos) []responses.ResponseCheckoutStore {
 	mapStore := map[uint64]int{}
 	mapCoupon := map[uint64]int{}
 	responseStores := []responses.ResponseCheckoutStore{}
@@ -193,27 +232,42 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 		subTotal := 0.0
 		shippingPrice := 0.0
 		quantity := 0.0
+
+		size := len(responseStores[index].Variations)
+		couIndex := mapCoupon[responseStores[index].StoreID]
 		for _, responseVar := range responseStores[index].Variations {
 			modelShip := models.ShippingData{}
 			shipRepo := repositories.NewRepositoryShippingData(db)
 			shipRepo.ReadByVariationID(&modelShip, responseVar.VariationID)
 
-			subTotal += responseVar.TotalPrice
-			shippingPrice += ordsvc.GetShippingPrice(modelRates, responseVar.TotalPrice, responseVar.Quantity, modelShip)
+			totalPrice := responseVar.TotalPrice
+			if modelCombo.ID != 0 {
+				switch modelCombo.DiscountType {
+				case utils.PercentageOff:
+					totalPrice *= (100 - modelCombo.DiscountAmount) / 100
+				case utils.FixedAmountOff:
+					totalPrice -= modelCombo.DiscountAmount / float64(size)
+				}
+			}
+
+			if len(modelCoupons) > 0 {
+				switch modelCoupons[couIndex].DiscountType {
+				case utils.FixedCartDiscount:
+					totalPrice -= modelCoupons[couIndex].CouponAmount / float64(size)
+				case utils.FixedProductDiscount:
+					totalPrice -= modelCoupons[couIndex].CouponAmount * quantity
+				case utils.PercentageDiscount:
+					totalPrice *= (100 - modelCoupons[couIndex].CouponAmount) / 100
+				}
+			}
+
+			subTotal += totalPrice
+			shippingPrice += ordsvc.GetShippingPrice(modelRates, totalPrice, responseVar.Quantity, modelShip)
 			quantity += responseVar.Quantity
 		}
 		if len(modelCoupons) > 0 {
-			couIndex := mapCoupon[responseStores[index].StoreID]
 			if modelCoupons[couIndex].AllowFreeShipping == 1 {
 				shippingPrice = 0
-			}
-			switch modelCoupons[couIndex].DiscountType {
-			case utils.FixedCartDiscount:
-				subTotal -= modelCoupons[couIndex].CouponAmount
-			case utils.FixedProductDiscount:
-				subTotal -= modelCoupons[couIndex].CouponAmount * quantity
-			case utils.PercentageDiscount:
-				subTotal *= (100 - modelCoupons[couIndex].CouponAmount) / 100
 			}
 		}
 		taxAmount := modelTax.TaxRate * (subTotal + shippingPrice) / 100
