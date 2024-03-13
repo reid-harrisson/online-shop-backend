@@ -14,7 +14,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 type HandlersCheckoutProcess struct {
@@ -146,10 +145,6 @@ func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
 
-	return responses.NewResponseCheckout(c, http.StatusOK, GetResponseStores(h.server.DB, modelItems, modelAddr, modelCoupons))
-}
-
-func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, modelAddr models.Addresses, modelCoupons []models.Coupons) []responses.ResponseCheckoutStore {
 	mapStore := map[uint64]int{}
 	mapCoupon := map[uint64]int{}
 	responseStores := []responses.ResponseCheckoutStore{}
@@ -184,18 +179,19 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 		})
 	}
 	modelTax := models.Taxes{}
-	taxRepo := repositories.NewRepositoryTax(db)
+	taxRepo := repositories.NewRepositoryTax(h.server.DB)
 	taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
-	tableRepo := repositories.NewRepositoryShippingMethod(db)
+	tableRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
 	for index := range responseStores {
 		modelRates := []models.ShippingTableRates{}
 		tableRepo.ReadRates(&modelRates, responseStores[index].StoreID)
 		subTotal := 0.0
 		shippingPrice := 0.0
 		quantity := 0.0
+
 		for _, responseVar := range responseStores[index].Variations {
 			modelShip := models.ShippingData{}
-			shipRepo := repositories.NewRepositoryShippingData(db)
+			shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
 			shipRepo.ReadByVariationID(&modelShip, responseVar.VariationID)
 
 			subTotal += responseVar.TotalPrice
@@ -223,5 +219,6 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 		responseStores[index].TaxAmount = utils.Round(taxAmount)
 		responseStores[index].TotalPrice = utils.Round(shippingPrice + subTotal + taxAmount)
 	}
-	return responseStores
+
+	return responses.NewResponseCheckout(c, http.StatusOK, responseStores)
 }

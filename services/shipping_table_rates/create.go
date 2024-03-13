@@ -9,7 +9,7 @@ import (
 
 func (service *Service) Create(methodID uint64, req *requests.RequestTableRate, modelRate *models.ShippingTableRates) error {
 	condition := utils.ConditionFromString(req.Condition)
-	err := service.DB.Where("`condition` = ? And min = ? And max = ?", condition, req.Min, req.Max).First(&modelRate).Error
+	err := service.DB.Where("`condition` = ? And min = ? And max = ? And method_id = ?", condition, req.Min, req.Max, methodID).First(&modelRate).Error
 	modelRate.Condition = condition
 	modelRate.Min = req.Min
 	modelRate.Max = req.Max
