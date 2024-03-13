@@ -109,7 +109,7 @@ func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrde
 	}
 }
 
-func (repository *RepositoryOrder) CalcTotalAmount(totalAmount float64, orderID uint) {
+func (repository *RepositoryOrder) CalcTotalAmount(totalAmount *float64, orderID uint) {
 	repository.DB.
 		Table("store_order_items").
 		Select("SUM(store_order_items.total_price)").
