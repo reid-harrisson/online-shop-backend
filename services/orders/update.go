@@ -49,15 +49,22 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 }
 
 func (service *Service) UpdateOrderItemStatus(orderID uint64, status string) {
-	service.DB.Model(models.OrderItems{}).Update("status", utils.OrderStatusFromString(status)).Where("order_id = ?", orderID)
+	service.DB.
+		Model(models.OrderItems{}).
+		Where("order_id = ?", orderID).
+		Update("status", utils.OrderStatusFromString(status))
 }
 
 func (service *Service) UpdateBillingAddress(orderID uint64, addressID uint64) {
-	service.DB.Model(models.Orders{}).Update("billing_address_id", addressID)
+	service.DB.
+		Model(models.Orders{}).
+		Update("billing_address_id", addressID)
 }
 
 func (service *Service) UpdateShippingAddress(orderID uint64, addressID uint64) {
-	service.DB.Model(models.Orders{}).Update("shipping_address_id", addressID)
+	service.DB.
+		Model(models.Orders{}).
+		Update("shipping_address_id", addressID)
 }
 
 func (service *Service) UpdateCoupon(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, modelCoupon *models.Coupons) error {
@@ -87,6 +94,7 @@ func (service *Service) UpdateCoupon(modelItems *[]models.OrderItems, storeID ui
 		(*modelItems)[index].ShippingPrice = GetShippingPrice(modelRates, (*modelItems)[index].SubTotalPrice, (*modelItems)[index].Quantity, modelShip)
 		(*modelItems)[index].TotalPrice = (*modelItems)[index].ShippingPrice + (*modelItems)[index].SubTotalPrice + (*modelItems)[index].TaxAmount
 	}
+
 	service.DB.Delete(modelCoupon)
 	return service.DB.Save(modelItems).Error
 }
