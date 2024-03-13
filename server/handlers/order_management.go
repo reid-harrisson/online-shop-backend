@@ -39,9 +39,11 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
+
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
@@ -56,9 +58,11 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	modelOrder := models.Orders{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
 	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID)
+
 	modelItems := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
+
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
 }
 
