@@ -11,6 +11,13 @@ type ProductTypes int8
 type Requirements int8
 type Conditions int8
 type CouponTypes int8
+type PaymentType int8
+
+const (
+	WalletDeposit PaymentType = iota + 1
+	WalletWithdraw
+	StorePurchase
+)
 
 const (
 	PercentageDiscount CouponTypes = iota
