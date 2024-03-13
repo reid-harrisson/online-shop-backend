@@ -47,14 +47,14 @@ func ConfigureRoutes(server *s.Server) {
 	apiV1.Use(middleware.Logger())
 	apiV1.Use(middleware.Recover())
 
+	groupStoreManagement := apiV1.Group("/store")
+	GroupStoreManagement(server, groupStoreManagement)
+
 	groupProductManagement := apiV1.Group("/product")
 	GroupProductManagement(server, groupProductManagement)
 
 	groupShoppingCart := apiV1.Group("/cart")
 	GroupShoppingCart(server, groupShoppingCart)
-
-	groupCategory := apiV1.Group("/category")
-	GroupCategory(server, groupCategory)
 
 	groupProductReviews := apiV1.Group("/review")
 	GroupProductReviews(server, groupProductReviews)
@@ -65,20 +65,11 @@ func ConfigureRoutes(server *s.Server) {
 	groupInventoryManagement := apiV1.Group("/inventory")
 	GroupInventoryManagement(server, groupInventoryManagement)
 
-	groupGeneralStoreOffering := apiV1.Group("/store")
-	GroupStoreManagement(server, groupGeneralStoreOffering)
-
-	groupSalesMetrics := apiV1.Group("/analytic/sales")
-	GroupSalesMetrices(server, groupSalesMetrics)
-
 	groupTaxSettings := apiV1.Group("/tax")
 	GroupTaxSettings(server, groupTaxSettings)
 
 	groupShippingOptions := apiV1.Group("/shipping")
 	GroupShippingOptions(server, groupShippingOptions)
-
-	groupCustomers := apiV1.Group("/customer")
-	GroupCustomers(server, groupCustomers)
 
 	groupVariations := apiV1.Group("/variation")
 	GroupVariations(server, groupVariations)
@@ -91,6 +82,29 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupUpload := apiV1.Group("/upload")
 	GroupUpload(server, groupUpload)
+
+	groupCoupon := apiV1.Group("/coupon")
+	GroupCoupon(server, groupCoupon)
+
+	groupCheckout := apiV1.Group("/checkout")
+	GroupCheckout(server, groupCheckout)
+}
+
+func GroupCheckout(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCheckoutProcess(server)
+	e.POST("/address", handler.CreateAddress)
+	e.POST("", handler.Read)
+	e.GET("/address", handler.ReadAddresses)
+	e.GET("/coupon", handler.ReadCoupon)
+	e.PUT("/address/:id", handler.UpdateAddress)
+}
+
+func GroupCoupon(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCoupons(server)
+	e.POST("", handler.Create)
+	e.GET("", handler.Read)
+	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
 }
 
 func GroupVisitors(server *s.Server, e *echo.Group) {
@@ -116,6 +130,11 @@ func GroupAnalytics(server *s.Server, e *echo.Group) {
 	e.GET("/customer-location", handler.ReadCustomerDataByLocation)
 	e.GET("/satisfaction", handler.ReadCustomerSatisfaction)
 	e.GET("/loading-time", handler.ReadPageLoadingTime)
+	e.GET("/sales/revenue", handler.ReadRevenue)
+	e.GET("/sales/aov", handler.ReadAOV)
+	e.GET("/sales/product", handler.ReadSalesByProduct)
+	e.GET("/sales/category", handler.ReadSalesByCategory)
+	e.GET("/sales/clv", handler.ReadCLV)
 }
 
 func GroupProductManagement(server *s.Server, e *echo.Group) {
@@ -136,7 +155,6 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/category/:id", handler.UpdateCategories)
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels)
 	e.PUT("/content/:id", handler.UpdateRelatedContents)
-	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/publish/:id", handler.Publish)
 	e.PUT("/reject/:id", handler.Reject)
 	e.PUT("/shipping/:id", handler.UpdateShippingData)
@@ -148,21 +166,12 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/linked/:id", handler.DeleteLinkedProduct)
 }
 
-func GroupCategory(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersCategories(server)
-	e.POST("", handler.CreateCategory)
-	e.GET("", handler.ReadCategory)
-	e.PUT("/:id", handler.UpdateCategory)
-	e.DELETE("/:id", handler.DeleteCategory)
-}
-
 func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShoppingCart(server)
 	e.POST("", handler.Create)
 	e.GET("", handler.Read)
-	e.GET("/count", handler.ReadItemCount)
 	e.PUT("/:id", handler.UpdateQuantity)
-	e.DELETE("/:id", handler.DeleteByID)
+	e.DELETE("/:id", handler.Delete)
 	e.DELETE("", handler.DeleteAll)
 }
 
@@ -192,25 +201,24 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
-	e.PUT("/stock-level/:id", handler.UpdateShowStockLevelStatus)
-	e.PUT("/out-of-stock/:id", handler.UpdateShowOutOfStockStatus)
+	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
+	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 }
 
 func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersStoreManagement(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.ReadAll)
+	e.POST("/:id/category", handler.CreateCategory)
+	e.POST("/:id/tag", handler.CreateTag)
+	e.GET("", handler.Read)
+	e.GET("/:id/category", handler.ReadCategory)
+	e.GET("/:id/tag", handler.ReadTag)
 	e.PUT("/:id", handler.Update)
+	e.PUT("/:id/category/:category_id", handler.UpdateCategory)
+	e.PUT("/:id/tag/:tag_id", handler.UpdateTag)
 	e.DELETE("/:id", handler.Delete)
-}
-
-func GroupSalesMetrices(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersSalesMetrics(server)
-	e.GET("/revenue", handler.ReadRevenue)
-	e.GET("/aov", handler.ReadAOV)
-	e.GET("/product", handler.ReadSalesByProduct)
-	e.GET("/category", handler.ReadSalesByCategory)
-	e.GET("/clv", handler.ReadCLV)
+	e.DELETE("/:id/category/:category_id", handler.DeleteCategory)
+	e.DELETE("/:id/tag/:tag_id", handler.DeleteTag)
 }
 
 func GroupTaxSettings(server *s.Server, e *echo.Group) {
@@ -220,35 +228,10 @@ func GroupTaxSettings(server *s.Server, e *echo.Group) {
 
 func GroupShippingOptions(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersShippingOptions(server)
-	// e.POST("/zone", handler.CreateShippingZone)
-	// e.POST("/class", handler.CreateShippingClass)
-	// e.POST("/local-pickup", handler.CreateShippingLocalPickup)
-	// e.POST("/free", handler.CreateShippingFree)
-	// e.POST("/flat-rate", handler.CreateShippingFlatRate)
-	// e.POST("/table-rate", handler.CreateShippingTableRate)
 	e.POST("/rate", handler.CreateShippingRate)
-	// e.GET("", handler.ReadAllShippingMethod)
 	e.GET("/rate", handler.ReadShippingRate)
-	// e.GET("/free/:id", handler.ReadShippingFree)
-	// e.GET("/local-pickup/:id", handler.ReadShippingLocalPickup)
-	// e.GET("/flat-rate/:id", handler.ReadShippingFlatRate)
-	// e.GET("/table-rate/:id", handler.ReadShippingTableRate)
-	// e.PUT("/order", handler.UpdateShippingMethod)
-	// e.PUT("/class/:id", handler.UpdateShippingClass)
-	// e.PUT("/zone/:id", handler.UpdateShippingZone)
-	// e.PUT("/free/:id", handler.UpdateShippingFree)
-	// e.PUT("/local-pickup/:id", handler.UpdateShippingLocalPickup)
-	// e.PUT("/flat-rate/:id", handler.UpdateShippingFlatRate)
-	// e.PUT("/table-rate/:id", handler.UpdateShippingTableRate)
 	e.PUT("/rate/:id", handler.UpdateShippingRate)
 	e.DELETE("/rate/:id", handler.DeleteShippingRate)
-}
-
-func GroupCustomers(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersCustomers(server)
-	e.POST("/address", handler.CreateCustomerAddress)
-	e.GET("/address", handler.ReadCustomerAddress)
-	e.PUT("/address/:id", handler.UpdateCustomerAddress)
 }
 
 func GroupVariations(server *s.Server, e *echo.Group) {
@@ -258,7 +241,6 @@ func GroupVariations(server *s.Server, e *echo.Group) {
 	e.GET("/product", handler.ReadVariationsInProduct)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/back-order/:id", handler.UpdateBackOrder)
-	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 	e.DELETE("/:id", handler.Delete)
 }
 

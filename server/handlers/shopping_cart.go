@@ -28,19 +28,12 @@ func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
-// @Param product_id query int true "Product ID"
-// @Param quantity query string true "Quantity"
-// @Param params body requests.RequestCart true "Variation Info"
-// @Success 201 {object} responses.ResponseCart
+// @Param params body requests.RequestCartItem true "Variation Info"
+// @Success 201 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [post]
 func (h *HandlersShoppingCart) Create(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
-	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
-
-	req := new(requests.RequestCart)
+	req := new(requests.RequestCartItem)
 
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -48,9 +41,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
-
-	if modelProduct.ID == 0 {
+	if err := prodRepo.ReadByID(&modelProduct, req.ProductID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
 	}
 	if modelProduct.Status != utils.Approved {
@@ -58,8 +49,19 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	}
 
 	modelVar := models.ProductVariations{}
+	modelVals := []models.ProductAttributeValuesWithDetail{}
+	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	valRepo.ReadByIDs(&modelVals, req.ValueIDs)
+	mapVal := map[uint64]string{}
+	for _, modelVal := range modelVals {
+		if mapVal[modelVal.AttributeID] == "" {
+			mapVal[modelVal.AttributeID] = modelVal.AttributeValue
+		} else {
+			return responses.ErrorResponse(c, http.StatusBadRequest, "Attribute value's duplicated.")
+		}
+	}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByAttributeValueIDs(&modelVar, req.AttributeValueIDs, productID)
+	varRepo.ReadByValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
@@ -69,33 +71,31 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByInfo(&modelItem, variationID, customerID)
+	cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.Create(&modelItem, customerID, &modelVar, quantity)
+	cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
 
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, customerID)
-	return responses.NewResponseCart(c, http.StatusCreated, modelItems)
+	return responses.NewResponseCartItem(c, http.StatusCreated, modelItem)
 }
 
 // Refresh godoc
-// @Summary Read item count
+// @Summary Read count
 // @Tags Shopping Cart
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param customer_id query int true "Customer ID"
-// @Success 200 {object} []responses.ResponseCart
+// @Success 200 {object} responses.ResponseCartCount
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/cart/count [get]
-func (h *HandlersShoppingCart) ReadItemCount(c echo.Context) error {
+// /@Router /store/api/v1/cart/count [get]
+func (h *HandlersShoppingCart) ReadCount(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
+	modelCount := models.CartCount{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	modelCount := models.CartItemCount{}
 	cartRepo.ReadItemCount(&modelCount, customerID)
-	return responses.NewResponseCartItemCount(c, http.StatusOK, modelCount)
+	return responses.NewResponseCartCount(c, http.StatusOK, modelCount)
 }
 
 // Refresh godoc
@@ -146,22 +146,20 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.UpdateQuantity(&modelItem, modelVar, quantity)
 
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, modelItem.CustomerID)
-	return responses.NewResponseCart(c, http.StatusOK, modelItems)
+	return responses.NewResponseCartItem(c, http.StatusOK, modelItem)
 }
 
 // Refresh godoc
-// @Summary Delete cart item by ID
+// @Summary Delete a item
 // @Tags Shopping Cart
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Cart ID"
-// @Success 200 {object} responses.ResponseCart
+// @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart/{id} [delete]
-func (h *HandlersShoppingCart) DeleteByID(c echo.Context) error {
+func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelItem := models.CartItems{}
@@ -175,9 +173,7 @@ func (h *HandlersShoppingCart) DeleteByID(c echo.Context) error {
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	cartService.Delete(cartID)
 
-	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, modelItem.CustomerID)
-	return responses.NewResponseCart(c, http.StatusOK, modelItems)
+	return responses.MessageResponse(c, http.StatusOK, "This cart item successfullly deleted.")
 }
 
 // Refresh godoc

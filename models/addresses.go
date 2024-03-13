@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-type CustomerAddresses struct {
+type Addresses struct {
 	gorm.Model
 
 	AddressLine1 string `gorm:"column:address_line1; type:varchar(100)"`
@@ -16,6 +16,6 @@ type CustomerAddresses struct {
 	Active       int8   `gorm:"column:active"`
 }
 
-func (CustomerAddresses) TableName() string {
+func (Addresses) TableName() string {
 	return "store_customer_addresses"
 }

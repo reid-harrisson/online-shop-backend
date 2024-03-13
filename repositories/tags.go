@@ -23,10 +23,14 @@ func (repository *RepositoryTag) ReadByProductID(modelTags *[]models.ProductTags
 		Scan(modelTags)
 }
 
-func (repository *RepositoryTag) ReadByName(modelTag *models.StoreTags, name string) {
-	repository.DB.Where("name = ?", name).First(modelTag)
+func (repository *RepositoryTag) ReadByName(modelTag *models.StoreTags, name string, storeID uint64) {
+	repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelTag)
 }
 
-func (repository *RepositoryTag) ReadAll(modelTags *[]models.StoreTags) {
-	repository.DB.Find(modelTags)
+func (repository *RepositoryTag) ReadByStoreID(modelTags *[]models.StoreTags, storeID uint64) {
+	repository.DB.Where("store_id = ?", storeID).Find(modelTags)
+}
+
+func (repository *RepositoryTag) ReadByID(modelTag *models.StoreTags, tagID uint64) error {
+	return repository.DB.First(modelTag, tagID).Error
 }

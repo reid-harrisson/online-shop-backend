@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelTags *[]models.ProductTagsWithName, req *requests.RequestTag, modelProduct *models.Products) {
+func (service *Service) Update(modelTags *[]models.ProductTagsWithName, req *requests.RequestProductTag, modelProduct *models.Products) {
 	filterKeys := make(map[string]int)
 	for _, modelTag := range *modelTags {
 		filterKeys[modelTag.TagName] = 1

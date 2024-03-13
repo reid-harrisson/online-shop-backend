@@ -89,35 +89,6 @@ func (h *HandlersProductVariations) ReadVariationsInProduct(c echo.Context) erro
 }
 
 // Refresh godoc
-// @Summary Update product variation stock level
-// @Tags Product Variation Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Variation ID"
-// @Param stock_level query string true "Stock Level"
-// @Success 200 {object} responses.ResponseProductVariation
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/variation/stock-level/{id} [put]
-func (h *HandlersProductVariations) UpdateStockLevel(c echo.Context) error {
-	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	stockLevel, _ := strconv.ParseFloat(c.QueryParam("stock_level"), 64)
-
-	modelVar := models.ProductVariations{}
-	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByID(&modelVar, variationID)
-
-	if modelVar.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
-	}
-
-	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
-	varService.UpdateStockLevel(&modelVar, stockLevel)
-
-	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
-}
-
-// Refresh godoc
 // @Summary Enable or disable back order
 // @Tags Product Variation Management
 // @Accept json

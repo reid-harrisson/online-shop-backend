@@ -4,7 +4,6 @@ import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
-	addrsvc "OnlineStoreBackend/services/customer_addresses"
 	orditmsvc "OnlineStoreBackend/services/order_items"
 )
 
@@ -32,28 +31,34 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 			compare = quantity
 		}
 		if compare >= modelRate.Min && compare <= modelRate.Max {
-			shippingPrice += modelRate.CostPerKg*modelShip.Weight + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
+			shippingPrice += modelRate.CostPerKg*modelShip.Weight*quantity + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
 		}
 	}
 
 	return shippingPrice
 }
 
-func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, modelTax models.TaxSettings, customerID uint64) {
-	modelAddr := models.CustomerAddresses{}
+func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64) {
+	mapCoupon := map[uint64]int{}
+	for index, modelCoupon := range modelCoupons {
+		mapCoupon[modelCoupon.StoreID] = index
+	}
 
-	addrRepo := repositories.NewRepositoryCustomer(service.DB)
+	modelAddr := models.Addresses{}
+	addrRepo := repositories.NewRepositoryAddresses(service.DB)
+	addrRepo.ReadAddressByID(&modelAddr, shippingAddressID)
+
+	modelTax := models.Taxes{}
+	taxRepo := repositories.NewRepositoryTax(service.DB)
+	taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
+
 	shipRepo := repositories.NewRepositoryShippingData(service.DB)
 	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
-	if err := addrRepo.ReadAddressByCustomerID(&modelAddr, customerID); err != nil {
-		addrService := addrsvc.NewServiceCustomerAddress(service.DB)
-		addrService.CreateFromUser(&modelAddr, customerID)
-	}
 
 	modelOrder.CustomerID = customerID
-	modelOrder.BillingAddressID = uint64(modelAddr.ID)
-	modelOrder.ShippingAddressID = uint64(modelAddr.ID)
+	modelOrder.BillingAddressID = billingAddressID
+	modelOrder.ShippingAddressID = shippingAddressID
 
 	orderStatus := utils.StatusOrderPending
 
@@ -71,15 +76,32 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 		methRepo.ReadTableRateMethodByStoreID(&modelMethod, modelItem.StoreID)
 		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
 
-		shippingPrice := GetShippingPrice(modelRates, totalPrice, modelItem.Quantity, modelShip)
+		if len(modelCoupons) > 0 {
+			couIndex := mapCoupon[modelItem.StoreID]
+			switch modelCoupons[couIndex].DiscountType {
+			case utils.FixedCartDiscount:
+				totalPrice -= modelCoupons[couIndex].CouponAmount
+			case utils.FixedProductDiscount:
+				totalPrice -= modelCoupons[couIndex].CouponAmount
+			case utils.PercentageDiscount:
+				totalPrice *= (100 - modelCoupons[couIndex].CouponAmount) / 100
+			}
+		}
 
+		shippingPrice := GetShippingPrice(modelRates, totalPrice, modelItem.Quantity, modelShip)
+		if len(modelCoupons) > 0 {
+			couIndex := mapCoupon[modelItem.StoreID]
+			if modelCoupons[couIndex].AllowFreeShipping == 1 {
+				shippingPrice = 0
+			}
+		}
 		itemStatus := utils.StatusOrderPending
 		if modelItem.StockLevel < modelItem.Quantity {
 			itemStatus = utils.StatusOrderBackOrdered
 			orderStatus = utils.StatusOrderBackOrdered
 		}
 
-		taxAmount := modelTax.TaxRate * totalPrice / 100
+		taxAmount := modelTax.TaxRate * (totalPrice + shippingPrice) / 100
 
 		modelItems = append(modelItems, models.OrderItems{
 			OrderID:          0,
@@ -92,7 +114,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			TaxAmount:        utils.Round(taxAmount),
 			ShippingMethodID: uint64(modelMethod.ID),
 			ShippingPrice:    shippingPrice,
-			TotalPrice:       utils.Round(totalPrice + taxAmount),
+			TotalPrice:       utils.Round(totalPrice + taxAmount + shippingPrice),
 			Status:           itemStatus,
 		})
 	}

@@ -8,7 +8,7 @@ import (
 func (service *Service) Delete(tag string) {
 	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
-	tagRepo.ReadByName(&modelTag, tag)
+	tagRepo.ReadByName(&modelTag, tag, modelTag.StoreID)
 	if modelTag.ID != 0 {
 		service.DB.Where("tag_id = ?", modelTag.ID).Delete(models.ProductTags{})
 	}

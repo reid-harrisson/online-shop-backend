@@ -39,8 +39,8 @@ type ResponseCustomerOrderItem struct {
 
 type ResponseCustomerOrderWithDetail struct {
 	OrderStatus     string                      `json:"order_status"`
-	ShippingAddress ResponseCustomerAddress     `json:"shipping_address"`
-	BillingAddress  ResponseCustomerAddress     `json:"billing_address"`
+	ShippingAddress ResponseAddress             `json:"shipping_address"`
+	BillingAddress  ResponseAddress             `json:"billing_address"`
 	Products        []ResponseCustomerOrderItem `json:"items"`
 }
 
@@ -104,7 +104,7 @@ func NewResponseCustomerOrdersWithDetail(c echo.Context, statusCode int, modelOr
 	}
 	return Response(c, statusCode, ResponseCustomerOrderWithDetail{
 		OrderStatus: utils.OrderStatusToString(orderStatus),
-		BillingAddress: ResponseCustomerAddress{
+		BillingAddress: ResponseAddress{
 			ID:           uint64(modelOrder.BillingAddress.ID),
 			AddressLine1: modelOrder.BillingAddress.AddressLine1,
 			AddressLine2: modelOrder.BillingAddress.AddressLine2,
@@ -114,7 +114,7 @@ func NewResponseCustomerOrdersWithDetail(c echo.Context, statusCode int, modelOr
 			CityID:       modelOrder.BillingAddress.CityID,
 			PostalCode:   modelOrder.BillingAddress.PostalCode,
 		},
-		ShippingAddress: ResponseCustomerAddress{
+		ShippingAddress: ResponseAddress{
 			ID:           uint64(modelOrder.ShippingAddress.ID),
 			AddressLine1: modelOrder.ShippingAddress.AddressLine1,
 			AddressLine2: modelOrder.ShippingAddress.AddressLine2,
@@ -184,8 +184,8 @@ func NewResponseOrderItems(c echo.Context, statusCode int, modelItems []models.O
 			TaxRate:          modelItem.TaxRate,
 			TaxAmount:        modelItem.TaxAmount,
 			ShippingMethodID: modelItem.ShippingMethodID,
-			ShippingPrice:    modelItem.ShippingPrice,
-			TotalPrice:       modelItem.TotalPrice,
+			ShippingPrice:    utils.Round(modelItem.ShippingPrice),
+			TotalPrice:       utils.Round(modelItem.TotalPrice),
 			Status:           utils.OrderStatusToString(modelItem.Status),
 		})
 	}

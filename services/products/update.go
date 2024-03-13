@@ -19,8 +19,8 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	return service.DB.Save(modelProduct).Error
 }
 
-func (service *Service) UpdateMinimumStockLevel(productID uint64, req *requests.RequestMinimumStockLevel, modelProduct *models.Products) error {
-	modelProduct.MinimumStockLevel = req.Level
+func (service *Service) UpdateMinimumStockLevel(productID uint64, minimumStockLevel float64, modelProduct *models.Products) error {
+	modelProduct.MinimumStockLevel = minimumStockLevel
 	return service.DB.Save(modelProduct).Error
 }
 
