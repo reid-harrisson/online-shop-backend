@@ -198,6 +198,7 @@ func GroupProductReviews(server *s.Server, e *echo.Group) {
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersOrderManagement(server)
 	e.POST("", handler.Create)
+	e.POST("/combo", handler.CreateCombo)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/customer", handler.ReadByCustomerID)
 	e.GET("/store", handler.ReadByStoreID)
