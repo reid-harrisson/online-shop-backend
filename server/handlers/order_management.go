@@ -44,6 +44,10 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	if err := req.RequestCheckoutValidate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
+	}
+
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
@@ -65,7 +69,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 
 	var totalAmount float64
 
-	orderRepo.CalcTotalAmount(totalAmount, modelOrder.ID)
+	orderRepo.CalcTotalAmount(&totalAmount, modelOrder.ID)
 
 	currency := "usd"
 
