@@ -23,14 +23,31 @@ func (repository *RepositoryCombo) ReadByStoreID(modelCombos *[]models.Combos, m
 	repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems)
 }
 
-func (repository *RepositoryCombo) ReadByID(modelCoupon *models.Coupons, couponID uint64) error {
-	return repository.DB.First(modelCoupon, couponID).Error
+func (repository *RepositoryCombo) ReadByID(modelCombo *models.Combos, comboID uint64) error {
+	return repository.DB.First(modelCombo, comboID).Error
 }
 
-func (repository *RepositoryCombo) ReadByCode(modelCoupon *models.Coupons, code string) error {
-	return repository.DB.Where("coupon_code = ?", code).First(modelCoupon).Error
-}
-
-func (repository *RepositoryCombo) ReadByIDs(modelCoupon *[]models.Coupons, ids []uint64) error {
-	return repository.DB.Where("id In (?)", ids).Find(modelCoupon).Error
+func (repository *RepositoryCombo) ReadDetail(modelItems *[]models.CartItemsWithDetail, comboID uint64) error {
+	return repository.DB.Table("store_combo_items As items").
+		Select(`
+			items.id,
+			items.variation_id,
+			items.quantity,
+			prods.store_id,
+			vars.price,
+			vars.discount_amount,
+			vars.discount_type,
+			vars.image_urls,
+			vars.stock_level,
+			vars.title As variation_name,
+			Group_Concat(Concat('"', cates.name,'"') Separator ', ') As categories
+		`).
+		Joins("Left Join store_product_variations As vars On vars.id = items.variation_id").
+		Joins("Left Join store_products As prods On prods.id = vars.product_id").
+		Joins("Left Join store_product_categories As prodcates On prodcates.product_id = prods.id").
+		Joins("Left Join store_categories As cates On cates.id = prodcates.category_id").
+		Group("items.variation_id").
+		Where("items.combo_id = ?", comboID).
+		Scan(modelItems).
+		Error
 }

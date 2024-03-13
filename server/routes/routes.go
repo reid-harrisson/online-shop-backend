@@ -105,6 +105,7 @@ func GroupCheckout(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersCheckoutProcess(server)
 	e.POST("/address", handler.CreateAddress)
 	e.POST("", handler.Read)
+	e.POST("/combo", handler.ReadCombo)
 	e.GET("/address", handler.ReadAddresses)
 	e.GET("/coupon", handler.ReadCoupon)
 	e.PUT("/address/:id", handler.UpdateAddress)
