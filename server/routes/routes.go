@@ -186,17 +186,11 @@ func GroupProductReviews(server *s.Server, e *echo.Group) {
 func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersOrderManagement(server)
 	e.POST("", handler.Create)
-	e.POST("/email-template", handler.CreateEmailTemplate)
 	e.GET("/:id", handler.ReadByID)
 	e.GET("/customer", handler.ReadByCustomerID)
 	e.GET("/store", handler.ReadByStoreID)
-	e.GET("/email-template/:id", handler.ReadEmailTemplateByStoreID)
 	e.PUT("/status/:id", handler.UpdateStatus)
 	e.PUT("/status", handler.UpdateOrderItemStatus)
-	e.PUT("/billing-address/:id", handler.UpdateBillingAddress)
-	e.PUT("/shipping-address/:id", handler.UpdateShippingAddress)
-	e.PUT("/email-template/:id", handler.UpdateEmailTemplate)
-	e.DELETE("/email-template/:id", handler.DeleteEmailTemplate)
 }
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
@@ -219,6 +213,10 @@ func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/:id", handler.Delete)
 	e.DELETE("/:id/category/:category_id", handler.DeleteCategory)
 	e.DELETE("/:id/tag/:tag_id", handler.DeleteTag)
+	e.POST("/:id/template", handler.CreateTemplate)
+	e.GET("/:id/template", handler.ReadTemplate)
+	e.PUT("/:id/template/:template_id", handler.UpdateTemplate)
+	e.DELETE("/:id/template/:template_id", handler.DeleteTemplate)
 }
 
 func GroupTaxSettings(server *s.Server, e *echo.Group) {

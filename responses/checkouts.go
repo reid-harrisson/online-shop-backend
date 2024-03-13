@@ -19,7 +19,7 @@ type ResponseCheckoutVariation struct {
 
 type ResponseCheckoutStore struct {
 	Variations    []ResponseCheckoutVariation `json:"variations"`
-	StoreID       uint64                      `json:"storeID"`
+	StoreID       uint64                      `json:"store_id"`
 	SubTotal      float64                     `json:"sub_total"`
 	ShippingPrice float64                     `json:"shipping_price"`
 	TaxRate       float64                     `json:"tax_rate"`

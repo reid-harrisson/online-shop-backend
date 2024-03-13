@@ -2,6 +2,7 @@ package responses
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -9,7 +10,7 @@ import (
 type ResponseEmailTemplate struct {
 	ID                         uint64 `json:"id"`
 	StoreID                    uint64 `json:"store_id"`
-	OrderStatus                uint64 `json:"order_status"`
+	OrderStatus                string `json:"order_status"`
 	CompanyName                string `json:"company_name"`
 	CompanyLink                string `json:"company_link"`
 	CompanyLogoUrl             string `json:"company_logo_url"`
@@ -27,11 +28,11 @@ type ResponseEmailTemplate struct {
 	UnsubscribeSafeLink        string `json:"unsubscribe_safe_link"`
 }
 
-func NewResponseEmailTemplate(c echo.Context, statusCode int, modelEmailTemplate *models.EmailTemplate) error {
+func NewResponseEmailTemplate(c echo.Context, statusCode int, modelEmailTemplate *models.EmailTemplates) error {
 	responseEmailTemplate := ResponseEmailTemplate{
 		ID:                         uint64(modelEmailTemplate.ID),
 		StoreID:                    modelEmailTemplate.StoreID,
-		OrderStatus:                modelEmailTemplate.OrderStatus,
+		OrderStatus:                utils.OrderStatusToString(modelEmailTemplate.OrderStatus),
 		CompanyName:                modelEmailTemplate.CompanyName,
 		CompanyLink:                modelEmailTemplate.CompanyLink,
 		CompanyLogoUrl:             modelEmailTemplate.CompanyLogoUrl,
@@ -51,13 +52,13 @@ func NewResponseEmailTemplate(c echo.Context, statusCode int, modelEmailTemplate
 	return Response(c, statusCode, responseEmailTemplate)
 }
 
-func NewResponseEmailTemplates(c echo.Context, statusCode int, modelEmailTemplates []models.EmailTemplate) error {
+func NewResponseEmailTemplates(c echo.Context, statusCode int, modelEmailTemplates []models.EmailTemplates) error {
 	responseEmailTemplates := make([]ResponseEmailTemplate, 0)
 	for _, modelEmailTemplate := range modelEmailTemplates {
 		responseEmailTemplates = append(responseEmailTemplates, ResponseEmailTemplate{
 			ID:                         uint64(modelEmailTemplate.ID),
 			StoreID:                    modelEmailTemplate.StoreID,
-			OrderStatus:                modelEmailTemplate.OrderStatus,
+			OrderStatus:                utils.OrderStatusToString(modelEmailTemplate.OrderStatus),
 			CompanyName:                modelEmailTemplate.CompanyName,
 			CompanyLink:                modelEmailTemplate.CompanyLink,
 			CompanyLogoUrl:             modelEmailTemplate.CompanyLogoUrl,
