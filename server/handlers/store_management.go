@@ -222,8 +222,7 @@ func (h *HandlersStoreManagement) UpdateCategory(c echo.Context) error {
 
 	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByCategoryID(&modelCategory, categoryID)
-	if modelCategory.ID == 0 || modelCategory.StoreID != storeID {
+	if err := cateRepo.ReadByID(&modelCategory, categoryID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
 	}
 	cateService := catesvc.NewServiceCategory(h.server.DB)
@@ -256,7 +255,7 @@ func (h *HandlersStoreManagement) UpdateTag(c echo.Context) error {
 
 	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
+	if err := tagRepo.ReadByID(&modelTag, tagID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
 	}
 
@@ -305,8 +304,7 @@ func (h *HandlersStoreManagement) DeleteCategory(c echo.Context) error {
 
 	modelCategory := models.StoreCategories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByCategoryID(&modelCategory, categoryID)
-	if modelCategory.ID == 0 || modelCategory.StoreID != storeID {
+	if err := cateRepo.ReadByID(&modelCategory, categoryID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
 	}
 	cateService := catesvc.NewServiceCategory(h.server.DB)
@@ -334,7 +332,7 @@ func (h *HandlersStoreManagement) DeleteTag(c echo.Context) error {
 
 	modelTag := models.StoreTags{}
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
+	if err := tagRepo.ReadByID(&modelTag, tagID, storeID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
 	}
 

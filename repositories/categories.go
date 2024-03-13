@@ -27,8 +27,8 @@ func (repository *RepositoryCategory) ReadByName(modelCategory *models.StoreCate
 	repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelCategory)
 }
 
-func (repository *RepositoryCategory) ReadByCategoryID(modelCategory *models.StoreCategories, categoryID uint64) {
-	repository.DB.First(modelCategory, categoryID)
+func (repository *RepositoryCategory) ReadByID(modelCategory *models.StoreCategories, categoryID uint64, storeID uint64) error {
+	return repository.DB.Where("id = ? And store_id = ?", categoryID, storeID).Error
 }
 
 func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.StoreCategoriesWithChildren, storeID uint64) {
