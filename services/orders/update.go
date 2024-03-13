@@ -47,6 +47,10 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 		Update("status", status)
 }
 
+func (service *Service) UpdateOrderItemStatus(orderID uint64, status string) {
+	service.DB.Model(models.OrderItems{}).Update("status", utils.OrderStatusFromString(status)).Where("order_id = ?", orderID)
+}
+
 func (service *Service) UpdateBillingAddress(orderID uint64, addressID uint64) {
 	service.DB.Model(models.Orders{}).Update("billing_address_id", addressID)
 }
