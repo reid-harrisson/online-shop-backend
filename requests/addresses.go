@@ -1,6 +1,6 @@
 package requests
 
-type RequestCustomerAddress struct {
+type RequestAddress struct {
 	AddressLine1 string `json:"address_line1" example:"Mozart"`
 	AddressLine2 string `json:"address_line2" example:"Arizona"`
 	SubUrb       string `json:"suburb" example:"Honeydew"`

@@ -12,7 +12,7 @@ type ResponseTaxSetting struct {
 	TaxRate    float64 `json:"tax_rate"`
 }
 
-func NewResponseTaxSetting(c echo.Context, statusCode int, modelTax models.TaxSettings) error {
+func NewResponseTaxSetting(c echo.Context, statusCode int, modelTax models.Taxes) error {
 	responseTax := ResponseTaxSetting{
 		CustomerID: modelTax.CustomerID,
 		CountryID:  modelTax.CountryID,

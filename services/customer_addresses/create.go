@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelAddr *models.CustomerAddresses, req *requests.RequestCustomerAddress, customerID uint64) {
+func (service *Service) Create(modelAddr *models.Addresses, req *requests.RequestAddress, customerID uint64) {
 	modelAddr.CityID = req.CityID
 	modelAddr.CountryID = req.CountryID
 	modelAddr.RegionID = req.RegionID
@@ -18,7 +18,7 @@ func (service *Service) Create(modelAddr *models.CustomerAddresses, req *request
 	service.DB.Create(modelAddr)
 }
 
-func (service *Service) CreateFromUser(modelAddr *models.CustomerAddresses, customerID uint64) {
+func (service *Service) CreateFromUser(modelAddr *models.Addresses, customerID uint64) {
 	service.DB.
 		Table("users").
 		Select(`

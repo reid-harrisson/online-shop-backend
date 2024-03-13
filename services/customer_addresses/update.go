@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelAddr *models.CustomerAddresses, req *requests.RequestCustomerAddress, addressID uint64) {
+func (service *Service) Update(modelAddr *models.Addresses, req *requests.RequestAddress, addressID uint64) {
 	service.DB.First(modelAddr, addressID)
 	modelAddr.Active = 0
 	service.DB.Save(modelAddr)

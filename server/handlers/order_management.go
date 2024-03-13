@@ -31,17 +31,22 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param customer_id query int true "Customer ID"
+// @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order [post]
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
-	modelCarts := make([]models.CartItemsWithDetail, 0)
-	modelTax := models.TaxSettings{}
-	taxRepo := repositories.NewRepositoryTax(h.server.DB)
-	taxRepo.ReadTaxSetting(&modelTax, customerID)
+	req := new(requests.RequestCheckout)
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+	modelCoupons := []models.Coupons{}
+	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
 
+	modelCarts := make([]models.CartItemsWithDetail, 0)
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	cartRepo.ReadDetail(&modelCarts, customerID)
 
@@ -50,7 +55,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 
 	modelOrder := models.Orders{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.Create(&modelOrder, modelCarts, modelTax, customerID)
+	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID)
 	modelItems := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))

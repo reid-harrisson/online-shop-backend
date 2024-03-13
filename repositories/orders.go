@@ -103,7 +103,7 @@ func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrde
 	if len(modelOrder.Items) > 0 {
 		billingAdddressID := modelOrder.Items[0].BillingAddressID
 		shippingAdddressID := modelOrder.Items[0].ShippingAddressID
-		addrRepo := NewRepositoryCustomer(repository.DB)
+		addrRepo := NewRepositoryAddresses(repository.DB)
 		addrRepo.ReadAddressByID(&modelOrder.BillingAddress, billingAdddressID)
 		addrRepo.ReadAddressByID(&modelOrder.ShippingAddress, shippingAdddressID)
 	}

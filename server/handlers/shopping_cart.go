@@ -49,6 +49,17 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 	}
 
 	modelVar := models.ProductVariations{}
+	modelVals := []models.ProductAttributeValuesWithDetail{}
+	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	valRepo.ReadByIDs(&modelVals, req.ValueIDs)
+	mapVal := map[uint64]string{}
+	for _, modelVal := range modelVals {
+		if mapVal[modelVal.AttributeID] == "" {
+			mapVal[modelVal.AttributeID] = modelVal.AttributeValue
+		} else {
+			return responses.ErrorResponse(c, http.StatusBadRequest, "Attribute value's duplicated.")
+		}
+	}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadByValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 
@@ -77,7 +88,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 // @Param customer_id query int true "Customer ID"
 // @Success 200 {object} responses.ResponseCartCount
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/cart/count [get]
+// /@Router /store/api/v1/cart/count [get]
 func (h *HandlersShoppingCart) ReadCount(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
