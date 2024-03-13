@@ -58,6 +58,7 @@ type AuditConfig struct {
 }
 
 type ServicesConfig struct {
-	CommonTool string `koanf:"common_tool"`
-	Audit      string `koanf:"audit"`
+	CommonTool        string `koanf:"common_tool"`
+	Audit             string `koanf:"audit"`
+	TransactionServer string `koanf:"transaction_server"`
 }

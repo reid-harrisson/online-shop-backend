@@ -1,5 +1,13 @@
 package utils
 
+type PaymentType int8
+
+const (
+	WalletDeposit PaymentType = iota + 1
+	WalletWithdraw
+	StorePurchase
+)
+
 type PageTypes int8
 
 const (

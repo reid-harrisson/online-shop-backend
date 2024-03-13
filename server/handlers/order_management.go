@@ -38,9 +38,15 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
+
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
+
+	if err := req.RequestCheckoutValidate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
+	}
+
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
@@ -55,9 +61,29 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	modelOrder := models.Orders{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
 	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID)
+
 	modelItems := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
 	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
+
+	var totalAmount float64
+
+	orderRepo.CalcTotalAmount(&totalAmount, modelOrder.ID)
+
+	currency := "usd"
+
+	invokeData := utils.InvokeData{
+		CardNumber:  req.CardNumber,
+		ExpMonth:    req.ExpMonth,
+		ExpYear:     req.ExpYear,
+		CVC:         req.CVC,
+		Amount:      totalAmount,
+		Currency:    currency,
+		PaymentType: utils.StorePurchase,
+		RequestID:   uint64(modelOrder.ID),
+	}
+	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
+
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
 }
 

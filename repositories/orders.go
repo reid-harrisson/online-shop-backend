@@ -108,3 +108,11 @@ func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrde
 		addrRepo.ReadAddressByID(&modelOrder.ShippingAddress, shippingAdddressID)
 	}
 }
+
+func (repository *RepositoryOrder) CalcTotalAmount(totalAmount *float64, orderID uint) {
+	repository.DB.
+		Table("store_order_items").
+		Select("SUM(store_order_items.total_price)").
+		Where("order_id = ?", orderID).
+		Scan(totalAmount)
+}
