@@ -88,6 +88,17 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupCheckout := apiV1.Group("/checkout")
 	GroupCheckout(server, groupCheckout)
+
+	groupCombo := apiV1.Group("/combo")
+	GroupCombo(server, groupCombo)
+}
+
+func GroupCombo(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCombos(server)
+	e.POST("", handler.Create)
+	e.GET("", handler.Read)
+	e.PUT("/:id", handler.Update)
+	e.DELETE("/:id", handler.Delete)
 }
 
 func GroupCheckout(server *s.Server, e *echo.Group) {

@@ -27,5 +27,5 @@ func (service *Service) Create(modelItems *[]models.ComboItems, req []requests.R
 		index := indices[modelItem.VariationID] - 1
 		(*modelItems)[index].ID = modelItem.ID
 	}
-	return service.DB.Save(&modelItems).Error
+	return service.DB.Save(modelItems).Error
 }

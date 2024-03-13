@@ -11,7 +11,7 @@ type Stores struct {
 
 	CompanyID            uint64               `gorm:"column:company_id; type:bigint(20) unsigned"`
 	OwnerID              uint64               `gorm:"column:owner_id; type:bigint(20) unsigned"`
-	Name                 string               `gorm:"column:name; type:varcahr(100)"`
+	Name                 string               `gorm:"column:name; type:varchar(100)"`
 	ContactPhone         string               `gorm:"column:contact_phone; type:varchar(25)"`
 	ContactEmail         string               `gorm:"column:contact_email; type:varchar(100)"`
 	ShowStockLevelStatus utils.SimpleStatuses `gorm:"column:show_stock_level_status; type:tinyint(4)"`
