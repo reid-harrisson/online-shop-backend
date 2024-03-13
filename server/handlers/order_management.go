@@ -136,19 +136,19 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 
 	orderRepo.CalcTotalAmount(&totalAmount, modelOrder.ID)
 
-	// currency := "usd"
+	currency := "usd"
 
-	// invokeData := utils.InvokeData{
-	// 	CardNumber:  req.CardNumber,
-	// 	ExpMonth:    req.ExpMonth,
-	// 	ExpYear:     req.ExpYear,
-	// 	CVC:         req.CVC,
-	// 	Amount:      totalAmount,
-	// 	Currency:    currency,
-	// 	PaymentType: utils.StorePurchase,
-	// 	RequestID:   uint64(modelOrder.ID),
-	// }
-	// utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
+	invokeData := utils.InvokeData{
+		CardNumber:  req.CardNumber,
+		ExpMonth:    req.ExpMonth,
+		ExpYear:     req.ExpYear,
+		CVC:         req.CVC,
+		Amount:      totalAmount,
+		Currency:    currency,
+		PaymentType: utils.StorePurchase,
+		RequestID:   uint64(modelOrder.ID),
+	}
+	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
 
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
 }
