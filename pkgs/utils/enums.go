@@ -1,46 +1,6 @@
 package utils
 
-type ShippingMethods int8
-type SimpleStatuses int8
-type ProductStatus int8
-type DiscountTypes int8
-type SellTypes int8
-type OrderStatuses int8
 type PageTypes int8
-type ProductTypes int8
-type Requirements int8
-type Conditions int8
-type CouponTypes int8
-
-const (
-	PercentageDiscount CouponTypes = iota
-	FixedCartDiscount
-	FixedProductDiscount
-)
-
-const (
-	None Conditions = iota
-	Price
-	Weight
-	ItemCount
-	Width
-	Length
-	Height
-	ItemCountSameClass
-)
-
-const (
-	NoRequirement Requirements = iota
-	ValidFreeShippingCoupon
-	MinimumOrderAmount
-	MinimumOrderAmountOrCoupon
-	MinimumOrderAmountAndCoupon
-)
-
-const (
-	Simple ProductTypes = iota
-	Variable
-)
 
 const (
 	StorePage PageTypes = iota
@@ -53,10 +13,52 @@ const (
 	PaymentConfirmPage
 )
 
+type ProductTypes int8
+
+const (
+	Simple ProductTypes = iota
+	Variable
+)
+
+type Requirements int8
+
+const (
+	NoRequirement Requirements = iota
+	ValidFreeShippingCoupon
+	MinimumOrderAmount
+	MinimumOrderAmountOrCoupon
+	MinimumOrderAmountAndCoupon
+)
+
+type Conditions int8
+
+const (
+	None Conditions = iota
+	Price
+	Weight
+	ItemCount
+	Width
+	Length
+	Height
+	ItemCountSameClass
+)
+
+type CouponTypes int8
+
+const (
+	PercentageDiscount CouponTypes = iota
+	FixedCartDiscount
+	FixedProductDiscount
+)
+
+type DiscountTypes int8
+
 const (
 	PercentageOff DiscountTypes = iota
 	FixedAmountOff
 )
+
+type ShippingMethods int8
 
 const (
 	PickUp ShippingMethods = iota
@@ -66,10 +68,14 @@ const (
 	FreeShipping
 )
 
+type SimpleStatuses int8
+
 const (
 	Disabled SimpleStatuses = iota
 	Enabled
 )
+
+type ProductStatus int8
 
 const (
 	Draft ProductStatus = iota
@@ -78,10 +84,14 @@ const (
 	Rejected
 )
 
+type SellTypes int8
+
 const (
 	UpSell SellTypes = iota
 	CrossSell
 )
+
+type OrderStatuses int8
 
 const (
 	StatusOrderPending OrderStatuses = iota + 1
@@ -282,13 +292,18 @@ func OrderStatusFromString(status string) OrderStatuses {
 }
 
 func DiscountTypeToString(discountType DiscountTypes) string {
-	switch discountType {
-	case PercentageOff:
+	if discountType == PercentageOff {
 		return "Percentage Off"
-	case FixedAmountOff:
-		return "Fixed Amount Off"
 	}
 	return "Fixed Amount Off"
+}
+
+func DiscountTypeFromString(discountType string) DiscountTypes {
+	if discountType == "Percentage Off" {
+		return PercentageOff
+	}
+	return FixedAmountOff
+
 }
 
 func ProductStatusToString(status ProductStatus) string {
