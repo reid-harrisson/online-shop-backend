@@ -190,12 +190,14 @@ func (h *HandlersCheckoutProcess) ReadCombo(c echo.Context) error {
 
 func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, modelAddr models.Addresses, modelCoupons []models.Coupons, modelCombo models.Combos) []responses.ResponseCheckoutStore {
 	mapStore := map[uint64]int{}
+	mapVar := map[uint64]int{}
 	mapCoupon := map[uint64]int{}
+	storeIDs := []uint64{}
 	responseStores := []responses.ResponseCheckoutStore{}
 	for index, modelCoupon := range modelCoupons {
 		mapCoupon[modelCoupon.StoreID] = index
 	}
-	for _, modelItem := range modelItems {
+	for index, modelItem := range modelItems {
 		storeID := modelItem.StoreID
 		if mapStore[storeID] == 0 {
 			responseStores = append(responseStores, responses.ResponseCheckoutStore{
@@ -203,6 +205,8 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 			})
 			mapStore[storeID] = len(responseStores)
 		}
+		storeIDs = append(storeIDs, modelItem.StoreID)
+		mapVar[uint64(modelItem.ID)] = index
 		storeIndex := mapStore[storeID] - 1
 		imageUrls := make([]string, 0)
 		json.Unmarshal([]byte(modelItem.ImageUrls), &imageUrls)
@@ -225,20 +229,20 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 	modelTax := models.Taxes{}
 	taxRepo := repositories.NewRepositoryTax(db)
 	taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
-	tableRepo := repositories.NewRepositoryShippingMethod(db)
+
+	mapRates := map[uint64][]models.ShippingTableRates{}
+	mapMeth := map[uint64]models.ShippingMethods{}
+
+	methRepo := repositories.NewRepositoryShippingMethod(db)
+	methRepo.ReadMethodAndTableRatesByStoreIDs(&mapRates, &mapMeth, storeIDs)
 	for index := range responseStores {
-		modelRates := []models.ShippingTableRates{}
-		tableRepo.ReadRates(&modelRates, responseStores[index].StoreID)
 		subTotal := 0.0
 		shippingPrice := 0.0
 		quantity := 0.0
-
+		shippingMethod := utils.ShippingMethodsToString(utils.TableRate)
 		size := len(responseStores[index].Variations)
 		couIndex := mapCoupon[responseStores[index].StoreID]
 		for _, responseVar := range responseStores[index].Variations {
-			modelShip := models.ShippingData{}
-			shipRepo := repositories.NewRepositoryShippingData(db)
-			shipRepo.ReadByVariationID(&modelShip, responseVar.VariationID)
 
 			totalPrice := responseVar.TotalPrice
 			if modelCombo.ID != 0 {
@@ -262,12 +266,13 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 			}
 
 			subTotal += totalPrice
-			shippingPrice += ordsvc.GetShippingPrice(modelRates, totalPrice, responseVar.Quantity, modelShip)
+			shippingPrice += ordsvc.GetShippingPrice(mapRates[uint64(mapMeth[responseStores[index].StoreID].ID)], totalPrice, responseVar.Quantity, modelItems[mapVar[responseVar.ID]].Weight)
 			quantity += responseVar.Quantity
 		}
 		if len(modelCoupons) > 0 {
 			if modelCoupons[couIndex].AllowFreeShipping == 1 {
 				shippingPrice = 0
+				shippingMethod = utils.ShippingMethodsToString(utils.FreeShipping)
 			}
 		}
 		taxAmount := modelTax.TaxRate * (subTotal + shippingPrice) / 100
@@ -276,6 +281,7 @@ func GetResponseStores(db *gorm.DB, modelItems []models.CartItemsWithDetail, mod
 		responseStores[index].TaxRate = utils.Round(modelTax.TaxRate)
 		responseStores[index].TaxAmount = utils.Round(taxAmount)
 		responseStores[index].TotalPrice = utils.Round(shippingPrice + subTotal + taxAmount)
+		responseStores[index].ShippingMethod = shippingMethod
 	}
 	return responseStores
 }

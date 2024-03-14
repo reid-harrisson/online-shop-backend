@@ -25,6 +25,10 @@ type CartItemsWithDetail struct {
 	DiscountAmount float64             `gorm:"column:discount_amount"`
 	DiscountType   utils.DiscountTypes `gorm:"column:discount_type"`
 	StockLevel     float64             `gorm:"column:stock_level"`
+	Weight         float64             `gorm:"column:weight"`
+	Width          float64             `gorm:"column:width"`
+	Height         float64             `gorm:"column:height"`
+	Length         float64             `gorm:"column:length"`
 }
 
 type CartCount struct {

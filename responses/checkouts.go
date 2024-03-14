@@ -18,13 +18,14 @@ type ResponseCheckoutVariation struct {
 }
 
 type ResponseCheckoutStore struct {
-	Variations    []ResponseCheckoutVariation `json:"variations"`
-	StoreID       uint64                      `json:"store_id"`
-	SubTotal      float64                     `json:"sub_total"`
-	ShippingPrice float64                     `json:"shipping_price"`
-	TaxRate       float64                     `json:"tax_rate"`
-	TaxAmount     float64                     `json:"tax_amount"`
-	TotalPrice    float64                     `json:"total_price"`
+	Variations     []ResponseCheckoutVariation `json:"variations"`
+	StoreID        uint64                      `json:"store_id"`
+	SubTotal       float64                     `json:"sub_total"`
+	ShippingPrice  float64                     `json:"shipping_price"`
+	TaxRate        float64                     `json:"tax_rate"`
+	TaxAmount      float64                     `json:"tax_amount"`
+	TotalPrice     float64                     `json:"total_price"`
+	ShippingMethod string                      `json:"shipping_method"`
 }
 
 type ResponseCheckout struct {

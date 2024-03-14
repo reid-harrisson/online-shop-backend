@@ -36,7 +36,7 @@ func (repository *RepositoryVariation) ReadByValueIDs(modelVar *models.ProductVa
 		Select("vars.*, Group_Concat(dets.attribute_value_id) As ids").
 		Joins("Left Join store_product_variation_details As dets ON dets.variation_id = vars.id").
 		Group("vars.id").
-		Where("vars.product_id = ?", productID).
+		Where("vars.product_id = ? And vars.deleted_at Is Null And dets.deleted_at Is Null", productID).
 		Having("(ids Is Null And ? = '') Or ids = ?", temp, temp).
 		Limit(1).
 		Scan(modelVar)
