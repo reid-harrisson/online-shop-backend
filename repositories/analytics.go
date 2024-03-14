@@ -16,7 +16,7 @@ func NewRepositoryAnalytics(db *gorm.DB) *RepositoryAnalytics {
 	return &RepositoryAnalytics{DB: db}
 }
 
-func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.SalesReports, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.SalesReports, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Table("store_order_items As items").
 		Where("items.store_id = ?", storeID).
 		Select(`
@@ -29,6 +29,7 @@ func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.Sa
 		`).
 		Joins("Left Join store_product_variations As vars On vars.id = items.variation_id").
 		Where("vars.deleted_at Is Null And items.deleted_at Is Null").
+		Where("items.created_at Between ? And ?", startDate, endDate).
 		Scan(modelReports).Error
 }
 
@@ -49,7 +50,7 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 		Scan(modelReport).Error
 }
 
-func (repository *RepositoryAnalytics) ReadStockLevelAnalytics(modelLevels *[]models.StockLevelAnalytics, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadStockLevelAnalytics(modelLevels *[]models.StockLevelAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Table("store_product_variations As vars").
 		Select(`
 			Sum(vars.stock_level) As stock_level,
@@ -59,6 +60,7 @@ func (repository *RepositoryAnalytics) ReadStockLevelAnalytics(modelLevels *[]mo
 		Group("vars.product_id").
 		Joins("Left Join store_products As prods On vars.product_id = prods.id").
 		Where("vars.deleted_at Is Null And prods.deleted_at Is Null").
+		Where("vars.creatd_at Between ? And ?", startDate, endDate).
 		Scan(modelLevels).Error
 }
 
@@ -75,25 +77,27 @@ func (repository *RepositoryAnalytics) ReadVisitor(modelVisitor *models.VisitorA
 		Scan(modelVisitor).Error
 }
 
-func (repository *RepositoryAnalytics) ReadConventionRate(modelRate *models.ConventionRate, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadConventionRate(modelRate *models.ConventionRate, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Model(models.Visitors{}).
 		Select(`
 			Sum(Case When page = ? Or page = ? Then 1 Else 0 End) / Sum(Case When bounce = 1 Then 1 Else 0 End) As rate
 		`, utils.RegisterPage, utils.PaymentConfirmPage).
 		Where("store_id = ?", storeID).
+		Where("created_at Between ? And ?", startDate, endDate).
 		Scan(modelRate).Error
 }
 
-func (repository *RepositoryAnalytics) ReadShoppingCartAbandonment(modelRate *models.ShoppingCartAbandonment, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadShoppingCartAbandonment(modelRate *models.ShoppingCartAbandonment, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Model(models.Visitors{}).
 		Select(`
 			Sum(Case When page = ? Then 1 Else 0 End) / Sum(Case When page = ? Then 1 Else 0 End) As rate
 		`, utils.PaymentPage, utils.CartPage).
 		Where("store_id = ?", storeID).
+		Where("created_at Between ? And ?", startDate, endDate).
 		Scan(modelRate).Error
 }
 
-func (repository *RepositoryAnalytics) ReadCheckoutFunnelAnalytics(modelSteps *[]models.CheckoutFunnelAnalytics, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadCheckoutFunnelAnalytics(modelSteps *[]models.CheckoutFunnelAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Model(models.Visitors{}).
 		Select(`
 			page,
@@ -102,10 +106,11 @@ func (repository *RepositoryAnalytics) ReadCheckoutFunnelAnalytics(modelSteps *[
 		Group("page").
 		Where("store_id = ?", storeID).
 		Where("page In (?)", []utils.PageTypes{utils.CartPage, utils.PaymentPage, utils.PaymentConfirmPage}).
+		Where("created_at Between ? And ?", startDate, endDate).
 		Scan(modelSteps).Error
 }
 
-func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]models.FullFunnelAnalytics, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]models.FullFunnelAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Model(models.Visitors{}).
 		Select(`
 			page,
@@ -113,20 +118,22 @@ func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]mod
 		`).
 		Group("page").
 		Where("store_id = ?", storeID).
+		Where("created_at Between ? And ?", startDate, endDate).
 		Scan(modelSteps).Error
 }
 
-func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]models.ProductViewAnalytics, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]models.ProductViewAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Model(models.Visitors{}).
 		Select(`
 			page,
 			Count(id) As page_views
 		`).
 		Group("page").
+		Where("created_at Between ? And ?", startDate, endDate).
 		Scan(modelViews).Error
 }
 
-func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRates, storeID uint64) error {
+func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRates, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Table("store_order_items As items").
 		Select(`
 			vars.product_id,
@@ -136,6 +143,7 @@ func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]model
 		Joins("Left Join store_orders As ords On ords.id = items.order_id").
 		Group("ords.customer_id, items.order_id").
 		Where("items.deleted_at Is Null And ords.deleted_at Is Null And vars.deleted_at Is Null").
+		Where("items.created_at Between ? And ?", startDate, endDate).
 		Scan(modelRate).
 		Error
 }
