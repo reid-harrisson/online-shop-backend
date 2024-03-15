@@ -63,7 +63,11 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
 	ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, models.Combos{})
 
-	var totalAmount float64
+	totalAmount := 0.0
+
+	for _, modelItem := range modelItems {
+		totalAmount += modelItem.TotalPrice
+	}
 
 	currency := "usd"
 
@@ -124,21 +128,25 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
 	ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, modelCombo)
 
-	// var totalAmount float64
+	totalAmount := 0.0
 
-	// currency := "usd"
+	for _, modelItem := range modelItems {
+		totalAmount += modelItem.TotalPrice
+	}
 
-	// invokeData := utils.InvokeData{
-	// 	CardNumber:  req.CardNumber,
-	// 	ExpMonth:    req.ExpMonth,
-	// 	ExpYear:     req.ExpYear,
-	// 	CVC:         req.CVC,
-	// 	Amount:      totalAmount,
-	// 	Currency:    currency,
-	// 	PaymentType: utils.StorePurchase,
-	// 	RequestID:   uint64(modelOrder.ID),
-	// }
-	// utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
+	currency := "usd"
+
+	invokeData := utils.InvokeData{
+		CardNumber:  req.CardNumber,
+		ExpMonth:    req.ExpMonth,
+		ExpYear:     req.ExpYear,
+		CVC:         req.CVC,
+		Amount:      totalAmount,
+		Currency:    currency,
+		PaymentType: utils.StorePurchase,
+		RequestID:   uint64(modelOrder.ID),
+	}
+	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
 
 	return responses.NewResponseOrderItems(c, http.StatusCreated, modelItems)
 }
