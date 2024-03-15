@@ -27,110 +27,182 @@ func NewHandlersAnalytics(server *s.Server) *HandlersAnalytics {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseSalesReport
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/sales-report [get]
 func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelReports := make([]models.SalesReports, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadSalesReport(&modelReports, storeID)
+	analyRepo.ReadSalesReport(&modelReports, storeID, startDate, endDate)
 	return responses.NewResponseSalesReports(c, http.StatusOK, modelReports)
 }
 
 // Refresh godoc
-// @Summary Show Revenue
+// @Summary Analyse revenue
 // @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesRevenue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/revenue [get]
 func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelSale := models.StoreSales{}
 	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadRevenue(&modelSale, storeID)
+	orderRepo.ReadRevenue(&modelSale, storeID, startDate, endDate)
 	return responses.NewResponseSalesRevenue(c, http.StatusOK, modelSale)
 }
 
 // Refresh godoc
-// @Summary Show average order value(AOV)
+// @Summary Analyse average order value (AOV)
 // @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesAOV
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/aov [get]
 func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelSale := models.StoreSales{}
 	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadAOV(&modelSale, storeID)
+	orderRepo.ReadAOV(&modelSale, storeID, startDate, endDate)
 	return responses.NewResponseSalesRevenue(c, http.StatusOK, modelSale)
 }
 
 // Refresh godoc
-// @Summary Show sales by product
+// @Summary Analyse sales by product
 // @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesByProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/product [get]
 func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelSales := make([]models.ProductSales, 0)
 	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadSalesByProduct(&modelSales, storeID)
+	orderRepo.ReadSalesByProduct(&modelSales, storeID, startDate, endDate)
 	return responses.NewResponseSalesByProduct(c, http.StatusOK, modelSales, storeID)
 }
 
 // Refresh godoc
-// @Summary Show sales by category
+// @Summary Analyse sales by category
 // @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesByCategory
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/category [get]
 func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelSales := make([]models.CategorySales, 0)
 	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadSalesByCategory(&modelSales, storeID)
+	orderRepo.ReadSalesByCategory(&modelSales, storeID, startDate, endDate)
 	return responses.NewResponseSalesByCategory(c, http.StatusOK, modelSales, storeID)
 }
 
 // Refresh godoc
-// @Summary Show customer lifetime value(CLV)
+// @Summary Analyse customer lifetime value (CLV)
 // @Tags Insights and Analytics
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesCLV
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/clv [get]
 func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelSales := make([]models.CustomerSales, 0)
 	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadCLV(&modelSales, storeID)
+	orderRepo.ReadCLV(&modelSales, storeID, startDate, endDate)
 	return responses.NewResponseSalesCLV(c, http.StatusOK, modelSales, storeID)
 }
 
@@ -141,8 +213,8 @@ func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseCustomerInsight
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/customer-insight [get]
@@ -152,6 +224,12 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelInsight := models.CustomerInsights{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -166,15 +244,27 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseStockLevelAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/stock-level [get]
 func (h *HandlersAnalytics) ReadStockLevels(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelLevels := make([]models.StockLevelAnalytics, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadStockLevelAnalytics(&modelLevels, storeID)
+	analyRepo.ReadStockLevelAnalytics(&modelLevels, storeID, startDate, endDate)
 	return responses.NewResponseStockLevelAnalytics(c, http.StatusOK, modelLevels)
 }
 
@@ -185,8 +275,8 @@ func (h *HandlersAnalytics) ReadStockLevels(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseVisitorAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/visitor [get]
@@ -196,6 +286,12 @@ func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelVisitor := models.VisitorAnalytics{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -210,15 +306,27 @@ func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseConventionRate
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/convention-rate [get]
 func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelRate := models.ConventionRate{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadConventionRate(&modelRate, storeID)
+	analyRepo.ReadConventionRate(&modelRate, storeID, startDate, endDate)
 	return responses.NewResponseConventionRate(c, http.StatusOK, modelRate)
 }
 
@@ -229,15 +337,27 @@ func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseShoppingCartAbandonment
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/abandonment [get]
 func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelRate := models.ShoppingCartAbandonment{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadShoppingCartAbandonment(&modelRate, storeID)
+	analyRepo.ReadShoppingCartAbandonment(&modelRate, storeID, startDate, endDate)
 	return responses.NewResponseShoppingCartAbandonment(c, http.StatusOK, modelRate)
 }
 
@@ -248,15 +368,27 @@ func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseCheckoutFunnelAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/checkout-funnel [get]
 func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelFunnels := make([]models.CheckoutFunnelAnalytics, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadCheckoutFunnelAnalytics(&modelFunnels, storeID)
+	analyRepo.ReadCheckoutFunnelAnalytics(&modelFunnels, storeID, startDate, endDate)
 	return responses.NewResponseCheckoutFunnelAnalytics(c, http.StatusOK, modelFunnels)
 }
 
@@ -267,15 +399,27 @@ func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseFullFunnelAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/full-funnel [get]
 func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelFunnels := make([]models.FullFunnelAnalytics, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadFullFunnelAnalytics(&modelFunnels, storeID)
+	analyRepo.ReadFullFunnelAnalytics(&modelFunnels, storeID, startDate, endDate)
 	return responses.NewResponseFullFunnelAnalytics(c, http.StatusOK, modelFunnels)
 }
 
@@ -286,15 +430,27 @@ func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseProductViewAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/product-view [get]
 func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelViews := make([]models.ProductViewAnalytics, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadProductViewAnalytics(&modelViews, storeID)
+	analyRepo.ReadProductViewAnalytics(&modelViews, storeID, startDate, endDate)
 	return responses.NewResponseProductViewAnalytics(c, http.StatusOK, modelViews)
 }
 
@@ -305,15 +461,27 @@ func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseRepeatCustomerRate
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/repeat-rate [get]
 func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
 	modelRates := make([]models.RepeatCustomerRates, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadRepeatCustomerRate(&modelRates, storeID)
+	analyRepo.ReadRepeatCustomerRate(&modelRates, storeID, startDate, endDate)
 	return responses.NewResponseRepeatCustomerRate(c, http.StatusOK, modelRates)
 }
 
@@ -324,8 +492,8 @@ func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseVisitorAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/churn-rate [get]
@@ -335,6 +503,12 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelRate := models.CustomerChurnRates{}
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -349,8 +523,8 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Param count query int true "Count"
 // @Success 200 {object} []responses.ResponseTopSellingProduct
 // @Failure 400 {object} responses.Error
@@ -362,6 +536,12 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelProducts := make([]models.TopSellingProducts, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -376,8 +556,8 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseOrderTrendAnalytic
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/order-trend [get]
@@ -387,6 +567,12 @@ func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelTrends := make([]models.OrderTrendAnalytics, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -401,8 +587,8 @@ func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseCustomerDataByLocation
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/customer-location [get]
@@ -412,6 +598,12 @@ func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelLocations := make([]models.CustomerDataByLocation, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -426,8 +618,8 @@ func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseCustomerSatisfaction
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/satisfaction [get]
@@ -437,6 +629,12 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelRates := make([]models.CustomerSatisfaction, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
@@ -451,8 +649,8 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param start_date query string true "Start Date"
-// @Param end_date query string true "End Date"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponsePageLoadingTime
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/analytic/loading-time [get]
@@ -462,6 +660,12 @@ func (h *HandlersAnalytics) ReadPageLoadingTime(c echo.Context) error {
 	layout := "2006-01-02"
 	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
 	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
 
 	modelRates := make([]models.PageLoadingTime, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)

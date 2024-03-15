@@ -19,6 +19,6 @@ func (repository *RepositoryShippingZone) ReadDetailByID(modelZone *models.Shipp
 		Select("zones.*, Group_Concat(places.id) As place_ids, Group_Concat(places.name) As place_names").
 		Joins("Join store_shipping_places As places On places.zone_id = zones.id").
 		Group("zones.id").
-		Where("zones.id = ?", zoneID).
+		Where("zones.id = ? And zones.deleted_at Is Null And places.deleted_at Is Null", zoneID).
 		Scan(modelZone).Error
 }

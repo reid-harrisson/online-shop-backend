@@ -59,16 +59,15 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	cartService.DeleteAll(customerID)
 
 	modelOrder := models.Orders{}
+	modelItems := []models.OrderItems{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, models.Combos{})
+	ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, models.Combos{})
 
-	modelItems := models.CustomerOrdersWithAddress{}
-	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
+	totalAmount := 0.0
 
-	var totalAmount float64
-
-	orderRepo.CalcTotalAmount(&totalAmount, modelOrder.ID)
+	for _, modelItem := range modelItems {
+		totalAmount += modelItem.TotalPrice
+	}
 
 	currency := "usd"
 
@@ -84,7 +83,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 	}
 	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
 
-	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
+	return responses.NewResponseOrderItems(c, http.StatusCreated, modelItems)
 }
 
 // Refresh godoc
@@ -125,16 +124,15 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 	combRepo.ReadDetail(&modelCarts, comboID)
 
 	modelOrder := models.Orders{}
+	modelItems := []models.OrderItems{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.Create(&modelOrder, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, modelCombo)
+	ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, modelCombo)
 
-	modelItems := models.CustomerOrdersWithAddress{}
-	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByOrderID(&modelItems, uint64(modelOrder.ID))
+	totalAmount := 0.0
 
-	var totalAmount float64
-
-	orderRepo.CalcTotalAmount(&totalAmount, modelOrder.ID)
+	for _, modelItem := range modelItems {
+		totalAmount += modelItem.TotalPrice
+	}
 
 	currency := "usd"
 
@@ -150,7 +148,7 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 	}
 	utils.HelperInvoke("POST", h.server.Config.Services.TransactionServer+"/card-payment", c, invokeData)
 
-	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusCreated, modelItems)
+	return responses.NewResponseOrderItems(c, http.StatusCreated, modelItems)
 }
 
 // Refresh godoc

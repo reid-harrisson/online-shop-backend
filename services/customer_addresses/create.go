@@ -31,7 +31,7 @@ func (service *Service) CreateFromUser(modelAddr *models.Addresses, customerID u
 			users.city_id As city_id,
 			users.postal_code As postal_code
 		`).
-		Where("id = ?", customerID).
+		Where("id = ? And deleted_at Is Null", customerID).
 		Scan(modelAddr)
 	modelAddr.Active = 1
 	service.DB.Create(modelAddr)

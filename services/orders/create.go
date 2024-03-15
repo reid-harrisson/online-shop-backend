@@ -18,7 +18,7 @@ func GetSalePrice(modelItem models.CartItemsWithDetail) float64 {
 	return float64(price)
 }
 
-func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64, quantity float64, modelShip models.ShippingData) float64 {
+func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64, quantity float64, weight float64) float64 {
 	shippingPrice := float64(0)
 	for _, modelRate := range modelRates {
 		compare := float64(0)
@@ -26,19 +26,19 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 		case utils.Price:
 			compare = totalPrice
 		case utils.Weight:
-			compare = modelShip.Weight
+			compare = weight
 		case utils.ItemCount:
 			compare = quantity
 		}
 		if compare >= modelRate.Min && compare <= modelRate.Max {
-			shippingPrice += modelRate.CostPerKg*modelShip.Weight*quantity + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
+			shippingPrice += modelRate.CostPerKg*weight*quantity + modelRate.ItemCost*quantity + modelRate.RowCost + modelRate.PercentCost*totalPrice/100
 		}
 	}
 
 	return shippingPrice
 }
 
-func (service *Service) Create(modelOrder *models.Orders, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64, modelCombo models.Combos) {
+func (service *Service) Create(modelOrder *models.Orders, modelItems *[]models.OrderItems, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64, modelCombo models.Combos) {
 	mapCoupon := map[uint64]int{}
 	for index, modelCoupon := range modelCoupons {
 		mapCoupon[modelCoupon.StoreID] = index
@@ -52,7 +52,6 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 	taxRepo := repositories.NewRepositoryTax(service.DB)
 	taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
 
-	shipRepo := repositories.NewRepositoryShippingData(service.DB)
 	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
 
@@ -62,19 +61,19 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 
 	orderStatus := utils.StatusOrderPending
 
-	modelItems := make([]models.OrderItems, 0)
+	storeIDs := []uint64{}
+	for _, modelItem := range modelCartItems {
+		storeIDs = append(storeIDs, modelItem.StoreID)
+	}
+	mapRates := map[uint64][]models.ShippingTableRates{}
+	mapMeth := map[uint64]models.ShippingMethods{}
+	methRepo.ReadMethodAndTableRatesByStoreIDs(&mapRates, &mapMeth, storeIDs)
 
 	for _, modelItem := range modelCartItems {
 		price := GetSalePrice(modelItem)
 		totalPrice := price * modelItem.Quantity
 
-		modelShip := models.ShippingData{}
-		modelMethod := models.ShippingMethods{}
-		modelRates := []models.ShippingTableRates{}
-
-		methRepo.ReadRates(&modelRates, modelItem.StoreID)
-		methRepo.ReadTableRateMethodByStoreID(&modelMethod, modelItem.StoreID)
-		shipRepo.ReadByVariationID(&modelShip, modelItem.VariationID)
+		modelMeth := mapMeth[modelItem.StoreID]
 
 		if modelCombo.ID != 0 {
 			switch modelCombo.DiscountType {
@@ -97,7 +96,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			}
 		}
 
-		shippingPrice := GetShippingPrice(modelRates, totalPrice, modelItem.Quantity, modelShip)
+		shippingPrice := GetShippingPrice(mapRates[uint64(modelMeth.ID)], totalPrice, modelItem.Quantity, modelItem.Weight)
 		if len(modelCoupons) > 0 {
 			couIndex := mapCoupon[modelItem.StoreID]
 			if modelCoupons[couIndex].AllowFreeShipping == 1 {
@@ -112,7 +111,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 
 		taxAmount := modelTax.TaxRate * (totalPrice + shippingPrice) / 100
 
-		modelItems = append(modelItems, models.OrderItems{
+		(*modelItems) = append((*modelItems), models.OrderItems{
 			OrderID:          0,
 			StoreID:          modelItem.StoreID,
 			VariationID:      modelItem.VariationID,
@@ -121,7 +120,7 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 			SubTotalPrice:    totalPrice,
 			TaxRate:          modelTax.TaxRate,
 			TaxAmount:        utils.Round(taxAmount),
-			ShippingMethodID: uint64(modelMethod.ID),
+			ShippingMethodID: uint64(modelMeth.ID),
 			ShippingPrice:    shippingPrice,
 			TotalPrice:       utils.Round(totalPrice + taxAmount + shippingPrice),
 			Status:           itemStatus,
@@ -129,8 +128,8 @@ func (service *Service) Create(modelOrder *models.Orders, modelCartItems []model
 	}
 	modelOrder.Status = orderStatus
 	service.DB.Create(&modelOrder)
-	for index := range modelItems {
-		modelItems[index].OrderID = uint64(modelOrder.ID)
+	for index := range *modelItems {
+		(*modelItems)[index].OrderID = uint64(modelOrder.ID)
 	}
-	orderService.Create(&modelItems)
+	orderService.Create(modelItems)
 }

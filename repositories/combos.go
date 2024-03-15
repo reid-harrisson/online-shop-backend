@@ -29,8 +29,7 @@ func (repository *RepositoryCombo) ReadByID(modelCombo *models.Combos, comboID u
 
 func (repository *RepositoryCombo) ReadDetail(modelItems *[]models.CartItemsWithDetail, comboID uint64) error {
 	return repository.DB.Table("store_combo_items As items").
-		Select(`
-			items.id,
+		Select(`items.id,
 			items.variation_id,
 			items.quantity,
 			prods.store_id,
@@ -40,14 +39,23 @@ func (repository *RepositoryCombo) ReadDetail(modelItems *[]models.CartItemsWith
 			vars.image_urls,
 			vars.stock_level,
 			vars.title As variation_name,
-			Group_Concat(Concat('"', cates.name,'"') Separator ', ') As categories
-		`).
+			ships.weight,
+			ships.width,
+			ships.length,
+			ships.height,
+			Group_Concat(Concat('"', cates.name,'"') Separator ', ') As categories`).
 		Joins("Left Join store_product_variations As vars On vars.id = items.variation_id").
 		Joins("Left Join store_products As prods On prods.id = vars.product_id").
 		Joins("Left Join store_product_categories As prodcates On prodcates.product_id = prods.id").
 		Joins("Left Join store_categories As cates On cates.id = prodcates.category_id").
-		Group("items.variation_id").
-		Where("items.combo_id = ?", comboID).
+		Joins("Left Join store_shipping_data As ships On ships.variation_id = vars.id").
+		Group("items.id").
+		Where(`items.combo_id = ?
+			And items.deleted_at Is Null
+			And vars.deleted_at Is Null
+			And prods.deleted_at Is Null
+			And prodcates.deleted_at Is Null
+			And cates.deleted_at Is Null`, comboID).
 		Scan(modelItems).
 		Error
 }

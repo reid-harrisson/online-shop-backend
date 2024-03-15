@@ -47,13 +47,22 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 			vars.image_urls,
 			vars.stock_level,
 			vars.title As variation_name,
+			ships.weight,
+			ships.width,
+			ships.length,
+			ships.height,
 			Group_Concat(Concat('"', cates.name,'"') Separator ', ') As categories`).
 		Joins("Left Join store_product_variations As vars On vars.id = carts.variation_id").
 		Joins("Left Join store_products As prods On prods.id = vars.product_id").
 		Joins("Left Join store_product_categories As prodcates On prodcates.product_id = prods.id").
 		Joins("Left Join store_categories As cates On cates.id = prodcates.category_id").
+		Joins("Left Join store_shipping_data As ships On ships.variation_id = vars.id").
 		Group("carts.id").
-		Where("carts.customer_id = ?", customerID).
-		Where("carts.deleted_at Is Null And prods.deleted_at Is Null And cates.deleted_at Is Null And prodcates.deleted_at Is Null").
+		Where(`carts.customer_id = ?
+			And carts.deleted_at Is Null
+			And prods.deleted_at Is Null
+			And cates.deleted_at Is Null
+			And ships.deleted_at Is Nul
+			And prodcates.deleted_at Is Null`, customerID).
 		Scan(modelItems)
 }
