@@ -19,7 +19,7 @@ func (service *Service) CreateWithCSV(modelNewDets *[]models.ProductVariationDet
 	service.DB.Where("Concat(variation_id,':',attribute_value_id) In (?)", detMatches).Find(&modelCurDets)
 	for _, modelDet := range modelCurDets {
 		match := fmt.Sprintf("%d:%d", modelDet.VariationID, modelDet.AttributeValueID)
-		index := detIndices[match] - 1
+		index := detIndices[match]
 		(*modelNewDets)[index].ID = modelDet.ID
 	}
 	service.DB.Save(modelNewDets)

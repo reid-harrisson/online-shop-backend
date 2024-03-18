@@ -8,10 +8,13 @@ import (
 	prodattrvalsvc "OnlineStoreBackend/services/attribute_values"
 	prodattrsvc "OnlineStoreBackend/services/attributes"
 	catesvc "OnlineStoreBackend/services/categories"
+	linksvc "OnlineStoreBackend/services/links"
 	prodcatesvc "OnlineStoreBackend/services/product_categories"
 	prodtagsvc "OnlineStoreBackend/services/product_tags"
 	prodsvc "OnlineStoreBackend/services/products"
+	shipsvc "OnlineStoreBackend/services/shipping_data"
 	tagsvc "OnlineStoreBackend/services/tags"
+	prodvardetsvc "OnlineStoreBackend/services/variation_details"
 	prodvarsvc "OnlineStoreBackend/services/variations"
 	"encoding/csv"
 	"encoding/json"
@@ -84,53 +87,6 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	modelCsvs := make([]models.CSVs, 0)
 	readCSV(&src, &modelCsvs)
 
-	// mapSku := make(map[string]uint64)
-	// mapIDs := make(map[string]string)
-
-	// modelProducts := make([]models.Products, 0)
-	// prodService := prodsvc.NewServiceProduct(h.server.DB)
-	// for _, modelCsv := range modelCsvs {
-	// 	modelProduct := models.Products{}
-	// 	prodService.CreateWithCSV(&modelProduct, modelCsv, storeID, &mapIDs)
-	// 	if modelProduct.ID != 0 {
-	// 		if mapSku[modelProduct.Sku] == 0 {
-	// 			modelProducts = append(modelProducts, modelProduct)
-	// 			mapSku[modelProduct.Sku] = uint64(modelProduct.ID)
-	// 			mapIDs[modelCsv.ID] = modelProduct.Sku
-	// 		}
-	// 	}
-	// }
-
-	// linkService := linksvc.NewServiceProductLinked(h.server.DB)
-	// for _, modelCsv := range modelCsvs {
-	// 	upSells := strings.Split(modelCsv.Upsells, ",")
-	// 	crossSells := strings.Split(modelCsv.CrossSells, ",")
-	// 	sku := strings.TrimSpace(modelCsv.Sku)
-	// 	if modelCsv.Parent != "" {
-	// 		sku = strings.TrimSpace(modelCsv.Sku)
-	// 	}
-	// 	for _, upSell := range upSells {
-	// 		if len(upSell) > 3 && upSell[:3] == "id:" {
-	// 			id := upSell[3:]
-	// 			upSell = mapIDs[id]
-	// 		}
-	// 		if mapSku[sku] != 0 && mapSku[upSell] != 0 {
-	// 			linkService.Create(mapSku[sku], mapSku[upSell], utils.UpSell)
-	// 		}
-	// 	}
-	// 	for _, crossSell := range crossSells {
-	// 		if len(crossSell) > 3 && crossSell[:3] == "id:" {
-	// 			id := crossSell[3:]
-	// 			crossSell = mapIDs[id]
-	// 		}
-	// 		if mapSku[sku] != 0 && mapSku[crossSell] != 0 {
-	// 			linkService.Create(mapSku[sku], mapSku[crossSell], utils.UpSell)
-	// 		}
-	// 	}
-	// }
-
-	// return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
-
 	// Category Informations
 	cateNames := []string{}
 	cateParents := map[string]string{}
@@ -145,9 +101,22 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	// Product Informations
 	prodIndices := map[string]int{}
 	prodSkus := []string{}
-	prodCates := map[uint64][]uint64{}
-	prodTags := map[uint64][]uint64{}
 	modelProducts := []models.Products{}
+
+	// Shipping Information
+	modelShips := []models.ShippingData{}
+	shipVarIDs := []uint64{}
+	shipIndices := map[uint64]int{}
+
+	// Product Category Information
+	prodCateIndices := map[string]int{}
+	prodCateMatches := []string{}
+	modelProdCates := []models.ProductCategories{}
+
+	// Product Tag Information
+	prodTagIndices := map[string]int{}
+	prodTagMatches := []string{}
+	modelProdTags := []models.ProductTags{}
 
 	// Attribute Informations
 	attrIndices := map[string]int{}
@@ -170,6 +139,9 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	modelDets := []models.ProductVariationDetails{}
 
 	// Linked Product Informations
+	linkIndices := map[string]int{}
+	linkMatches := []string{}
+	modelLinks := []models.ProductLinks{}
 
 	for _, modelCsv := range modelCsvs {
 		// Category
@@ -245,12 +217,30 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			prodSkus = append(prodSkus, prodSku)
 			size := len(modelProducts)
 			prodIndices[prodSku] = size
-			// Product Category and Tag
-			prodCates[uint64(size-1)] = append(prodCates[uint64(size-1)], cateCurrent...)
-			prodTags[uint64(size-1)] = append(prodTags[uint64(size-1)], tagCurrent...)
+
+			// Product Category
+			for _, cate := range cateCurrent {
+				match := fmt.Sprintf("%d:%d", size-1, cate)
+				if prodCateIndices[match] == 0 {
+					modelProdCates = append(modelProdCates, models.ProductCategories{})
+					prodCateMatches = append(prodCateMatches, match)
+					prodCateIndices[match] = len(modelProdCates)
+				}
+			}
+
+			// Product Tag
+			for _, tag := range tagCurrent {
+				match := fmt.Sprintf("%d:%d", size-1, tag)
+				if prodTagIndices[match] == 0 {
+					modelProdTags = append(modelProdTags, models.ProductTags{})
+					prodTagMatches = append(prodTagMatches, match)
+					prodTagIndices[match] = len(modelProdTags)
+				}
+			}
 		}
 		size := prodIndices[prodSku]
-		valCurrent := []uint64{}
+		valCurrent := []int{}
+
 		// First Attribute
 		match := strconv.Itoa(size-1) + ":" + modelCsv.AttributeName
 		if modelCsv.AttributeName != "" && attrIndices[match] == 0 {
@@ -275,7 +265,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 				valIndices[match] = len(modelVals)
 			}
 			if val != "" {
-				valCurrent = append(valCurrent, uint64(valIndices[match]-1))
+				valCurrent = append(valCurrent, valIndices[match]-1)
 			}
 		}
 		// Second Attribute
@@ -301,7 +291,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 				valIndices[match] = len(modelVals)
 			}
 			if val != "" {
-				valCurrent = append(valCurrent, uint64(valIndices[match]-1))
+				valCurrent = append(valCurrent, valIndices[match]-1)
 			}
 		}
 		// Variation
@@ -325,10 +315,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			if varSku == "" {
 				varSku = modelCsv.Parent
 				if modelCsv.Attribute1Values != "" {
-					varSku += "-" + modelCsv.Attribute1Values
+					varSku += "-" + utils.CleanSpecialLetters(modelCsv.Attribute1Values)
 				}
 				if modelCsv.Attribute2Values != "" {
-					varSku += "-" + modelCsv.Attribute2Values
+					varSku += "-" + utils.CleanSpecialLetters(modelCsv.Attribute2Values)
 				}
 			}
 			varImgJson, _ := json.Marshal(varImages)
@@ -353,14 +343,65 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 				varIndices[match] = size
 				varMatches = append(varMatches, match)
 
+				// Shipping Data
+				if modelCsv.Weight != "" {
+					weight, _ := strconv.ParseFloat(modelCsv.Weight, 64)
+					width, _ := strconv.ParseFloat(modelCsv.Width, 64)
+					length, _ := strconv.ParseFloat(modelCsv.Length, 64)
+					height, _ := strconv.ParseFloat(modelCsv.Height, 64)
+					modelShips = append(modelShips, models.ShippingData{
+						VariationID: uint64(size - 1),
+						Weight:      weight,
+						Width:       width,
+						Length:      length,
+						Height:      height,
+					})
+				}
+
+				// Variation Detail
 				for _, val := range valCurrent {
-					match := strconv.Itoa(size-1) + ":" + strconv.FormatUint(val, 10)
+					match := strconv.Itoa(size-1) + ":" + strconv.Itoa(val)
 					if detIndices[match] == 0 {
 						modelDets = append(modelDets, models.ProductVariationDetails{})
 						size := len(modelDets)
 						detIndices[match] = size
 						detMatches = append(detMatches, match)
 					}
+				}
+			}
+		}
+
+		// Linked Product (Up Sell)
+		upSells := strings.Split(modelCsv.Upsells, ",")
+		prodIndex := prodIndices[prodSku] - 1
+		for _, upSell := range upSells {
+			upSell = strings.TrimSpace(upSell)
+			linkIndex := prodIndices[upSell] - 1
+			if linkIndex >= 0 {
+				match := fmt.Sprintf("%d:%d:0", prodIndex, linkIndex)
+				if linkIndices[match] == 0 {
+					modelLinks = append(modelLinks, models.ProductLinks{
+						IsUpCross: utils.UpSell,
+					})
+					linkMatches = append(linkMatches, match)
+					linkIndices[match] = len(linkMatches)
+				}
+			}
+		}
+
+		// Linked Product (Cross Sell)
+		crossSells := strings.Split(modelCsv.CrossSells, ",")
+		for _, crossSell := range crossSells {
+			crossSell = strings.TrimSpace(crossSell)
+			linkIndex := prodIndices[crossSell] - 1
+			if linkIndex >= 0 {
+				match := fmt.Sprintf("%d:%d:1", prodIndex, linkIndex)
+				if linkIndices[match] == 0 {
+					modelLinks = append(modelLinks, models.ProductLinks{
+						IsUpCross: utils.CrossSell,
+					})
+					linkMatches = append(linkMatches, match)
+					linkIndices[match] = len(linkMatches)
 				}
 			}
 		}
@@ -390,31 +431,37 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
 	attrService.CreateWithCSV(&modelAttrs, attrMatches, attrIndices)
 
-	newProdCates := map[uint64][]uint64{}
-	for prodIndex, cates := range prodCates {
+	for index, match := range prodCateMatches {
+		prodIndex := 0
+		cateIndex := 0
+		fmt.Sscanf(match, "%d:%d", &prodIndex, &cateIndex)
 		prodID := modelProducts[prodIndex].ID
-		for _, cate := range cates {
-			if cate < uint64(len(modelCategories)) {
-				newProdCates[uint64(prodID)] = append(newProdCates[uint64(prodID)], uint64(modelCategories[cate].ID))
-			}
-		}
-	}
-
-	newProdTags := map[uint64][]uint64{}
-	for prodIndex, tags := range prodTags {
-		prodID := modelProducts[prodIndex].ID
-		for _, tag := range tags {
-			if tag < uint64(len(modelTags)) {
-				newProdTags[uint64(prodID)] = append(newProdTags[uint64(prodID)], uint64(modelTags[tag].ID))
-			}
-		}
+		cateID := modelCategories[cateIndex].ID
+		match = fmt.Sprintf("%d:%d", prodID, cateID)
+		modelProdCates[index].ProductID = uint64(prodID)
+		modelProdCates[index].CategoryID = uint64(cateID)
+		prodCateMatches[index] = match
+		prodCateIndices[match] = index
 	}
 
 	prodCateService := prodcatesvc.NewServiceProductCategory(h.server.DB)
-	prodCateService.CreateWithCSV(newProdCates)
+	prodCateService.CreateWithCSV(&modelProdCates, prodCateMatches, prodCateIndices)
+
+	for index, match := range prodTagMatches {
+		prodIndex := 0
+		tagIndex := 0
+		fmt.Sscanf(match, "%d:%d", &prodIndex, &tagIndex)
+		prodID := modelProducts[prodIndex].ID
+		tagID := modelTags[tagIndex].ID
+		match = fmt.Sprintf("%d:%d", prodID, tagID)
+		modelProdTags[index].ProductID = uint64(prodID)
+		modelProdTags[index].TagID = uint64(tagID)
+		prodTagMatches[index] = match
+		prodTagIndices[match] = index
+	}
 
 	prodTagService := prodtagsvc.NewServiceProductTag(h.server.DB)
-	prodTagService.CreateWithCSV(newProdTags)
+	prodTagService.CreateWithCSV(&modelProdTags, prodTagMatches, prodTagIndices)
 
 	for index, match := range valMatches {
 		name := ""
@@ -447,6 +494,17 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
 	varService.CreateWithCSV(&modelVars, varMatches, varIndices)
 
+	for index := range modelShips {
+		varIndex := modelShips[index].VariationID
+		varID := modelVars[varIndex].ID
+		modelShips[index].VariationID = uint64(varID)
+		shipVarIDs = append(shipVarIDs, uint64(varID))
+		shipIndices[uint64(varID)] = index
+	}
+
+	shipService := shipsvc.NewServiceShippingData(h.server.DB)
+	shipService.CreateWithCSV(&modelShips, shipVarIDs, shipIndices)
+
 	for index, match := range detMatches {
 		varIndex := 0
 		valIndex := 0
@@ -459,5 +517,26 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		detMatches[index] = match
 		detIndices[match] = index
 	}
+
+	detService := prodvardetsvc.NewServiceProductVariationDetail(h.server.DB)
+	detService.CreateWithCSV(&modelDets, detMatches, detIndices)
+
+	for index, match := range linkMatches {
+		prodIndex := 0
+		linkIndex := 0
+		sellType := 0
+		fmt.Sscanf(match, "%d:%d:%d", &prodIndex, &linkIndex, &sellType)
+		prodID := modelProducts[prodIndex].ID
+		linkID := modelProducts[linkIndex].ID
+		modelLinks[index].ProductID = uint64(prodID)
+		modelLinks[index].LinkID = uint64(linkID)
+		match = fmt.Sprintf("%d:%d:%d", prodID, linkID, sellType)
+		linkMatches[index] = match
+		linkIndices[match] = index
+	}
+
+	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	linkService.CreateWithCSV(&modelLinks, linkMatches, linkIndices)
+
 	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
 }
