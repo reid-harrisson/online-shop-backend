@@ -40,7 +40,7 @@ type CSVs struct {
 	ExternalUrl           string `json:"External URL"`
 	ButtonText            string `json:"Button text"`
 	Position              string `json:"Position"`
-	Attribute1Name        string `json:"Attribute 1 name"`
+	AttributeName         string `json:"Attribute 1 name"`
 	Attribute1Values      string `json:"Attribute 1 value(s)"`
 	Attribute1Visible     string `json:"Attribute 1 visible"`
 	Attribute1Global      string `json:"Attribute 1 global"`

@@ -23,8 +23,9 @@ log:
     encoding: json
 
 services_config:
-  common_tool: http://127.0.0.1:8013/api/v1
-  audit: http://127.0.0.1:8011/api/v1
+  common_tool: https://dev-api.pockittv.com/common/api/v1
+  audit: https://dev-api.pockittv.com/audit/api/v1
+  transaction_server: https://dev-api.pockittv.com/payment/api/v1
 
 authenticator_attachment: cross-platform
 user_verification_requirement: preferred

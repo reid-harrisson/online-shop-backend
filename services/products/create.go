@@ -70,9 +70,8 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 
 	for name, values := range req.Attributes {
 		if len(values) > 0 {
-			unit := values[0]
 			modelAttr := models.ProductAttributes{}
-			attrService.Create(productID, &requests.RequestAttribute{Name: name, Unit: unit}, &modelAttr)
+			attrService.Create(productID, &requests.RequestAttribute{Name: name}, &modelAttr)
 			attributeID := modelAttr.ID
 			for index, value := range values {
 				if index != 0 {
@@ -85,18 +84,28 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	return nil
 }
 
-func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv models.CSVs, storeID uint64, mapIDs *map[string]string) {
+func (service *Service) CreateWithCSV(modelNewProds *[]models.Products, prodSkus []string, prodIndices map[string]int) {
+	modelCurProds := []models.Products{}
+	service.DB.Where("sku In (?)", prodSkus).Find(&modelCurProds)
+	for _, modelProd := range modelCurProds {
+		index := prodIndices[modelProd.Sku] - 1
+		(*modelNewProds)[index].ID = modelProd.ID
+	}
+	service.DB.Save(modelNewProds)
+}
+
+func (service *Service) CreateWithCSV1(modelProduct *models.Products, modelCsv models.CSVs, storeID uint64, mapIDs *map[string]string) {
 	modelCategories := make([]models.StoreCategories, 0)
-	categories := strings.Split(modelCsv.Categories, ">")
+	categories := strings.Split(modelCsv.Categories, ", ")
 	cateService := catesvc.NewServiceCategory(service.DB)
-	cateService.CreateWithCSV(&modelCategories, categories, storeID)
+	cateService.CreateWithCSV(&modelCategories, categories, map[string]string{}, map[string]int{})
 
 	prodcateService := prodcatesvc.NewServiceProductCategory(service.DB)
 
 	modelTags := make([]models.StoreTags, 0)
 	tags := strings.Split(modelCsv.Tags, ",")
 	tagService := tagsvc.NewServiceTag(service.DB)
-	tagService.CreateWithCSV(&modelTags, tags, storeID)
+	tagService.CreateWithCSV(&modelTags, tags, map[string]int{})
 
 	prodtagService := prodtagsvc.NewServiceProductTag(service.DB)
 
@@ -127,8 +136,8 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			service.DB.Create(modelProduct)
 
 			productID := uint64(modelProduct.ID)
-			prodcateService.CreateWithCSV(modelCategories, productID)
-			prodtagService.CreateWithCSV(modelTags, productID)
+			prodcateService.CreateWithCSV1(modelCategories, productID)
+			prodtagService.CreateWithCSV1(modelTags, productID)
 			modelVar := models.ProductVariations{}
 			varService.CreateSimpleWithCSV(&modelVar, &modelCsv, productID)
 		}
@@ -155,9 +164,9 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			service.DB.Create(modelProduct)
 
 			productID := uint64(modelProduct.ID)
-			prodcateService.CreateWithCSV(modelCategories, productID)
-			prodtagService.CreateWithCSV(modelTags, productID)
-			attrService.CreateWithCSV(&modelCsv, productID)
+			prodcateService.CreateWithCSV1(modelCategories, productID)
+			prodtagService.CreateWithCSV1(modelTags, productID)
+			attrService.CreateWithCSV1(&modelCsv, productID)
 		}
 	case "variation":
 		parentSku := modelCsv.Parent
@@ -170,7 +179,7 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			}
 		}
 		if modelCsv.Sku == "" {
-			modelCsv.Sku = utils.CleanSpecialLetters(modelCsv.Parent + modelCsv.Attribute1Values + modelCsv.Attribute2Values)
+			modelCsv.Sku = utils.CleanSpecialLetters(modelCsv.Parent + modelCsv.AttributeValues + modelCsv.OptionalAttribute2Values)
 		}
 		service.DB.Where("sku = ?", parentSku).First(&modelProduct)
 		modelVals := make([]models.ProductAttributeValues, 0)
@@ -190,8 +199,8 @@ func (service *Service) CreateWithCSV(modelProduct *models.Products, modelCsv mo
 			service.DB.Create(modelProduct)
 
 			productID := uint64(modelProduct.ID)
-			prodcateService.CreateWithCSV(modelCategories, productID)
-			prodtagService.CreateWithCSV(modelTags, productID)
+			prodcateService.CreateWithCSV1(modelCategories, productID)
+			prodtagService.CreateWithCSV1(modelTags, productID)
 		}
 		attrService.UpdateWithCSV(&modelVals, &modelCsv, uint64(modelProduct.ID))
 		modelVar := models.ProductVariations{}

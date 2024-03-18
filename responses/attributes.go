@@ -10,7 +10,6 @@ type ResponseProductAttribute struct {
 	ID        uint64 `json:"id"`
 	ProductID uint64 `json:"product_id"`
 	Name      string `json:"name"`
-	Unit      string `json:"unit"`
 }
 
 func NewResponseProductAttribute(c echo.Context, statusCode int, modelAttr models.ProductAttributes) error {
@@ -18,7 +17,6 @@ func NewResponseProductAttribute(c echo.Context, statusCode int, modelAttr model
 		ID:        uint64(modelAttr.ID),
 		ProductID: modelAttr.ProductID,
 		Name:      modelAttr.AttributeName,
-		Unit:      modelAttr.Unit,
 	})
 }
 
@@ -29,7 +27,6 @@ func NewResponseProductAttributes(c echo.Context, statusCode int, modelAttrs []m
 			ID:        uint64(modelAttr.ID),
 			ProductID: modelAttr.ProductID,
 			Name:      modelAttr.AttributeName,
-			Unit:      modelAttr.Unit,
 		})
 	}
 	return Response(c, statusCode, responseAttrs)

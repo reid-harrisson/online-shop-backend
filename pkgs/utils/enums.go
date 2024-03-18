@@ -397,3 +397,13 @@ func SellTypesFromString(sellType string) SellTypes {
 
 	return UpSell
 }
+
+func ProductTypesFromString(productType string) ProductTypes {
+	switch productType {
+	case "simple":
+		return Simple
+	case "variable":
+		return Variable
+	}
+	return Variable
+}

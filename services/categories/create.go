@@ -13,7 +13,24 @@ func (service *Service) Create(modelCategory *models.StoreCategories, req *reque
 	service.DB.Create(modelCategory)
 }
 
-func (service *Service) CreateWithCSV(modelCategories *[]models.StoreCategories, categories []string, storeID uint64) {
+func (service *Service) CreateWithCSV(modelNewCates *[]models.StoreCategories, cateNames []string, cateParents map[string]string, cateIndices map[string]int) {
+	modelCurCates := []models.StoreCategories{}
+	service.DB.Where("name In (?)", cateNames).Find(&modelCurCates)
+	for _, modelCate := range modelCurCates {
+		index := cateIndices[modelCate.Name] - 1
+		(*modelNewCates)[index].ID = modelCate.ID
+	}
+	service.DB.Save(modelNewCates)
+	for index, modelCate := range *modelNewCates {
+		parentID := cateIndices[cateParents[modelCate.Name]]
+		if parentID > 0 {
+			(*modelNewCates)[index].ParentID = uint64((*modelNewCates)[parentID-1].ID)
+		}
+	}
+	service.DB.Save(modelNewCates)
+}
+
+func (service *Service) CreateWithCSV1(modelCategories *[]models.StoreCategories, categories []string, storeID uint64) {
 	for i := range categories {
 		categories[i] = strings.TrimSpace(categories[i])
 		if len(categories[i]) == 0 {
