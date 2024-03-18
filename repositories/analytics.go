@@ -60,7 +60,7 @@ func (repository *RepositoryAnalytics) ReadStockLevelAnalytics(modelLevels *[]mo
 		Group("vars.product_id").
 		Joins("Left Join store_products As prods On vars.product_id = prods.id").
 		Where("vars.deleted_at Is Null And prods.deleted_at Is Null").
-		Where("vars.creatd_at Between ? And ?", startDate, endDate).
+		Where("vars.created_at Between ? And ?", startDate, endDate).
 		Scan(modelLevels).Error
 }
 
@@ -123,13 +123,16 @@ func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]mod
 }
 
 func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]models.ProductViewAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.Table("store_visitors As visits").
 		Select(`
-			page,
-			Count(id) As page_views
+			visits.product_id,
+			Sum(Case When visits.page = 2 Then 1 Else 0 End) As page_views,
+			prods.title As product_name,
+			Sum(Case When visits.page = 7 Then 1 Else 0 End) As purchase
 		`).
-		Group("page").
-		Where("created_at Between ? And ?", startDate, endDate).
+		Joins("Left Join store_products prods On prods.id = visits.product_id").
+		Group("visits.product_id").
+		Where("visits.created_at Between ? And ?", startDate, endDate).
 		Scan(modelViews).Error
 }
 
@@ -212,7 +215,13 @@ func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations
 func (repository *RepositoryAnalytics) ReadCustomerSatisfaction(modelRates *[]models.CustomerSatisfaction, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Table("store_product_reviews As revs").
 		Select(`
+			prods.id As product_id,
 			Avg(revs.rate) As average_rating,
+			Sum(Case When revs.rate = 1 Then 1 Else 0 End) / Count(revs.rate) * 100 As rating1,
+			Sum(Case When revs.rate = 2 Then 1 Else 0 End) / Count(revs.rate) * 100 As rating2,
+			Sum(Case When revs.rate = 3 Then 1 Else 0 End) / Count(revs.rate) * 100 As rating3,
+			Sum(Case When revs.rate = 4 Then 1 Else 0 End) / Count(revs.rate) * 100 As rating4,
+			Sum(Case When revs.rate = 5 Then 1 Else 0 End) / Count(revs.rate) * 100 As rating5,
 			( Count(Distinct Case When revs.rate >= 4.5 Then revs.customer_id End) - Count(Distinct Case When revs.rate <= 3 Then revs.customer_id End)) / Count(Distinct revs.customer_id) As nps
 		`).
 		Joins("Left Join store_products As prods On prods.id = revs.product_id").

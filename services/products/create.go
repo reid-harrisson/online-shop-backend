@@ -3,7 +3,6 @@ package prodsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
-	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	prodattrvalsvc "OnlineStoreBackend/services/attribute_values"
 	prodattrsvc "OnlineStoreBackend/services/attributes"
@@ -21,9 +20,6 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.ShortDescription = req.ShortDescription
 	modelProduct.LongDescription = req.LongDescirpiton
 	modelProduct.Sku = utils.CleanSpecialLetters(modelProduct.Title)
-
-	prodRepo := repositories.NewRepositoryProduct(service.DB)
-	prodRepo.ReadCurrencyID(modelProduct, req.StoreID)
 
 	contService := contsvc.NewServiceProductContent(service.DB)
 	chanService := chansvc.NewServiceProductChannel(service.DB)
