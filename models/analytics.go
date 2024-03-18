@@ -119,8 +119,14 @@ type CustomerDataByLocation struct {
 }
 
 type CustomerSatisfaction struct {
+	ProductID     uint64  `gorm:"column:product_id"`
 	AverageRating float64 `gorm:"column:average_rating"`
 	NPS           float64 `gorm:"column:nps"`
+	Rating1       float64 `gorm:"column:rating1"`
+	Rating2       float64 `gorm:"column:rating2"`
+	Rating3       float64 `gorm:"column:rating3"`
+	Rating4       float64 `gorm:"column:rating4"`
+	Rating5       float64 `gorm:"column:rating5"`
 }
 
 type PageLoadingTime struct {

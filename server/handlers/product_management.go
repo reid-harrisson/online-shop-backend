@@ -18,6 +18,7 @@ import (
 	shipsvc "OnlineStoreBackend/services/shipping_data"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -117,6 +118,52 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	prodRepo.ReadAll(&modelProducts, storeID, keyword)
+
+	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
+}
+
+// Refresh godoc
+// @Summary Read products by category
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// /@Security ApiKeyAuth
+// @Param store_id query int false "Store ID"
+// @Param category_id query int false "Category ID"
+// @Success 200 {object} []responses.ResponseProduct
+// @Router /store/api/v1/product/category [get]
+func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	cateID, _ := strconv.ParseUint(c.QueryParam("category_id"), 10, 64)
+
+	modelProducts := make([]models.Products, 0)
+
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByCategory(&modelProducts, storeID, cateID)
+
+	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
+}
+
+// Refresh godoc
+// @Summary Read products by tags and keyword
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// /@Security ApiKeyAuth
+// @Param store_id query int false "Store ID"
+// @Param tags query string false "Tags"
+// @Param keyword query string false "Keyword"
+// @Success 200 {object} []responses.ResponseProduct
+// @Router /store/api/v1/product/search [get]
+func (h *HandlersProductManagement) ReadSearch(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	keyword := c.QueryParam("keyword")
+	tags := strings.Split(c.QueryParam("tags"), ",")
+
+	modelProducts := make([]models.Products, 0)
+
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadByTags(&modelProducts, storeID, tags, keyword)
 
 	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
 }

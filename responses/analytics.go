@@ -133,8 +133,14 @@ type ResponseCustomerDataByLocation struct {
 }
 
 type ResponseCustomerSatisfaction struct {
+	ProductID     uint64  `json:"product_id"`
 	AverageRating float64 `json:"average_rating"`
 	NPS           float64 `json:"nps"`
+	Rating1       float64 `json:"rating1"`
+	Rating2       float64 `json:"rating2"`
+	Rating3       float64 `json:"rating3"`
+	Rating4       float64 `json:"rating4"`
+	Rating5       float64 `json:"rating5"`
 }
 
 type ResponsePageLoadingTime struct {
@@ -367,10 +373,16 @@ func NewResponseCustomerDataByLocation(c echo.Context, statusCode int, modelLoca
 
 func NewResponseCustomerSatisfaction(c echo.Context, statusCode int, modelRates []models.CustomerSatisfaction) error {
 	responseRates := make([]ResponseCustomerSatisfaction, 0)
-	for _, modelLocation := range modelRates {
+	for _, modelRate := range modelRates {
 		responseRates = append(responseRates, ResponseCustomerSatisfaction{
-			AverageRating: utils.Round(modelLocation.AverageRating),
-			NPS:           utils.Round(modelLocation.NPS * 100),
+			ProductID:     modelRate.ProductID,
+			AverageRating: utils.Round(modelRate.AverageRating),
+			NPS:           utils.Round(modelRate.NPS * 100),
+			Rating1:       utils.Round(modelRate.Rating1),
+			Rating2:       utils.Round(modelRate.Rating2),
+			Rating3:       utils.Round(modelRate.Rating3),
+			Rating4:       utils.Round(modelRate.Rating4),
+			Rating5:       utils.Round(modelRate.Rating5),
 		})
 	}
 	return Response(c, statusCode, responseRates)

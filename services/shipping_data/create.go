@@ -3,7 +3,6 @@ package shipsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/requests"
-	"strconv"
 )
 
 func (service *Service) Create(productID uint64, req *requests.RequestShippingData, modelShipData *models.ShippingData) error {
@@ -17,14 +16,12 @@ func (service *Service) Create(productID uint64, req *requests.RequestShippingDa
 	return nil
 }
 
-func (service *Service) CreateWithCSV(variationID uint64, modelCsv *models.CSVs) error {
-	modelShip := models.ShippingData{}
-	service.DB.Where("variation_id = ?", variationID).First(&modelShip)
-	modelShip.Weight, _ = strconv.ParseFloat(modelCsv.Weight, 64)
-	modelShip.Width, _ = strconv.ParseFloat(modelCsv.Width, 64)
-	modelShip.Height, _ = strconv.ParseFloat(modelCsv.Height, 64)
-	modelShip.Length, _ = strconv.ParseFloat(modelCsv.Length, 64)
-	modelShip.VariationID = variationID
-	service.DB.Save(&modelShip)
-	return nil
+func (service *Service) CreateWithCSV(modelNewShips *[]models.ShippingData, shipVarIDs []uint64, shipIndices map[uint64]int) {
+	modelCurShips := []models.ShippingData{}
+	service.DB.Where("variation_id In (?)", shipVarIDs).Find(&modelCurShips)
+	for _, modelShip := range modelCurShips {
+		index := shipIndices[modelShip.VariationID]
+		(*modelNewShips)[index].ID = modelShip.ID
+	}
+	service.DB.Save(modelNewShips)
 }

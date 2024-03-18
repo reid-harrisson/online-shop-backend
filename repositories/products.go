@@ -66,14 +66,31 @@ func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, s
 		Find(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadCurrencyID(modelProduct *models.Products, storeID uint64) error {
-	return repository.DB.
-		Model(models.Stores{}).
-		Select("cu.id As currency_id").
-		Joins("LEFT JOIN users AS u ON u.id = owner_id").
-		Joins("LEFT JOIN countries AS ca ON ca.id = u.country_id").
-		Joins("LEFT JOIN currencies AS cu ON cu.`code` = ca.currency_code ").
-		Where("stores.id = ?", storeID).
-		Scan(modelProduct).
-		Error
+func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Products, storeID uint64, cateID uint64) error {
+	return repository.DB.Table("store_product_categories As cates").
+		Select("prods.*").
+		Joins("Left Join store_products As prods On prods.id = cates.product_id").
+		Where("cates.category_id = ?", cateID).
+		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
+		Group("prods.id").
+		Scan(modelProducts).Error
+}
+
+func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products, storeID uint64, tags []string, keyword string) {
+	modelTags := []models.StoreTags{}
+	repository.DB.Where("name Not In (?)", tags).Find(&modelTags)
+	keyword = "%" + keyword + "%"
+	tagIDs := []uint64{}
+	for _, modelTag := range modelTags {
+		tagIDs = append(tagIDs, uint64(modelTag.ID))
+	}
+	repository.DB.Table("store_product_tags As tags").
+		Select("prods.*").
+		Joins("Left Join store_products As prods On prods.id = tags.product_id").
+		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
+		Where("? = '%%' Or prods.title Like ?", keyword, keyword).
+		Where("tags.tag_id Not In (?)", tagIDs).
+		Group("prods.id").
+		Having("Count(tags.tag_id) = ?", len(tags)).
+		Scan(modelProducts)
 }
