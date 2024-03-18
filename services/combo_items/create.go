@@ -5,12 +5,12 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelItems *[]models.ComboItems, req []requests.RequestComboItem, comboID uint64) error {
+func (service *Service) Create(modelNewItems *[]models.ComboItems, req []requests.RequestComboItem, comboID uint64) error {
 	variationIDs := []uint64{}
 	indices := map[uint64]int{}
 	for index, item := range req {
 		if indices[item.VariationID] == 0 {
-			*modelItems = append(*modelItems, models.ComboItems{
+			*modelNewItems = append(*modelNewItems, models.ComboItems{
 				ComboID:     comboID,
 				Quantity:    item.Quantity,
 				VariationID: item.VariationID,
@@ -20,12 +20,12 @@ func (service *Service) Create(modelItems *[]models.ComboItems, req []requests.R
 		}
 	}
 
-	modelNewItems := []models.ComboItems{}
-	service.DB.Where("variation_id In (?) And combo_id = ?", variationIDs, comboID).Find(&modelNewItems)
+	modelCurItems := []models.ComboItems{}
+	service.DB.Where("variation_id In (?) And combo_id = ?", variationIDs, comboID).Find(&modelCurItems)
 	service.DB.Where("variation_id Not In (?) And combo_id = ?", variationIDs, comboID).Delete(&models.ComboItems{})
-	for _, modelItem := range modelNewItems {
+	for _, modelItem := range modelCurItems {
 		index := indices[modelItem.VariationID] - 1
-		(*modelItems)[index].ID = modelItem.ID
+		(*modelNewItems)[index].ID = modelItem.ID
 	}
-	return service.DB.Save(modelItems).Error
+	return service.DB.Save(modelNewItems).Error
 }

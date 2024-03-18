@@ -4,7 +4,7 @@ import (
 	"OnlineStoreBackend/models"
 )
 
-func (service *Service) Create(tag string, modelTag *models.StoreTags, storeID uint64) {
+func (service *Service) Create(modelTag *models.StoreTags, tag string, storeID uint64) {
 	modelTag.Name = tag
 	modelTag.StoreID = storeID
 	service.DB.Where("name = ?", tag).First(modelTag)

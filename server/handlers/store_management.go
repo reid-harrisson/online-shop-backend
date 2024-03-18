@@ -106,7 +106,7 @@ func (h *HandlersStoreManagement) CreateTag(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag already exist in the store.")
 	}
 	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Create(req.Name, &modelTag, storeID)
+	tagService.Create(&modelTag, req.Name, storeID)
 
 	modelTags := make([]models.StoreTags, 0)
 	tagRepo.ReadByStoreID(&modelTags, storeID)

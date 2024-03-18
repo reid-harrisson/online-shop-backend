@@ -6,12 +6,14 @@ import (
 )
 
 func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) {
+	modelDets := []models.ProductVariationDetails{}
 	for _, attributeValueID := range attributeValueIDs {
-		service.DB.Create(&models.ProductVariationDetails{
+		modelDets = append(modelDets, models.ProductVariationDetails{
 			VariationID:      variationID,
 			AttributeValueID: attributeValueID,
 		})
 	}
+	service.DB.Create(&modelDets)
 }
 
 func (service *Service) CreateWithCSV(modelNewDets *[]models.ProductVariationDetails, detMatches []string, detIndices map[string]int) {

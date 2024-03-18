@@ -16,5 +16,4 @@ func (ProductAttributeValues) TableName() string {
 type ProductAttributeValuesWithDetail struct {
 	ProductAttributeValues
 	AttributeName string `gorm:"column:attribute_name"`
-	Unit          string `gomr:"column:attribute_unit"`
 }

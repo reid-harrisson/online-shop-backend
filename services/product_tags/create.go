@@ -13,7 +13,7 @@ func (service *Service) Create(tag string, modelProduct *models.Products) {
 	tagRepo.ReadByName(&modelTag, tag, modelProduct.StoreID)
 	if modelTag.ID == 0 {
 		tagService := tagsvc.NewServiceTag(service.DB)
-		tagService.Create(tag, &modelTag, modelProduct.StoreID)
+		tagService.Create(&modelTag, tag, modelProduct.StoreID)
 	}
 	service.DB.Create(&models.ProductTags{
 		TagID:     uint64(modelTag.ID),

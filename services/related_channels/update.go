@@ -2,31 +2,30 @@ package chansvc
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
+	"fmt"
 )
 
-func (service *Service) Update(modelChannels *[]models.ProductChannelsWithName, req *requests.RequestProductChannel, productID uint64) {
-	filterKeys := make(map[uint64]int)
-	for _, modelChannel := range *modelChannels {
-		filterKeys[modelChannel.ChannelID] = 1
+func (service *Service) Update(productID uint64, req *requests.RequestProductChannel) {
+	modelNewChans := []models.ProductChannels{}
+	modelCurChans := []models.ProductChannels{}
+	chanIndices := map[string]int{}
+	chanMatches := []string{}
+	for index, channelID := range req.ChannelIDs {
+		match := fmt.Sprintf("%d:%d", productID, channelID)
+		chanMatches = append(chanMatches, match)
+		chanIndices[match] = index
+		modelNewChans = append(modelNewChans, models.ProductChannels{
+			ProductID: productID,
+			ChannelID: channelID,
+		})
 	}
-	for _, channelID := range req.ChannelIDs {
-		if filterKeys[channelID] == 1 {
-			filterKeys[channelID] = 3
-		} else {
-			filterKeys[channelID] = 2
-		}
+	service.DB.Where("Concat(product_id, ':', channel_id) In (?)", chanMatches).Find(&modelCurChans)
+	service.DB.Where("Concat(product_id, ':', channel_id) Not In (?) And product_id = ?", chanMatches, productID).Delete(models.ProductChannels{})
+	for _, modelChan := range modelCurChans {
+		match := fmt.Sprintf("%d:%d", modelChan.ProductID, modelChan.ChannelID)
+		index := chanIndices[match]
+		modelNewChans[index].ID = modelChan.ID
 	}
-
-	for channelID, key := range filterKeys {
-		if key == 1 {
-			service.Delete(channelID)
-		} else if key == 2 {
-			service.Create(channelID, productID)
-		}
-	}
-
-	chanRepo := repositories.NewRepositoryProductChannel(service.DB)
-	chanRepo.ReadByProductID(modelChannels, productID)
+	service.DB.Save(&modelNewChans)
 }
