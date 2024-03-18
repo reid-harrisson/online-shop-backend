@@ -413,6 +413,16 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	tagService := tagsvc.NewServiceTag(h.server.DB)
 	tagService.CreateWithCSV(&modelTags, tagNames, tagIndices)
 
+	for index := range modelProducts {
+		sku := modelProducts[index].Sku
+		if sku[:3] == "id:" {
+			sku = utils.CleanSpecialLetters(modelProducts[index].Title)
+			modelProducts[index].Sku = sku
+			prodSkus[index] = sku
+			prodIndices[sku] = index + 1
+		}
+	}
+
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	prodService.CreateWithCSV(&modelProducts, prodSkus, prodIndices)
 
