@@ -145,16 +145,16 @@ func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read products by category
+// @Summary Read products by tags and keyword
 // @Tags Product Management
 // @Accept json
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param store_id query int false "Store ID"
-// @Param tags query int false "Tags"
-// @Param keyword query int false "Keyword"
+// @Param tags query string false "Tags"
+// @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
-// @Router /store/api/v1/product/category [get]
+// @Router /store/api/v1/product/search [get]
 func (h *HandlersProductManagement) ReadSearch(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	keyword := c.QueryParam("keyword")

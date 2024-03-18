@@ -161,6 +161,7 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.GET("/paging", handler.ReadPaging)
 	e.GET("/linked", handler.ReadLinkedProduct)
 	e.GET("/category", handler.ReadByCategory)
+	e.GET("/search", handler.ReadSearch)
 	e.PUT("/:id", handler.Update)
 	e.PUT("/approve/:id", handler.Approve)
 	e.PUT("/attribute-value/:id", handler.UpdateAttributeValueByID)
