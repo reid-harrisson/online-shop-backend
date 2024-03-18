@@ -8,6 +8,7 @@ import (
 	shipsvc "OnlineStoreBackend/services/shipping_data"
 	prodvardetsvc "OnlineStoreBackend/services/variation_details"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -54,6 +55,17 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 		detService := prodvardetsvc.NewServiceProductVariationDetail(service.DB)
 		detService.Create(uint64(modelVar.ID), req.AttributeValueIDs)
 	}
+}
+
+func (service *Service) CreateWithCSV(modelNewVars *[]models.ProductVariations, varMatches []string, varIndices map[string]int) {
+	modelCurVars := []models.ProductVariations{}
+	service.DB.Where("Concat(product_id, ':', sku) In (?)", varMatches).Find(&modelCurVars)
+	for _, modelVar := range modelCurVars {
+		match := fmt.Sprintf("%d:%s", modelVar.ProductID, modelVar.Sku)
+		index := varIndices[match]
+		(*modelNewVars)[index].ID = modelVar.ID
+	}
+	service.DB.Save(modelNewVars)
 }
 
 func (service *Service) CreateSimpleWithCSV(modelVar *models.ProductVariations, modelCsv *models.CSVs, productID uint64) {

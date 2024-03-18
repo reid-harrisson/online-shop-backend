@@ -12,7 +12,17 @@ func (service *Service) Create(tag string, modelTag *models.StoreTags, storeID u
 	service.DB.Save(modelTag)
 }
 
-func (service *Service) CreateWithCSV(modelTags *[]models.StoreTags, tags []string, storeID uint64) {
+func (service *Service) CreateWithCSV(modelNewTags *[]models.StoreTags, tagNames []string, tagIndices map[string]int) {
+	modelCurTags := []models.StoreTags{}
+	service.DB.Where("name In (?)", tagNames).Find(&modelCurTags)
+	for _, modelTag := range modelCurTags {
+		index := tagIndices[modelTag.Name] - 1
+		(*modelNewTags)[index].ID = modelTag.ID
+	}
+	service.DB.Save(modelNewTags)
+}
+
+func (service *Service) CreateWithCSV1(modelTags *[]models.StoreTags, tags []string, storeID uint64) {
 	for i := range tags {
 		tags[i] = strings.TrimSpace(tags[i])
 		if len(tags[i]) == 0 {
