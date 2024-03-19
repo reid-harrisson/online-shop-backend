@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 
 	"gorm.io/gorm"
 )
@@ -16,6 +17,24 @@ func NewRepositoryCombo(db *gorm.DB) *RepositoryCombo {
 
 func (repository *RepositoryCombo) ReadByStoreID(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) {
 	repository.DB.Where("store_id = ?", storeID).Find(modelCombos)
+	comboIDs := []uint64{}
+	for _, modelCombo := range *modelCombos {
+		comboIDs = append(comboIDs, uint64(modelCombo.ID))
+	}
+	repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems)
+}
+
+func (repository *RepositoryCombo) ReadApproved(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) {
+	repository.DB.Where("store_id = ? And status = ?", storeID, utils.Approved).Find(modelCombos)
+	comboIDs := []uint64{}
+	for _, modelCombo := range *modelCombos {
+		comboIDs = append(comboIDs, uint64(modelCombo.ID))
+	}
+	repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems)
+}
+
+func (repository *RepositoryCombo) ReadPublished(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) {
+	repository.DB.Where("store_id = ? And status = ?", storeID, utils.Pending).Find(modelCombos)
 	comboIDs := []uint64{}
 	for _, modelCombo := range *modelCombos {
 		comboIDs = append(comboIDs, uint64(modelCombo.ID))
@@ -58,4 +77,8 @@ func (repository *RepositoryCombo) ReadDetail(modelItems *[]models.CartItemsWith
 			And cates.deleted_at Is Null`, comboID).
 		Scan(modelItems).
 		Error
+}
+
+func (repository *RepositoryCombo) ReadStatus(status *utils.ProductStatus, comboID uint64) error {
+	return repository.DB.Model(&models.Combos{}).Select("status").Where("id = ?", comboID).Scan(status).Error
 }

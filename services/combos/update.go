@@ -19,7 +19,12 @@ func (service *Service) Update(modelCombo *models.Combos, modelItems *[]models.C
 	modelCombo.ImageUrls = string(imageUrls)
 	modelCombo.Description = req.Description
 	modelCombo.Title = req.Title
+	modelCombo.Status = utils.Draft
 	service.DB.Save(modelCombo)
 	itemService := coitmsvc.NewServiceComboItem(service.DB)
 	return itemService.Create(modelItems, req.Items, uint64(modelCombo.ID))
+}
+
+func (service *Service) UpdateStatus(status utils.ProductStatus, comboID uint64) error {
+	return service.DB.Model(&models.Combos{}).Where("id = ?", comboID).Update("status", status).Error
 }

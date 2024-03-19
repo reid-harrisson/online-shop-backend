@@ -24,6 +24,7 @@ type ResponseCombo struct {
 	Description    string              `json:"description"`
 	Title          string              `json:"title"`
 	Items          []ResponseComboItem `json:"items"`
+	Status         string              `json:"status"`
 }
 
 func NewResponseCombo(c echo.Context, statusCode int, modelCombo models.Combos, modelItems []models.ComboItems) error {
@@ -47,6 +48,7 @@ func NewResponseCombo(c echo.Context, statusCode int, modelCombo models.Combos, 
 		Description:    modelCombo.Description,
 		Title:          modelCombo.Title,
 		Items:          responseItems,
+		Status:         utils.ProductStatusToString(modelCombo.Status),
 	})
 }
 
@@ -78,6 +80,7 @@ func NewResponseCombos(c echo.Context, statusCode int, modelCombos []models.Comb
 			Description:    modelCombo.Description,
 			Title:          modelCombo.Title,
 			Items:          responseItems,
+			Status:         utils.ProductStatusToString(modelCombo.Status),
 		})
 	}
 	return Response(c, statusCode, responseCombos)
