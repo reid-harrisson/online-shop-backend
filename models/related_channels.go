@@ -9,10 +9,6 @@ type ProductChannels struct {
 	ChannelID uint64 `gorm:"column:channel_id; type:bigint(20) unsigned"`
 }
 
-type BaseChannels struct {
-	ID uint64 `gorm:"column:id"`
-}
-
 type ProductChannelsWithName struct {
 	ProductChannels
 	ChannelName string `gorm:"column:channel_name"`

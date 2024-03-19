@@ -77,8 +77,8 @@ func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
 	}
 
 	modelSale := models.StoreSales{}
-	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadRevenue(&modelSale, storeID, startDate, endDate)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadRevenue(&modelSale, storeID, startDate, endDate)
 	return responses.NewResponseSalesRevenue(c, http.StatusOK, modelSale)
 }
 
@@ -108,8 +108,8 @@ func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
 	}
 
 	modelSale := models.StoreSales{}
-	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadAOV(&modelSale, storeID, startDate, endDate)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadAOV(&modelSale, storeID, startDate, endDate)
 	return responses.NewResponseSalesRevenue(c, http.StatusOK, modelSale)
 }
 
@@ -139,8 +139,8 @@ func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
 	}
 
 	modelSales := make([]models.ProductSales, 0)
-	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadSalesByProduct(&modelSales, storeID, startDate, endDate)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadSalesByProduct(&modelSales, storeID, startDate, endDate)
 	return responses.NewResponseSalesByProduct(c, http.StatusOK, modelSales, storeID)
 }
 
@@ -170,8 +170,8 @@ func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
 	}
 
 	modelSales := make([]models.CategorySales, 0)
-	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadSalesByCategory(&modelSales, storeID, startDate, endDate)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadSalesByCategory(&modelSales, storeID, startDate, endDate)
 	return responses.NewResponseSalesByCategory(c, http.StatusOK, modelSales, storeID)
 }
 
@@ -201,8 +201,8 @@ func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 	}
 
 	modelSales := make([]models.CustomerSales, 0)
-	orderRepo := repositories.NewRepositorySales(h.server.DB)
-	orderRepo.ReadCLV(&modelSales, storeID, startDate, endDate)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadCLV(&modelSales, storeID, startDate, endDate)
 	return responses.NewResponseSalesCLV(c, http.StatusOK, modelSales, storeID)
 }
 

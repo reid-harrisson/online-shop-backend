@@ -153,7 +153,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 				subcate = strings.TrimSpace(subcate)
 				if subcate != "" && cateIndices[subcate] == 0 {
 					if index != 0 {
-						cateParents[subcate] = subcates[index-1]
+						cateParents[subcate] = strings.TrimSpace(subcates[index-1])
 					}
 					cateNames = append(cateNames, subcate)
 					modelCategories = append(modelCategories, models.StoreCategories{

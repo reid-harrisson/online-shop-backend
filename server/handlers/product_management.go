@@ -395,12 +395,12 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
+	chanService := chansvc.NewServiceProductChannel(h.server.DB)
+	chanService.Update(productID, req)
+
 	modelChannels := make([]models.ProductChannelsWithName, 0)
 	chanRepo := repositories.NewRepositoryProductChannel(h.server.DB)
 	chanRepo.ReadByProductID(&modelChannels, productID)
-
-	chanService := chansvc.NewServiceProductChannel(h.server.DB)
-	chanService.Update(&modelChannels, req, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductChannels(c, http.StatusOK, modelChannels)
@@ -429,12 +429,12 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
+	contService := contsvc.NewServiceProductContent(h.server.DB)
+	contService.Update(productID, req)
+
 	modelContents := make([]models.ProductContentsWithTitle, 0)
 	contRepo := repositories.NewRepositoryProductContent(h.server.DB)
 	contRepo.ReadByProductID(&modelContents, productID)
-
-	contService := contsvc.NewServiceProductContent(h.server.DB)
-	contService.Update(&modelContents, req, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
 	return responses.NewResponseProductContents(c, http.StatusOK, modelContents)
@@ -614,16 +614,16 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute doesn't exists in the product.")
 	}
 
-	modelVars := make([]models.ProductAttributeValuesWithDetail, 0)
-	varRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
-	varRepo.ReadByID(&modelVars, attributeID)
+	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	valService.Update(attributeID, req)
 
-	varService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
-	varService.Update(attributeID, productID, &modelVars, req)
+	modelVals := make([]models.ProductAttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	valRepo.ReadByID(&modelVals, attributeID)
+	valRepo.ReadByProductID(&modelVals, productID)
 
-	varRepo.ReadByProductID(&modelVars, productID)
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseAttributeValueByProduct(c, http.StatusOK, modelVars)
+	return responses.NewResponseAttributeValueByProduct(c, http.StatusOK, modelVals)
 }
 
 // Refresh godoc

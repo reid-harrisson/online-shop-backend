@@ -7,7 +7,7 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	addrsvc "OnlineStoreBackend/services/customer_addresses"
+	addrsvc "OnlineStoreBackend/services/addresses"
 	ordsvc "OnlineStoreBackend/services/orders"
 	"encoding/json"
 	"net/http"

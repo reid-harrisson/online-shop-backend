@@ -6,7 +6,7 @@ import (
 )
 
 func (service *Service) Delete(variationID uint64) {
-	service.DB.Where("id = ?", variationID).Delete(models.ProductVariations{})
+	service.DB.Where("id = ?", variationID).Delete(&models.ProductVariations{})
 	detService := prodvardetsvc.NewServiceProductVariationDetail(service.DB)
 	detService.Delete(variationID)
 }

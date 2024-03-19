@@ -2,31 +2,30 @@ package contsvc
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
+	"fmt"
 )
 
-func (service *Service) Update(modelContents *[]models.ProductContentsWithTitle, req *requests.RequestProductContent, productID uint64) {
-	filterKeys := make(map[uint64]int)
-	for _, modelContent := range *modelContents {
-		filterKeys[modelContent.ContentID] = 1
+func (service *Service) Update(productID uint64, req *requests.RequestProductContent) {
+	modelNewConts := []models.ProductContents{}
+	modelCurConts := []models.ProductContents{}
+	contIndices := map[string]int{}
+	contMatches := []string{}
+	for index, contentID := range req.ContentIDs {
+		match := fmt.Sprintf("%d:%d", productID, contentID)
+		contMatches = append(contMatches, match)
+		contIndices[match] = index
+		modelNewConts = append(modelNewConts, models.ProductContents{
+			ProductID: productID,
+			ContentID: contentID,
+		})
 	}
-	for _, contentID := range req.ContentIDs {
-		if filterKeys[contentID] == 1 {
-			filterKeys[contentID] = 3
-		} else {
-			filterKeys[contentID] = 2
-		}
+	service.DB.Where("Concat(product_id, ':', content_id) In (?)", contMatches).Find(&modelCurConts)
+	service.DB.Where("Concat(product_id, ':', content_id) Not In (?) And product_id = ?", contMatches, productID).Delete(&models.ProductContents{})
+	for _, modelCont := range modelCurConts {
+		match := fmt.Sprintf("%d:%d", modelCont.ProductID, modelCont.ContentID)
+		index := contIndices[match]
+		modelNewConts[index].ID = modelCont.ID
 	}
-
-	for contentID, key := range filterKeys {
-		if key == 1 {
-			service.Delete(contentID)
-		} else if key == 2 {
-			service.Create(contentID, productID)
-		}
-	}
-
-	contRepo := repositories.NewRepositoryProductContent(service.DB)
-	contRepo.ReadByProductID(modelContents, productID)
+	service.DB.Save(&modelNewConts)
 }

@@ -2,33 +2,32 @@ package prodattrvalsvc
 
 import (
 	"OnlineStoreBackend/models"
-	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
+	"fmt"
 )
 
-func (service *Service) Update(attributeID uint64, productID uint64, modelValues *[]models.ProductAttributeValuesWithDetail, req *requests.RequestProductAttributeValue) {
-	filterKeys := make(map[string]int)
-	for _, modelVar := range *modelValues {
-		filterKeys[modelVar.AttributeValue] = 1
+func (service *Service) Update(attributeID uint64, req *requests.RequestProductAttributeValue) {
+	modelNewVals := []models.ProductAttributeValues{}
+	modelCurVals := []models.ProductAttributeValues{}
+	valIndices := map[string]int{}
+	valMatches := []string{}
+	for index, val := range req.Values {
+		match := fmt.Sprintf("%d:%s", attributeID, val)
+		valMatches = append(valMatches, match)
+		valIndices[match] = index
+		modelNewVals = append(modelNewVals, models.ProductAttributeValues{
+			AttributeID:    attributeID,
+			AttributeValue: val,
+		})
 	}
-	for _, value := range req.Values {
-		if filterKeys[value] == 1 {
-			filterKeys[value] = 3
-		} else {
-			filterKeys[value] = 2
-		}
+	service.DB.Where("Concat(attribute_id, ':', attribute_value) In (?)", valMatches).Find(&modelCurVals)
+	service.DB.Where("Concat(attribute_id, ':', attribute_value) Not In (?) And attribute_id = ?", valMatches, attributeID).Delete(&models.ProductAttributeValues{})
+	for _, modelVal := range modelCurVals {
+		match := fmt.Sprintf("%d:%s", modelVal.AttributeID, modelVal.AttributeValue)
+		index := valIndices[match]
+		modelNewVals[index].ID = modelVal.ID
 	}
-
-	for value, key := range filterKeys {
-		if key == 1 {
-			service.Delete(value, productID)
-		} else if key == 2 {
-			service.Create(attributeID, value)
-		}
-	}
-
-	varRepo := repositories.NewRepositoryProductAttributeValue(service.DB)
-	varRepo.ReadByID(modelValues, attributeID)
+	service.DB.Save(&modelNewVals)
 }
 
 func (service *Service) UpdateByID(attributeValueID uint64, value string) error {

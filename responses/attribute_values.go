@@ -24,7 +24,7 @@ func NewResponseAttributeValueByProduct(c echo.Context, statusCode int, modelVal
 	for index, modelValue := range modelValues {
 		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], ResponseAttributeValueItem{
 			AttributeValueID: uint64(modelValue.ID),
-			Value:            modelValue.AttributeValue + modelValue.Unit,
+			Value:            modelValue.AttributeValue,
 		})
 		mapIndexes[modelValue.AttributeName] = index
 	}

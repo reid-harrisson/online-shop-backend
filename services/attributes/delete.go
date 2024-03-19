@@ -19,8 +19,8 @@ func (service *Service) Delete(attributeID uint64) {
 		varIDs = append(varIDs, modelDetail.VariationID)
 		detailIDs = append(detailIDs, uint64(modelDetail.ID))
 	}
-	service.DB.Where("id In (?)", varIDs).Delete(models.ProductVariations{})
-	service.DB.Where("id In (?)", detailIDs).Delete(models.ProductVariationDetails{})
-	service.DB.Where("attribute_id = ?", attributeID).Delete(models.ProductAttributeValues{})
-	service.DB.Where("id = ?", attributeID).Delete(models.ProductAttributes{})
+	service.DB.Where("id In (?)", varIDs).Delete(&models.ProductVariations{})
+	service.DB.Where("id In (?)", detailIDs).Delete(&models.ProductVariationDetails{})
+	service.DB.Where("attribute_id = ?", attributeID).Delete(&models.ProductAttributeValues{})
+	service.DB.Where("id = ?", attributeID).Delete(&models.ProductAttributes{})
 }

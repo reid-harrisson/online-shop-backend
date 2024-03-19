@@ -77,7 +77,7 @@ func NewResponseProductWithDetail(c echo.Context, statusCode int, modelDetail mo
 	for index, modelValue := range modelDetail.AttributeValues {
 		mapValues[modelValue.AttributeName] = append(mapValues[modelValue.AttributeName], ResponseAttributeValueItem{
 			AttributeValueID: uint64(modelValue.ID),
-			Value:            modelValue.AttributeValue + modelValue.Unit,
+			Value:            modelValue.AttributeValue,
 		})
 		mapIndexes[modelValue.AttributeName] = index
 	}

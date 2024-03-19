@@ -34,6 +34,6 @@ func (service *Service) UpdateShippingMethod(modelItems *[]models.OrderItems, st
 		(*modelItems)[index].ShippingMethodID = methodID
 		(*modelItems)[index].ShippingPrice = shippingPrice
 		(*modelItems)[index].TotalPrice = totalPrice + (*modelItems)[index].TaxAmount + shippingPrice
-		service.DB.Save(&(*modelItems)[index])
 	}
+	service.DB.Save(modelItems)
 }
