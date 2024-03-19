@@ -5,14 +5,13 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(productID uint64, req *requests.RequestShippingData, modelShipData *models.ShippingData) error {
-	service.DB.Where("variation_id = ?", productID).Delete(models.ShippingData{})
-	modelShipData.Weight = req.Weight
-	modelShipData.Width = req.Width
-	modelShipData.Height = req.Height
-	modelShipData.Length = req.Length
-	modelShipData.VariationID = productID
-	service.DB.Create(&modelShipData)
+func (service *Service) Create(variationID uint64, req *requests.RequestShippingData, modelShip *models.ShippingData) error {
+	modelShip.Weight = req.Weight
+	modelShip.Width = req.Width
+	modelShip.Height = req.Height
+	modelShip.Length = req.Length
+	modelShip.VariationID = variationID
+	service.DB.Create(&modelShip)
 	return nil
 }
 

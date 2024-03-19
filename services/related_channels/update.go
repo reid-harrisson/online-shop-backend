@@ -21,7 +21,7 @@ func (service *Service) Update(productID uint64, req *requests.RequestProductCha
 		})
 	}
 	service.DB.Where("Concat(product_id, ':', channel_id) In (?)", chanMatches).Find(&modelCurChans)
-	service.DB.Where("Concat(product_id, ':', channel_id) Not In (?) And product_id = ?", chanMatches, productID).Delete(models.ProductChannels{})
+	service.DB.Where("Concat(product_id, ':', channel_id) Not In (?) And product_id = ?", chanMatches, productID).Delete(&models.ProductChannels{})
 	for _, modelChan := range modelCurChans {
 		match := fmt.Sprintf("%d:%d", modelChan.ProductID, modelChan.ChannelID)
 		index := chanIndices[match]

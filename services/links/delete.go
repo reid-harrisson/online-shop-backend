@@ -7,5 +7,5 @@ import (
 func (service *Service) Delete(linkedProductID uint64) {
 	service.DB.
 		Where("id = ?", linkedProductID).
-		Delete(models.ProductLinks{})
+		Delete(&models.ProductLinks{})
 }

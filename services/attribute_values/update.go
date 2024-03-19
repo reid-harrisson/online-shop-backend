@@ -21,7 +21,7 @@ func (service *Service) Update(attributeID uint64, req *requests.RequestProductA
 		})
 	}
 	service.DB.Where("Concat(attribute_id, ':', attribute_value) In (?)", valMatches).Find(&modelCurVals)
-	service.DB.Where("Concat(attribute_id, ':', attribute_value) Not In (?) And attribute_id = ?", valMatches, attributeID).Delete(models.ProductAttributeValues{})
+	service.DB.Where("Concat(attribute_id, ':', attribute_value) Not In (?) And attribute_id = ?", valMatches, attributeID).Delete(&models.ProductAttributeValues{})
 	for _, modelVal := range modelCurVals {
 		match := fmt.Sprintf("%d:%s", modelVal.AttributeID, modelVal.AttributeValue)
 		index := valIndices[match]

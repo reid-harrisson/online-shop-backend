@@ -35,13 +35,13 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 
 	productID := uint64(modelProduct.ID)
 
-	for _, channelID := range req.RelatedChannels {
-		chanService.Create(channelID, productID)
-	}
+	chanService.Update(productID, &requests.RequestProductChannel{
+		ChannelIDs: req.RelatedChannels,
+	})
 
-	for _, contentID := range req.RelatedContents {
-		contService.Create(contentID, productID)
-	}
+	contService.Update(productID, &requests.RequestProductContent{
+		ContentIDs: req.RelatedContents,
+	})
 
 	for _, categoryID := range req.Categories {
 		cateService.Create(categoryID, productID)
@@ -64,10 +64,8 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 			modelAttr := models.ProductAttributes{}
 			attrService.Create(productID, &requests.RequestAttribute{Name: name}, &modelAttr)
 			attributeID := modelAttr.ID
-			for index, value := range values {
-				if index != 0 {
-					valService.Create(uint64(attributeID), value)
-				}
+			for _, value := range values {
+				valService.Create(uint64(attributeID), value)
 			}
 		}
 	}

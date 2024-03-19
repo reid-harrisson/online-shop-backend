@@ -6,12 +6,13 @@ import (
 )
 
 func (service *Service) Update(modelAddr *models.Addresses, req *requests.RequestAddress, addressID uint64) {
-	service.DB.First(modelAddr, addressID)
-	modelAddr.Active = 0
-	service.DB.Save(modelAddr)
-	modelAddr.CityID = req.CityID
+	service.DB.Model(&models.Addresses{}).Where("id = ?", addressID).Update("active", 0)
+	customerID := uint64(0)
+	service.DB.Model(&models.Addresses{}).Select("customer_id").Where("id = ?", addressID).Scan(&customerID)
+	modelAddr.CustomerID = customerID
 	modelAddr.CountryID = req.CountryID
 	modelAddr.RegionID = req.RegionID
+	modelAddr.CityID = req.CityID
 	modelAddr.PostalCode = req.PostalCode
 	modelAddr.AddressLine1 = req.AddressLine1
 	modelAddr.AddressLine2 = req.AddressLine2

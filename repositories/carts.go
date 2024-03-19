@@ -62,7 +62,7 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 			And carts.deleted_at Is Null
 			And prods.deleted_at Is Null
 			And cates.deleted_at Is Null
-			And ships.deleted_at Is Nul
+			And ships.deleted_at Is Null
 			And prodcates.deleted_at Is Null`, customerID).
 		Scan(modelItems)
 }

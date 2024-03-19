@@ -6,9 +6,9 @@ import (
 )
 
 func (service *Service) Create(modelAddr *models.Addresses, req *requests.RequestAddress, customerID uint64) {
-	modelAddr.CityID = req.CityID
 	modelAddr.CountryID = req.CountryID
 	modelAddr.RegionID = req.RegionID
+	modelAddr.CityID = req.CityID
 	modelAddr.CustomerID = customerID
 	modelAddr.PostalCode = req.PostalCode
 	modelAddr.AddressLine1 = req.AddressLine1

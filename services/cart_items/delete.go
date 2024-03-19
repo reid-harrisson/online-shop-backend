@@ -5,7 +5,7 @@ import (
 )
 
 func (service *Service) Delete(cartID uint64) {
-	service.DB.Delete(models.CartItems{}, cartID)
+	service.DB.Delete(&models.CartItems{}, cartID)
 }
 
 func (service *Service) DeleteAll(customerID uint64) error {

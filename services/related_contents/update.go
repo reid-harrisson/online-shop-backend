@@ -21,12 +21,11 @@ func (service *Service) Update(productID uint64, req *requests.RequestProductCon
 		})
 	}
 	service.DB.Where("Concat(product_id, ':', content_id) In (?)", contMatches).Find(&modelCurConts)
-	service.DB.Where("Concat(product_id, ':', content_id) Not In (?) And product_id = ?", contMatches, productID).Delete(models.ProductContents{})
+	service.DB.Where("Concat(product_id, ':', content_id) Not In (?) And product_id = ?", contMatches, productID).Delete(&models.ProductContents{})
 	for _, modelCont := range modelCurConts {
 		match := fmt.Sprintf("%d:%d", modelCont.ProductID, modelCont.ContentID)
 		index := contIndices[match]
 		modelNewConts[index].ID = modelCont.ID
 	}
 	service.DB.Save(&modelNewConts)
-
 }
