@@ -210,6 +210,7 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
+	e.GET("/:id", handler.ReadInventory)
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 }

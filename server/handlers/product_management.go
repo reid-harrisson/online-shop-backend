@@ -35,7 +35,7 @@ func NewHandlersProductManagement(server *s.Server) *HandlersProductManagement {
 func ChangeToDraft(db *gorm.DB, modelProduct *models.Products) {
 	if modelProduct.Status == utils.Approved || modelProduct.Status == utils.Rejected {
 		prodService := prodsvc.NewServiceProduct(db)
-		prodService.UpdateStatus(modelProduct, utils.Draft)
+		prodService.UpdateStatus(uint64(modelProduct.ID), utils.Draft)
 	}
 }
 
@@ -79,7 +79,7 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	prodRepo.ReadDetail(&modelProduct, uint64(modelProduct.ID))
 
-	prodService.UpdateStatus(&modelProduct.Products, utils.Draft)
+	prodService.UpdateStatus(uint64(modelProduct.ID), utils.Draft)
 	return responses.NewResponseProductWithDetail(c, http.StatusCreated, modelProduct)
 }
 
@@ -249,7 +249,7 @@ func (h *HandlersProductManagement) Approve(c echo.Context) error {
 	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	prodService.UpdateStatus(&modelProduct, utils.Approved)
+	prodService.UpdateStatus(uint64(modelProduct.ID), utils.Approved)
 
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
@@ -276,7 +276,7 @@ func (h *HandlersProductManagement) Reject(c echo.Context) error {
 	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	prodService.UpdateStatus(&modelProduct, utils.Rejected)
+	prodService.UpdateStatus(uint64(modelProduct.ID), utils.Rejected)
 
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
@@ -307,7 +307,7 @@ func (h *HandlersProductManagement) Publish(c echo.Context) error {
 	varRepo.ReadByProduct(&modelVars, productID)
 	if len(modelVars) > 0 {
 		prodService := prodsvc.NewServiceProduct(h.server.DB)
-		prodService.UpdateStatus(&modelProduct, utils.Pending)
+		prodService.UpdateStatus(uint64(modelProduct.ID), utils.Pending)
 	}
 
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)

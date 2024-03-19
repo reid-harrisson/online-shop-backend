@@ -22,6 +22,26 @@ func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManageme
 }
 
 // Refresh godoc
+// @Summary Read inventory
+// @Tags Inventory Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Store ID"
+// @Success 200 {object} responses.ResponseInventory
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/inventory/{id} [get]
+func (h *HandlersInventoryManagement) ReadInventory(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	modelInventories := []models.Inventories{}
+	invenRepo := repositories.NewRepositoryInventory(h.server.DB)
+	invenRepo.ReadInventories(&modelInventories, storeID)
+
+	return responses.NewResponseInventory(c, http.StatusBadRequest, modelInventories)
+}
+
+// Refresh godoc
 // @Summary Set minimum stock level of product
 // @Tags Inventory Management
 // @Accept json
@@ -41,10 +61,10 @@ func (h *HandlersInventoryManagement) UpdateMinimumStockLevel(c echo.Context) er
 	prodRepo.ReadByID(&modelProduct, productID)
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	if err := prodService.UpdateMinimumStockLevel(productID, minimumStockLevel, &modelProduct); err != nil {
+	if err := prodService.UpdateMinimumStockLevel(productID, minimumStockLevel); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
-	ChangeToDraft(h.server.DB, &modelProduct)
+	modelProduct.MinimumStockLevel = minimumStockLevel
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
 
