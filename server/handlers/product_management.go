@@ -123,6 +123,32 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 }
 
 // Refresh godoc
+// @Summary Read approved products
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// /@Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param customer_id query int true "Customer ID"
+// @Success 200 {object} []responses.ResponseProductApproved
+// @Router /store/api/v1/product/approved [get]
+func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	exchangeRate, currencyCode := 0.0, "$"
+
+	modelProducts := make([]models.ProductsApproved, 0)
+
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadApproved(&modelProducts, storeID, customerID)
+
+	taxRepo := repositories.NewRepositoryTax(h.server.DB)
+	taxRepo.ReadCurrency(&currencyCode, &exchangeRate, customerID)
+
+	return responses.NewResponseProductsApproved(c, http.StatusOK, modelProducts, exchangeRate, currencyCode)
+}
+
+// Refresh godoc
 // @Summary Read products by category
 // @Tags Product Management
 // @Accept json

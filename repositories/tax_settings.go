@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"OnlineStoreBackend/models"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -34,4 +35,21 @@ func (repository *RepositoryTax) ReadByCountryID(modelTax *models.Taxes, country
 		Limit(1).
 		Scan(modelTax).
 		Error
+}
+
+func (repository *RepositoryTax) ReadCurrency(currencySymbol *string, exchangeRate *float64, customerID uint64) {
+	currencyCode, temp := "", map[string]interface{}{}
+	repository.DB.Table("users").
+		Select("curs.code As code, curs.symbol As symbol").
+		Joins("Join countries As couns On couns.id = users.country_id").
+		Joins("Join currencies As curs On curs.code = couns.currency_code").
+		Where("users.id = ?", customerID).
+		Scan(&temp)
+	currencyCode = temp["code"].(string)
+	*currencySymbol = temp["symbol"].(string)
+	repository.DB.Table("exchange_rates").
+		Order("id Desc").
+		Limit(1).
+		Scan(&temp)
+	*exchangeRate, _ = strconv.ParseFloat(temp[currencyCode].(string), 64)
 }

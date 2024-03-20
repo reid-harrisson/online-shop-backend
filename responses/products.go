@@ -18,6 +18,18 @@ type ResponseProduct struct {
 	Status           string   `json:"status"`
 }
 
+type ResponseProductApproved struct {
+	ID           uint64  `json:"id"`
+	Title        string  `json:"title"`
+	MinimumPrice float64 `json:"minimum_price"`
+	MaximumPrice float64 `json:"maximum_price"`
+	RegularPrice float64 `json:"regular_price"`
+	CurrencyCode string  `json:"currency_code"`
+	ExchangeRate float64 `json:"exchange_rate"`
+	Rating       float64 `json:"rating"`
+	ImageUrl     string  `json:"image_url"`
+}
+
 type ResponseProductsPaging struct {
 	Data       []ResponseProduct `json:"data"`
 	TotalCount int64             `json:"total_count"`
@@ -123,6 +135,30 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 			LongDescription:  modelProduct.LongDescription,
 			ImageUrls:        imageUrls,
 			Status:           utils.ProductStatusToString(modelProduct.Status),
+		})
+	}
+	return Response(c, statusCode, responseProducts)
+}
+
+func NewResponseProductsApproved(c echo.Context, statusCode int, modelProducts []models.ProductsApproved, exchangeRate float64, currencyCode string) error {
+	responseProducts := make([]ResponseProductApproved, 0)
+	for _, modelProduct := range modelProducts {
+		imageUrls := make([]string, 0)
+		json.Unmarshal([]byte(modelProduct.ImageUrls), &imageUrls)
+		imageUrl := ""
+		if len(imageUrls) > 0 {
+			imageUrl = imageUrls[0]
+		}
+		responseProducts = append(responseProducts, ResponseProductApproved{
+			ID:           modelProduct.ID,
+			Title:        modelProduct.Title,
+			MinimumPrice: utils.Round(modelProduct.MinimumPrice * exchangeRate),
+			MaximumPrice: utils.Round(modelProduct.MaximumPrice * exchangeRate),
+			RegularPrice: utils.Round(modelProduct.RegularPrice * exchangeRate),
+			CurrencyCode: currencyCode,
+			ExchangeRate: exchangeRate,
+			Rating:       utils.Round(modelProduct.Rating),
+			ImageUrl:     imageUrl,
 		})
 	}
 	return Response(c, statusCode, responseProducts)

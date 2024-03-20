@@ -66,6 +66,22 @@ func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, s
 		Find(modelProducts).Error
 }
 
+func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.ProductsApproved, storeID uint64, customerID uint64) error {
+	return repository.DB.Table("store_product_variations As vars").
+		Select(`
+			prods.id,
+			prods.title,
+			(Select Avg(revs.rate) From store_product_reviews As revs Where revs.product_id = prods.id) As rating,
+			Min(Case When vars.discount_type = 0 Then (vars.price - vars.price * vars.discount_amount / 100) Else (vars.price - vars.discount_amount) End) As minimum_price,
+			Max(Case When vars.discount_type = 0 Then (vars.price - vars.price * vars.discount_amount / 100) Else (vars.price - vars.discount_amount) End) As maximum_price,
+			vars.price As regular_price,
+			prods.image_urls
+		`).
+		Joins("Left Join store_products As prods On prods.id = vars.product_id").
+		Group("prods.id").
+		Find(modelProducts).Error
+}
+
 func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Products, storeID uint64, cateID uint64) error {
 	return repository.DB.Table("store_product_categories As cates").
 		Select("prods.*").
