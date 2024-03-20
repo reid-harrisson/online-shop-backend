@@ -17,6 +17,7 @@ func (service *Service) Create(modelCombo *models.Combos, modelItems *[]models.C
 	modelCombo.ImageUrls = string(imageUrls)
 	modelCombo.Description = req.Description
 	modelCombo.Title = req.Title
+	modelCombo.Status = utils.Draft
 	if err == nil {
 		if err = service.DB.Save(modelCombo).Error; err != nil {
 			return err

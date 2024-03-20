@@ -15,6 +15,7 @@ type Combos struct {
 	ImageUrls      string              `gorm:"column:image_urls; type:text"`
 	Description    string              `gorm:"column:description; type:text"`
 	Title          string              `gorm:"column:title; type:varchar(100)"`
+	Status         utils.ProductStatus `gorm:"column:status; type:tinyint(4)"`
 }
 
 type ComboItems struct {

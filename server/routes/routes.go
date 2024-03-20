@@ -96,8 +96,13 @@ func ConfigureRoutes(server *s.Server) {
 func GroupCombo(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersCombos(server)
 	e.POST("", handler.Create)
-	e.GET("", handler.Read)
+	e.GET("", handler.ReadAll)
+	e.GET("/approve", handler.ReadApproved)
+	e.GET("/publish", handler.ReadPublished)
 	e.PUT("/:id", handler.Update)
+	e.PUT("/approve/:id", handler.UpdateApprove)
+	e.PUT("/reject/:id", handler.UpdateReject)
+	e.PUT("/publish/:id", handler.UpdatePublish)
 	e.DELETE("/:id", handler.Delete)
 }
 
@@ -210,6 +215,7 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 
 func GroupInventoryManagement(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventoryManagement(server)
+	e.GET("/:id", handler.ReadInventory)
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel)
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel)
 }

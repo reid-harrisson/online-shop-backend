@@ -19,12 +19,10 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	return service.DB.Save(modelProduct).Error
 }
 
-func (service *Service) UpdateMinimumStockLevel(productID uint64, minimumStockLevel float64, modelProduct *models.Products) error {
-	modelProduct.MinimumStockLevel = minimumStockLevel
-	return service.DB.Save(modelProduct).Error
+func (service *Service) UpdateMinimumStockLevel(productID uint64, minimumStockLevel float64) error {
+	return service.DB.Model(&models.Products{}).Where("id = ?", productID).Update("minimum_stock_level", minimumStockLevel).Error
 }
 
-func (service *Service) UpdateStatus(modelProduct *models.Products, status utils.ProductStatus) error {
-	modelProduct.Status = status
-	return service.DB.Save(modelProduct).Error
+func (service *Service) UpdateStatus(productID uint64, status utils.ProductStatus) error {
+	return service.DB.Model(&models.Products{}).Where("id = ?", productID).Update("status", status).Error
 }
