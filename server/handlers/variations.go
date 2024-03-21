@@ -9,6 +9,7 @@ import (
 	prodvarsvc "OnlineStoreBackend/services/variations"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -66,6 +67,34 @@ func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error 
 	varRepo.ReadByStore(&modelVars, storeID)
 
 	return responses.NewResponseProductVariationsInStore(c, http.StatusOK, modelVars)
+}
+
+// Refresh godoc
+// @Summary Read product variation by attribute values
+// @Tags Product Variation Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id query int true "Product ID"
+// @Param attribute_value_ids query string true "Attribute Value IDs"
+// @Success 200 {object} responses.ResponseProductVariation
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/variation [get]
+func (h *HandlersProductVariations) ReadByValueIDs(c echo.Context) error {
+	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
+	values := strings.Split(c.QueryParam("attribute_value_ids"), ",")
+
+	valueIDs := []uint64{}
+	for _, value := range values {
+		valueID, _ := strconv.ParseUint(value, 10, 64)
+		valueIDs = append(valueIDs, valueID)
+	}
+
+	modelVar := models.ProductVariations{}
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	varRepo.ReadByValueIDs(&modelVar, valueIDs, productID)
+
+	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
 }
 
 // Refresh godoc

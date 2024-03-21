@@ -1,5 +1,13 @@
 package utils
 
+type TrackEvents int8
+
+const (
+	OrderPlaced TrackEvents = iota + 1
+	OrderCancelled
+	ProductWarhousing
+)
+
 type PaymentType int8
 
 const (
