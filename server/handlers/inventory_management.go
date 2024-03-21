@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	prodsvc "OnlineStoreBackend/services/products"
+	stocksvc "OnlineStoreBackend/services/stock_tracks"
 	prodvarsvc "OnlineStoreBackend/services/variations"
 	"net/http"
 	"strconv"
@@ -83,9 +85,13 @@ func (h *HandlersInventoryManagement) UpdateStockLevel(c echo.Context) error {
 	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	stockLevel, _ := strconv.ParseFloat(c.QueryParam("stock_level"), 64)
 
+	prevStockLevel := 0.0
+
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadByID(&modelVar, variationID)
+
+	prevStockLevel = modelVar.StockLevel
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
@@ -93,6 +99,15 @@ func (h *HandlersInventoryManagement) UpdateStockLevel(c echo.Context) error {
 
 	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
 	varService.UpdateStockLevel(&modelVar, stockLevel)
+
+	// Track Stock Level
+	stockService := stocksvc.NewServiceStockTrack(h.server.DB)
+	stockService.Create(models.StockTracks{
+		ProductID:   modelVar.ProductID,
+		VariationID: variationID,
+		Change:      stockLevel - prevStockLevel,
+		Event:       utils.ProductWarhousing,
+	})
 
 	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
 }

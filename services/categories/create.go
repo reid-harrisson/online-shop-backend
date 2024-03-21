@@ -3,8 +3,6 @@ package catesvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/requests"
-	"encoding/json"
-	"fmt"
 )
 
 func (service *Service) Create(modelCategory *models.StoreCategories, req *requests.RequestCategory, storeID uint64) {
@@ -22,8 +20,6 @@ func (service *Service) CreateWithCSV(modelNewCates *[]models.StoreCategories, c
 		(*modelNewCates)[index].ID = modelCate.ID
 	}
 	service.DB.Save(modelNewCates)
-	jsonStr, _ := json.Marshal(cateParents)
-	fmt.Println(string(jsonStr))
 	for index, modelCate := range *modelNewCates {
 		parentID := cateIndices[cateParents[modelCate.Name]]
 		if parentID > 0 {

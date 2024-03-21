@@ -3,7 +3,7 @@ package utils
 type TrackEvents int8
 
 const (
-	OrderPlaced TrackEvents = iota + 1
+	OrderPlaced TrackEvents = iota
 	OrderCancelled
 	ProductWarhousing
 )
@@ -119,6 +119,7 @@ const (
 	StatusOrderShipping
 	StatusOrderShipped
 	StatusOrderCompleted
+	StatusOrderCancelled
 )
 
 type ReviewStatuses int8
@@ -281,6 +282,8 @@ func OrderStatusToString(status OrderStatuses) string {
 		return "Shipped"
 	case StatusOrderCompleted:
 		return "Completed"
+	case StatusOrderCancelled:
+		return "Cancelled"
 	}
 	return "Pending"
 }
@@ -303,6 +306,8 @@ func OrderStatusFromString(status string) OrderStatuses {
 		return StatusOrderShipped
 	case "Completed":
 		return StatusOrderCompleted
+	case "Cancelled":
+		return StatusOrderCancelled
 	}
 	return StatusOrderPending
 }
