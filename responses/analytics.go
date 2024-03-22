@@ -3,6 +3,7 @@ package responses
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"fmt"
 	"sort"
 	"time"
 
@@ -69,10 +70,10 @@ type ResponseCustomerInsight struct {
 	OldestAge   uint64  `json:"oldest_age"`
 }
 
-type ResponseStockLevelAnalytic struct {
-	ProductID    uint64  `json:"product_id"`
-	StockLevel   float64 `json:"stock_level"`
-	Availability string  `json:"availability"`
+type ResponseStockAnalytic struct {
+	Date     string  `json:"date"`
+	StockIn  float64 `json:"stock_in"`
+	StockOut float64 `json:"stock_out"`
 }
 
 type ResponseVisitorAnalytic struct {
@@ -234,13 +235,74 @@ func NewResponseCustomerInsights(c echo.Context, statusCode int, modelInsight mo
 	})
 }
 
-func NewResponseStockLevelAnalytics(c echo.Context, statusCode int, modelLevels []models.StockLevelAnalytics) error {
-	responseReports := make([]ResponseStockLevelAnalytic, 0)
+func NewResponseStockAnalyticsDaily(c echo.Context, statusCode int, modelLevels []models.StockAnalytics) error {
+	responseReports := make([]ResponseStockAnalytic, 0)
 	for _, modelLevel := range modelLevels {
-		responseReports = append(responseReports, ResponseStockLevelAnalytic{
-			ProductID:    modelLevel.ProductID,
-			StockLevel:   modelLevel.StockLevel,
-			Availability: modelLevel.Availability,
+		responseReports = append(responseReports, ResponseStockAnalytic{
+			Date:     modelLevel.Date.Format("Monday, January 02, 2006"),
+			StockIn:  modelLevel.StockIn,
+			StockOut: modelLevel.StockOut,
+		})
+	}
+	return Response(c, statusCode, responseReports)
+}
+
+func NewResponseStockAnalyticsWeekly(c echo.Context, statusCode int, modelLevels []models.StockAnalytics) error {
+	responseReports := make([]ResponseStockAnalytic, 0)
+	for _, modelLevel := range modelLevels {
+		_, week := modelLevel.Date.ISOWeek()
+		responseReports = append(responseReports, ResponseStockAnalytic{
+			Date:     fmt.Sprintf("Week %d ", week) + modelLevel.Date.Format("of 2006"),
+			StockIn:  modelLevel.StockIn,
+			StockOut: modelLevel.StockOut,
+		})
+	}
+	return Response(c, statusCode, responseReports)
+}
+
+func NewResponseStockAnalyticsMonthly(c echo.Context, statusCode int, modelLevels []models.StockAnalytics) error {
+	responseReports := make([]ResponseStockAnalytic, 0)
+	for _, modelLevel := range modelLevels {
+		responseReports = append(responseReports, ResponseStockAnalytic{
+			Date:     modelLevel.Date.Format("January 2006"),
+			StockIn:  modelLevel.StockIn,
+			StockOut: modelLevel.StockOut,
+		})
+	}
+	return Response(c, statusCode, responseReports)
+}
+
+func NewResponseStockAnalyticsWeekDay(c echo.Context, statusCode int, modelLevels []models.StockAnalytics) error {
+	responseReports := make([]ResponseStockAnalytic, 0)
+	for _, modelLevel := range modelLevels {
+		responseReports = append(responseReports, ResponseStockAnalytic{
+			Date:     modelLevel.Date.Format("Monday"),
+			StockIn:  modelLevel.StockIn,
+			StockOut: modelLevel.StockOut,
+		})
+	}
+	return Response(c, statusCode, responseReports)
+}
+
+func NewResponseStockAnalyticsHour(c echo.Context, statusCode int, modelLevels []models.StockAnalytics) error {
+	responseReports := make([]ResponseStockAnalytic, 0)
+	for _, modelLevel := range modelLevels {
+		responseReports = append(responseReports, ResponseStockAnalytic{
+			Date:     fmt.Sprintf("%d o'clock", modelLevel.Date.Hour()),
+			StockIn:  modelLevel.StockIn,
+			StockOut: modelLevel.StockOut,
+		})
+	}
+	return Response(c, statusCode, responseReports)
+}
+
+func NewResponseStockAnalyticsMonth(c echo.Context, statusCode int, modelLevels []models.StockAnalytics) error {
+	responseReports := make([]ResponseStockAnalytic, 0)
+	for _, modelLevel := range modelLevels {
+		responseReports = append(responseReports, ResponseStockAnalytic{
+			Date:     modelLevel.Date.Format("January"),
+			StockIn:  modelLevel.StockIn,
+			StockOut: modelLevel.StockOut,
 		})
 	}
 	return Response(c, statusCode, responseReports)
