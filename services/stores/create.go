@@ -5,9 +5,9 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelStore *models.Stores, req *requests.RequestStore) error {
+func (service *Service) Create(modelStore *models.Stores, req *requests.RequestStore, userID uint64) error {
 	modelStore.CompanyID = req.CompanyID
-	modelStore.OwnerID = req.OwnerID
+	modelStore.OwnerID = userID
 	modelStore.Name = req.Name
 	modelStore.ContactPhone = req.ContactPhone
 	modelStore.ContactEmail = req.ContactEmail

@@ -29,14 +29,12 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order [post]
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestCheckout)
 
 	if err := c.Bind(req); err != nil {
@@ -92,14 +90,13 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param combo_id query int true "Combo ID"
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/combo [post]
 func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
@@ -194,13 +191,12 @@ func (h *HandlersOrderManagement) ReadByStoreID(c echo.Context) error {
 // @Tags Order Management
 // @Accept json
 // @Produce json
-// @Param customer_id query int false "Customer ID"
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/customer [get]
 func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelOrders := make([]models.CustomerOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)

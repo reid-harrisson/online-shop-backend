@@ -22,14 +22,6 @@ type ResponseProductVariation struct {
 	BackOrderAllowed string   `json:"back_order_allowed"`
 }
 
-type ResponseProductVariationsInStore struct {
-	ProductID         uint64                     `json:"product_id"`
-	Title             string                     `json:"title"`
-	StockLevel        float64                    `json:"stock_level"`
-	MinimumStockLevel float64                    `json:"minimum_stock_level"`
-	Variations        []ResponseProductVariation `json:"variations"`
-}
-
 type ResponseProductVariationWithAttribute struct {
 	AttributeValueID uint64 `json:"attribute_value_id"`
 	AttributeName    string `json:"attribute_name"`
@@ -65,58 +57,7 @@ func NewResponseProductVariation(c echo.Context, statusCode int, modelVar models
 	})
 }
 
-func NewResponseProductVariationsInStore(c echo.Context, statusCode int, modelVars []models.ProductVariationsInStore) error {
-	mapVars := make(map[uint64][]int)
-	responseProducts := make([]ResponseProductVariationsInStore, 0)
-	for index, modelVar := range modelVars {
-		mapVars[modelVar.ProductID] = append(mapVars[modelVar.ProductID], index)
-	}
-	for productID, indexes := range mapVars {
-		responseVars := make([]ResponseProductVariation, 0)
-		minimumStockLevel := float64(0)
-		title := ""
-		stockLevel := float64(0)
-		for _, index := range indexes {
-			if title == "" {
-				minimumStockLevel = modelVars[index].MinimumStockLevel
-				title = modelVars[index].Title
-			}
-			stockLevel += modelVars[index].StockLevel
-			price := modelVars[index].Price
-			switch modelVars[index].DiscountType {
-			case utils.PercentageOff:
-				price = price - price*modelVars[index].DiscountAmount/100
-			case utils.FixedAmountOff:
-				price = price - modelVars[index].DiscountAmount
-			}
-			imageUrls := make([]string, 0)
-			json.Unmarshal([]byte(modelVars[index].ImageUrls), &imageUrls)
-			responseVars = append(responseVars, ResponseProductVariation{
-				ID:               uint64(modelVars[index].ID),
-				Sku:              modelVars[index].Sku,
-				ProductID:        modelVars[index].ProductID,
-				Price:            price,
-				Description:      modelVars[index].Description,
-				ImageUrls:        imageUrls,
-				Title:            modelVars[index].Title,
-				StockLevel:       modelVars[index].StockLevel,
-				DiscountAmount:   modelVars[index].DiscountAmount,
-				DiscountType:     utils.DiscountTypeToString(modelVars[index].DiscountType),
-				BackOrderAllowed: utils.SimpleStatusToString(modelVars[index].BackOrderStatus),
-			})
-		}
-		responseProducts = append(responseProducts, ResponseProductVariationsInStore{
-			MinimumStockLevel: minimumStockLevel,
-			Title:             title,
-			StockLevel:        stockLevel,
-			ProductID:         productID,
-			Variations:        responseVars,
-		})
-	}
-	return Response(c, statusCode, responseProducts)
-}
-
-func NewResponseProductVariationsInProduct(c echo.Context, statusCode int, modelVars []models.ProductVariationsInProduct) error {
+func NewResponseProductVariationsInProduct(c echo.Context, statusCode int, modelVars []models.ProductVariationsWithAttributeValue) error {
 	mapVars := make(map[uint64][]int)
 	for index, modelVar := range modelVars {
 		mapVars[uint64(modelVar.ID)] = append(mapVars[uint64(modelVar.ID)], index)

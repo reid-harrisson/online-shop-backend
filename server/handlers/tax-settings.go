@@ -25,12 +25,11 @@ func NewHandlersTaxSettings(server *s.Server) *HandlersTaxSettings {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Success 200 {object} []responses.ResponseTaxSetting
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/tax [get]
 func (h *HandlersTaxSettings) ReadTaxSetting(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	taxRepo := repositories.NewRepositoryTax(h.server.DB)
 	modelTax := models.Taxes{}

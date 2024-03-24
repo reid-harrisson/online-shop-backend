@@ -10,6 +10,7 @@ import (
 	etsvc "OnlineStoreBackend/services/email_templates"
 	storesvc "OnlineStoreBackend/services/stores"
 	tagsvc "OnlineStoreBackend/services/tags"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -35,6 +36,7 @@ func NewHandlersStoreManagement(server *s.Server) *HandlersStoreManagement {
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store [post]
 func (h *HandlersStoreManagement) Create(c echo.Context) error {
+	userID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestStore)
 
 	if err := c.Bind(req); err != nil {
@@ -43,7 +45,7 @@ func (h *HandlersStoreManagement) Create(c echo.Context) error {
 
 	modelStore := models.Stores{}
 	storeService := storesvc.NewServiceStore(h.server.DB)
-	if err := storeService.Create(&modelStore, req); err != nil {
+	if err := storeService.Create(&modelStore, req, userID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	return responses.NewResponseStore(c, http.StatusCreated, modelStore)
@@ -114,18 +116,38 @@ func (h *HandlersStoreManagement) CreateTag(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read store
+// @Summary Read all stores
 // @Tags Store Management
 // @Accept json
 // @Produce json
-// /@Security ApiKeyAuth
-// @Success 200 {object} responses.ResponseStore
+// @Success 200 {object} []responses.ResponseStore
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store [get]
-func (h *HandlersStoreManagement) Read(c echo.Context) error {
+// @Router /store/api/v1/store/all [get]
+func (h *HandlersStoreManagement) ReadAll(c echo.Context) error {
 	modelStores := make([]models.Stores, 0)
 	storeRepo := repositories.NewRepositoryStore(h.server.DB)
 	if err := storeRepo.ReadAll(&modelStores); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
+	}
+	return responses.NewResponseStores(c, http.StatusOK, modelStores)
+}
+
+// Refresh godoc
+// @Summary Read stores by user
+// @Tags Store Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} []responses.ResponseStore
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/store/user [get]
+func (h *HandlersStoreManagement) ReadByUser(c echo.Context) error {
+	userID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+
+	modelStores := make([]models.Stores, 0)
+	storeRepo := repositories.NewRepositoryStore(h.server.DB)
+	fmt.Println("|-|", userID)
+	if err := storeRepo.ReadByUser(&modelStores, userID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
 	}
 	return responses.NewResponseStores(c, http.StatusOK, modelStores)
@@ -136,7 +158,6 @@ func (h *HandlersStoreManagement) Read(c echo.Context) error {
 // @Tags Store Management
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
 // @Param id path int true "Store ID"
 // @Success 200 {object} []responses.ResponseStoreCategory
 // @Failure 400 {object} responses.Error
@@ -155,7 +176,6 @@ func (h *HandlersStoreManagement) ReadCategory(c echo.Context) error {
 // @Tags Store Management
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
 // @Param id path int true "Store ID"
 // @Success 200 {object} []responses.ResponseStoreTag
 // @Failure 400 {object} responses.Error

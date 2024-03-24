@@ -50,37 +50,16 @@ func (h *HandlersProductVariations) Create(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read all product variation in store
-// @Tags Product Variation Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param store_id query int true "Store ID"
-// @Success 200 {object} responses.ResponseProductVariationsInStore
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/variation/store [get]
-func (h *HandlersProductVariations) ReadVariationsInStore(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-
-	modelVars := make([]models.ProductVariationsInStore, 0)
-	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByStore(&modelVars, storeID)
-
-	return responses.NewResponseProductVariationsInStore(c, http.StatusOK, modelVars)
-}
-
-// Refresh godoc
 // @Summary Read product variation by attribute values
 // @Tags Product Variation Management
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
 // @Param attribute_value_ids query string true "Attribute Value IDs"
 // @Success 200 {object} responses.ResponseProductVariation
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/variation [get]
-func (h *HandlersProductVariations) ReadByValueIDs(c echo.Context) error {
+func (h *HandlersProductVariations) ReadByAttributeValues(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 	values := strings.Split(c.QueryParam("attribute_value_ids"), ",")
 
@@ -92,7 +71,7 @@ func (h *HandlersProductVariations) ReadByValueIDs(c echo.Context) error {
 
 	modelVar := models.ProductVariations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByValueIDs(&modelVar, valueIDs, productID)
+	varRepo.ReadByAttributeValueIDs(&modelVar, valueIDs, productID)
 
 	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
 }
@@ -107,10 +86,10 @@ func (h *HandlersProductVariations) ReadByValueIDs(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseProductVariationsInProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/variation/product [get]
-func (h *HandlersProductVariations) ReadVariationsInProduct(c echo.Context) error {
+func (h *HandlersProductVariations) ReadByProduct(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
-	modelVars := make([]models.ProductVariationsInProduct, 0)
+	modelVars := make([]models.ProductVariationsWithAttributeValue, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadByProduct(&modelVars, productID)
 

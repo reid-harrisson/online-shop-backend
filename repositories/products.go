@@ -66,7 +66,7 @@ func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, s
 		Find(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.ProductsApproved, storeID uint64, customerID uint64) error {
+func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.ProductsApproved, storeID uint64, customerID uint64, page int, count int, totalCount *int64) error {
 	return repository.DB.Table("store_product_variations As vars").
 		Select(`
 			prods.id,
@@ -79,6 +79,9 @@ func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.Produc
 		`).
 		Joins("Left Join store_products As prods On prods.id = vars.product_id").
 		Group("prods.id").
+		Offset(page).
+		Limit(count).
+		Count(totalCount).
 		Find(modelProducts).Error
 }
 
