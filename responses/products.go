@@ -30,6 +30,11 @@ type ResponseProductApproved struct {
 	ImageUrl     string  `json:"image_url"`
 }
 
+type ResponseProductApprovedPaging struct {
+	Data       []ResponseProductApproved `json:"data"`
+	TotalCount int64                     `json:"total_count"`
+}
+
 type ResponseProductsPaging struct {
 	Data       []ResponseProduct `json:"data"`
 	TotalCount int64             `json:"total_count"`
@@ -140,7 +145,7 @@ func NewResponseProducts(c echo.Context, statusCode int, modelProducts []models.
 	return Response(c, statusCode, responseProducts)
 }
 
-func NewResponseProductsApproved(c echo.Context, statusCode int, modelProducts []models.ProductsApproved, exchangeRate float64, currencyCode string) error {
+func NewResponseProductsApprovedPaging(c echo.Context, statusCode int, modelProducts []models.ProductsApproved, exchangeRate float64, currencyCode string, totalCount int64) error {
 	responseProducts := make([]ResponseProductApproved, 0)
 	for _, modelProduct := range modelProducts {
 		imageUrls := make([]string, 0)
@@ -161,7 +166,10 @@ func NewResponseProductsApproved(c echo.Context, statusCode int, modelProducts [
 			ImageUrl:     imageUrl,
 		})
 	}
-	return Response(c, statusCode, responseProducts)
+	return Response(c, statusCode, ResponseProductApprovedPaging{
+		Data:       responseProducts,
+		TotalCount: totalCount,
+	})
 }
 
 func NewResponseProductsPaging(c echo.Context, statusCode int, modelProducts []models.Products, totalCount int64) error {

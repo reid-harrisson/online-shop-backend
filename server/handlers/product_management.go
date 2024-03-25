@@ -129,10 +129,10 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param pagg query int true "Page"
-// @Param count query int true "Count"
-// @Success 200 {object} []responses.ResponseProductApproved
-// @Router /store/api/v1/product/  [get]
+// @Param page query int false "Page"
+// @Param count query int false "Count"
+// @Success 200 {object} responses.ResponseProductApprovedPaging
+// @Router /store/api/v1/product/approved  [get]
 func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -150,7 +150,7 @@ func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
 	taxRepo := repositories.NewRepositoryTax(h.server.DB)
 	taxRepo.ReadCurrency(&currencyCode, &exchangeRate, customerID)
 
-	return responses.NewResponseProductsApproved(c, http.StatusOK, modelProducts, exchangeRate, currencyCode)
+	return responses.NewResponseProductsApprovedPaging(c, http.StatusOK, modelProducts, exchangeRate, currencyCode, totalCount)
 }
 
 // Refresh godoc
@@ -161,8 +161,6 @@ func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
 // @Param category_id query int rue "Category ID"
-// @Param store_id query int false "Page"
-// @Param category_id query int false "Count"
 // @Success 200 {object} []responses.ResponseProduct
 // @Router /store/api/v1/product/category [get]
 func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
