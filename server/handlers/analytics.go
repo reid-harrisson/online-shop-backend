@@ -238,7 +238,7 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read stock levels by store
+// @Summary Read daily stock levels by store
 // @Tags Insights and Analytics
 // @Accept json
 // @Produce json
@@ -246,10 +246,10 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Param start_date query string false "Start Date"
 // @Param end_date query string false "End Date"
-// @Success 200 {object} []responses.ResponseStockLevelAnalytic
+// @Success 200 {object} []responses.ResponseStockAnalytic
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/analytic/stock-level [get]
-func (h *HandlersAnalytics) ReadStockLevels(c echo.Context) error {
+// @Router /store/api/v1/analytic/stock/daily [get]
+func (h *HandlersAnalytics) ReadStockAnalyticDaily(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
 	layout := "2006-01-02"
@@ -262,10 +262,164 @@ func (h *HandlersAnalytics) ReadStockLevels(c echo.Context) error {
 		endDate = time.Now()
 	}
 
-	modelLevels := make([]models.StockLevelAnalytics, 0)
+	modelLevels := make([]models.StockAnalytics, 0)
 	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
-	analyRepo.ReadStockLevelAnalytics(&modelLevels, storeID, startDate, endDate)
-	return responses.NewResponseStockLevelAnalytics(c, http.StatusOK, modelLevels)
+	analyRepo.ReadStockAnalyticDaily(&modelLevels, storeID, startDate, endDate)
+	return responses.NewResponseStockAnalyticsDaily(c, http.StatusOK, modelLevels)
+}
+
+// Refresh godoc
+// @Summary Read weekly stock levels by store
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
+// @Success 200 {object} []responses.ResponseStockAnalytic
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/stock/weekly [get]
+func (h *HandlersAnalytics) ReadStockAnalyticWeekly(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
+	modelLevels := make([]models.StockAnalytics, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadStockAnalyticWeekly(&modelLevels, storeID, startDate, endDate)
+	return responses.NewResponseStockAnalyticsWeekly(c, http.StatusOK, modelLevels)
+}
+
+// Refresh godoc
+// @Summary Read monthly stock levels by store
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
+// @Success 200 {object} []responses.ResponseStockAnalytic
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/stock/monthly [get]
+func (h *HandlersAnalytics) ReadStockAnalyticMonthly(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+	modelLevels := make([]models.StockAnalytics, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadStockAnalyticMonthly(&modelLevels, storeID, startDate, endDate)
+	return responses.NewResponseStockAnalyticsMonthly(c, http.StatusOK, modelLevels)
+}
+
+// Refresh godoc
+// @Summary Read stock levels in week day
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
+// @Success 200 {object} []responses.ResponseStockAnalytic
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/stock/weekday [get]
+func (h *HandlersAnalytics) ReadStockAnalyticWeekDay(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
+	modelLevels := make([]models.StockAnalytics, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadStockAnalyticWeekDay(&modelLevels, storeID, startDate, endDate)
+	return responses.NewResponseStockAnalyticsWeekDay(c, http.StatusOK, modelLevels)
+}
+
+// Refresh godoc
+// @Summary Read stock levels in hour
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
+// @Success 200 {object} []responses.ResponseStockAnalytic
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/stock/hour [get]
+func (h *HandlersAnalytics) ReadStockAnalyticHour(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
+	modelLevels := make([]models.StockAnalytics, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadStockAnalyticHour(&modelLevels, storeID, startDate, endDate)
+	return responses.NewResponseStockAnalyticsHour(c, http.StatusOK, modelLevels)
+}
+
+// Refresh godoc
+// @Summary Read stock levels in month
+// @Tags Insights and Analytics
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param start_date query string false "Start Date"
+// @Param end_date query string false "End Date"
+// @Success 200 {object} []responses.ResponseStockAnalytic
+// @Failure 400 {object} responses.Error
+// @Router /store/api/v1/analytic/stock/month [get]
+func (h *HandlersAnalytics) ReadStockAnalyticMonth(c echo.Context) error {
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, c.QueryParam("start_date"))
+	endDate, _ := time.Parse(layout, c.QueryParam("end_date"))
+	if c.QueryParam("start_date") == "" {
+		startDate = time.Time{}
+	}
+	if c.QueryParam("end_date") == "" {
+		endDate = time.Now()
+	}
+
+	modelLevels := make([]models.StockAnalytics, 0)
+	analyRepo := repositories.NewRepositoryAnalytics(h.server.DB)
+	analyRepo.ReadStockAnalyticMonth(&modelLevels, storeID, startDate, endDate)
+	return responses.NewResponseStockAnalyticsMonth(c, http.StatusOK, modelLevels)
 }
 
 // Refresh godoc

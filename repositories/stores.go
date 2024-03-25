@@ -21,3 +21,7 @@ func (repository *RepositoryStore) ReadByID(modelStore *models.Stores, storeID u
 func (repository *RepositoryStore) ReadAll(modelStores *[]models.Stores) error {
 	return repository.DB.Find(modelStores).Error
 }
+
+func (repository *RepositoryStore) ReadByUser(modelStores *[]models.Stores, userID uint64) error {
+	return repository.DB.Where("owner_id = ?", userID).Find(modelStores).Error
+}

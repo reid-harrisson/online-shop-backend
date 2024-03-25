@@ -29,7 +29,6 @@ func (service *Service) UpdateStockLevelStatus(storeID uint64, modelStore *model
 
 func (service *Service) Update(modelStore *models.Stores, req *requests.RequestStore) error {
 	modelStore.CompanyID = req.CompanyID
-	modelStore.OwnerID = req.OwnerID
 	modelStore.Name = req.Name
 	modelStore.ContactPhone = req.ContactPhone
 	modelStore.ContactEmail = req.ContactEmail

@@ -29,14 +29,12 @@ func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order [post]
 func (h *HandlersOrderManagement) Create(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
-
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestCheckout)
 
 	if err := c.Bind(req); err != nil {
@@ -92,14 +90,13 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param combo_id query int true "Combo ID"
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/combo [post]
 func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
@@ -194,13 +191,12 @@ func (h *HandlersOrderManagement) ReadByStoreID(c echo.Context) error {
 // @Tags Order Management
 // @Accept json
 // @Produce json
-// @Param customer_id query int false "Customer ID"
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/customer [get]
 func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelOrders := make([]models.CustomerOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
@@ -229,28 +225,28 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
 	ordService.UpdateStatus(&modelItems, storeID, orderID, status)
 
-	mailData := utils.MailData{
-		Name:                       "PockitTV Contact Centre",
-		EmailFrom:                  "araki@pockittv.com",
-		EmailTo:                    "kaspersky3550879@gmail.com",
-		EmailPretext:               "Contact Centre",
-		Company:                    "PockitTV",
-		Subject:                    "Account Activation",
-		Phone:                      "+12387621342",
-		SourceChannel:              "Sports",
-		BodyBlock:                  "Body Block",
-		TargetTeam:                 "PockitTv Contact Team",
-		BodyCtaBtnLabel:            "ACTIVATE",
-		BodyCtaBtnLink:             "",
-		BodyGreeting:               "Hi",
-		BodyHeading:                "ACTIVATE YOUR ACCOUNT",
-		CompanyID:                  2,
-		FirstName:                  "",
-		HeaderPosterImageUrl:       "",
-		HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
-		HeaderPosterSloganTitle:    "ARE YOU READY?",
-	}
-	utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
+	// mailData := utils.MailData{
+	// 	Name:                       "PockitTV Contact Centre",
+	// 	EmailFrom:                  "araki@pockittv.com",
+	// 	EmailTo:                    "kaspersky3550879@gmail.com",
+	// 	EmailPretext:               "Contact Centre",
+	// 	Company:                    "PockitTV",
+	// 	Subject:                    "Account Activation",
+	// 	Phone:                      "+12387621342",
+	// 	SourceChannel:              "Sports",
+	// 	BodyBlock:                  "Body Block",
+	// 	TargetTeam:                 "PockitTv Contact Team",
+	// 	BodyCtaBtnLabel:            "ACTIVATE",
+	// 	BodyCtaBtnLink:             "",
+	// 	BodyGreeting:               "Hi",
+	// 	BodyHeading:                "ACTIVATE YOUR ACCOUNT",
+	// 	CompanyID:                  2,
+	// 	FirstName:                  "",
+	// 	HeaderPosterImageUrl:       "",
+	// 	HeaderPosterSloganSubtitle: "Activate your world of online streaming right now.",
+	// 	HeaderPosterSloganTitle:    "ARE YOU READY?",
+	// }
+	// utils.HelperMail(h.server.Config.Services.CommonTool, c, mailData)
 
 	return responses.NewResponseOrderItems(c, http.StatusOK, modelItems)
 }

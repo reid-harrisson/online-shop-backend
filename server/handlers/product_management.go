@@ -105,7 +105,7 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 // @Tags Product Management
 // @Accept json
 // @Produce json
-// /@Security ApiKeyAuth
+// @Security ApiKeyAuth
 // @Param store_id query int false "Store ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
@@ -123,13 +123,44 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read products by category
+// @Summary Read approved products
 // @Tags Product Management
 // @Accept json
 // @Produce json
 // /@Security ApiKeyAuth
-// @Param store_id query int false "Store ID"
-// @Param category_id query int false "Category ID"
+// @Param store_id query int true "Store ID"
+// @Param page query int false "Page"
+// @Param count query int false "Count"
+// @Success 200 {object} responses.ResponseProductApprovedPaging
+// @Router /store/api/v1/product/approved  [get]
+func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	count, _ := strconv.Atoi(c.QueryParam("count"))
+
+	exchangeRate, currencyCode := 0.0, "$"
+	modelProducts := make([]models.ProductsApproved, 0)
+
+	totalCount := int64(0)
+
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+	prodRepo.ReadApproved(&modelProducts, storeID, customerID, page, count, &totalCount)
+
+	taxRepo := repositories.NewRepositoryTax(h.server.DB)
+	taxRepo.ReadCurrency(&currencyCode, &exchangeRate, customerID)
+
+	return responses.NewResponseProductsApprovedPaging(c, http.StatusOK, modelProducts, exchangeRate, currencyCode, totalCount)
+}
+
+// Refresh godoc
+// @Summary Read products by category
+// @Tags Product Management
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param store_id query int true "Store ID"
+// @Param category_id query int rue "Category ID"
 // @Success 200 {object} []responses.ResponseProduct
 // @Router /store/api/v1/product/category [get]
 func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
@@ -302,7 +333,7 @@ func (h *HandlersProductManagement) Publish(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
 	}
 
-	modelVars := make([]models.ProductVariationsInProduct, 0)
+	modelVars := make([]models.ProductVariationsWithAttributeValue, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadByProduct(&modelVars, productID)
 	if len(modelVars) > 0 {

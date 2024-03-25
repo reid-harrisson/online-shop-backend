@@ -54,10 +54,10 @@ type CustomerInsights struct {
 	Location    string  `gorm:"column:location"`
 }
 
-type StockLevelAnalytics struct {
-	ProductID    uint64  `gorm:"column:product_id"`
-	StockLevel   float64 `gorm:"column:stock_level"`
-	Availability string  `gorm:"column:availability"`
+type StockAnalytics struct {
+	Date     time.Time `gorm:"column:date"`
+	StockIn  float64   `gorm:"column:stock_in"`
+	StockOut float64   `gorm:"column:stock_out"`
 }
 
 type VisitorAnalytics struct {

@@ -61,7 +61,7 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 		}
 	}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByValueIDs(&modelVar, req.ValueIDs, req.ProductID)
+	varRepo.ReadByAttributeValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 
 	if modelVar.ID == 0 {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
@@ -85,12 +85,11 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Success 200 {object} responses.ResponseCartCount
 // @Failure 400 {object} responses.Error
 // /@Router /store/api/v1/cart/count [get]
 func (h *HandlersShoppingCart) ReadCount(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelCount := models.CartCount{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
@@ -104,12 +103,11 @@ func (h *HandlersShoppingCart) ReadCount(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Success 200 {object} []responses.ResponseCart
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [get]
 func (h *HandlersShoppingCart) Read(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	modelItems := make([]models.CartItemsWithDetail, 0)
@@ -182,12 +180,11 @@ func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [delete]
 func (h *HandlersShoppingCart) DeleteAll(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelItems := make([]models.CartItems, 0)
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)

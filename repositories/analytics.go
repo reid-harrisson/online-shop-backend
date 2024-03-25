@@ -50,17 +50,81 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 		Scan(modelReport).Error
 }
 
-func (repository *RepositoryAnalytics) ReadStockLevelAnalytics(modelLevels *[]models.StockLevelAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_product_variations As vars").
+func (repository *RepositoryAnalytics) ReadStockAnalyticDaily(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_stock_tracks As tracks").
 		Select(`
-			Sum(vars.stock_level) As stock_level,
-			vars.product_id,
-      Case When Sum(vars.stock_level) > prods.minimum_stock_level Then 'Available' Else 'Out of Stock' End As availability
+			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
+			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
+			Date(tracks.created_at) As date
 		`).
-		Group("vars.product_id").
-		Joins("Left Join store_products As prods On vars.product_id = prods.id").
-		Where("vars.deleted_at Is Null And prods.deleted_at Is Null").
-		Where("vars.created_at Between ? And ?", startDate, endDate).
+		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
+		Group("Date(tracks.created_at)").
+		Where("tracks.created_at Between ? And ?", startDate, endDate).
+		Scan(modelLevels).Error
+}
+
+func (repository *RepositoryAnalytics) ReadStockAnalyticWeekly(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_stock_tracks As tracks").
+		Select(`
+			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
+			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
+			Max(tracks.created_at) As date
+		`).
+		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
+		Group("YearWeek(tracks.created_at)").
+		Where("tracks.created_at Between ? And ?", startDate, endDate).
+		Scan(modelLevels).Error
+}
+
+func (repository *RepositoryAnalytics) ReadStockAnalyticMonthly(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_stock_tracks As tracks").
+		Select(`
+			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
+			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
+			Max(tracks.created_at) As date
+		`).
+		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
+		Group("Extract(Year_Month From tracks.created_at)").
+		Where("tracks.created_at Between ? And ?", startDate, endDate).
+		Scan(modelLevels).Error
+}
+
+func (repository *RepositoryAnalytics) ReadStockAnalyticWeekDay(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_stock_tracks As tracks").
+		Select(`
+			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
+			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
+			Max(tracks.created_at) As date
+		`).
+		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
+		Group("Weekday(tracks.created_at)").
+		Where("tracks.created_at Between ? And ?", startDate, endDate).
+		Scan(modelLevels).Error
+}
+
+func (repository *RepositoryAnalytics) ReadStockAnalyticHour(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_stock_tracks As tracks").
+		Select(`
+			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
+			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
+			Max(tracks.created_at) As date
+		`).
+		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
+		Group("Hour(tracks.created_at)").
+		Where("tracks.created_at Between ? And ?", startDate, endDate).
+		Scan(modelLevels).Error
+}
+
+func (repository *RepositoryAnalytics) ReadStockAnalyticMonth(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+	return repository.DB.Table("store_stock_tracks As tracks").
+		Select(`
+			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
+			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
+			Max(tracks.created_at) As date
+		`).
+		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
+		Group("Month(tracks.created_at)").
+		Where("tracks.created_at Between ? And ?", startDate, endDate).
 		Scan(modelLevels).Error
 }
 

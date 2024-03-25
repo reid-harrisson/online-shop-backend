@@ -23,3 +23,7 @@ func (request RequestProductVariation) Validate() error {
 		validation.Field(&request.StockLevel, validation.Required),
 	)
 }
+
+type RequestAttributeValueIDs struct {
+	ValueIDs []uint64 `json:"attribute_value_ids" example:"5"`
+}

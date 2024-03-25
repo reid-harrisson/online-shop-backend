@@ -28,13 +28,12 @@ func NewHandlersProductReviews(server *s.Server) *HandlersProductReviews {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
-// @Param customer_id query int true "Customer ID"
 // @Param params body requests.RequestProductReview true "Review Info"
 // @Success 201 {object} responses.ResponseProductReview
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/review [post]
 func (h *HandlersProductReviews) CreateReview(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
 	requestProductReview := new(requests.RequestProductReview)

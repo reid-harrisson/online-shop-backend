@@ -79,7 +79,7 @@ func (h *HandlersCombos) ReadAll(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 201 {object} []responses.ResponseCombo
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/combo/approve [get]
+// @Router /store/api/v1/combo/approved [get]
 func (h *HandlersCombos) ReadApproved(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 

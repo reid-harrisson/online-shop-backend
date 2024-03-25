@@ -31,13 +31,12 @@ func NewHandlersCheckoutProcess(server *s.Server) *HandlersCheckoutProcess {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param params body requests.RequestAddress true "Address"
 // @Success 201 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/address [post]
 func (h *HandlersCheckoutProcess) CreateAddress(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestAddress)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -56,12 +55,11 @@ func (h *HandlersCheckoutProcess) CreateAddress(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Success 200 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/address [get]
 func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelAddrs := make([]models.Addresses, 0)
 	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
@@ -121,13 +119,12 @@ func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout [post]
 func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
 	if err := c.Bind(req); err != nil {
@@ -155,14 +152,13 @@ func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param customer_id query int true "Customer ID"
 // @Param combo_id query int true "Combo ID"
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/combo [post]
 func (h *HandlersCheckoutProcess) ReadCombo(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.QueryParam("customer_id"), 10, 64)
+	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
 
 	req := new(requests.RequestCheckout)

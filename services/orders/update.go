@@ -3,30 +3,52 @@ package ordsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	stocksvc "OnlineStoreBackend/services/stock_tracks"
 )
 
 func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) {
 	status := utils.OrderStatusFromString(orderStatus)
 	service.DB.Where("order_id = ?", orderID).Find(&modelItems)
 
+	modelVars := []models.ProductVariations{}
+	varIDs := []uint64{}
+	varIndices := map[uint64]int{}
+
+	for _, modelItem := range *modelItems {
+		if varIndices[modelItem.VariationID] == 0 {
+			varIDs = append(varIDs, modelItem.VariationID)
+			varIndices[modelItem.VariationID] = len(varIDs)
+		}
+	}
+	service.DB.Where("id In (?)", varIDs).Find(&modelVars)
+
+	modelStocks := []models.StockTracks{}
+	stockService := stocksvc.NewServiceStockTrack(service.DB)
+
 	flagCompleted := true
 	flagPending := true
 	for index := range *modelItems {
 		modelItem := &(*modelItems)[index]
+		varIndex := varIndices[modelItem.VariationID] - 1
 		if modelItem.StoreID == storeID && modelItem.Status != status {
 			modelItem.Status = status
 			if status == utils.StatusOrderProcessing {
-				modelVar := models.ProductVariations{}
-				service.DB.First(&modelVar, modelItem.VariationID)
-				modelVar.StockLevel -= modelItem.Quantity
-				service.DB.Save(&modelVar)
-			} else if status == utils.StatusOrderPending {
-				modelVar := models.ProductVariations{}
-				service.DB.First(&modelVar, modelItem.VariationID)
-				modelVar.StockLevel += modelItem.Quantity
-				service.DB.Save(&modelVar)
+				modelVars[varIndex].StockLevel -= modelItem.Quantity
+				modelStocks = append(modelStocks, models.StockTracks{
+					VariationID: uint64(modelVars[varIndex].ID),
+					ProductID:   modelVars[varIndex].ProductID,
+					Change:      -modelItem.Quantity,
+					Event:       utils.OrderPlaced,
+				})
+			} else if status == utils.StatusOrderCancelled {
+				modelVars[varIndex].StockLevel += modelItem.Quantity
+				modelStocks = append(modelStocks, models.StockTracks{
+					VariationID: uint64(modelVars[varIndex].ID),
+					ProductID:   modelVars[varIndex].ProductID,
+					Change:      modelItem.Quantity,
+					Event:       utils.OrderCancelled,
+				})
 			}
-			service.DB.Save(modelItem)
 		}
 		if modelItem.Status != utils.StatusOrderCompleted {
 			flagCompleted = false
@@ -35,6 +57,11 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 			flagPending = false
 		}
 	}
+
+	service.DB.Save(modelItems)
+	service.DB.Save(&modelVars)
+	stockService.CreateStocks(&modelStocks)
+
 	if flagCompleted {
 		status = utils.StatusOrderCompleted
 	} else if flagPending {

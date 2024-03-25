@@ -7,7 +7,7 @@ import (
 )
 
 func Round(num float64) float64 {
-	return math.Round(num*100) / 100
+	return math.Ceil(num*100) / 100
 }
 
 func CleanSpecialLetters(sku string) string {

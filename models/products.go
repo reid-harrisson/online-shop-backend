@@ -31,6 +31,16 @@ type ProductsWithDetail struct {
 	AttributeValues []ProductAttributeValuesWithDetail `gorm:"column:variations"`
 }
 
+type ProductsApproved struct {
+	ID           uint64  `gorm:"column:id"`
+	Title        string  `gorm:"column:title"`
+	MinimumPrice float64 `gorm:"column:minimum_price"`
+	MaximumPrice float64 `gorm:"column:maximum_price"`
+	RegularPrice float64 `gorm:"column:regular_price"`
+	Rating       float64 `gorm:"column:rating"`
+	ImageUrls    string  `gorm:"column:image_urls"`
+}
+
 func (Products) TableName() string {
 	return "store_products"
 }
