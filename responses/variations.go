@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseProductVariation struct {
+type ResponseVariation struct {
 	ID               uint64   `json:"id"`
 	Sku              string   `json:"sku"`
 	ProductID        uint64   `json:"product_id"`
@@ -22,17 +22,17 @@ type ResponseProductVariation struct {
 	BackOrderAllowed string   `json:"back_order_allowed"`
 }
 
-type ResponseProductVariationWithAttribute struct {
+type ResponseVariationWithAttribute struct {
 	AttributeValueID uint64 `json:"attribute_value_id"`
 	AttributeName    string `json:"attribute_name"`
 	AttributeValue   string `json:"attribute_value"`
 }
-type ResponseProductVariationsInProduct struct {
-	ResponseProductVariation
-	Attributes []ResponseProductVariationWithAttribute `json:"attributes"`
+type ResponseVariationsInProduct struct {
+	ResponseVariation
+	Attributes []ResponseVariationWithAttribute `json:"attributes"`
 }
 
-func NewResponseProductVariation(c echo.Context, statusCode int, modelVar models.ProductVariations) error {
+func NewResponseVariation(c echo.Context, statusCode int, modelVar models.Variations) error {
 	price := modelVar.Price
 	switch modelVar.DiscountType {
 	case utils.PercentageOff:
@@ -42,7 +42,7 @@ func NewResponseProductVariation(c echo.Context, statusCode int, modelVar models
 	}
 	imageUrls := make([]string, 0)
 	json.Unmarshal([]byte(modelVar.ImageUrls), &imageUrls)
-	return Response(c, statusCode, ResponseProductVariation{
+	return Response(c, statusCode, ResponseVariation{
 		ID:               uint64(modelVar.ID),
 		Sku:              modelVar.Sku,
 		ProductID:        modelVar.ProductID,
@@ -57,16 +57,16 @@ func NewResponseProductVariation(c echo.Context, statusCode int, modelVar models
 	})
 }
 
-func NewResponseProductVariationsInProduct(c echo.Context, statusCode int, modelVars []models.ProductVariationsWithAttributeValue) error {
+func NewResponseVariationsInProduct(c echo.Context, statusCode int, modelVars []models.VariationsWithAttributeValue) error {
 	mapVars := make(map[uint64][]int)
 	for index, modelVar := range modelVars {
 		mapVars[uint64(modelVar.ID)] = append(mapVars[uint64(modelVar.ID)], index)
 	}
-	responseVars := make([]ResponseProductVariationsInProduct, 0)
+	responseVars := make([]ResponseVariationsInProduct, 0)
 	for _, indexes := range mapVars {
-		responseAttrs := make([]ResponseProductVariationWithAttribute, 0)
+		responseAttrs := make([]ResponseVariationWithAttribute, 0)
 		for _, index := range indexes {
-			responseAttrs = append(responseAttrs, ResponseProductVariationWithAttribute{
+			responseAttrs = append(responseAttrs, ResponseVariationWithAttribute{
 				AttributeValueID: modelVars[index].AttributeValueID,
 				AttributeName:    modelVars[index].AttributeName,
 				AttributeValue:   modelVars[index].AttributeValue + modelVars[index].Unit,
@@ -85,8 +85,8 @@ func NewResponseProductVariationsInProduct(c echo.Context, statusCode int, model
 		}
 		imageUrls := make([]string, 0)
 		json.Unmarshal([]byte(modelVars[index].ImageUrls), &imageUrls)
-		responseVars = append(responseVars, ResponseProductVariationsInProduct{
-			ResponseProductVariation: ResponseProductVariation{
+		responseVars = append(responseVars, ResponseVariationsInProduct{
+			ResponseVariation: ResponseVariation{
 				ID:               uint64(modelVars[index].ID),
 				Sku:              modelVars[index].Sku,
 				ProductID:        modelVars[index].ProductID,

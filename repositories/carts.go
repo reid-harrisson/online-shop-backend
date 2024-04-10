@@ -26,14 +26,11 @@ func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItem
 	repository.DB.Where("customer_id = ?", customerID).Find(modelItems)
 }
 
-func (repository *RepositoryCart) ReadItemCount(modelCount *models.CartCount, customerID uint64) {
+func (repository *RepositoryCart) ReadItemCount(count *int64, customerID uint64) {
 	repository.DB.
 		Model(models.CartItems{}).
-		Select(`
-			Count(id) As count
-		`).
-		Where("customer_id = ?", customerID).
-		Scan(modelCount)
+		Count(count).
+		Where("customer_id = ?", customerID)
 }
 
 func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {

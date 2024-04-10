@@ -23,16 +23,16 @@ func (repository *RepositoryCategory) ReadByProductID(modelCategories *[]models.
 		Scan(modelCategories)
 }
 
-func (repository *RepositoryCategory) ReadByName(modelCategory *models.StoreCategories, name string, storeID uint64) {
+func (repository *RepositoryCategory) ReadByName(modelCategory *models.Categories, name string, storeID uint64) {
 	repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelCategory)
 }
 
-func (repository *RepositoryCategory) ReadByID(modelCategory *models.StoreCategories, categoryID uint64, storeID uint64) error {
-	return repository.DB.Where("id = ? And store_id = ?", categoryID, storeID).Error
+func (repository *RepositoryCategory) ReadByID(modelCategory *models.Categories, categoryID uint64) error {
+	return repository.DB.Where("id = ?", categoryID).Error
 }
 
-func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.StoreCategoriesWithChildren, storeID uint64) {
-	modelCategories := make([]models.StoreCategories, 0)
+func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.CategoriesWithChildren, storeID uint64) {
+	modelCategories := make([]models.Categories, 0)
 	repository.DB.Where("store_id = ?", storeID).Find(&modelCategories)
 	allChildrenIDs := make(map[uint64][]uint64)
 	for _, modelCategory := range modelCategories {
@@ -42,9 +42,9 @@ func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]mode
 	for _, modelCategory := range modelCategories {
 		childrenIDs := make([]uint64, 0)
 		childrenIDs = append(childrenIDs, allChildrenIDs[uint64(modelCategory.ID)]...)
-		*modelStoreCategories = append(*modelStoreCategories, models.StoreCategoriesWithChildren{
-			StoreCategories: modelCategory,
-			ChildrenIDs:     childrenIDs,
+		*modelStoreCategories = append(*modelStoreCategories, models.CategoriesWithChildren{
+			Categories:  modelCategory,
+			ChildrenIDs: childrenIDs,
 		})
 	}
 }

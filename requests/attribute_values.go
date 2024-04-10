@@ -1,5 +1,5 @@
 package requests
 
-type RequestProductAttributeValue struct {
+type RequestAttributeValue struct {
 	Values []string `json:"values" example:"100,200,300"`
 }

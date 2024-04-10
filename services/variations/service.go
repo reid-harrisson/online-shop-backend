@@ -6,6 +6,6 @@ type Service struct {
 	DB *gorm.DB
 }
 
-func NewServiceProductVariation(db *gorm.DB) *Service {
+func NewServiceVariation(db *gorm.DB) *Service {
 	return &Service{DB: db}
 }

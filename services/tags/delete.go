@@ -5,5 +5,5 @@ import (
 )
 
 func (service *Service) Delete(tagID uint64) {
-	service.DB.Where("id = ?", tagID).Delete(&models.StoreTags{})
+	service.DB.Where("id = ?", tagID).Delete(&models.Tags{})
 }

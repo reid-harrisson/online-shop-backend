@@ -64,7 +64,7 @@ func readCSV(file *multipart.File, modelCsvs *[]models.CSVs) {
 
 // @Summary Upload a CSV file
 // @Description Upload a CSV file to the server
-// @Tags CSV Upload
+// @Tags Upload Actions
 // @Accept multipart/form-data
 // @Produce json
 // @Param store_id query int true "Store ID"
@@ -91,12 +91,12 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	cateNames := []string{}
 	cateParents := map[string]string{}
 	cateIndices := map[string]int{}
-	modelCategories := []models.StoreCategories{}
+	modelCategories := []models.Categories{}
 
 	// Tag Informations
 	tagNames := []string{}
 	tagIndices := map[string]int{}
-	modelTags := []models.StoreTags{}
+	modelTags := []models.Tags{}
 
 	// Product Informations
 	prodIndices := map[string]int{}
@@ -121,27 +121,27 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	// Attribute Informations
 	attrIndices := map[string]int{}
 	attrMatches := []string{}
-	modelAttrs := []models.ProductAttributes{}
+	modelAttrs := []models.Attributes{}
 
 	// Attribute Value Informations
 	valIndices := map[string]int{}
 	valMatches := []string{}
-	modelVals := []models.ProductAttributeValues{}
+	modelVals := []models.AttributeValues{}
 
 	// Variation Informations
 	varIndices := map[string]int{}
 	varMatches := []string{}
-	modelVars := []models.ProductVariations{}
+	modelVars := []models.Variations{}
 
 	// Variation Detail Informations
 	detIndices := map[string]int{}
 	detMatches := []string{}
-	modelDets := []models.ProductVariationDetails{}
+	modelDets := []models.VariationDetails{}
 
 	// Linked Product Informations
 	linkIndices := map[string]int{}
 	linkMatches := []string{}
-	modelLinks := []models.ProductLinks{}
+	modelLinks := []models.Links{}
 
 	for _, modelCsv := range modelCsvs {
 		// Category
@@ -156,7 +156,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 						cateParents[subcate] = strings.TrimSpace(subcates[index-1])
 					}
 					cateNames = append(cateNames, subcate)
-					modelCategories = append(modelCategories, models.StoreCategories{
+					modelCategories = append(modelCategories, models.Categories{
 						Name:    subcate,
 						StoreID: storeID,
 					})
@@ -173,7 +173,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		for _, tag := range tags {
 			tag = strings.TrimSpace(tag)
 			if tag != "" && tagIndices[tag] == 0 {
-				modelTags = append(modelTags, models.StoreTags{
+				modelTags = append(modelTags, models.Tags{
 					Name:    tag,
 					StoreID: storeID,
 				})
@@ -244,7 +244,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		// First Attribute
 		match := strconv.Itoa(size-1) + ":" + modelCsv.AttributeName
 		if modelCsv.AttributeName != "" && attrIndices[match] == 0 {
-			modelAttrs = append(modelAttrs, models.ProductAttributes{
+			modelAttrs = append(modelAttrs, models.Attributes{
 				AttributeName: modelCsv.AttributeName,
 			})
 			attrMatches = append(attrMatches, match)
@@ -258,7 +258,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			val = strings.TrimSpace(val)
 			match := strconv.Itoa(attrIndex) + ":" + val
 			if val != "" && valIndices[match] == 0 {
-				modelVals = append(modelVals, models.ProductAttributeValues{
+				modelVals = append(modelVals, models.AttributeValues{
 					AttributeValue: val,
 				})
 				valMatches = append(valMatches, match)
@@ -271,7 +271,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		// Second Attribute
 		match = strconv.Itoa(size-1) + ":" + modelCsv.Attribute2Name
 		if modelCsv.Attribute2Name != "" && attrIndices[match] == 0 {
-			modelAttrs = append(modelAttrs, models.ProductAttributes{
+			modelAttrs = append(modelAttrs, models.Attributes{
 				AttributeName: modelCsv.Attribute2Name,
 			})
 			attrMatches = append(attrMatches, match)
@@ -284,7 +284,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			val = strings.TrimSpace(val)
 			match := strconv.Itoa(attrIndex) + ":" + val
 			if val != "" && valIndices[match] == 0 {
-				modelVals = append(modelVals, models.ProductAttributeValues{
+				modelVals = append(modelVals, models.AttributeValues{
 					AttributeValue: val,
 				})
 				valMatches = append(valMatches, match)
@@ -328,7 +328,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 				if salePrice != 0 {
 					discountAmount = regularPrice - salePrice
 				}
-				modelVars = append(modelVars, models.ProductVariations{
+				modelVars = append(modelVars, models.Variations{
 					Sku:             varSku,
 					Price:           regularPrice,
 					StockLevel:      stock,
@@ -362,7 +362,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 				for _, val := range valCurrent {
 					match := strconv.Itoa(size-1) + ":" + strconv.Itoa(val)
 					if detIndices[match] == 0 {
-						modelDets = append(modelDets, models.ProductVariationDetails{})
+						modelDets = append(modelDets, models.VariationDetails{})
 						size := len(modelDets)
 						detIndices[match] = size
 						detMatches = append(detMatches, match)
@@ -380,7 +380,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			if linkIndex >= 0 {
 				match := fmt.Sprintf("%d:%d:0", prodIndex, linkIndex)
 				if linkIndices[match] == 0 {
-					modelLinks = append(modelLinks, models.ProductLinks{
+					modelLinks = append(modelLinks, models.Links{
 						IsUpCross: utils.UpSell,
 					})
 					linkMatches = append(linkMatches, match)
@@ -397,7 +397,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 			if linkIndex >= 0 {
 				match := fmt.Sprintf("%d:%d:1", prodIndex, linkIndex)
 				if linkIndices[match] == 0 {
-					modelLinks = append(modelLinks, models.ProductLinks{
+					modelLinks = append(modelLinks, models.Links{
 						IsUpCross: utils.CrossSell,
 					})
 					linkMatches = append(linkMatches, match)
@@ -438,7 +438,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		attrIndices[match] = index
 	}
 
-	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
+	attrService := prodattrsvc.NewServiceAttribute(h.server.DB)
 	attrService.CreateWithCSV(&modelAttrs, attrMatches, attrIndices)
 
 	for index, match := range prodCateMatches {
@@ -484,7 +484,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		valIndices[match] = index
 	}
 
-	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	valService.CreateWithCSV(&modelVals, valMatches, valIndices)
 
 	for index, match := range varMatches {
@@ -501,7 +501,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		varIndices[match] = index
 	}
 
-	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	varService.CreateWithCSV(&modelVars, varMatches, varIndices)
 
 	for index := range modelShips {
@@ -528,7 +528,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		detIndices[match] = index
 	}
 
-	detService := prodvardetsvc.NewServiceProductVariationDetail(h.server.DB)
+	detService := prodvardetsvc.NewServiceVariationDetail(h.server.DB)
 	detService.CreateWithCSV(&modelDets, detMatches, detIndices)
 
 	for index, match := range linkMatches {
@@ -545,7 +545,7 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 		linkIndices[match] = index
 	}
 
-	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	linkService := linksvc.NewServiceLink(h.server.DB)
 	linkService.CreateWithCSV(&modelLinks, linkMatches, linkIndices)
 
 	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)

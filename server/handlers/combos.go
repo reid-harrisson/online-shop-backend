@@ -24,7 +24,7 @@ func NewHandlersCombos(server *s.Server) *HandlersCombos {
 
 // Refresh godoc
 // @Summary Create combo
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -52,7 +52,7 @@ func (h *HandlersCombos) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read all combos
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -72,7 +72,7 @@ func (h *HandlersCombos) ReadAll(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read approved combos
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -92,7 +92,7 @@ func (h *HandlersCombos) ReadApproved(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read published combos
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -112,7 +112,7 @@ func (h *HandlersCombos) ReadPublished(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Update combo
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -151,7 +151,7 @@ func (h *HandlersCombos) Update(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Approve combo
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -180,7 +180,7 @@ func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Reject combo
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -209,7 +209,7 @@ func (h *HandlersCombos) UpdateReject(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Publish combo
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -238,7 +238,7 @@ func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete combo
-// @Tags Combo
+// @Tags Combo Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

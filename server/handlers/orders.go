@@ -15,17 +15,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type HandlersOrderManagement struct {
+type HandlersOrder struct {
 	server *s.Server
 }
 
-func NewHandlersOrders(server *s.Server) *HandlersOrderManagement {
-	return &HandlersOrderManagement{server: server}
+func NewHandlersOrders(server *s.Server) *HandlersOrder {
+	return &HandlersOrder{server: server}
 }
 
 // Refresh godoc
 // @Summary Add order
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -33,7 +33,7 @@ func NewHandlersOrders(server *s.Server) *HandlersOrderManagement {
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order [post]
-func (h *HandlersOrderManagement) Create(c echo.Context) error {
+func (h *HandlersOrder) Create(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestCheckout)
 
@@ -41,7 +41,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	if err := req.RequestCheckoutValidate(); err != nil {
+	if err := req.Validate(); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
 	}
 
@@ -86,7 +86,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Add order with combo
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -95,7 +95,7 @@ func (h *HandlersOrderManagement) Create(c echo.Context) error {
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/combo [post]
-func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
+func (h *HandlersOrder) CreateCombo(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
 
@@ -105,7 +105,7 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	if err := req.RequestCheckoutValidate(); err != nil {
+	if err := req.Validate(); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
 	}
 
@@ -150,7 +150,7 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read orders by ID
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Param id path int true "Order ID"
@@ -158,7 +158,7 @@ func (h *HandlersOrderManagement) CreateCombo(c echo.Context) error {
 // @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/{id} [get]
-func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
+func (h *HandlersOrder) ReadByID(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelOrders := models.CustomerOrdersWithAddress{}
@@ -169,7 +169,7 @@ func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read orders by Store
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Param store_id query int false "Store ID"
@@ -177,7 +177,7 @@ func (h *HandlersOrderManagement) ReadByID(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/store [get]
-func (h *HandlersOrderManagement) ReadByStoreID(c echo.Context) error {
+func (h *HandlersOrder) ReadByStoreID(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
 	modelOrders := make([]models.StoreOrders, 0)
@@ -188,14 +188,14 @@ func (h *HandlersOrderManagement) ReadByStoreID(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read orders by Customer
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/customer [get]
-func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
+func (h *HandlersOrder) ReadByCustomerID(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelOrders := make([]models.CustomerOrders, 0)
@@ -206,7 +206,7 @@ func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit order status
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -216,7 +216,7 @@ func (h *HandlersOrderManagement) ReadByCustomerID(c echo.Context) error {
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/status/{id} [put]
-func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
+func (h *HandlersOrder) UpdateStatus(c echo.Context) error {
 	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	status := c.QueryParam("status")
@@ -253,7 +253,7 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Update order item status
-// @Tags Order Management
+// @Tags Order Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -262,7 +262,7 @@ func (h *HandlersOrderManagement) UpdateStatus(c echo.Context) error {
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/order/status [put]
-func (h *HandlersOrderManagement) UpdateOrderItemStatus(c echo.Context) error {
+func (h *HandlersOrder) UpdateOrderItemStatus(c echo.Context) error {
 	orderID, _ := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
 	status := c.QueryParam("status")
 

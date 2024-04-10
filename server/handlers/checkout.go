@@ -17,17 +17,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type HandlersCheckoutProcess struct {
+type HandlersCheckout struct {
 	server *s.Server
 }
 
-func NewHandlersCheckout(server *s.Server) *HandlersCheckoutProcess {
-	return &HandlersCheckoutProcess{server: server}
+func NewHandlersCheckout(server *s.Server) *HandlersCheckout {
+	return &HandlersCheckout{server: server}
 }
 
 // Refresh godoc
 // @Summary Create address to customer
-// @Tags Checkout Process
+// @Tags Checkout Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -35,7 +35,7 @@ func NewHandlersCheckout(server *s.Server) *HandlersCheckoutProcess {
 // @Success 201 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/address [post]
-func (h *HandlersCheckoutProcess) CreateAddress(c echo.Context) error {
+func (h *HandlersCheckout) CreateAddress(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestAddress)
 	if err := c.Bind(req); err != nil {
@@ -51,14 +51,14 @@ func (h *HandlersCheckoutProcess) CreateAddress(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read addresses
-// @Tags Checkout Process
+// @Tags Checkout Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/address [get]
-func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
+func (h *HandlersCheckout) ReadAddresses(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelAddrs := make([]models.Addresses, 0)
@@ -70,7 +70,7 @@ func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read coupon
-// @Tags Checkout Process
+// @Tags Checkout Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -78,7 +78,7 @@ func (h *HandlersCheckoutProcess) ReadAddresses(c echo.Context) error {
 // @Success 200 {object} responses.ResponseCoupon
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/coupon [get]
-func (h *HandlersCheckoutProcess) ReadCoupon(c echo.Context) error {
+func (h *HandlersCheckout) ReadCoupon(c echo.Context) error {
 	code := c.QueryParam("code")
 
 	modelCoupon := models.Coupons{}
@@ -90,7 +90,7 @@ func (h *HandlersCheckoutProcess) ReadCoupon(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Update address to customer
-// @Tags Checkout Process
+// @Tags Checkout Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -99,7 +99,7 @@ func (h *HandlersCheckoutProcess) ReadCoupon(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/address/{id} [put]
-func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
+func (h *HandlersCheckout) UpdateAddress(c echo.Context) error {
 	addressID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestAddress)
 	if err := c.Bind(req); err != nil {
@@ -115,7 +115,7 @@ func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read checkout
-// @Tags Checkout Process
+// @Tags Checkout Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -123,7 +123,7 @@ func (h *HandlersCheckoutProcess) UpdateAddress(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout [post]
-func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
+func (h *HandlersCheckout) Read(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	req := new(requests.RequestCheckout)
@@ -148,7 +148,7 @@ func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read checkout from combo
-// @Tags Checkout Process
+// @Tags Checkout Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -157,7 +157,7 @@ func (h *HandlersCheckoutProcess) Read(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/checkout/combo [post]
-func (h *HandlersCheckoutProcess) ReadCombo(c echo.Context) error {
+func (h *HandlersCheckout) ReadCombo(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
 

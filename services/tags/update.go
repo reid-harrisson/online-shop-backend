@@ -5,8 +5,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelTag *models.StoreTags, req *requests.RequestTag, storeID uint64) {
+func (service *Service) Update(modelTag *models.Tags, req *requests.RequestTag) {
 	modelTag.Name = req.Name
-	modelTag.StoreID = storeID
 	service.DB.Save(modelTag)
 }

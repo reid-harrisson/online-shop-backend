@@ -23,12 +23,12 @@ type Products struct {
 
 type ProductsWithDetail struct {
 	Products
-	RelatedChannels []ProductChannelsWithName          `gorm:"column:related_channels"`
-	RelatedContents []ProductContentsWithTitle         `gorm:"column:related_contents"`
-	Tags            []ProductTagsWithName              `gorm:"column:tags"`
-	Categories      []ProductCategoriesWithName        `gorm:"categories"`
-	Attributes      []ProductAttributes                `gorm:"column:attributes"`
-	AttributeValues []ProductAttributeValuesWithDetail `gorm:"column:variations"`
+	RelatedChannels []ProductChannelsWithName   `gorm:"column:related_channels"`
+	RelatedContents []ProductContentsWithTitle  `gorm:"column:related_contents"`
+	Tags            []ProductTagsWithName       `gorm:"column:tags"`
+	Categories      []ProductCategoriesWithName `gorm:"categories"`
+	Attributes      []Attributes                `gorm:"column:attributes"`
+	AttributeValues []AttributeValuesWithDetail `gorm:"column:variations"`
 }
 
 type ProductsApproved struct {

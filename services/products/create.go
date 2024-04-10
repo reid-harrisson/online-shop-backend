@@ -25,9 +25,9 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	chanService := chansvc.NewServiceProductChannel(service.DB)
 	cateService := prodcatesvc.NewServiceProductCategory(service.DB)
 	tagService := prodtagsvc.NewServiceProductTag(service.DB)
-	attrService := prodattrsvc.NewServiceProductAttribute(service.DB)
-	linkService := linksvc.NewServiceProductLinked(service.DB)
-	valService := prodattrvalsvc.NewServiceProductAttributeValue(service.DB)
+	attrService := prodattrsvc.NewServiceAttribute(service.DB)
+	linkService := linksvc.NewServiceLink(service.DB)
+	valService := prodattrvalsvc.NewServiceAttributeValue(service.DB)
 
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)
@@ -61,7 +61,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 
 	for name, values := range req.Attributes {
 		if len(values) > 0 {
-			modelAttr := models.ProductAttributes{}
+			modelAttr := models.Attributes{}
 			attrService.Create(productID, &requests.RequestAttribute{Name: name}, &modelAttr)
 			attributeID := modelAttr.ID
 			for _, value := range values {

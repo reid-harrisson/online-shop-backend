@@ -10,9 +10,9 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(modelVar *models.ProductVariations, req *requests.RequestProductVariation, productID uint64) {
-	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(service.DB)
+func (service *Service) Create(modelVar *models.Variations, req *requests.RequestVariation, productID uint64) {
+	modelValues := make([]models.AttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryAttributeValue(service.DB)
 	valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs)
 
 	modelProduct := models.Products{}
@@ -49,13 +49,13 @@ func (service *Service) Create(modelVar *models.ProductVariations, req *requests
 		modelVar.BackOrderStatus = utils.SimpleStatuses(req.BackOrderAllowed)
 
 		service.DB.Create(&modelVar)
-		detService := prodvardetsvc.NewServiceProductVariationDetail(service.DB)
+		detService := prodvardetsvc.NewServiceVariationDetail(service.DB)
 		detService.Create(uint64(modelVar.ID), req.AttributeValueIDs)
 	}
 }
 
-func (service *Service) CreateWithCSV(modelNewVars *[]models.ProductVariations, varMatches []string, varIndices map[string]int) {
-	modelCurVars := []models.ProductVariations{}
+func (service *Service) CreateWithCSV(modelNewVars *[]models.Variations, varMatches []string, varIndices map[string]int) {
+	modelCurVars := []models.Variations{}
 	service.DB.Where("Concat(product_id, ':', sku) In (?)", varMatches).Find(&modelCurVars)
 	for _, modelVar := range modelCurVars {
 		match := fmt.Sprintf("%d:%s", modelVar.ProductID, modelVar.Sku)

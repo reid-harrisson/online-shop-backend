@@ -46,7 +46,7 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 	contRepo := NewRepositoryProductContent(repository.DB)
 	contRepo.ReadByProductID(&modelDetail.RelatedContents, productID)
 
-	attrValRepo := NewRepositoryProductAttributeValue(repository.DB)
+	attrValRepo := NewRepositoryAttributeValue(repository.DB)
 	attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
 }
 
@@ -99,7 +99,7 @@ func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Prod
 }
 
 func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products, storeID uint64, tags []string, keyword string) {
-	modelTags := []models.StoreTags{}
+	modelTags := []models.Tags{}
 	repository.DB.Where("name Not In (?)", tags).Find(&modelTags)
 	keyword = "%" + keyword + "%"
 	tagIDs := []uint64{}

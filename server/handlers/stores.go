@@ -6,28 +6,24 @@ import (
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
-	catesvc "OnlineStoreBackend/services/categories"
-	etsvc "OnlineStoreBackend/services/email_templates"
 	storesvc "OnlineStoreBackend/services/stores"
-	tagsvc "OnlineStoreBackend/services/tags"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
-type HandlersStoreManagement struct {
+type HandlersStores struct {
 	server *s.Server
 }
 
-func NewHandlersStores(server *s.Server) *HandlersStoreManagement {
-	return &HandlersStoreManagement{server: server}
+func NewHandlersStores(server *s.Server) *HandlersStores {
+	return &HandlersStores{server: server}
 }
 
 // Refresh godoc
 // @Summary Create store
-// @Tags Store Management
+// @Tags Store Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -35,7 +31,7 @@ func NewHandlersStores(server *s.Server) *HandlersStoreManagement {
 // @Success 201 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store [post]
-func (h *HandlersStoreManagement) Create(c echo.Context) error {
+func (h *HandlersStores) Create(c echo.Context) error {
 	userID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	req := new(requests.RequestStore)
 
@@ -52,78 +48,14 @@ func (h *HandlersStoreManagement) Create(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Add category
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param params body requests.RequestCategory true "Category"
-// @Success 201 {object} []responses.ResponseStoreCategory
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/category [post]
-func (h *HandlersStoreManagement) CreateCategory(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestCategory)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelCategory := models.StoreCategories{}
-	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByName(&modelCategory, req.Name, storeID)
-	if modelCategory.ID != 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This category already exist in the store.")
-	}
-	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.Create(&modelCategory, req, storeID)
-
-	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
-	cateRepo.ReadByStoreID(&modelCategories, storeID)
-	return responses.NewResponseStoreCategories(c, http.StatusCreated, modelCategories)
-}
-
-// Refresh godoc
-// @Summary Add tag
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param params body requests.RequestTag true "Tag"
-// @Success 201 {object} []responses.ResponseStoreTag
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/tag [post]
-func (h *HandlersStoreManagement) CreateTag(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestTag)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelTag := models.StoreTags{}
-	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	tagRepo.ReadByName(&modelTag, req.Name, storeID)
-	if modelTag.ID != 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag already exist in the store.")
-	}
-	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Create(&modelTag, req.Name, storeID)
-
-	modelTags := make([]models.StoreTags, 0)
-	tagRepo.ReadByStoreID(&modelTags, storeID)
-	return responses.NewResponseStoreTags(c, http.StatusCreated, modelTags)
-}
-
-// Refresh godoc
 // @Summary Read all stores
-// @Tags Store Management
+// @Tags Store Actions
 // @Accept json
 // @Produce json
 // @Success 200 {object} []responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store/all [get]
-func (h *HandlersStoreManagement) ReadAll(c echo.Context) error {
+func (h *HandlersStores) ReadAll(c echo.Context) error {
 	modelStores := make([]models.Stores, 0)
 	storeRepo := repositories.NewRepositoryStore(h.server.DB)
 	if err := storeRepo.ReadAll(&modelStores); err != nil {
@@ -134,19 +66,18 @@ func (h *HandlersStoreManagement) ReadAll(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read stores by user
-// @Tags Store Management
+// @Tags Store Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store/user [get]
-func (h *HandlersStoreManagement) ReadByUser(c echo.Context) error {
+func (h *HandlersStores) ReadByUser(c echo.Context) error {
 	userID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelStores := make([]models.Stores, 0)
 	storeRepo := repositories.NewRepositoryStore(h.server.DB)
-	fmt.Println("|-|", userID)
 	if err := storeRepo.ReadByUser(&modelStores, userID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
 	}
@@ -154,44 +85,8 @@ func (h *HandlersStoreManagement) ReadByUser(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Read category
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Param id path int true "Store ID"
-// @Success 200 {object} []responses.ResponseStoreCategory
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/category [get]
-func (h *HandlersStoreManagement) ReadCategory(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
-	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByStoreID(&modelCategories, storeID)
-	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
-}
-
-// Refresh godoc
-// @Summary Read tag
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Param id path int true "Store ID"
-// @Success 200 {object} []responses.ResponseStoreTag
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/tag [get]
-func (h *HandlersStoreManagement) ReadTag(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelTags := make([]models.StoreTags, 0)
-	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	tagRepo.ReadByStoreID(&modelTags, storeID)
-	return responses.NewResponseStoreTags(c, http.StatusOK, modelTags)
-}
-
-// Refresh godoc
 // @Summary Update store
-// @Tags Store Management
+// @Tags Store Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -200,7 +95,7 @@ func (h *HandlersStoreManagement) ReadTag(c echo.Context) error {
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store/{id} [put]
-func (h *HandlersStoreManagement) Update(c echo.Context) error {
+func (h *HandlersStores) Update(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestStore)
 
@@ -221,75 +116,8 @@ func (h *HandlersStoreManagement) Update(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Update category
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param category_id path int true "Category ID"
-// @Param id path int true "Store ID"
-// @Param params body requests.RequestCategory true "Category"
-// @Success 200 {object} []responses.ResponseStoreCategory
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/category/{category_id} [put]
-func (h *HandlersStoreManagement) UpdateCategory(c echo.Context) error {
-	categoryID, _ := strconv.ParseUint(c.Param("category_id"), 10, 64)
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestCategory)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelCategory := models.StoreCategories{}
-	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	if err := cateRepo.ReadByID(&modelCategory, categoryID, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
-	}
-	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.Update(&modelCategory, req)
-
-	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
-	cateRepo.ReadByStoreID(&modelCategories, storeID)
-	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
-}
-
-// Refresh godoc
-// @Summary Update tag
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param tag_id path int true "Tag ID"
-// @Param params body requests.RequestTag true "Tag"
-// @Success 200 {object} []responses.ResponseStoreTag
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/tag/{tag_id} [put]
-func (h *HandlersStoreManagement) UpdateTag(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	tagID, _ := strconv.ParseUint(c.Param("tag_id"), 10, 64)
-	req := new(requests.RequestTag)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelTag := models.StoreTags{}
-	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
-	}
-
-	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Update(&modelTag, req, storeID)
-
-	modelTags := make([]models.StoreTags, 0)
-	tagRepo.ReadByStoreID(&modelTags, storeID)
-	return responses.NewResponseStoreTags(c, http.StatusCreated, modelTags)
-}
-
-// Refresh godoc
 // @Summary Delete store
-// @Tags Store Management
+// @Tags Store Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -297,7 +125,7 @@ func (h *HandlersStoreManagement) UpdateTag(c echo.Context) error {
 // @Success 200 {object} responses.ResponseStore
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/store/{id} [delete]
-func (h *HandlersStoreManagement) Delete(c echo.Context) error {
+func (h *HandlersStores) Delete(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	storeService := storesvc.NewServiceStore(h.server.DB)
@@ -305,169 +133,4 @@ func (h *HandlersStoreManagement) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
 	}
 	return responses.ErrorResponse(c, http.StatusOK, "Store successfully deleted.")
-}
-
-// Refresh godoc
-// @Summary Delete category
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param category_id path int true "Category ID"
-// @Param id path int true "Store ID"
-// @Success 200 {object} []responses.ResponseStoreCategory
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/category/{category_id} [delete]
-func (h *HandlersStoreManagement) DeleteCategory(c echo.Context) error {
-	categoryID, _ := strconv.ParseUint(c.Param("category_id"), 10, 64)
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelCategory := models.StoreCategories{}
-	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	if err := cateRepo.ReadByID(&modelCategory, categoryID, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
-	}
-	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.Delete(categoryID)
-
-	modelCategories := make([]models.StoreCategoriesWithChildren, 0)
-	cateRepo.ReadByStoreID(&modelCategories, storeID)
-	return responses.NewResponseStoreCategories(c, http.StatusOK, modelCategories)
-}
-
-// Refresh godoc
-// @Summary Delete tag
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param tag_id path int true "Tag ID"
-// @Success 200 {object} []responses.ResponseStoreTag
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/tag/{tag_id} [delete]
-func (h *HandlersStoreManagement) DeleteTag(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	tagID, _ := strconv.ParseUint(c.Param("tag_id"), 10, 64)
-
-	modelTag := models.StoreTags{}
-	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
-	}
-
-	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Delete(tagID)
-
-	modelTags := make([]models.StoreTags, 0)
-	tagRepo.ReadByStoreID(&modelTags, storeID)
-	return responses.NewResponseStoreTags(c, http.StatusCreated, modelTags)
-}
-
-// Refresh godoc
-// @Summary Create email template
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param params body requests.RequestEmailTemplate true "Email Template Data"
-// @Success 200 {object} responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/template [post]
-func (h *HandlersStoreManagement) CreateTemplate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	req := new(requests.RequestEmailTemplate)
-
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelTemplate := models.EmailTemplates{}
-	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := temService.Create(&modelTemplate, req, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
-	}
-
-	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelTemplate)
-}
-
-// Refresh godoc
-// @Summary Read email templates
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Success 200 {object} []responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/template [get]
-func (h *HandlersStoreManagement) ReadTemplate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelTemplates := make([]models.EmailTemplates, 0)
-
-	temRepo := repositories.NewRepositoryEmailTemplate(h.server.DB)
-	temRepo.ReadByStoreID(&modelTemplates, storeID)
-
-	return responses.NewResponseEmailTemplates(c, http.StatusOK, modelTemplates)
-}
-
-// Refresh godoc
-// @Summary Update email template
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param template_id path int true "Template ID"
-// @Param params body requests.RequestEmailTemplate true "Email Template Data"
-// @Success 200 {object} responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/template/{template_id} [put]
-func (h *HandlersStoreManagement) UpdateTemplate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	templateID, _ := strconv.ParseUint(c.Param("template_id"), 10, 64)
-
-	req := new(requests.RequestEmailTemplate)
-
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelTemplate := models.EmailTemplates{}
-
-	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := temService.Update(storeID, templateID, &modelTemplate, req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No template exist at this ID.")
-	}
-
-	return responses.NewResponseEmailTemplate(c, http.StatusOK, &modelTemplate)
-}
-
-// Refresh godoc
-// @Summary Delete email template
-// @Tags Store Management
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "Store ID"
-// @Param template_id path int true "Template ID"
-// @Success 200 {object} []responses.ResponseEmailTemplate
-// @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/{id}/template/{template_id} [delete]
-func (h *HandlersStoreManagement) DeleteTemplate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	templateID, _ := strconv.ParseUint(c.Param("template_id"), 10, 64)
-
-	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := temService.Delete(storeID, templateID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No template exist at this ID.")
-	}
-
-	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
 }

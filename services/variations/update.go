@@ -8,9 +8,9 @@ import (
 	prodvardetsvc "OnlineStoreBackend/services/variation_details"
 )
 
-func (service *Service) Update(modelVar *models.ProductVariations, req *requests.RequestProductVariation) {
-	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(service.DB)
+func (service *Service) Update(modelVar *models.Variations, req *requests.RequestVariation) {
+	modelValues := make([]models.AttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryAttributeValue(service.DB)
 	valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs)
 
 	modelProduct := models.Products{}
@@ -40,11 +40,11 @@ func (service *Service) Update(modelVar *models.ProductVariations, req *requests
 
 	service.DB.Save(modelVar)
 
-	detService := prodvardetsvc.NewServiceProductVariationDetail(service.DB)
+	detService := prodvardetsvc.NewServiceVariationDetail(service.DB)
 	detService.Update(uint64(modelVar.ID), req.AttributeValueIDs)
 }
 
-func (service *Service) UpdateBackOrder(modelVar *models.ProductVariations) {
+func (service *Service) UpdateBackOrder(modelVar *models.Variations) {
 	switch modelVar.BackOrderStatus {
 	case utils.Disabled:
 		modelVar.BackOrderStatus = utils.Enabled
@@ -54,7 +54,7 @@ func (service *Service) UpdateBackOrder(modelVar *models.ProductVariations) {
 	service.DB.Save(modelVar)
 }
 
-func (service *Service) UpdateStockLevel(modelVar *models.ProductVariations, stockLevel float64) {
+func (service *Service) UpdateStockLevel(modelVar *models.Variations, stockLevel float64) {
 	modelVar.StockLevel = stockLevel
 	service.DB.Save(modelVar)
 }

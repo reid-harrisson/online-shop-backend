@@ -91,6 +91,16 @@ func ConfigureRoutes(server *s.Server) {
 
 	groupCombos := apiV1.Group("/combo")
 	GroupCombos(server, groupCombos)
+
+	groupCategories := apiV1.Group("/category")
+	GroupCategories(server, groupCategories)
+
+	groupTags := apiV1.Group("/tag")
+	GroupTags(server, groupTags)
+
+	groupTemplates := apiV1.Group("/template")
+	GroupTemplates(server, groupTemplates)
+
 }
 
 func GroupCombos(server *s.Server, e *echo.Group) {
@@ -224,22 +234,34 @@ func GroupInventory(server *s.Server, e *echo.Group) {
 func GroupStores(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersStores(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
-	e.POST("/:id/category", handler.CreateCategory, AuthMiddleware(server))
-	e.POST("/:id/tag", handler.CreateTag, AuthMiddleware(server))
 	e.GET("/all", handler.ReadAll)
 	e.GET("/user", handler.ReadByUser, AuthMiddleware(server))
-	e.GET("/:id/category", handler.ReadCategory)
-	e.GET("/:id/tag", handler.ReadTag)
 	e.PUT("/:id", handler.Update, AuthMiddleware(server))
-	e.PUT("/:id/category/:category_id", handler.UpdateCategory, AuthMiddleware(server))
-	e.PUT("/:id/tag/:tag_id", handler.UpdateTag, AuthMiddleware(server))
 	e.DELETE("/:id", handler.Delete, AuthMiddleware(server))
-	e.DELETE("/:id/category/:category_id", handler.DeleteCategory, AuthMiddleware(server))
-	e.DELETE("/:id/tag/:tag_id", handler.DeleteTag, AuthMiddleware(server))
-	e.POST("/:id/template", handler.CreateTemplate, AuthMiddleware(server))
-	e.GET("/:id/template", handler.ReadTemplate, AuthMiddleware(server))
-	e.PUT("/:id/template/:template_id", handler.UpdateTemplate, AuthMiddleware(server))
-	e.DELETE("/:id/template/:template_id", handler.DeleteTemplate, AuthMiddleware(server))
+}
+
+func GroupCategories(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCategories(server)
+	e.POST("", handler.CreateCategory, AuthMiddleware(server))
+	e.GET("", handler.ReadCategory)
+	e.PUT("/:id", handler.UpdateCategory, AuthMiddleware(server))
+	e.DELETE("/:id", handler.DeleteCategory, AuthMiddleware(server))
+}
+
+func GroupTags(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersTags(server)
+	e.POST("", handler.CreateTag, AuthMiddleware(server))
+	e.GET("", handler.ReadTag)
+	e.PUT("/:id", handler.UpdateTag, AuthMiddleware(server))
+	e.DELETE("/:id", handler.DeleteTag, AuthMiddleware(server))
+}
+
+func GroupTemplates(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersTemplates(server)
+	e.POST("", handler.CreateTemplate, AuthMiddleware(server))
+	e.GET("", handler.ReadTemplate)
+	e.PUT("/:id", handler.UpdateTemplate, AuthMiddleware(server))
+	e.DELETE("/:id", handler.DeleteTemplate, AuthMiddleware(server))
 }
 
 func GroupTaxs(server *s.Server, e *echo.Group) {

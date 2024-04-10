@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-type StoreTags struct {
+type Tags struct {
 	gorm.Model
 
 	StoreID uint64 `gorm:"column:store_id; type:bigint(20) unsigned"`
@@ -16,7 +16,7 @@ type ProductTags struct {
 	TagID     uint64 `gorm:"column:tag_id; type:bigint(20) unsigned"`
 }
 
-func (StoreTags) TableName() string {
+func (Tags) TableName() string {
 	return "store_tags"
 }
 

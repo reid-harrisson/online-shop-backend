@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-type StoreCategories struct {
+type Categories struct {
 	gorm.Model
 
 	StoreID  uint64 `gorm:"column:store_id; type:bigint(20) unsigned"`
@@ -10,8 +10,8 @@ type StoreCategories struct {
 	Name     string `gorm:"column:name; type:varchar(45)"`
 }
 
-type StoreCategoriesWithChildren struct {
-	StoreCategories
+type CategoriesWithChildren struct {
+	Categories
 	ChildrenIDs []uint64 `gorm:"column:children_ids"`
 }
 
@@ -22,7 +22,7 @@ type ProductCategories struct {
 	CategoryID uint64 `gorm:"column:category_id; type:bigint(20) unsigned"`
 }
 
-func (StoreCategories) TableName() string {
+func (Categories) TableName() string {
 	return "store_categories"
 }
 

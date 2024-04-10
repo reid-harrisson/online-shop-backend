@@ -6,15 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type RepositoryProductAttributeValue struct {
+type RepositoryAttributeValue struct {
 	DB *gorm.DB
 }
 
-func NewRepositoryProductAttributeValue(db *gorm.DB) *RepositoryProductAttributeValue {
-	return &RepositoryProductAttributeValue{DB: db}
+func NewRepositoryAttributeValue(db *gorm.DB) *RepositoryAttributeValue {
+	return &RepositoryAttributeValue{DB: db}
 }
 
-func (repository *RepositoryProductAttributeValue) ReadByID(modelVars *[]models.ProductAttributeValuesWithDetail, attributeID uint64) {
+func (repository *RepositoryAttributeValue) ReadByID(modelVars *[]models.AttributeValuesWithDetail, attributeID uint64) {
 	repository.DB.Table("store_product_attribute_values As vals").
 		Select("vals.*, attrs.attribute_name As attribute_name, attrs.product_id As product_id").
 		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
@@ -23,7 +23,7 @@ func (repository *RepositoryProductAttributeValue) ReadByID(modelVars *[]models.
 		Scan(modelVars)
 }
 
-func (repository *RepositoryProductAttributeValue) ReadByAttrID(modelValue *models.ProductAttributeValuesWithDetail, attributeValueID uint64) {
+func (repository *RepositoryAttributeValue) ReadByAttrID(modelValue *models.AttributeValuesWithDetail, attributeValueID uint64) {
 	repository.DB.Table("store_product_attribute_values As vals").
 		Select("vals.*, attrs.attribute_name As attribute_name, attrs.product_id As product_id").
 		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
@@ -32,7 +32,7 @@ func (repository *RepositoryProductAttributeValue) ReadByAttrID(modelValue *mode
 		Scan(modelValue)
 }
 
-func (repository *RepositoryProductAttributeValue) ReadByProductID(modelVars *[]models.ProductAttributeValuesWithDetail, productID uint64) {
+func (repository *RepositoryAttributeValue) ReadByProductID(modelVars *[]models.AttributeValuesWithDetail, productID uint64) {
 	repository.DB.Table("store_product_attribute_values As vals").
 		Select("vals.*, attrs.attribute_name As attribute_name, attrs.product_id As product_id").
 		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
@@ -42,7 +42,7 @@ func (repository *RepositoryProductAttributeValue) ReadByProductID(modelVars *[]
 		Scan(modelVars)
 }
 
-func (repository *RepositoryProductAttributeValue) ReadByIDs(modelValues *[]models.ProductAttributeValuesWithDetail, attributeValueIDs []uint64) {
+func (repository *RepositoryAttributeValue) ReadByIDs(modelValues *[]models.AttributeValuesWithDetail, attributeValueIDs []uint64) {
 	repository.DB.Table("store_product_attribute_values As vals").
 		Select("vals.*, attrs.attribute_name As attribute_name, attrs.product_id As product_id").
 		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").

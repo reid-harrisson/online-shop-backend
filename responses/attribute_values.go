@@ -17,7 +17,7 @@ type ResponseAttributeValue struct {
 	Values        []ResponseAttributeValueItem `json:"values"`
 }
 
-func NewResponseAttributeValueByProduct(c echo.Context, statusCode int, modelValues []models.ProductAttributeValuesWithDetail) error {
+func NewResponseAttributeValueByProduct(c echo.Context, statusCode int, modelValues []models.AttributeValuesWithDetail) error {
 	responseValues := make([]ResponseAttributeValue, 0)
 	mapValues := make(map[string][]ResponseAttributeValueItem)
 	mapIndexes := make(map[string]int)

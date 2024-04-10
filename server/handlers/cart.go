@@ -14,17 +14,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type HandlersShoppingCart struct {
+type HandlersCart struct {
 	server *s.Server
 }
 
-func NewHandlersCart(server *s.Server) *HandlersShoppingCart {
-	return &HandlersShoppingCart{server: server}
+func NewHandlersCart(server *s.Server) *HandlersCart {
+	return &HandlersCart{server: server}
 }
 
 // Refresh godoc
 // @Summary Add cart
-// @Tags Shopping Cart
+// @Tags Cart Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -32,7 +32,7 @@ func NewHandlersCart(server *s.Server) *HandlersShoppingCart {
 // @Success 201 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [post]
-func (h *HandlersShoppingCart) Create(c echo.Context) error {
+func (h *HandlersCart) Create(c echo.Context) error {
 	req := new(requests.RequestCartItem)
 
 	if err := c.Bind(req); err != nil {
@@ -48,9 +48,9 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
 	}
 
-	modelVar := models.ProductVariations{}
-	modelVals := []models.ProductAttributeValuesWithDetail{}
-	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	modelVar := models.Variations{}
+	modelVals := []models.AttributeValuesWithDetail{}
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	valRepo.ReadByIDs(&modelVals, req.ValueIDs)
 	mapVal := map[uint64]string{}
 	for _, modelVal := range modelVals {
@@ -81,32 +81,32 @@ func (h *HandlersShoppingCart) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read count
-// @Tags Shopping Cart
+// @Tags Cart Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCartCount
 // @Failure 400 {object} responses.Error
 // /@Router /store/api/v1/cart/count [get]
-func (h *HandlersShoppingCart) ReadCount(c echo.Context) error {
+func (h *HandlersCart) ReadCount(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
-	modelCount := models.CartCount{}
+	count := int64(0)
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadItemCount(&modelCount, customerID)
-	return responses.NewResponseCartCount(c, http.StatusOK, modelCount)
+	cartRepo.ReadItemCount(&count, customerID)
+	return responses.NewResponseCartCount(c, http.StatusOK, count)
 }
 
 // Refresh godoc
 // @Summary Read cart
-// @Tags Shopping Cart
+// @Tags Cart Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseCart
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [get]
-func (h *HandlersShoppingCart) Read(c echo.Context) error {
+func (h *HandlersCart) Read(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
@@ -117,7 +117,7 @@ func (h *HandlersShoppingCart) Read(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit cart
-// @Tags Shopping Cart
+// @Tags Cart Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -126,7 +126,7 @@ func (h *HandlersShoppingCart) Read(c echo.Context) error {
 // @Success 200 {object} responses.ResponseCart
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart/{id} [put]
-func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
+func (h *HandlersCart) UpdateQuantity(c echo.Context) error {
 	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
 
@@ -137,7 +137,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "No cart item exist at this ID.")
 	}
 
-	modelVar := models.ProductVariations{}
+	modelVar := models.Variations{}
 	prodRepo := repositories.NewRepositoryVariation(h.server.DB)
 	prodRepo.ReadByID(&modelVar, modelItem.VariationID)
 
@@ -149,7 +149,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete a item
-// @Tags Shopping Cart
+// @Tags Cart Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -157,7 +157,7 @@ func (h *HandlersShoppingCart) UpdateQuantity(c echo.Context) error {
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart/{id} [delete]
-func (h *HandlersShoppingCart) Delete(c echo.Context) error {
+func (h *HandlersCart) Delete(c echo.Context) error {
 	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelItem := models.CartItems{}
@@ -176,14 +176,14 @@ func (h *HandlersShoppingCart) Delete(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete all items in cart
-// @Tags Shopping Cart
+// @Tags Cart Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/cart [delete]
-func (h *HandlersShoppingCart) DeleteAll(c echo.Context) error {
+func (h *HandlersCart) DeleteAll(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelItems := make([]models.CartItems, 0)

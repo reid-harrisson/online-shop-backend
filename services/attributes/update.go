@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(attributeID uint64, req *requests.RequestAttribute, modelAttr *models.ProductAttributes) {
+func (service *Service) Update(attributeID uint64, req *requests.RequestAttribute, modelAttr *models.Attributes) {
 	modelAttr.AttributeName = req.Name
 	modelAttr.ProductID = attributeID
 	service.DB.Save(modelAttr)

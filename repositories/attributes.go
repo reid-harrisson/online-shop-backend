@@ -14,14 +14,14 @@ func NewRepositoryAttribute(db *gorm.DB) *RepositoryAttribute {
 	return &RepositoryAttribute{DB: db}
 }
 
-func (repository *RepositoryAttribute) ReadByProductID(modelAttrs *[]models.ProductAttributes, productID uint64) {
+func (repository *RepositoryAttribute) ReadByProductID(modelAttrs *[]models.Attributes, productID uint64) {
 	repository.DB.Where("product_id = ?", productID).Find(modelAttrs)
 }
 
-func (repository *RepositoryAttribute) ReadByName(modelAttr *models.ProductAttributes, name string) {
+func (repository *RepositoryAttribute) ReadByName(modelAttr *models.Attributes, name string) {
 	repository.DB.Where("name = ?", name).First(modelAttr)
 }
 
-func (repository *RepositoryAttribute) ReadByID(modelAttr *models.ProductAttributes, attributeID uint64) {
+func (repository *RepositoryAttribute) ReadByID(modelAttr *models.Attributes, attributeID uint64) {
 	repository.DB.Where("id = ?", attributeID).First(modelAttr)
 }

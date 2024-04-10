@@ -38,7 +38,7 @@ type ResponseCart struct {
 }
 
 type ResponseCartCount struct {
-	Count uint64 `json:"count"`
+	Count int64 `json:"count"`
 }
 
 func NewResponseCartItem(c echo.Context, statusCode int, modelItem models.CartItems) error {
@@ -96,8 +96,8 @@ func NewResponseCart(c echo.Context, statusCode int, modelCartItems []models.Car
 	})
 }
 
-func NewResponseCartCount(c echo.Context, statusCode int, modelCount models.CartCount) error {
+func NewResponseCartCount(c echo.Context, statusCode int, count int64) error {
 	return Response(c, statusCode, ResponseCartCount{
-		Count: modelCount.Count,
+		Count: count,
 	})
 }

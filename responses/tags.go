@@ -6,11 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseTag struct {
+type ResponseProductTag struct {
 	Tags []string `json:"tags"`
 }
 
-type ResponseStoreTag struct {
+type ResponseTag struct {
 	ID   uint64 `json:"id"`
 	Name string `json:"name"`
 }
@@ -20,16 +20,23 @@ func NewResponseProductTags(c echo.Context, statusCode int, modelTags []models.P
 	for _, modelTag := range modelTags {
 		tags = append(tags, modelTag.TagName)
 	}
-	return Response(c, statusCode, ResponseTag{Tags: tags})
+	return Response(c, statusCode, ResponseProductTag{Tags: tags})
 }
 
-func NewResponseStoreTags(c echo.Context, statusCode int, modelTags []models.StoreTags) error {
-	responseTags := []ResponseStoreTag{}
+func NewResponseTags(c echo.Context, statusCode int, modelTags []models.Tags) error {
+	responseTags := []ResponseTag{}
 	for _, modelTag := range modelTags {
-		responseTags = append(responseTags, ResponseStoreTag{
+		responseTags = append(responseTags, ResponseTag{
 			ID:   uint64(modelTag.ID),
 			Name: modelTag.Name,
 		})
 	}
 	return Response(c, statusCode, responseTags)
+}
+
+func NewResponseTag(c echo.Context, statusCode int, modelTag models.Tags) error {
+	return Response(c, statusCode, ResponseTag{
+		ID:   uint64(modelTag.ID),
+		Name: modelTag.Name,
+	})
 }

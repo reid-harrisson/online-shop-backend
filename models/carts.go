@@ -31,10 +31,6 @@ type CartItemsWithDetail struct {
 	Length         float64             `gorm:"column:length"`
 }
 
-type CartCount struct {
-	Count uint64 `gorm:"column:count"`
-}
-
 func (CartItems) TableName() string {
 	return "store_cart_items"
 }

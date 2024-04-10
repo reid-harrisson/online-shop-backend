@@ -15,17 +15,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type HandlersInventoryManagement struct {
+type HandlersInventory struct {
 	server *s.Server
 }
 
-func NewHandlersInventory(server *s.Server) *HandlersInventoryManagement {
-	return &HandlersInventoryManagement{server: server}
+func NewHandlersInventory(server *s.Server) *HandlersInventory {
+	return &HandlersInventory{server: server}
 }
 
 // Refresh godoc
 // @Summary Read inventory
-// @Tags Inventory Management
+// @Tags Inventory Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -33,7 +33,7 @@ func NewHandlersInventory(server *s.Server) *HandlersInventoryManagement {
 // @Success 200 {object} responses.ResponseInventory
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/inventory/{id} [get]
-func (h *HandlersInventoryManagement) ReadInventory(c echo.Context) error {
+func (h *HandlersInventory) ReadInventory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelInventories := []models.Inventories{}
@@ -45,7 +45,7 @@ func (h *HandlersInventoryManagement) ReadInventory(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Set minimum stock level of product
-// @Tags Inventory Management
+// @Tags Inventory Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -54,7 +54,7 @@ func (h *HandlersInventoryManagement) ReadInventory(c echo.Context) error {
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/inventory/min-stock-level/{id} [put]
-func (h *HandlersInventoryManagement) UpdateMinimumStockLevel(c echo.Context) error {
+func (h *HandlersInventory) UpdateMinimumStockLevel(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	minimumStockLevel, _ := strconv.ParseFloat(c.QueryParam("minimum_stock_level"), 64)
 
@@ -72,22 +72,22 @@ func (h *HandlersInventoryManagement) UpdateMinimumStockLevel(c echo.Context) er
 
 // Refresh godoc
 // @Summary Set stock level of variation
-// @Tags Inventory Management
+// @Tags Inventory Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Variation ID"
 // @Param stock_level query string true "Stock Level"
-// @Success 200 {object} responses.ResponseProductVariation
+// @Success 200 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/inventory/stock-level/{id} [put]
-func (h *HandlersInventoryManagement) UpdateStockLevel(c echo.Context) error {
+func (h *HandlersInventory) UpdateStockLevel(c echo.Context) error {
 	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	stockLevel, _ := strconv.ParseFloat(c.QueryParam("stock_level"), 64)
 
 	prevStockLevel := 0.0
 
-	modelVar := models.ProductVariations{}
+	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadByID(&modelVar, variationID)
 
@@ -97,7 +97,7 @@ func (h *HandlersInventoryManagement) UpdateStockLevel(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
 	}
 
-	varService := prodvarsvc.NewServiceProductVariation(h.server.DB)
+	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	varService.UpdateStockLevel(&modelVar, stockLevel)
 
 	// Track Stock Level
@@ -109,5 +109,5 @@ func (h *HandlersInventoryManagement) UpdateStockLevel(c echo.Context) error {
 		Event:       utils.ProductWarhousing,
 	})
 
-	return responses.NewResponseProductVariation(c, http.StatusOK, modelVar)
+	return responses.NewResponseVariation(c, http.StatusOK, modelVar)
 }

@@ -24,12 +24,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type HandlersProductManagement struct {
+type HandlersProducts struct {
 	server *s.Server
 }
 
-func NewHandlersProducts(server *s.Server) *HandlersProductManagement {
-	return &HandlersProductManagement{server: server}
+func NewHandlersProducts(server *s.Server) *HandlersProducts {
+	return &HandlersProducts{server: server}
 }
 
 func ChangeToDraft(db *gorm.DB, modelProduct *models.Products) {
@@ -54,7 +54,7 @@ func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) 
 
 // Refresh godoc
 // @Summary Add product
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -62,7 +62,7 @@ func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) 
 // @Success 201 {object} responses.ResponseProductWithDetail
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product [post]
-func (h *HandlersProductManagement) Create(c echo.Context) error {
+func (h *HandlersProducts) Create(c echo.Context) error {
 	req := new(requests.RequestProductWithDetail)
 
 	if err := c.Bind(req); err != nil {
@@ -85,14 +85,14 @@ func (h *HandlersProductManagement) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read product by ID
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Success 200 {object} responses.ResponseProductWithDetail
 // @Router /store/api/v1/product/{id} [get]
-func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
+func (h *HandlersProducts) ReadByID(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	modelProduct := models.ProductsWithDetail{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
@@ -102,7 +102,7 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read all products
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -110,7 +110,7 @@ func (h *HandlersProductManagement) ReadByID(c echo.Context) error {
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
 // @Router /store/api/v1/product [get]
-func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
+func (h *HandlersProducts) ReadAll(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -124,7 +124,7 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read approved products
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // /@Security ApiKeyAuth
@@ -133,7 +133,7 @@ func (h *HandlersProductManagement) ReadAll(c echo.Context) error {
 // @Param count query int false "Count"
 // @Success 200 {object} responses.ResponseProductApprovedPaging
 // @Router /store/api/v1/product/approved  [get]
-func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
+func (h *HandlersProducts) ReadApproved(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	page, _ := strconv.Atoi(c.QueryParam("page"))
@@ -155,7 +155,7 @@ func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read products by category
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -163,7 +163,7 @@ func (h *HandlersProductManagement) ReadApproved(c echo.Context) error {
 // @Param category_id query int rue "Category ID"
 // @Success 200 {object} []responses.ResponseProduct
 // @Router /store/api/v1/product/category [get]
-func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
+func (h *HandlersProducts) ReadByCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	cateID, _ := strconv.ParseUint(c.QueryParam("category_id"), 10, 64)
 
@@ -177,7 +177,7 @@ func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read products by tags and keyword
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // /@Security ApiKeyAuth
@@ -186,7 +186,7 @@ func (h *HandlersProductManagement) ReadByCategory(c echo.Context) error {
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
 // @Router /store/api/v1/product/search [get]
-func (h *HandlersProductManagement) ReadSearch(c echo.Context) error {
+func (h *HandlersProducts) ReadSearch(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	keyword := c.QueryParam("keyword")
 	tags := strings.Split(c.QueryParam("tags"), ",")
@@ -201,7 +201,7 @@ func (h *HandlersProductManagement) ReadSearch(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read products by pagination
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -211,7 +211,7 @@ func (h *HandlersProductManagement) ReadSearch(c echo.Context) error {
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} responses.ResponseProductsPaging
 // @Router /store/api/v1/product/paging [get]
-func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
+func (h *HandlersProducts) ReadPaging(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 	page, _ := strconv.ParseInt(c.QueryParam("page"), 10, 64)
 	count, _ := strconv.ParseInt(c.QueryParam("count"), 10, 64)
@@ -225,7 +225,7 @@ func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit product
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -234,7 +234,7 @@ func (h *HandlersProductManagement) ReadPaging(c echo.Context) error {
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/{id} [put]
-func (h *HandlersProductManagement) Update(c echo.Context) error {
+func (h *HandlersProducts) Update(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	req := new(requests.RequestProduct)
@@ -260,7 +260,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Approve product
-// @Tags Product Management (Moderation)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -268,7 +268,7 @@ func (h *HandlersProductManagement) Update(c echo.Context) error {
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/approve/{id} [put]
-func (h *HandlersProductManagement) Approve(c echo.Context) error {
+func (h *HandlersProducts) Approve(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
@@ -287,7 +287,7 @@ func (h *HandlersProductManagement) Approve(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Reject product
-// @Tags Product Management (Moderation)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -295,7 +295,7 @@ func (h *HandlersProductManagement) Approve(c echo.Context) error {
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/reject/{id} [put]
-func (h *HandlersProductManagement) Reject(c echo.Context) error {
+func (h *HandlersProducts) Reject(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
@@ -314,7 +314,7 @@ func (h *HandlersProductManagement) Reject(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Publish product
-// @Tags Product Management (Moderation)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -322,7 +322,7 @@ func (h *HandlersProductManagement) Reject(c echo.Context) error {
 // @Success 200 {object} responses.ResponseProduct
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/publish/{id} [put]
-func (h *HandlersProductManagement) Publish(c echo.Context) error {
+func (h *HandlersProducts) Publish(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
@@ -333,7 +333,7 @@ func (h *HandlersProductManagement) Publish(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
 	}
 
-	modelVars := make([]models.ProductVariationsWithAttributeValue, 0)
+	modelVars := make([]models.VariationsWithAttributeValue, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	varRepo.ReadByProduct(&modelVars, productID)
 	if len(modelVars) > 0 {
@@ -346,7 +346,7 @@ func (h *HandlersProductManagement) Publish(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete product
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -354,7 +354,7 @@ func (h *HandlersProductManagement) Publish(c echo.Context) error {
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/{id} [delete]
-func (h *HandlersProductManagement) Delete(c echo.Context) error {
+func (h *HandlersProducts) Delete(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
@@ -370,7 +370,7 @@ func (h *HandlersProductManagement) Delete(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit categories of product
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -379,7 +379,7 @@ func (h *HandlersProductManagement) Delete(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseCategory
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/category/{id} [put]
-func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
+func (h *HandlersProducts) UpdateCategories(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	req := new(requests.RequestProductCategory)
@@ -405,7 +405,7 @@ func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit related channels
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -414,7 +414,7 @@ func (h *HandlersProductManagement) UpdateCategories(c echo.Context) error {
 // @Success 200 {object} []responses.ResponseProductChannel
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/channel/{id} [put]
-func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error {
+func (h *HandlersProducts) UpdateRelatedChannels(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestProductChannel)
 	if err := c.Bind(req); err != nil {
@@ -439,7 +439,7 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 
 // Refresh godoc
 // @Summary Edit related contents
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -448,7 +448,7 @@ func (h *HandlersProductManagement) UpdateRelatedChannels(c echo.Context) error 
 // @Success 200 {object} []responses.ResponseProductContent
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/content/{id} [put]
-func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error {
+func (h *HandlersProducts) UpdateRelatedContents(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestProductContent)
 	if err := c.Bind(req); err != nil {
@@ -473,7 +473,7 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 
 // Refresh godoc
 // @Summary Edit tags
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -482,7 +482,7 @@ func (h *HandlersProductManagement) UpdateRelatedContents(c echo.Context) error 
 // @Success 200 {object} []responses.ResponseTag
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/tag/{id} [put]
-func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
+func (h *HandlersProducts) UpdateTags(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestProductTag)
 	if err := c.Bind(req); err != nil {
@@ -507,16 +507,16 @@ func (h *HandlersProductManagement) UpdateTags(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Add attributes
-// @Tags Product Management (Attribute)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Param params body requests.RequestAttribute true "Attributes"
-// @Success 201 {object} []responses.ResponseProductAttribute
+// @Success 201 {object} []responses.ResponseAttribute
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute/{id} [post]
-func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
+func (h *HandlersProducts) CreateAttributes(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestAttribute)
 	if err := c.Bind(req); err != nil {
@@ -528,7 +528,7 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	modelAttr := models.ProductAttributes{}
+	modelAttr := models.Attributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
 	attrRepo.ReadByName(&modelAttr, req.Name)
 
@@ -536,29 +536,29 @@ func (h *HandlersProductManagement) CreateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute already exists in the product.")
 	}
 
-	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
+	attrService := prodattrsvc.NewServiceAttribute(h.server.DB)
 	attrService.Create(productID, req, &modelAttr)
 
-	modelAttrs := make([]models.ProductAttributes, 0)
+	modelAttrs := make([]models.Attributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttributes(c, http.StatusCreated, modelAttrs)
+	return responses.NewResponseAttributes(c, http.StatusCreated, modelAttrs)
 }
 
 // Refresh godoc
 // @Summary Edit attributes
-// @Tags Product Management (Attribute)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Param attribute_id query int true "Attribute ID"
 // @Param params body requests.RequestAttribute true "Attributes"
-// @Success 200 {object} []responses.ResponseProductAttribute
+// @Success 200 {object} []responses.ResponseAttribute
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute/{id} [put]
-func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
+func (h *HandlersProducts) UpdateAttributes(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
 	req := new(requests.RequestAttribute)
@@ -571,7 +571,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	modelAttr := models.ProductAttributes{}
+	modelAttr := models.Attributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
 	attrRepo.ReadByID(&modelAttr, attributeID)
 
@@ -579,19 +579,19 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute doesn't exists in the product.")
 	}
 
-	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
+	attrService := prodattrsvc.NewServiceAttribute(h.server.DB)
 	attrService.Update(attributeID, req, &modelAttr)
 
-	modelAttrs := make([]models.ProductAttributes, 0)
+	modelAttrs := make([]models.Attributes, 0)
 	attrRepo.ReadByProductID(&modelAttrs, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttributes(c, http.StatusOK, modelAttrs)
+	return responses.NewResponseAttributes(c, http.StatusOK, modelAttrs)
 }
 
 // Refresh godoc
 // @Summary Delete attributes
-// @Tags Product Management (Attribute)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -600,7 +600,7 @@ func (h *HandlersProductManagement) UpdateAttributes(c echo.Context) error {
 // @Success 200 {object} []responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute/{id} [delete]
-func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
+func (h *HandlersProducts) DeleteAttributes(c echo.Context) error {
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -609,7 +609,7 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	modelAttr := models.ProductAttributes{}
+	modelAttr := models.Attributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
 	attrRepo.ReadByID(&modelAttr, attributeID)
 
@@ -617,17 +617,17 @@ func (h *HandlersProductManagement) DeleteAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute doesn't exists in the product.")
 	}
 
-	attrService := prodattrsvc.NewServiceProductAttribute(h.server.DB)
+	attrService := prodattrsvc.NewServiceAttribute(h.server.DB)
 	attrService.Delete(attributeID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseProductAttribute(c, http.StatusOK, modelAttr)
+	return responses.NewResponseAttribute(c, http.StatusOK, modelAttr)
 }
 
-func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error {
+func (h *HandlersProducts) UpdateAttributeValues(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
-	req := new(requests.RequestProductAttributeValue)
+	req := new(requests.RequestAttributeValue)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -637,7 +637,7 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	modelAttr := models.ProductAttributes{}
+	modelAttr := models.Attributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
 	attrRepo.ReadByID(&modelAttr, attributeID)
 
@@ -645,11 +645,11 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute doesn't exists in the product.")
 	}
 
-	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	valService.Update(attributeID, req)
 
-	modelVals := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	modelVals := make([]models.AttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	valRepo.ReadByID(&modelVals, attributeID)
 	valRepo.ReadByProductID(&modelVals, productID)
 
@@ -659,7 +659,7 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 
 // Refresh godoc
 // @Summary Add attribute value
-// @Tags Product Management (Attribute)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -669,7 +669,7 @@ func (h *HandlersProductManagement) UpdateAttributeValues(c echo.Context) error 
 // @Success 200 {object} []responses.ResponseAttributeValue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute-value/{id} [post]
-func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) error {
+func (h *HandlersProducts) CreateAttributeValueByID(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
 	value := c.QueryParam("value")
@@ -679,13 +679,13 @@ func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) err
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	if err := valService.Create(attributeID, value); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute value doesn't exist.")
 	}
 
-	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	modelValues := make([]models.AttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	valRepo.ReadByProductID(&modelValues, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
@@ -694,7 +694,7 @@ func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) err
 
 // Refresh godoc
 // @Summary Edit attribute value
-// @Tags Product Management (Attribute)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -704,7 +704,7 @@ func (h *HandlersProductManagement) CreateAttributeValueByID(c echo.Context) err
 // @Success 200 {object} []responses.ResponseAttributeValue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute-value/{id} [put]
-func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) error {
+func (h *HandlersProducts) UpdateAttributeValueByID(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeValueID, _ := strconv.ParseUint(c.QueryParam("attribute_value_id"), 10, 64)
 	value := c.QueryParam("value")
@@ -714,13 +714,13 @@ func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) err
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	if err := valService.UpdateByID(attributeValueID, value); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute value doesn't exist.")
 	}
 
-	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	modelValues := make([]models.AttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	valRepo.ReadByProductID(&modelValues, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
@@ -729,7 +729,7 @@ func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) err
 
 // Refresh godoc
 // @Summary Delete attribute value
-// @Tags Product Management (Attribute)
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -738,7 +738,7 @@ func (h *HandlersProductManagement) UpdateAttributeValueByID(c echo.Context) err
 // @Success 200 {object} []responses.ResponseAttributeValue
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/attribute-value/{id} [delete]
-func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) error {
+func (h *HandlersProducts) DeleteAttributeValueByID(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	attributeValueID, _ := strconv.ParseUint(c.QueryParam("attribute_value_id"), 10, 64)
 
@@ -747,13 +747,13 @@ func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) err
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	valService := prodattrvalsvc.NewServiceProductAttributeValue(h.server.DB)
+	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	if err := valService.DeleteByID(attributeValueID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This attribute value doesn't exist.")
 	}
 
-	modelValues := make([]models.ProductAttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryProductAttributeValue(h.server.DB)
+	modelValues := make([]models.AttributeValuesWithDetail, 0)
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	valRepo.ReadByProductID(&modelValues, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
@@ -762,7 +762,7 @@ func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) err
 
 // Refresh godoc
 // @Summary Add shipping data
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -771,7 +771,7 @@ func (h *HandlersProductManagement) DeleteAttributeValueByID(c echo.Context) err
 // @Success 201 {object} responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/shipping/{id} [post]
-func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
+func (h *HandlersProducts) CreateShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestShippingData)
 	if err := c.Bind(req); err != nil {
@@ -799,7 +799,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Edit shipping data
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -808,7 +808,7 @@ func (h *HandlersProductManagement) CreateShippingData(c echo.Context) error {
 // @Success 200 {object} responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/shipping/{id} [put]
-func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
+func (h *HandlersProducts) UpdateShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestShippingData)
 	if err := c.Bind(req); err != nil {
@@ -837,7 +837,7 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete shipping data
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -846,7 +846,7 @@ func (h *HandlersProductManagement) UpdateShippingData(c echo.Context) error {
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Router /store/api/v1/product/shipping/{id} [delete]
-func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
+func (h *HandlersProducts) DeleteShippingData(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 	modelProduct := models.Products{}
@@ -874,7 +874,7 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Create linked product
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -883,7 +883,7 @@ func (h *HandlersProductManagement) DeleteShippingData(c echo.Context) error {
 // @Param is_up_cross query string true "Is Up-Sell or Cross-Sell"
 // @Success 201 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked [post]
-func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
+func (h *HandlersProducts) CreateLinkedProduct(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 	linkID, _ := strconv.ParseUint(c.QueryParam("link_id"), 10, 64)
 	sellType := c.QueryParam("is_up_cross")
@@ -893,7 +893,7 @@ func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	linkService := linksvc.NewServiceLink(h.server.DB)
 	if err := linkService.Create(productID, linkID, utils.SellTypesFromString(sellType)); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -907,14 +907,14 @@ func (h *HandlersProductManagement) CreateLinkedProduct(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read linked products
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
 // @Success 200 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked [get]
-func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
+func (h *HandlersProducts) ReadLinkedProduct(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
 	modelProducts := make([]models.ProductsWithLink, 0)
@@ -926,7 +926,7 @@ func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete linked product
-// @Tags Product Management
+// @Tags Product Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -934,7 +934,7 @@ func (h *HandlersProductManagement) ReadLinkedProduct(c echo.Context) error {
 // @Param product_id query int true "Product ID"
 // @Success 200 {object} responses.ResponseLinkedProducts
 // @Router /store/api/v1/product/linked/{id} [delete]
-func (h *HandlersProductManagement) DeleteLinkedProduct(c echo.Context) error {
+func (h *HandlersProducts) DeleteLinkedProduct(c echo.Context) error {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
 
@@ -943,7 +943,7 @@ func (h *HandlersProductManagement) DeleteLinkedProduct(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	linkService := linksvc.NewServiceProductLinked(h.server.DB)
+	linkService := linksvc.NewServiceLink(h.server.DB)
 	linkService.Delete(id)
 
 	modelProducts := make([]models.ProductsWithLink, 0)

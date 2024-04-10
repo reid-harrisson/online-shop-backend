@@ -5,12 +5,11 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(storeID uint64, templateID uint64, modelTemplate *models.EmailTemplates, req *requests.RequestEmailTemplate) error {
-	if err := service.DB.Where("id = ? And store_id = ?", templateID, storeID).First(modelTemplate).Error; err != nil {
+func (service *Service) Update(templateID uint64, modelTemplate *models.EmailTemplates, req *requests.RequestEmailTemplate) error {
+	if err := service.DB.Where("id = ?", templateID).First(modelTemplate).Error; err != nil {
 		return err
 	}
 
-	modelTemplate.StoreID = storeID
 	modelTemplate.OrderStatus = req.OrderStatus
 	modelTemplate.CompanyName = req.CompanyName
 	modelTemplate.CompanyLink = req.CompanyLink

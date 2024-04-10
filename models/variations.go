@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductVariations struct {
+type Variations struct {
 	gorm.Model
 
 	ProductID       uint64               `gorm:"column:product_id; type:bigint(20) unsigned"`
@@ -21,12 +21,12 @@ type ProductVariations struct {
 	BackOrderStatus utils.SimpleStatuses `gorm:"column:back_order_status; type:tinyint(4)"`
 }
 
-func (ProductVariations) TableName() string {
+func (Variations) TableName() string {
 	return "store_product_variations"
 }
 
-type ProductVariationsWithAttributeValue struct {
-	ProductVariations
+type VariationsWithAttributeValue struct {
+	Variations
 	AttributeValueID uint64 `gomr:"column:attribute_value_id"`
 	AttributeName    string `gorm:"column:attribute_name"`
 	AttributeValue   string `gorm:"column:attribute_value"`

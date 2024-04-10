@@ -5,7 +5,7 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 )
 
-func (service *Service) Create(modelItem *models.CartItems, customerID uint64, modelVar *models.ProductVariations, quantity float64) error {
+func (service *Service) Create(modelItem *models.CartItems, customerID uint64, modelVar *models.Variations, quantity float64) error {
 	modelItem.CustomerID = customerID
 	modelItem.VariationID = uint64(modelVar.ID)
 	modelItem.Quantity += quantity

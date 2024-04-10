@@ -36,7 +36,7 @@ func randomString(length int) string {
 
 // Refresh godoc
 // @Summary Create coupon
-// @Tags Coupon
+// @Tags Coupon Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -70,7 +70,7 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read coupon
-// @Tags Coupon
+// @Tags Coupon Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -90,7 +90,7 @@ func (h *HandlersCoupons) Read(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Update coupon
-// @Tags Coupon
+// @Tags Coupon Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -124,7 +124,7 @@ func (h *HandlersCoupons) Update(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Delete coupon
-// @Tags Coupon
+// @Tags Coupon Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

@@ -21,7 +21,7 @@ func NewHandlersVisitors(server *s.Server) *HandlersVisitors {
 
 // Refresh godoc
 // @Summary Create visitor
-// @Tags Visitor
+// @Tags Visitor Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

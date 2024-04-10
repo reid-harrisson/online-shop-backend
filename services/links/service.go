@@ -6,6 +6,6 @@ type Service struct {
 	DB *gorm.DB
 }
 
-func NewServiceProductLinked(db *gorm.DB) *Service {
+func NewServiceLink(db *gorm.DB) *Service {
 	return &Service{DB: db}
 }

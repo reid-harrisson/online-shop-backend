@@ -6,9 +6,9 @@ import (
 )
 
 func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) {
-	modelDets := []models.ProductVariationDetails{}
+	modelDets := []models.VariationDetails{}
 	for _, attributeValueID := range attributeValueIDs {
-		modelDets = append(modelDets, models.ProductVariationDetails{
+		modelDets = append(modelDets, models.VariationDetails{
 			VariationID:      variationID,
 			AttributeValueID: attributeValueID,
 		})
@@ -16,8 +16,8 @@ func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) {
 	service.DB.Create(&modelDets)
 }
 
-func (service *Service) CreateWithCSV(modelNewDets *[]models.ProductVariationDetails, detMatches []string, detIndices map[string]int) {
-	modelCurDets := []models.ProductVariationDetails{}
+func (service *Service) CreateWithCSV(modelNewDets *[]models.VariationDetails, detMatches []string, detIndices map[string]int) {
+	modelCurDets := []models.VariationDetails{}
 	service.DB.Where("Concat(variation_id,':',attribute_value_id) In (?)", detMatches).Find(&modelCurDets)
 	for _, modelDet := range modelCurDets {
 		match := fmt.Sprintf("%d:%d", modelDet.VariationID, modelDet.AttributeValueID)

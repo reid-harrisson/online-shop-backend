@@ -17,15 +17,15 @@ func NewRepositoryVariation(db *gorm.DB) *RepositoryVariation {
 	return &RepositoryVariation{DB: db}
 }
 
-func (repository *RepositoryVariation) ReadByID(modelVar *models.ProductVariations, variationID uint64) error {
+func (repository *RepositoryVariation) ReadByID(modelVar *models.Variations, variationID uint64) error {
 	return repository.DB.First(modelVar, variationID).Error
 }
 
-func (repository *RepositoryVariation) ReadBySku(modelVar *models.ProductVariations, sku string) {
+func (repository *RepositoryVariation) ReadBySku(modelVar *models.Variations, sku string) {
 	repository.DB.Where("sku = ?", sku).First(modelVar)
 }
 
-func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.ProductVariations, valueIDs []uint64, productID uint64) {
+func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.Variations, valueIDs []uint64, productID uint64) {
 	ids := make([]string, 0)
 	sort.Slice(valueIDs, func(i, j int) bool { return valueIDs[i] > valueIDs[j] })
 	for _, valueID := range valueIDs {
@@ -42,7 +42,7 @@ func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.
 		Scan(modelVar)
 }
 
-func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.ProductVariationsWithAttributeValue, productID uint64) {
+func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.VariationsWithAttributeValue, productID uint64) {
 	repository.DB.Table("store_product_variations As vars").
 		Select(`
 			vars.*,

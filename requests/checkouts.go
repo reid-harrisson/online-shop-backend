@@ -12,7 +12,7 @@ type RequestCheckout struct {
 	CVC               string   `json:"cvc" example:"437"`
 }
 
-func (request RequestCheckout) RequestCheckoutValidate() error {
+func (request RequestCheckout) Validate() error {
 	return validation.ValidateStruct(&request,
 		validation.Field(&request.CardNumber, validation.Required),
 		validation.Field(&request.ExpMonth, validation.Required),

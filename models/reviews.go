@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductReviews struct {
+type Reviews struct {
 	gorm.Model
 
 	ProductID  uint64               `gorm:"column:product_id; type:bigint(20) unsigned"`
@@ -16,6 +16,6 @@ type ProductReviews struct {
 	Status     utils.ReviewStatuses `gorm:"column:status; type:tinyint(4)"`
 }
 
-func (ProductReviews) TableName() string {
+func (Reviews) TableName() string {
 	return "store_product_reviews"
 }

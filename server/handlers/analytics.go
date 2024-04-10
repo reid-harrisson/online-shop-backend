@@ -22,7 +22,7 @@ func NewHandlersAnalytics(server *s.Server) *HandlersAnalytics {
 
 // Refresh godoc
 // @Summary Analyse sales reports by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -53,7 +53,7 @@ func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse revenue
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -84,7 +84,7 @@ func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse average order value (AOV)
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -115,7 +115,7 @@ func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse sales by product
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -146,7 +146,7 @@ func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse sales by category
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -177,7 +177,7 @@ func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer lifetime value (CLV)
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -208,7 +208,7 @@ func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer insights by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -239,7 +239,7 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Read daily stock levels by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -270,7 +270,7 @@ func (h *HandlersAnalytics) ReadStockAnalytic(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse vistors by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -301,7 +301,7 @@ func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse convention rate by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -332,7 +332,7 @@ func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse shopping cart abandonment by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -363,7 +363,7 @@ func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse checkout funnel by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -394,7 +394,7 @@ func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse full funnel by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -425,7 +425,7 @@ func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse product views by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -456,7 +456,7 @@ func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse repeat customer rate by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -487,7 +487,7 @@ func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer churn rate by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -518,7 +518,7 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer churn rate by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -551,7 +551,7 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse order trend by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -582,7 +582,7 @@ func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer data by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -613,7 +613,7 @@ func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse customer customer satisfaction by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -644,7 +644,7 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 
 // Refresh godoc
 // @Summary Analyse page loading time by store
-// @Tags Insights and Analytics
+// @Tags Analytic Actions
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

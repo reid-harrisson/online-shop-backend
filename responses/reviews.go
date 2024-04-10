@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ResponseProductReview struct {
+type ResponseReview struct {
 	ID         uint64 `json:"id"`
 	Comment    string `json:"comment"`
 	CustomerID uint64 `json:"customer_id"`
@@ -14,7 +14,7 @@ type ResponseProductReview struct {
 	Status     string `json:"status"`
 }
 
-func NewResponseReview(c echo.Context, statusCode int, modelReview models.ProductReviews) error {
+func NewResponseReview(c echo.Context, statusCode int, modelReview models.Reviews) error {
 	var status string
 
 	switch modelReview.Status {
@@ -26,7 +26,7 @@ func NewResponseReview(c echo.Context, statusCode int, modelReview models.Produc
 		status = "Blocked"
 	}
 
-	responseReview := ResponseProductReview{
+	responseReview := ResponseReview{
 		ID:         uint64(modelReview.ID),
 		Comment:    modelReview.Comment,
 		CustomerID: modelReview.CustomerID,
@@ -36,8 +36,8 @@ func NewResponseReview(c echo.Context, statusCode int, modelReview models.Produc
 	return Response(c, statusCode, responseReview)
 }
 
-func NewResponseProductReviews(c echo.Context, statusCode int, modelReviews []models.ProductReviews) error {
-	responseReviews := make([]ResponseProductReview, 0)
+func NewResponseReviews(c echo.Context, statusCode int, modelReviews []models.Reviews) error {
+	responseReviews := make([]ResponseReview, 0)
 
 	for _, modelReview := range modelReviews {
 		var status string
@@ -51,7 +51,7 @@ func NewResponseProductReviews(c echo.Context, statusCode int, modelReviews []mo
 			status = "Blocked"
 		}
 
-		responseReviews = append(responseReviews, ResponseProductReview{
+		responseReviews = append(responseReviews, ResponseReview{
 			ID:         uint64(modelReview.ID),
 			Comment:    modelReview.Comment,
 			CustomerID: modelReview.CustomerID,

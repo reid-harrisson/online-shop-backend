@@ -8,7 +8,7 @@ import (
 )
 
 func (service *Service) Create(tag string, modelProduct *models.Products) {
-	modelTag := models.StoreTags{}
+	modelTag := models.Tags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
 	tagRepo.ReadByName(&modelTag, tag, modelProduct.StoreID)
 	if modelTag.ID == 0 {

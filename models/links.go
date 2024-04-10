@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductLinks struct {
+type Links struct {
 	gorm.Model
 
 	ProductID uint64          `gorm:"column:product_id; type:bigint(20) unsigned"`
@@ -19,6 +19,6 @@ type ProductsWithLink struct {
 	IsUpCross utils.SellTypes `gorm:"column:is_up_cross"`
 }
 
-func (ProductLinks) TableName() string {
+func (Links) TableName() string {
 	return "store_product_links"
 }

@@ -10,7 +10,7 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 	status := utils.OrderStatusFromString(orderStatus)
 	service.DB.Where("order_id = ?", orderID).Find(&modelItems)
 
-	modelVars := []models.ProductVariations{}
+	modelVars := []models.Variations{}
 	varIDs := []uint64{}
 	varIndices := map[uint64]int{}
 
