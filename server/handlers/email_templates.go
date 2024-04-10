@@ -31,7 +31,7 @@ func NewHandlersTemplates(server *s.Server) *HandlersTemplates {
 // @Param params body requests.RequestEmailTemplate true "Email Template Data"
 // @Success 200 {object} responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/template [post]
+// @Router /store/api/v1/template [post]
 func (h *HandlersTemplates) CreateTemplate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	req := new(requests.RequestEmailTemplate)
@@ -60,7 +60,7 @@ func (h *HandlersTemplates) CreateTemplate(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/template [get]
+// @Router /store/api/v1/template [get]
 func (h *HandlersTemplates) ReadTemplate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 
@@ -83,7 +83,7 @@ func (h *HandlersTemplates) ReadTemplate(c echo.Context) error {
 // @Param params body requests.RequestEmailTemplate true "Email Template Data"
 // @Success 200 {object} responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/template/{id} [put]
+// @Router /store/api/v1/template/{id} [put]
 func (h *HandlersTemplates) UpdateTemplate(c echo.Context) error {
 	templateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -115,7 +115,7 @@ func (h *HandlersTemplates) UpdateTemplate(c echo.Context) error {
 // @Param id path int true "Template ID"
 // @Success 200 {object} []responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
-// @Router /store/api/v1/store/template/{id} [delete]
+// @Router /store/api/v1/template/{id} [delete]
 func (h *HandlersTemplates) DeleteTemplate(c echo.Context) error {
 	templateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
