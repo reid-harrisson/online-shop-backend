@@ -34,3 +34,11 @@ type ProductCategoriesWithName struct {
 	ProductCategories
 	CategoryName string `gorm:"column:category_name"`
 }
+
+func (model *Categories) AfterDelete(db *gorm.DB) (err error) {
+	var modelCates = []ProductCategories{}
+	db.Where("category_id = ?", model.ID).Find(&modelCates)
+	db.Delete(&modelCates)
+
+	return
+}

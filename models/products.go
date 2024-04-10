@@ -44,3 +44,37 @@ type ProductsApproved struct {
 func (Products) TableName() string {
 	return "store_products"
 }
+
+func (model *Products) AfterDelete(db *gorm.DB) (err error) {
+	var modelAttrs = []Attributes{}
+	db.Where("product_id = ?", model.ID).Find(&modelAttrs)
+	db.Delete(&modelAttrs)
+
+	var modelCates = []ProductCategories{}
+	db.Where("product_id = ?", model.ID).Find(&modelCates)
+	db.Delete(&modelCates)
+
+	var modelLinks = []Links{}
+	db.Where("product_id = ? And link_id = ?", model.ID, model.ID).Find(&modelLinks)
+	db.Delete(&modelLinks)
+
+	var modelChans = []ProductChannels{}
+	db.Where("product_id = ?", model.ID).Find(&modelChans)
+	db.Delete(&modelChans)
+
+	var modelConts = []ProductContents{}
+	db.Where("product_id = ?", model.ID).Find(&modelConts)
+	db.Delete(&modelConts)
+
+	var modelReviews = []Reviews{}
+	db.Where("product_id = ?", model.ID).Find(&modelReviews)
+	db.Delete(&modelReviews)
+
+	var modelTags = []ProductTags{}
+	db.Where("product_id = ?", model.ID).Find(&modelTags)
+	db.Delete(&modelTags)
+
+	db.Where("badge_id = ?", model.ID).Delete("invoice_item")
+
+	return
+}

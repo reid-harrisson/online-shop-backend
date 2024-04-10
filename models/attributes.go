@@ -12,3 +12,11 @@ type Attributes struct {
 func (Attributes) TableName() string {
 	return "store_product_attributes"
 }
+
+func (model *Attributes) AfterDelete(db *gorm.DB) (err error) {
+	var modelVals = []AttributeValues{}
+	db.Where("attribute_id = ?", model.ID).Find(&modelVals)
+	db.Delete(&modelVals)
+
+	return
+}
