@@ -3,11 +3,14 @@ package server
 import (
 	"OnlineStoreBackend/db"
 	"OnlineStoreBackend/pkgs/config"
+	"io"
 	"net/http"
+	"os"
 
 	_ "OnlineStoreBackend/docs"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"gorm.io/gorm"
 )
 
@@ -47,5 +50,13 @@ func NewServer(cfg *config.Config) *Server {
 func (server *Server) Start(addr string) error {
 	serverCrt := "certificate/pockittv.com.crt"
 	serverKey := "certificate/pockittv.com.key"
+
+	if server.Config.Log.Server.Path != "" {
+		logfile, _ := os.OpenFile(server.Config.Log.Server.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		multiWriter := io.MultiWriter(logfile, os.Stdout)
+		server.Echo.Logger.SetOutput(multiWriter)
+		server.Echo.Logger.SetLevel(log.INFO)
+	}
+
 	return server.Echo.StartTLS(":"+addr, serverCrt, serverKey)
 }

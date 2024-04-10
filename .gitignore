@@ -12,3 +12,6 @@ config.yaml
 
 # build
 main.exe
+
+# log
+*.log
