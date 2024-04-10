@@ -21,7 +21,7 @@ type HandlersCheckoutProcess struct {
 	server *s.Server
 }
 
-func NewHandlersCheckoutProcess(server *s.Server) *HandlersCheckoutProcess {
+func NewHandlersCheckout(server *s.Server) *HandlersCheckoutProcess {
 	return &HandlersCheckoutProcess{server: server}
 }
 

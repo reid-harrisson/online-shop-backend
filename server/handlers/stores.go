@@ -21,7 +21,7 @@ type HandlersStoreManagement struct {
 	server *s.Server
 }
 
-func NewHandlersStoreManagement(server *s.Server) *HandlersStoreManagement {
+func NewHandlersStores(server *s.Server) *HandlersStoreManagement {
 	return &HandlersStoreManagement{server: server}
 }
 

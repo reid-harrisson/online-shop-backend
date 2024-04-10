@@ -17,7 +17,7 @@ type HandlersProductReviews struct {
 	server *s.Server
 }
 
-func NewHandlersProductReviews(server *s.Server) *HandlersProductReviews {
+func NewHandlersReviews(server *s.Server) *HandlersProductReviews {
 	return &HandlersProductReviews{server: server}
 }
 

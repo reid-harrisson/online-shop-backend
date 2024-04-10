@@ -47,26 +47,26 @@ func ConfigureRoutes(server *s.Server) {
 	apiV1.Use(middleware.Logger())
 	apiV1.Use(middleware.Recover())
 
-	groupStoreManagement := apiV1.Group("/store")
-	GroupStoreManagement(server, groupStoreManagement)
+	groupStores := apiV1.Group("/store")
+	GroupStores(server, groupStores)
 
-	groupProductManagement := apiV1.Group("/product")
-	GroupProductManagement(server, groupProductManagement)
+	groupProducts := apiV1.Group("/product")
+	GroupProducts(server, groupProducts)
 
-	groupShoppingCart := apiV1.Group("/cart")
-	GroupShoppingCart(server, groupShoppingCart)
+	groupCart := apiV1.Group("/cart")
+	GroupCart(server, groupCart)
 
-	groupProductReviews := apiV1.Group("/review")
-	GroupProductReviews(server, groupProductReviews)
+	groupReviews := apiV1.Group("/review")
+	GroupReviews(server, groupReviews)
 
-	groupOrderManagement := apiV1.Group("/order")
-	GroupOrderManagement(server, groupOrderManagement)
+	groupOrders := apiV1.Group("/order")
+	GroupOrders(server, groupOrders)
 
-	groupInventoryManagement := apiV1.Group("/inventory")
-	GroupInventoryManagement(server, groupInventoryManagement)
+	groupInventory := apiV1.Group("/inventory")
+	GroupInventory(server, groupInventory)
 
-	groupTaxSettings := apiV1.Group("/tax")
-	GroupTaxSettings(server, groupTaxSettings)
+	groupTaxs := apiV1.Group("/tax")
+	GroupTaxs(server, groupTaxs)
 
 	groupShippingOptions := apiV1.Group("/shipping")
 	GroupShippingOptions(server, groupShippingOptions)
@@ -83,17 +83,17 @@ func ConfigureRoutes(server *s.Server) {
 	groupUpload := apiV1.Group("/upload")
 	GroupUpload(server, groupUpload)
 
-	groupCoupon := apiV1.Group("/coupon")
-	GroupCoupon(server, groupCoupon)
+	groupCoupons := apiV1.Group("/coupon")
+	GroupCoupons(server, groupCoupons)
 
 	groupCheckout := apiV1.Group("/checkout")
 	GroupCheckout(server, groupCheckout)
 
-	groupCombo := apiV1.Group("/combo")
-	GroupCombo(server, groupCombo)
+	groupCombos := apiV1.Group("/combo")
+	GroupCombos(server, groupCombos)
 }
 
-func GroupCombo(server *s.Server, e *echo.Group) {
+func GroupCombos(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersCombos(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.GET("", handler.ReadAll, AuthMiddleware(server))
@@ -107,7 +107,7 @@ func GroupCombo(server *s.Server, e *echo.Group) {
 }
 
 func GroupCheckout(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersCheckoutProcess(server)
+	handler := handlers.NewHandlersCheckout(server)
 	e.POST("/address", handler.CreateAddress, AuthMiddleware(server))
 	e.POST("", handler.Read, AuthMiddleware(server))
 	e.POST("/combo", handler.ReadCombo, AuthMiddleware(server))
@@ -116,7 +116,7 @@ func GroupCheckout(server *s.Server, e *echo.Group) {
 	e.PUT("/address/:id", handler.UpdateAddress, AuthMiddleware(server))
 }
 
-func GroupCoupon(server *s.Server, e *echo.Group) {
+func GroupCoupons(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersCoupons(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.GET("", handler.Read, AuthMiddleware(server))
@@ -133,12 +133,7 @@ func GroupAnalytics(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersAnalytics(server)
 	e.GET("/sales-report", handler.ReadSalesReports, AuthMiddleware(server))
 	e.GET("/customer-insight", handler.ReadCustomerInsight, AuthMiddleware(server))
-	e.GET("/stock/daily", handler.ReadStockAnalyticDaily, AuthMiddleware(server))
-	e.GET("/stock/weekly", handler.ReadStockAnalyticWeekly, AuthMiddleware(server))
-	e.GET("/stock/monthly", handler.ReadStockAnalyticMonthly, AuthMiddleware(server))
-	e.GET("/stock/weekday", handler.ReadStockAnalyticWeekDay, AuthMiddleware(server))
-	e.GET("/stock/hour", handler.ReadStockAnalyticHour, AuthMiddleware(server))
-	e.GET("/stock/month", handler.ReadStockAnalyticMonth, AuthMiddleware(server))
+	e.GET("/stock", handler.ReadStockAnalytic, AuthMiddleware(server))
 	e.GET("/visitor", handler.ReadVisitor, AuthMiddleware(server))
 	e.GET("/convention-rate", handler.ReadConventionRate, AuthMiddleware(server))
 	e.GET("/abandonment", handler.ReadShoppingCartAbandonment, AuthMiddleware(server))
@@ -159,8 +154,8 @@ func GroupAnalytics(server *s.Server, e *echo.Group) {
 	e.GET("/sales/clv", handler.ReadCLV, AuthMiddleware(server))
 }
 
-func GroupProductManagement(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersProductManagement(server)
+func GroupProducts(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersProducts(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.POST("/attribute/:id", handler.CreateAttributes, AuthMiddleware(server))
 	e.POST("/shipping/:id", handler.CreateShippingData, AuthMiddleware(server))
@@ -191,8 +186,8 @@ func GroupProductManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/linked/:id", handler.DeleteLinkedProduct, AuthMiddleware(server))
 }
 
-func GroupShoppingCart(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersShoppingCart(server)
+func GroupCart(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersCart(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.GET("", handler.Read, AuthMiddleware(server))
 	e.PUT("/:id", handler.UpdateQuantity, AuthMiddleware(server))
@@ -200,16 +195,16 @@ func GroupShoppingCart(server *s.Server, e *echo.Group) {
 	e.DELETE("", handler.DeleteAll, AuthMiddleware(server))
 }
 
-func GroupProductReviews(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersProductReviews(server)
+func GroupReviews(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersReviews(server)
 	e.POST("", handler.CreateReview, AuthMiddleware(server))
 	e.GET("/publish/:id", handler.ReadPublishedReviews, AuthMiddleware(server))
 	e.GET("/:id", handler.ReadAll, AuthMiddleware(server))
 	e.PUT("/moderate/:id", handler.ModerateReview, AuthMiddleware(server))
 }
 
-func GroupOrderManagement(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersOrderManagement(server)
+func GroupOrders(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersOrders(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.POST("/combo", handler.CreateCombo, AuthMiddleware(server))
 	e.GET("/:id", handler.ReadByID, AuthMiddleware(server))
@@ -219,15 +214,15 @@ func GroupOrderManagement(server *s.Server, e *echo.Group) {
 	e.PUT("/status", handler.UpdateOrderItemStatus, AuthMiddleware(server))
 }
 
-func GroupInventoryManagement(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersInventoryManagement(server)
+func GroupInventory(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersInventory(server)
 	e.GET("/:id", handler.ReadInventory, AuthMiddleware(server))
 	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel, AuthMiddleware(server))
 	e.PUT("/stock-level/:id", handler.UpdateStockLevel, AuthMiddleware(server))
 }
 
-func GroupStoreManagement(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersStoreManagement(server)
+func GroupStores(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersStores(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.POST("/:id/category", handler.CreateCategory, AuthMiddleware(server))
 	e.POST("/:id/tag", handler.CreateTag, AuthMiddleware(server))
@@ -247,8 +242,8 @@ func GroupStoreManagement(server *s.Server, e *echo.Group) {
 	e.DELETE("/:id/template/:template_id", handler.DeleteTemplate, AuthMiddleware(server))
 }
 
-func GroupTaxSettings(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersTaxSettings(server)
+func GroupTaxs(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersTaxs(server)
 	e.GET("", handler.ReadTaxSetting, AuthMiddleware(server))
 }
 
@@ -261,7 +256,7 @@ func GroupShippingOptions(server *s.Server, e *echo.Group) {
 }
 
 func GroupVariations(server *s.Server, e *echo.Group) {
-	handler := handlers.NewHandlersProductVariations(server)
+	handler := handlers.NewHandlersVariations(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.GET("", handler.ReadByAttributeValues)
 	e.GET("/product", handler.ReadByProduct, AuthMiddleware(server))

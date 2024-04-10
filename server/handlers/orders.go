@@ -19,7 +19,7 @@ type HandlersOrderManagement struct {
 	server *s.Server
 }
 
-func NewHandlersOrderManagement(server *s.Server) *HandlersOrderManagement {
+func NewHandlersOrders(server *s.Server) *HandlersOrderManagement {
 	return &HandlersOrderManagement{server: server}
 }
 

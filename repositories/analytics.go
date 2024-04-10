@@ -50,7 +50,7 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 		Scan(modelReport).Error
 }
 
-func (repository *RepositoryAnalytics) ReadStockAnalyticDaily(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
+func (repository *RepositoryAnalytics) ReadStockAnalytic(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.Table("store_stock_tracks As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,

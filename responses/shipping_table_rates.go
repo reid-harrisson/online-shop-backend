@@ -9,5 +9,4 @@ type ResponseTableRate struct {
 	ItemCost    float64 `json:"item_cost"`
 	CostPerKg   float64 `json:"cost_per_kg"`
 	PercentCost float64 `json:"percent_cost"`
-	// ClassName   string  `json:"class_name"`
 }

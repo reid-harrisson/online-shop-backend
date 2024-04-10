@@ -18,7 +18,7 @@ type HandlersShoppingCart struct {
 	server *s.Server
 }
 
-func NewHandlersShoppingCart(server *s.Server) *HandlersShoppingCart {
+func NewHandlersCart(server *s.Server) *HandlersShoppingCart {
 	return &HandlersShoppingCart{server: server}
 }
 

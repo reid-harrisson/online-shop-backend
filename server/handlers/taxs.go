@@ -15,7 +15,7 @@ type HandlersTaxSettings struct {
 	server *s.Server
 }
 
-func NewHandlersTaxSettings(server *s.Server) *HandlersTaxSettings {
+func NewHandlersTaxs(server *s.Server) *HandlersTaxSettings {
 	return &HandlersTaxSettings{server: server}
 }
 

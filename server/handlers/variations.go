@@ -18,7 +18,7 @@ type HandlersProductVariations struct {
 	server *s.Server
 }
 
-func NewHandlersProductVariations(server *s.Server) *HandlersProductVariations {
+func NewHandlersVariations(server *s.Server) *HandlersProductVariations {
 	return &HandlersProductVariations{server: server}
 }
 

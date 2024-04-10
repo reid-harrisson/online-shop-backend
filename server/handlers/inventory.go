@@ -19,7 +19,7 @@ type HandlersInventoryManagement struct {
 	server *s.Server
 }
 
-func NewHandlersInventoryManagement(server *s.Server) *HandlersInventoryManagement {
+func NewHandlersInventory(server *s.Server) *HandlersInventoryManagement {
 	return &HandlersInventoryManagement{server: server}
 }
 
