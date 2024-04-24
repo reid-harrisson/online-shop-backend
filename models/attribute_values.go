@@ -17,3 +17,11 @@ type AttributeValuesWithDetail struct {
 	AttributeValues
 	AttributeName string `gorm:"column:attribute_name"`
 }
+
+func (model *AttributeValues) AfterDelete(db *gorm.DB) (err error) {
+	var modelDets = []VariationDetails{}
+	db.Where("attribute_value_id = ?", model.ID).Find(&modelDets)
+	db.Delete(&modelDets)
+
+	return
+}

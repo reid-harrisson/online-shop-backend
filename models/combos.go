@@ -33,3 +33,11 @@ func (Combos) TableName() string {
 func (ComboItems) TableName() string {
 	return "store_combo_items"
 }
+
+func (model *Combos) AfterDelete(db *gorm.DB) (err error) {
+	var modelItems = []ComboItems{}
+	db.Where("combo_id = ?", model.ID).Find(&modelItems)
+	db.Delete(&modelItems)
+
+	return
+}

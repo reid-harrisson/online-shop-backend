@@ -19,3 +19,11 @@ type Addresses struct {
 func (Addresses) TableName() string {
 	return "store_customer_addresses"
 }
+
+func (model *Addresses) AfterDelete(db *gorm.DB) (err error) {
+	var modelOrders = []Orders{}
+	db.Where("billing_address_id = ? Or shipping_address_id = ?", model.ID, model.ID).Find(&modelOrders)
+	db.Delete(&modelOrders)
+
+	return
+}

@@ -32,3 +32,27 @@ type VariationsWithAttributeValue struct {
 	AttributeValue   string `gorm:"column:attribute_value"`
 	Unit             string `gorm:"column:unit"`
 }
+
+func (model *Variations) AfterDelete(db *gorm.DB) (err error) {
+	var modelCartItems = []CartItems{}
+	db.Where("variation_id = ?", model.ID).Find(&modelCartItems)
+	db.Delete(&modelCartItems)
+
+	var modelComboItems = []ComboItems{}
+	db.Where("variation_id = ?", model.ID).Find(&modelComboItems)
+	db.Delete(&modelComboItems)
+
+	var modelOrderItems = []ComboItems{}
+	db.Where("variation_id = ?", model.ID).Find(&modelOrderItems)
+	db.Delete(&modelOrderItems)
+
+	var modelDets = []VariationDetails{}
+	db.Where("variation_id = ?", model.ID).Find(&modelDets)
+	db.Delete(&modelDets)
+
+	var modelShipData = []ShippingData{}
+	db.Where("variation_id = ?", model.ID).Find(&modelShipData)
+	db.Delete(&modelShipData)
+
+	return
+}
