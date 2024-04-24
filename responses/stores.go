@@ -33,6 +33,14 @@ type ResponseBackOrderStatus struct {
 	BackOrderStatus string `json:"back_order_status"`
 }
 
+type ResponseMinimumStockLevel struct {
+	MinimumStockLevel uint64 `json:"minimum_stock_level"`
+}
+
+type ResponseStockLevel struct {
+	StockLevel float64 `json:"stock_level"`
+}
+
 func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) error {
 	responseStore := ResponseStore{
 		ID:                   uint64(modelStore.ID),
@@ -79,5 +87,17 @@ func NewResponseOutOfStockStatus(c echo.Context, statusCode int, outOfStockStatu
 func NewResponseStockLevelStatus(c echo.Context, statusCode int, stockLevelStatus utils.SimpleStatuses) error {
 	return Response(c, statusCode, ResponseStockLevelStatus{
 		ShowStockLevelStatus: utils.SimpleStatusToString(stockLevelStatus),
+	})
+}
+
+func NewResponseMinimumStockLevel(c echo.Context, statusCode int, minimumStockLevel uint64) error {
+	return Response(c, statusCode, ResponseMinimumStockLevel{
+		MinimumStockLevel: minimumStockLevel,
+	})
+}
+
+func NewResponseStockLevel(c echo.Context, statusCode int, stockLevel float64) error {
+	return Response(c, statusCode, ResponseStockLevel{
+		StockLevel: stockLevel,
 	})
 }

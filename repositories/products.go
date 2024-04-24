@@ -116,3 +116,12 @@ func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products
 		Having("Count(tags.tag_id) = ?", len(tags)).
 		Scan(modelProducts)
 }
+
+func (repository *RepositoryProduct) GetMinimumStockLevel(minimumStockLevel *uint64, productID uint64) error {
+	return repository.DB.Table("store_products").
+		Select("minimum_stock_level").
+		Where("id = ?", productID).
+		Limit(1).
+		Scan(minimumStockLevel).
+		Error
+}
