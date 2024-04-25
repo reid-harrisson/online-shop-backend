@@ -51,7 +51,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	}
 
 	if modelProduct.Status != utils.Approved {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ProductNotApproved)
 	}
 
 	// Read variations by id
@@ -68,7 +68,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		if mapVal[modelVal.AttributeID] == "" {
 			mapVal[modelVal.AttributeID] = modelVal.AttributeValue
 		} else {
-			return responses.ErrorResponse(c, http.StatusBadRequest, "Attribute value's duplicated.")
+			return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicateAttribute)
 		}
 	}
 
@@ -175,6 +175,7 @@ func (h *HandlersCart) UpdateQuantity(c echo.Context) error {
 
 	var modelItem = models.CartItems{}
 
+	// Update quqntity
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	err = cartService.UpdateQuantity(cartID, &modelItem, quantity)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -200,6 +201,7 @@ func (h *HandlersCart) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read cart by id
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	err = cartRepo.ReadByID(&modelItem, cartID)
@@ -207,13 +209,14 @@ func (h *HandlersCart) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Delete cart
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	err = cartService.Delete(cartID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	return responses.MessageResponse(c, http.StatusOK, "This cart item successfullly deleted.")
+	return responses.MessageResponse(c, http.StatusOK, constants.DeleteCart)
 }
 
 // Refresh godoc
@@ -231,6 +234,7 @@ func (h *HandlersCart) DeleteAll(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read cart by customer id
 	modelItems := make([]models.CartItems, 0)
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	err = cartRepo.ReadByCustomerID(&modelItems, customerID)
@@ -238,11 +242,12 @@ func (h *HandlersCart) DeleteAll(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Delete all carts
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	err = cartService.DeleteAll(customerID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	return responses.MessageResponse(c, http.StatusOK, "All cart items successfully deleted.")
+	return responses.MessageResponse(c, http.StatusOK, constants.DeleteAllCart)
 }
