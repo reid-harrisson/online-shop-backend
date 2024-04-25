@@ -21,13 +21,15 @@ func (service *Service) Create(tag string, modelProduct *models.Products) {
 	})
 }
 
-func (service *Service) CreateWithCSV(modelNewTags *[]models.ProductTags, tagMatches []string, tagIndices map[string]int) {
+func (service *Service) CreateWithCSV(modelNewTags *[]models.ProductTags, tagMatches []string, tagIndices map[string]int) error {
 	modelCurTags := []models.ProductTags{}
-	service.DB.Where("Concat(product_id, ':', tag_id) In (?)", tagMatches).Find(&modelCurTags)
+	if err := service.DB.Where("Concat(product_id, ':', tag_id) In (?)", tagMatches).Find(&modelCurTags).Error; err != nil {
+		return err
+	}
 	for _, modelTag := range modelCurTags {
 		match := fmt.Sprintf("%d:%d", modelTag.ProductID, modelTag.TagID)
 		index := tagIndices[match]
 		(*modelNewTags)[index].ID = modelTag.ID
 	}
-	service.DB.Save(modelNewTags)
+	return service.DB.Save(modelNewTags).Error
 }

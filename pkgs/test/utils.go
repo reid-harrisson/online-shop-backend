@@ -208,3 +208,14 @@ func ResetCouponsDB(db *gorm.DB) {
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
+
+func ResetVisitorsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_vistors")
+
+	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (1, NULL, '2024-04-24 20:36:14', '2024-04-24 20:36:17', 1, 1, '111.111.111.111', 1, 1);")
+	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (2, NULL, '2024-04-24 20:36:35', '2024-04-24 20:36:35', 2, 2, '111.111.111.112', 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}

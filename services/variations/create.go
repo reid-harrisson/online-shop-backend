@@ -54,13 +54,15 @@ func (service *Service) Create(modelVar *models.Variations, req *requests.Reques
 	}
 }
 
-func (service *Service) CreateWithCSV(modelNewVars *[]models.Variations, varMatches []string, varIndices map[string]int) {
+func (service *Service) CreateWithCSV(modelNewVars *[]models.Variations, varMatches []string, varIndices map[string]int) error {
 	modelCurVars := []models.Variations{}
-	service.DB.Where("Concat(product_id, ':', sku) In (?)", varMatches).Find(&modelCurVars)
+	if err := service.DB.Where("Concat(product_id, ':', sku) In (?)", varMatches).Find(&modelCurVars).Error; err != nil {
+		return err
+	}
 	for _, modelVar := range modelCurVars {
 		match := fmt.Sprintf("%d:%s", modelVar.ProductID, modelVar.Sku)
 		index := varIndices[match]
 		(*modelNewVars)[index].ID = modelVar.ID
 	}
-	service.DB.Save(modelNewVars)
+	return service.DB.Save(modelNewVars).Error
 }
