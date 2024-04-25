@@ -28,3 +28,11 @@ type ProductTagsWithName struct {
 	ProductTags
 	TagName string `gorm:"column:tag_name"`
 }
+
+func (model *Tags) AfterDelete(db *gorm.DB) (err error) {
+	var modelTags = []ProductTags{}
+	db.Where("tag_id = ?", model.ID).Find(&modelTags)
+	db.Delete(&modelTags)
+
+	return
+}
