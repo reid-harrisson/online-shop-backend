@@ -28,8 +28,11 @@ func SqlErrorHandler(err error) (int, string) {
 			return http.StatusInternalServerError, constants.InternalServerErrorMessage
 		}
 	} else {
-		if err == gorm.ErrEmptySlice {
+		switch err {
+		case gorm.ErrEmptySlice:
 			return http.StatusInternalServerError, constants.InternalServerErrorMessage
+		case gorm.ErrRecordNotFound:
+			return http.StatusNotFound, constants.NotFound
 		}
 	}
 	if err != nil {

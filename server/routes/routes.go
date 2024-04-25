@@ -227,8 +227,10 @@ func GroupOrders(server *s.Server, e *echo.Group) {
 func GroupInventory(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersInventory(server)
 	e.GET("/:id", handler.ReadInventory, AuthMiddleware(server))
-	e.PUT("/min-stock-level/:id", handler.UpdateMinimumStockLevel, AuthMiddleware(server))
-	e.PUT("/stock-level/:id", handler.UpdateStockLevel, AuthMiddleware(server))
+	e.GET("/min-stock-level/:id", handler.GetMinimumStockLevel, AuthMiddleware(server))
+	e.PUT("/min-stock-level/:id", handler.SetMinimumStockLevel, AuthMiddleware(server))
+	e.GET("/stock-level/:id", handler.GetStockLevel, AuthMiddleware(server))
+	e.PUT("/stock-level/:id", handler.SetStockLevel, AuthMiddleware(server))
 }
 
 func GroupStores(server *s.Server, e *echo.Group) {
