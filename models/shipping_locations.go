@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ShippingPlaces struct {
+type ShippingLocations struct {
 	gorm.Model
 
 	ZoneID    uint64 `gorm:"type:bigint(20)"`
@@ -14,6 +14,6 @@ type ShippingPlaces struct {
 	CityID    uint64 `gorm:"type:bigint(20)"`
 }
 
-func (ShippingPlaces) TableName() string {
-	return "store_shipping_places"
+func (ShippingLocations) TableName() string {
+	return "store_shipping_locations"
 }
