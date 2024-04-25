@@ -9,6 +9,7 @@ migration
 
 # Configuration
 config.yaml
+config.test.yaml
 
 # build
 main.exe
