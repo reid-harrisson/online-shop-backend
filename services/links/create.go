@@ -15,13 +15,15 @@ func (service *Service) Create(productID uint64, linkID uint64, isUpCross utils.
 		}).Error
 }
 
-func (service *Service) CreateWithCSV(modelNewLinks *[]models.Links, linkMatches []string, linkIndices map[string]int) {
+func (service *Service) CreateWithCSV(modelNewLinks *[]models.Links, linkMatches []string, linkIndices map[string]int) error {
 	modelCurLinks := []models.Links{}
-	service.DB.Where("Concat(product_id,':',link_id,':',is_up_cross) In (?)", linkMatches).Find(&modelCurLinks)
+	if err := service.DB.Where("Concat(product_id,':',link_id,':',is_up_cross) In (?)", linkMatches).Find(&modelCurLinks).Error; err != nil {
+		return err
+	}
 	for _, modelLink := range modelCurLinks {
 		match := fmt.Sprintf("%d:%d:%d", modelLink.ProductID, modelLink.LinkID, modelLink.IsUpCross)
 		index := linkIndices[match]
 		(*modelNewLinks)[index].ID = modelLink.ID
 	}
-	service.DB.Save(modelNewLinks)
+	return service.DB.Save(modelNewLinks).Error
 }

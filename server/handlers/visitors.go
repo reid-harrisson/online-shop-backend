@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
@@ -28,15 +30,19 @@ func NewHandlersVisitors(server *s.Server) *HandlersVisitors {
 // @Param params body requests.RequestVisitor true "Vistor"
 // @Success 201 {object} responses.ResponseVisitor
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/visit [post]
 func (h *HandlersVisitors) Create(c echo.Context) error {
 	req := new(requests.RequestVisitor)
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelVisitor := models.Visitors{}
 	vistService := vistsvc.NewServiceVisitor(h.server.DB)
-	vistService.Create(&modelVisitor, req)
+	err := vistService.Create(&modelVisitor, req)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 	return responses.NewResponseVisitor(c, http.StatusCreated, modelVisitor)
 }

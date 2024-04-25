@@ -292,4 +292,5 @@ func GroupVariations(server *s.Server, e *echo.Group) {
 func GroupUpload(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersUpload(server)
 	e.POST("/csv", handler.UploadCSV, AuthMiddleware(server))
+	e.GET("/csv", handler.GetTemplate, AuthMiddleware(server))
 }
