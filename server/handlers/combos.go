@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	combsvc "OnlineStoreBackend/services/combos"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -35,19 +37,34 @@ func NewHandlersCombos(server *s.Server) *HandlersCombos {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo [post]
 func (h *HandlersCombos) Create(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-
 	req := new(requests.RequestCombo)
+
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	modelCombo := models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombo = models.Combos{}
+	var modelItems = make([]models.ComboItems, 0)
+
+	// Initialize combo
+	imageUrls, _ := json.Marshal(req.ImageUrls)
+
+	modelCombo.StoreID = storeID
+	modelCombo.DiscountAmount = req.DiscountAmount
+	modelCombo.DiscountType = utils.DiscountTypeFromString(req.DiscountType)
+	modelCombo.ImageUrls = string(imageUrls)
+	modelCombo.Description = req.Description
+	modelCombo.Title = req.Title
+	modelCombo.Status = utils.Draft
+
 	combService := combsvc.NewServiceCombo(h.server.DB)
 	if err := combService.Create(&modelCombo, &modelItems, req, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This store doesn't exist.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.StoreNotFound)
 	}
 
 	return responses.NewResponseCombo(c, http.StatusCreated, modelCombo, modelItems)
@@ -66,7 +83,10 @@ func (h *HandlersCombos) Create(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo [get]
 func (h *HandlersCombos) ReadAll(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCombos := []models.Combos{}
 	modelItems := []models.ComboItems{}
@@ -88,7 +108,10 @@ func (h *HandlersCombos) ReadAll(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/approved [get]
 func (h *HandlersCombos) ReadApproved(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCombos := []models.Combos{}
 	modelItems := []models.ComboItems{}
@@ -110,7 +133,10 @@ func (h *HandlersCombos) ReadApproved(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/publish [get]
 func (h *HandlersCombos) ReadPublished(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCombos := []models.Combos{}
 	modelItems := []models.ComboItems{}
@@ -134,8 +160,14 @@ func (h *HandlersCombos) ReadPublished(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/{id} [put]
 func (h *HandlersCombos) Update(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 	req := new(requests.RequestCombo)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -173,7 +205,10 @@ func (h *HandlersCombos) Update(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/approve/{id} [put]
 func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	status := utils.Draft
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
@@ -204,7 +239,10 @@ func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/reject/{id} [put]
 func (h *HandlersCombos) UpdateReject(c echo.Context) error {
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	status := utils.Draft
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
@@ -235,7 +273,10 @@ func (h *HandlersCombos) UpdateReject(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/publish/{id} [put]
 func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	status := utils.Draft
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
@@ -267,8 +308,14 @@ func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/{id} [delete]
 func (h *HandlersCombos) Delete(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	combService := combsvc.NewServiceCombo(h.server.DB)
 	if err := combService.Delete(storeID, comboID); err != nil {
