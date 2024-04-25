@@ -117,7 +117,7 @@ func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products
 		Scan(modelProducts)
 }
 
-func (repository *RepositoryProduct) GetMinimumStockLevel(minimumStockLevel *uint64, productID uint64) error {
+func (repository *RepositoryProduct) GetMinimumStockLevel(minimumStockLevel *float64, productID uint64) error {
 	return repository.DB.Table("store_products").
 		Select("minimum_stock_level").
 		Where("id = ?", productID).

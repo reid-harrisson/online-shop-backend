@@ -34,7 +34,7 @@ type ResponseBackOrderStatus struct {
 }
 
 type ResponseMinimumStockLevel struct {
-	MinimumStockLevel uint64 `json:"minimum_stock_level"`
+	MinimumStockLevel float64 `json:"minimum_stock_level"`
 }
 
 type ResponseStockLevel struct {
@@ -90,7 +90,7 @@ func NewResponseStockLevelStatus(c echo.Context, statusCode int, stockLevelStatu
 	})
 }
 
-func NewResponseMinimumStockLevel(c echo.Context, statusCode int, minimumStockLevel uint64) error {
+func NewResponseMinimumStockLevel(c echo.Context, statusCode int, minimumStockLevel float64) error {
 	return Response(c, statusCode, ResponseMinimumStockLevel{
 		MinimumStockLevel: minimumStockLevel,
 	})

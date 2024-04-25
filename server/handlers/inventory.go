@@ -62,14 +62,14 @@ func (h *HandlersInventory) ReadInventory(c echo.Context) error {
 // @Success 200 {object} responses.ResponseMinimumStockLevel
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /store/api/v1/inventory/min-stock-level/{id} [put]
+// @Router /store/api/v1/inventory/min-stock-level/{id} [get]
 func (h *HandlersInventory) GetMinimumStockLevel(c echo.Context) error {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	minimumStockLevel := uint64(0)
+	minimumStockLevel := float64(0)
 
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 
