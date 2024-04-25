@@ -9,7 +9,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	prodsvc "OnlineStoreBackend/services/products"
-	stocksvc "OnlineStoreBackend/services/stock_tracks"
+	stocksvc "OnlineStoreBackend/services/stock_trails"
 	prodvarsvc "OnlineStoreBackend/services/variations"
 	"net/http"
 	"strconv"
@@ -180,8 +180,8 @@ func (h *HandlersInventory) SetStockLevel(c echo.Context) error {
 	}
 
 	// Track Stock Level
-	stockService := stocksvc.NewServiceStockTrack(h.server.DB)
-	stockService.Create(models.StockTracks{
+	stockService := stocksvc.NewServiceStockTrail(h.server.DB)
+	stockService.Create(models.StockTrails{
 		ProductID:   modelVar.ProductID,
 		VariationID: variationID,
 		Change:      stockLevel - prevStockLevel,
