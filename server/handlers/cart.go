@@ -42,6 +42,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read product by id
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	err := prodRepo.ReadByID(&modelProduct, req.ProductID)
@@ -53,6 +54,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
 	}
 
+	// Read variations by id
 	modelVar := models.Variations{}
 	modelVals := []models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
@@ -70,18 +72,16 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		}
 	}
 
+	// Read attribute value ids
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByAttributeValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	if modelVar.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
-	}
-
 	variationID := uint64(modelVar.ID)
 
+	// Read cart item by info
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	err = cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
@@ -89,6 +89,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Create cart
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
 	err = cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -113,8 +114,9 @@ func (h *HandlersCart) ReadCount(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	count := int64(0)
+	var count = int64(0)
 
+	// Read item count
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	err = cartRepo.ReadItemCount(&count, customerID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -139,6 +141,7 @@ func (h *HandlersCart) Read(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read cart detail
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	err = cartRepo.ReadDetail(&modelItems, customerID)
@@ -170,22 +173,10 @@ func (h *HandlersCart) UpdateQuantity(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelItem := models.CartItems{}
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	err = cartRepo.ReadByID(&modelItem, cartID)
-	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
-		return responses.ErrorResponse(c, statusCode, message)
-	}
-
-	modelVar := models.Variations{}
-	prodRepo := repositories.NewRepositoryVariation(h.server.DB)
-	err = prodRepo.ReadByID(&modelVar, modelItem.VariationID)
-	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
-		return responses.ErrorResponse(c, statusCode, message)
-	}
+	var modelItem = models.CartItems{}
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	err = cartService.UpdateQuantity(&modelItem, modelVar, quantity)
+	err = cartService.UpdateQuantity(cartID, &modelItem, quantity)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
