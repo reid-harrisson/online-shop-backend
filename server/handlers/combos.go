@@ -3,6 +3,7 @@ package handlers
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/constants"
+	eh "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
@@ -62,9 +63,11 @@ func (h *HandlersCombos) Create(c echo.Context) error {
 	modelCombo.Title = req.Title
 	modelCombo.Status = utils.Draft
 
+	// Create combo
 	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.Create(&modelCombo, &modelItems, req, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.StoreNotFound)
+	err = combService.Create(&modelCombo, &modelItems, req, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseCombo(c, http.StatusCreated, modelCombo, modelItems)
@@ -90,8 +93,14 @@ func (h *HandlersCombos) ReadAll(c echo.Context) error {
 
 	modelCombos := []models.Combos{}
 	modelItems := []models.ComboItems{}
+
+	// Read all combos
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadByStoreID(&modelCombos, &modelItems, storeID)
+	err = combRepo.ReadByStoreID(&modelCombos, &modelItems, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCombos(c, http.StatusOK, modelCombos, modelItems)
 }
 
@@ -115,8 +124,14 @@ func (h *HandlersCombos) ReadApproved(c echo.Context) error {
 
 	modelCombos := []models.Combos{}
 	modelItems := []models.ComboItems{}
+
+	// Read approved combo
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadApproved(&modelCombos, &modelItems, storeID)
+	err = combRepo.ReadApproved(&modelCombos, &modelItems, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCombos(c, http.StatusOK, modelCombos, modelItems)
 }
 
@@ -140,8 +155,14 @@ func (h *HandlersCombos) ReadPublished(c echo.Context) error {
 
 	modelCombos := []models.Combos{}
 	modelItems := []models.ComboItems{}
+
+	// Read published combo
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadPublished(&modelCombos, &modelItems, storeID)
+	err = combRepo.ReadPublished(&modelCombos, &modelItems, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCombos(c, http.StatusOK, modelCombos, modelItems)
 }
 
@@ -160,6 +181,8 @@ func (h *HandlersCombos) ReadPublished(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/{id} [put]
 func (h *HandlersCombos) Update(c echo.Context) error {
+	req := new(requests.RequestCombo)
+
 	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
@@ -168,25 +191,31 @@ func (h *HandlersCombos) Update(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
-	req := new(requests.RequestCombo)
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
+
 	if status == utils.Pending {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo is in pending status.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboPending)
 	}
 
 	modelCombo := models.Combos{}
 	modelItems := []models.ComboItems{}
+
+	// Update combo
 	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.Update(&modelCombo, &modelItems, req, storeID, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
+	err = combService.Update(&modelCombo, &modelItems, req, storeID, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseCombo(c, http.StatusOK, modelCombo, modelItems)
@@ -211,19 +240,26 @@ func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
 	}
 
 	status := utils.Draft
+
+	// Read stqtus
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
-	}
-	if status != utils.Pending {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo isn't published.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.UpdateStatus(utils.Approved, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	if status != utils.Pending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboNotPublished)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "This combo is successfully approved.")
+
+	// Update status
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.UpdateStatus(utils.Approved, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboApproved)
 }
 
 // Refresh godoc
@@ -245,19 +281,26 @@ func (h *HandlersCombos) UpdateReject(c echo.Context) error {
 	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
-	}
-	if status != utils.Pending {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo isn't published.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.UpdateStatus(utils.Rejected, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	if status != utils.Pending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboNotPublished)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "This combo is rejected.")
+
+	// Update status
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.UpdateStatus(utils.Rejected, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboRejected)
 }
 
 // Refresh godoc
@@ -279,19 +322,26 @@ func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
 	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
-	}
-	if status != utils.Draft {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo isn't changed.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.UpdateStatus(utils.Pending, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	if status != utils.Draft {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboNotChanged)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "This combo is successfully published.")
+
+	// Update status
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.UpdateStatus(utils.Pending, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboPublished)
 }
 
 // Refresh godoc
@@ -317,10 +367,12 @@ func (h *HandlersCombos) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Delete combo
 	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.Delete(storeID, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
+	err = combService.Delete(storeID, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	return responses.MessageResponse(c, http.StatusOK, "Combo succesfully deleted.")
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboDeleted)
 }
