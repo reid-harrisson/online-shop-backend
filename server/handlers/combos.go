@@ -91,8 +91,8 @@ func (h *HandlersCombos) ReadAll(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelCombos := []models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombos = []models.Combos{}
+	var modelItems = []models.ComboItems{}
 
 	// Read all combos
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
@@ -122,8 +122,8 @@ func (h *HandlersCombos) ReadApproved(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelCombos := []models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombos = []models.Combos{}
+	var modelItems = []models.ComboItems{}
 
 	// Read approved combo
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
@@ -153,8 +153,8 @@ func (h *HandlersCombos) ReadPublished(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelCombos := []models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombos = []models.Combos{}
+	var modelItems = []models.ComboItems{}
 
 	// Read published combo
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
@@ -209,7 +209,7 @@ func (h *HandlersCombos) Update(c echo.Context) error {
 	}
 
 	modelCombo := models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelItems = []models.ComboItems{}
 
 	// Update combo
 	combService := combsvc.NewServiceCombo(h.server.DB)
@@ -241,7 +241,7 @@ func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
 
 	status := utils.Draft
 
-	// Read stqtus
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
 	err = combRepo.ReadStatus(&status, comboID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
