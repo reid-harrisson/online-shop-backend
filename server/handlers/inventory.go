@@ -181,12 +181,15 @@ func (h *HandlersInventory) SetStockLevel(c echo.Context) error {
 
 	// Track Stock Level
 	stockService := stocksvc.NewServiceStockTrail(h.server.DB)
-	stockService.Create(models.StockTrails{
+	err = stockService.Create(&models.StockTrails{
 		ProductID:   modelVar.ProductID,
 		VariationID: variationID,
 		Change:      stockLevel - prevStockLevel,
 		Event:       utils.ProductWarhousing,
 	})
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseVariation(c, http.StatusOK, modelVar)
 }
