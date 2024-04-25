@@ -14,27 +14,28 @@ func NewRepositoryCart(db *gorm.DB) *RepositoryCart {
 	return &RepositoryCart{DB: db}
 }
 
-func (repository *RepositoryCart) ReadByID(modelItem *models.CartItems, cartID uint64) {
-	repository.DB.First(modelItem, cartID)
+func (repository *RepositoryCart) ReadByID(modelItem *models.CartItems, cartID uint64) error {
+	return repository.DB.First(modelItem, cartID).Error
 }
 
-func (repository *RepositoryCart) ReadByInfo(modelItem *models.CartItems, variationID uint64, customerID uint64) {
-	repository.DB.Where("customer_id = ? And variation_id = ?", customerID, variationID).First(modelItem)
+func (repository *RepositoryCart) ReadByInfo(modelItem *models.CartItems, variationID uint64, customerID uint64) error {
+	return repository.DB.Where("customer_id = ? And variation_id = ?", customerID, variationID).First(modelItem).Error
 }
 
-func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItems, customerID uint64) {
-	repository.DB.Where("customer_id = ?", customerID).Find(modelItems)
+func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItems, customerID uint64) error {
+	return repository.DB.Where("customer_id = ?", customerID).Find(modelItems).Error
 }
 
-func (repository *RepositoryCart) ReadItemCount(count *int64, customerID uint64) {
-	repository.DB.
+func (repository *RepositoryCart) ReadItemCount(count *int64, customerID uint64) error {
+	return repository.DB.
 		Model(models.CartItems{}).
 		Count(count).
-		Where("customer_id = ?", customerID)
+		Where("customer_id = ?", customerID).
+		Error
 }
 
-func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {
-	repository.DB.
+func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) error {
+	return repository.DB.
 		Table("store_cart_items As carts").
 		Select(`carts.*,
 			prods.store_id,
@@ -61,5 +62,6 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 			And cates.deleted_at Is Null
 			And ships.deleted_at Is Null
 			And prodcates.deleted_at Is Null`, customerID).
-		Scan(modelItems)
+		Scan(modelItems).
+		Error
 }
