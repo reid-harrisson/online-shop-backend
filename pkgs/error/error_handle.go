@@ -1,7 +1,7 @@
 package errhandle
 
 import (
-	"PockitFusion/pkgs/constants"
+	"OnlineStoreBackend/pkgs/constants"
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
