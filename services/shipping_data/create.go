@@ -11,18 +11,21 @@ func (service *Service) Create(variationID uint64, req *requests.RequestShipping
 	modelShip.Height = req.Height
 	modelShip.Length = req.Length
 	modelShip.VariationID = variationID
-	service.DB.Create(&modelShip)
-	return nil
+
+	return service.DB.Create(&modelShip).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewShips *[]models.ShippingData, shipVarIDs []uint64, shipIndices map[uint64]int) error {
 	modelCurShips := []models.ShippingData{}
+
 	if err := service.DB.Where("variation_id In (?)", shipVarIDs).Find(&modelCurShips).Error; err != nil {
 		return err
 	}
+
 	for _, modelShip := range modelCurShips {
 		index := shipIndices[modelShip.VariationID]
 		(*modelNewShips)[index].ID = modelShip.ID
 	}
+
 	return service.DB.Save(modelNewShips).Error
 }
