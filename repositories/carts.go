@@ -15,15 +15,23 @@ func NewRepositoryCart(db *gorm.DB) *RepositoryCart {
 }
 
 func (repository *RepositoryCart) ReadByID(modelItem *models.CartItems, cartID uint64) error {
-	return repository.DB.First(modelItem, cartID).Error
+	return repository.DB.
+		First(modelItem, cartID).
+		Error
 }
 
 func (repository *RepositoryCart) ReadByInfo(modelItem *models.CartItems, variationID uint64, customerID uint64) error {
-	return repository.DB.Where("customer_id = ? And variation_id = ?", customerID, variationID).First(modelItem).Error
+	return repository.DB.
+		Where("customer_id = ? AND variation_id = ?", customerID, variationID).
+		First(modelItem).
+		Error
 }
 
 func (repository *RepositoryCart) ReadByCustomerID(modelItems *[]models.CartItems, customerID uint64) error {
-	return repository.DB.Where("customer_id = ?", customerID).Find(modelItems).Error
+	return repository.DB.
+		Where("customer_id = ?", customerID).
+		Find(modelItems).
+		Error
 }
 
 func (repository *RepositoryCart) ReadItemCount(count *int64, customerID uint64) error {
@@ -57,11 +65,11 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 		Joins("Left Join store_shipping_data As ships On ships.variation_id = vars.id").
 		Group("carts.id").
 		Where(`carts.customer_id = ?
-			And carts.deleted_at Is Null
-			And prods.deleted_at Is Null
-			And cates.deleted_at Is Null
-			And ships.deleted_at Is Null
-			And prodcates.deleted_at Is Null`, customerID).
+			AND carts.deleted_at Is Null
+			AND prods.deleted_at Is Null
+			AND cates.deleted_at Is Null
+			AND ships.deleted_at Is Null
+			AND prodcates.deleted_at Is Null`, customerID).
 		Scan(modelItems).
 		Error
 }
