@@ -22,10 +22,10 @@ func (repository *RepositoryAddresses) ReadAddressByCustomerID(modelAddr *models
 	return repository.DB.Where("customer_id = ? And active = 1", customerID).First(modelAddr).Error
 }
 
-func (repository *RepositoryAddresses) ReadAddressByID(modelAddr *models.Addresses, addressID uint64) {
-	repository.DB.First(modelAddr, addressID)
+func (repository *RepositoryAddresses) ReadAddressByID(modelAddr *models.Addresses, addressID uint64) error {
+	return repository.DB.First(modelAddr, addressID).Error
 }
 
-func (repository *RepositoryAddresses) ReadByID(modelAddr *models.Addresses, addressID uint64, customerID uint64) {
-	repository.DB.Where("id = ? And customer_id = ?", addressID, customerID).First(modelAddr)
+func (repository *RepositoryAddresses) ReadByID(modelAddr *models.Addresses, addressID uint64, customerID uint64) error {
+	return repository.DB.Where("id = ? And customer_id = ?", addressID, customerID).First(modelAddr).Error
 }

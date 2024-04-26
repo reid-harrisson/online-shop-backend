@@ -46,7 +46,7 @@ func (h *HandlersCombos) Create(c echo.Context) error {
 	}
 
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	var modelCombo = models.Combos{}
@@ -187,12 +187,14 @@ func (h *HandlersCombos) Update(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	status := utils.Draft
@@ -362,6 +364,7 @@ func (h *HandlersCombos) Delete(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
