@@ -14,13 +14,14 @@ func NewRepositoryCategory(db *gorm.DB) *RepositoryCategory {
 	return &RepositoryCategory{DB: db}
 }
 
-func (repository *RepositoryCategory) ReadByProductID(modelCategories *[]models.ProductCategoriesWithName, productID uint64) {
-	repository.DB.Table("store_product_categories As prodcates").
+func (repository *RepositoryCategory) ReadByProductID(modelCategories *[]models.ProductCategoriesWithName, productID uint64) error {
+	return repository.DB.Table("store_product_categories As prodcates").
 		Select("prodcates.*, cates.name As category_name").
 		Joins("Join store_categories As cates On cates.id = prodcates.category_id").
 		Where("cates.deleted_at Is Null And prodcates.deleted_at Is Null").
 		Where("prodcates.product_id = ?", productID).
-		Scan(modelCategories)
+		Scan(modelCategories).
+		Error
 }
 
 func (repository *RepositoryCategory) ReadByName(modelCategory *models.Categories, name string, storeID uint64) {

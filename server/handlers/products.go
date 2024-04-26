@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
@@ -61,25 +63,40 @@ func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) 
 // @Param params body requests.RequestProductWithDetail true "Product Info"
 // @Success 201 {object} responses.ResponseProductWithDetail
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/product [post]
 func (h *HandlersProducts) Create(c echo.Context) error {
 	req := new(requests.RequestProductWithDetail)
 
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err := c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	err = req.Validate()
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelProduct := models.ProductsWithDetail{}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	prodService.Create(&modelProduct.Products, req)
+	err = prodService.Create(&modelProduct.Products, req)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadDetail(&modelProduct, uint64(modelProduct.ID))
+	err = prodRepo.ReadDetail(&modelProduct, uint64(modelProduct.ID))
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
-	prodService.UpdateStatus(uint64(modelProduct.ID), utils.Draft)
+	err = prodService.UpdateStatus(uint64(modelProduct.ID), utils.Draft)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseProductWithDetail(c, http.StatusCreated, modelProduct)
 }
 

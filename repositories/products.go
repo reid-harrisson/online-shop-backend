@@ -28,26 +28,49 @@ func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.
 		Scan(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) {
-	repository.ReadByID(&modelDetail.Products, productID)
+func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) error {
+	err := repository.ReadByID(&modelDetail.Products, productID)
+	if err != nil {
+		return err
+	}
 
 	cateRepo := NewRepositoryCategory(repository.DB)
-	cateRepo.ReadByProductID(&modelDetail.Categories, productID)
+	err = cateRepo.ReadByProductID(&modelDetail.Categories, productID)
+	if err != nil {
+		return err
+	}
 
 	attrRepo := NewRepositoryAttribute(repository.DB)
-	attrRepo.ReadByProductID(&modelDetail.Attributes, productID)
+	err = attrRepo.ReadByProductID(&modelDetail.Attributes, productID)
+	if err != nil {
+		return err
+	}
 
 	tagRepo := NewRepositoryTag(repository.DB)
-	tagRepo.ReadByProductID(&modelDetail.Tags, productID)
+	err = tagRepo.ReadByProductID(&modelDetail.Tags, productID)
+	if err != nil {
+		return err
+	}
 
 	chanRepo := NewRepositoryProductChannel(repository.DB)
-	chanRepo.ReadByProductID(&modelDetail.RelatedChannels, productID)
+	err = chanRepo.ReadByProductID(&modelDetail.RelatedChannels, productID)
+	if err != nil {
+		return err
+	}
 
 	contRepo := NewRepositoryProductContent(repository.DB)
-	contRepo.ReadByProductID(&modelDetail.RelatedContents, productID)
+	err = contRepo.ReadByProductID(&modelDetail.RelatedContents, productID)
+	if err != nil {
+		return err
+	}
 
 	attrValRepo := NewRepositoryAttributeValue(repository.DB)
-	attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
+	err = attrValRepo.ReadByProductID(&modelDetail.AttributeValues, productID)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page int, count int, storeID uint64, keyword string, totalCount *int64) error {

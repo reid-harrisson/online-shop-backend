@@ -31,7 +31,10 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)
-	service.DB.Create(modelProduct)
+	err := service.DB.Create(modelProduct).Error
+	if err != nil {
+		return err
+	}
 
 	productID := uint64(modelProduct.ID)
 
