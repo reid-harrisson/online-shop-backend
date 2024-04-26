@@ -33,8 +33,8 @@ func (repository *RepositoryCart) ReadItemCount(count *int64, customerID uint64)
 		Where("customer_id = ?", customerID)
 }
 
-func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) {
-	repository.DB.
+func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithDetail, customerID uint64) error {
+	return repository.DB.
 		Table("store_cart_items As carts").
 		Select(`carts.*,
 			prods.store_id,
@@ -61,5 +61,6 @@ func (repository *RepositoryCart) ReadDetail(modelItems *[]models.CartItemsWithD
 			And cates.deleted_at Is Null
 			And ships.deleted_at Is Null
 			And prodcates.deleted_at Is Null`, customerID).
-		Scan(modelItems)
+		Scan(modelItems).
+		Error
 }

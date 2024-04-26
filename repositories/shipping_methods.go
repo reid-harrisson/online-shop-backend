@@ -50,11 +50,19 @@ func (repository *RepositoryShippingMethod) ReadRates(modelRates *[]models.Shipp
 func (repository *RepositoryShippingMethod) ReadMethodAndTableRatesByStoreIDs(mapRates *map[uint64][]models.ShippingTableRates, mapMeth *map[uint64]models.ShippingMethods, storeIDs []uint64) error {
 	modelMeths := []models.ShippingMethods{}
 	modelRates := []models.ShippingTableRates{}
-	repository.DB.Where("store_id In (?)", storeIDs).Find(&modelMeths)
-	repository.DB.Table("store_shipping_table_rates As tables").
+	err := repository.DB.Where("store_id In (?)", storeIDs).Find(&modelMeths).Error
+	if err != nil {
+		return err
+	}
+
+	err = repository.DB.Table("store_shipping_table_rates As tables").
 		Joins("Join store_shipping_methods As methods On methods.id = tables.method_id").
 		Where("methods.store_id In (?) And tables.deleted_at Is Null And methods.deleted_at Is Null", storeIDs).
-		Find(&modelRates)
+		Find(&modelRates).Error
+	if err != nil {
+		return err
+	}
+
 	for _, modelMeth := range modelMeths {
 		(*mapMeth)[modelMeth.StoreID] = modelMeth
 	}
