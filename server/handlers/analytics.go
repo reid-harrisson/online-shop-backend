@@ -31,6 +31,8 @@ func NewHandlersAnalytics(server *s.Server) *HandlersAnalytics {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseSalesReport
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/sales-report [get]
 func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -62,6 +64,8 @@ func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesRevenue
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/revenue [get]
 func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -93,6 +97,8 @@ func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesAOV
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/aov [get]
 func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -124,6 +130,8 @@ func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesByProduct
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/product [get]
 func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -155,6 +163,8 @@ func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesByCategory
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/category [get]
 func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -186,6 +196,8 @@ func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseSalesCLV
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/sales/clv [get]
 func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -217,6 +229,8 @@ func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseCustomerInsight
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/customer-insight [get]
 func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -248,6 +262,8 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseStockAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/stock [get]
 func (h *HandlersAnalytics) ReadStockAnalytic(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -279,6 +295,8 @@ func (h *HandlersAnalytics) ReadStockAnalytic(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseVisitorAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/visitor [get]
 func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -310,6 +328,8 @@ func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseConventionRate
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/convention-rate [get]
 func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -341,6 +361,8 @@ func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseShoppingCartAbandonment
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/abandonment [get]
 func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -372,6 +394,8 @@ func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseCheckoutFunnelAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/checkout-funnel [get]
 func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -403,6 +427,8 @@ func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseFullFunnelAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/full-funnel [get]
 func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -434,6 +460,8 @@ func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseProductViewAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/product-view [get]
 func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -465,6 +493,8 @@ func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseRepeatCustomerRate
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/repeat-rate [get]
 func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -496,6 +526,8 @@ func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} responses.ResponseVisitorAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/churn-rate [get]
 func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -528,6 +560,8 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 // @Param count query int true "Count"
 // @Success 200 {object} []responses.ResponseTopSellingProduct
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/top-selling [get]
 func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -560,6 +594,8 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseOrderTrendAnalytic
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/order-trend [get]
 func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -591,6 +627,8 @@ func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseCustomerDataByLocation
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/customer-location [get]
 func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -622,6 +660,8 @@ func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponseCustomerSatisfaction
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/satisfaction [get]
 func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
@@ -653,6 +693,8 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 // @Param end_date query string false "End Date"
 // @Success 200 {object} []responses.ResponsePageLoadingTime
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/analytic/loading-time [get]
 func (h *HandlersAnalytics) ReadPageLoadingTime(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
