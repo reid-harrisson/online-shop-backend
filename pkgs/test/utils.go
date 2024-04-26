@@ -60,8 +60,8 @@ func ResetStoresDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table stores")
 
-	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (1, NULL, '2024-04-08 09:57:59', '2024-04-08 09:58:51', 1, 1, '+27.79.326.7663', 'steve@pockittv.com', 0, 0, '', '', '', 'Steve');")
-	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (2, NULL, '2024-04-08 09:58:05', '2024-04-08 09:58:59', 2, 2, '0824721073', 'jade@pockittv.com', 0, 0, '', '', '', 'Tade');")
+	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (1, NULL, '2024-04-08 09:57:59', '2024-04-08 09:58:51', 1, 1, '+27793267663', 'steve@pockittv.com', 0, 0, '', '', '', 'Steve');")
+	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (2, NULL, '2024-04-08 09:58:05', '2024-04-08 09:58:59', 2, 2, '+0824721073', 'jade@pockittv.com', 0, 0, '', '', '', 'Tade');")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
