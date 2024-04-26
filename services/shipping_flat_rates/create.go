@@ -8,6 +8,7 @@ import (
 func (service *Service) Create(methodID uint64, req []requests.RequestFlatRate, modelRates *[]models.ShippingFlatRates) error {
 	classIDs := []uint64{}
 	indices := map[uint64]int{}
+
 	for index, rate := range req {
 		if indices[rate.ClassID] == 0 {
 			*modelRates = append(*modelRates, models.ShippingFlatRates{
@@ -19,17 +20,26 @@ func (service *Service) Create(methodID uint64, req []requests.RequestFlatRate, 
 				MinFee:      rate.MinFee,
 				MaxFee:      rate.MaxFee,
 			})
+
 			classIDs = append(classIDs, rate.ClassID)
 			indices[rate.ClassID] = index + 1
 		}
 	}
 
 	modelNewRates := []models.ShippingFlatRates{}
-	service.DB.Where("class_id In (?) And method_id = ?", classIDs, methodID).Find(&modelNewRates)
-	service.DB.Where("class_id Not In (?) And method_id = ?", classIDs, methodID).Delete(&models.ShippingFlatRates{})
+
+	if err := service.DB.Where("class_id In (?) And method_id = ?", classIDs, methodID).Find(&modelNewRates).Error; err != nil {
+		return err
+	}
+
+	if err := service.DB.Where("class_id Not In (?) And method_id = ?", classIDs, methodID).Delete(&models.ShippingFlatRates{}).Error; err != nil {
+		return err
+	}
+
 	for _, modelRate := range modelNewRates {
 		index := indices[modelRate.ClassID] - 1
 		(*modelRates)[index].ID = modelRate.ID
 	}
+
 	return service.DB.Save(&modelRates).Error
 }
