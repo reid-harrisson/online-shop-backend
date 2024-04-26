@@ -18,19 +18,27 @@ func NewRepositoryVariation(db *gorm.DB) *RepositoryVariation {
 }
 
 func (repository *RepositoryVariation) ReadByID(modelVar *models.Variations, variationID uint64) error {
-	return repository.DB.First(modelVar, variationID).Error
+	return repository.DB.
+		Where("id = ?", variationID).
+		First(modelVar).
+		Error
 }
 
 func (repository *RepositoryVariation) ReadBySku(modelVar *models.Variations, sku string) error {
-	return repository.DB.Where("sku = ?", sku).First(modelVar).Error
+	return repository.DB.
+		Where("sku = ?", sku).
+		First(modelVar).
+		Error
 }
 
 func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.Variations, valueIDs []uint64, productID uint64) error {
 	ids := make([]string, 0)
 	sort.Slice(valueIDs, func(i, j int) bool { return valueIDs[i] > valueIDs[j] })
+
 	for _, valueID := range valueIDs {
 		ids = append(ids, strconv.FormatUint(uint64(valueID), 10))
 	}
+
 	temp := strings.Join(ids, ",")
 
 	return repository.DB.
