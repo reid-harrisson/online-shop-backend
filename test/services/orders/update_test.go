@@ -11,25 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	readItems = []models.OrderItems{
-		{
-			OrderID:          1,
-			StoreID:          1,
-			VariationID:      1,
-			Price:            1,
-			Quantity:         1,
-			SubTotalPrice:    1,
-			TaxRate:          1,
-			TaxAmount:        1,
-			ShippingMethodID: 1,
-			ShippingPrice:    1,
-			TotalPrice:       1,
-			Status:           1,
-		},
-	}
-)
-
 func TestUpdateStatus(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
 
