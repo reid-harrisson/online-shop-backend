@@ -14,6 +14,9 @@ func NewRepositoryShippingData(db *gorm.DB) *RepositoryShippingData {
 	return &RepositoryShippingData{DB: db}
 }
 
-func (repository *RepositoryShippingData) ReadByVariationID(modelShip *models.ShippingData, variationID uint64) {
-	repository.DB.Where("variation_id = ?", variationID).First(modelShip)
+func (repository *RepositoryShippingData) ReadByVariationID(modelShip *models.ShippingData, variationID uint64) error {
+	return repository.DB.
+		Where("variation_id = ?", variationID).
+		First(modelShip).
+		Error
 }
