@@ -46,13 +46,16 @@ func (h *HandlersAnalytics) ReadSalesReports(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -92,13 +95,16 @@ func (h *HandlersAnalytics) ReadRevenue(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -138,13 +144,16 @@ func (h *HandlersAnalytics) ReadAOV(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -184,13 +193,16 @@ func (h *HandlersAnalytics) ReadSalesByProduct(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -230,13 +242,16 @@ func (h *HandlersAnalytics) ReadSalesByCategory(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -276,13 +291,16 @@ func (h *HandlersAnalytics) ReadCLV(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -322,13 +340,16 @@ func (h *HandlersAnalytics) ReadCustomerInsight(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -367,13 +388,16 @@ func (h *HandlersAnalytics) ReadStockAnalytic(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -413,13 +437,16 @@ func (h *HandlersAnalytics) ReadVisitor(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -459,13 +486,16 @@ func (h *HandlersAnalytics) ReadConventionRate(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -505,13 +535,16 @@ func (h *HandlersAnalytics) ReadShoppingCartAbandonment(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -551,13 +584,16 @@ func (h *HandlersAnalytics) ReadCheckoutFunnelAnalytics(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -597,13 +633,16 @@ func (h *HandlersAnalytics) ReadFullFunnelAnalytics(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -643,13 +682,16 @@ func (h *HandlersAnalytics) ReadProductViewAnalytics(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -689,13 +731,16 @@ func (h *HandlersAnalytics) ReadRepeatCustomerRate(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -735,13 +780,16 @@ func (h *HandlersAnalytics) ReadCustomerChurnRate(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -786,13 +834,16 @@ func (h *HandlersAnalytics) ReadTopSellingProducts(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -832,13 +883,16 @@ func (h *HandlersAnalytics) ReadOrderTrendAnalytics(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -878,13 +932,16 @@ func (h *HandlersAnalytics) ReadCustomerDataByLocation(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -924,13 +981,16 @@ func (h *HandlersAnalytics) ReadCustomerSatisfaction(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
@@ -970,13 +1030,16 @@ func (h *HandlersAnalytics) ReadPageLoadingTime(c echo.Context) error {
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	endDate, err := time.Parse(constants.DateLayout, c.QueryParam("end_date"))
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
+
 	if c.QueryParam("start_date") == "" {
 		startDate = time.Time{}
 	}
+
 	if c.QueryParam("end_date") == "" {
 		endDate = time.Now()
 	}
