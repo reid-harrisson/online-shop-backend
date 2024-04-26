@@ -9,17 +9,19 @@ import (
 )
 
 func (service *Service) Create(storeID uint64, modelMethod *models.ShippingMethods) error {
-	err := service.DB.Where("store_id = ?", storeID).First(modelMethod).Error
-	if err != nil {
+	if err := service.DB.Where("store_id = ?", storeID).First(modelMethod).Error; err != nil {
 		modelMethod.StoreID = storeID
 		modelMethod.Method = utils.TableRate
+
 		return service.DB.Create(modelMethod).Error
 	}
+
 	return nil
 }
 
 func (service *Service) CreateShippingLocalPickup(storeID uint64, req *requests.RequestShippingLocalPickup, modelMethod *models.ShippingMethods) error {
 	err := service.DB.Where("title = ?", req.Title).First(modelMethod).Error
+
 	modelMethod.Method = utils.PickUp
 	modelMethod.StoreID = storeID
 	modelMethod.ZoneID = req.ZoneID
@@ -27,14 +29,17 @@ func (service *Service) CreateShippingLocalPickup(storeID uint64, req *requests.
 	modelMethod.Cost = req.Cost
 	modelMethod.Title = req.Title
 	modelMethod.Description = req.Description
+
 	if err != nil {
 		return service.DB.Create(modelMethod).Error
 	}
+
 	return service.DB.Save(modelMethod).Error
 }
 
 func (service *Service) CreateShippingFree(storeID uint64, req *requests.RequestShippingFree, modelMethod *models.ShippingMethods) error {
 	err := service.DB.Where("title = ?", req.Title).First(modelMethod).Error
+
 	modelMethod.Method = utils.FreeShipping
 	modelMethod.StoreID = storeID
 	modelMethod.ZoneID = req.ZoneID
@@ -42,14 +47,17 @@ func (service *Service) CreateShippingFree(storeID uint64, req *requests.Request
 	modelMethod.Title = req.Title
 	modelMethod.Description = req.Description
 	modelMethod.MinimumOrderAmount = req.MinimumOrderAmount
+
 	if err != nil {
 		return service.DB.Create(modelMethod).Error
 	}
+
 	return service.DB.Save(modelMethod).Error
 }
 
 func (service *Service) CreateShippingFlatRate(storeID uint64, req *requests.RequestShippingFlatRate, modelMethod *models.ShippingMethods, modelRates *[]models.ShippingFlatRates) error {
 	err := service.DB.Where("title = ?", req.Title).First(modelMethod).Error
+
 	modelMethod.Method = utils.FlatRate
 	modelMethod.StoreID = storeID
 	modelMethod.ZoneID = req.ZoneID
@@ -57,18 +65,26 @@ func (service *Service) CreateShippingFlatRate(storeID uint64, req *requests.Req
 	modelMethod.Cost = req.Cost
 	modelMethod.Title = req.Title
 	modelMethod.Description = req.Description
+
 	if err != nil {
 		return service.DB.Create(modelMethod).Error
 	}
+
 	if err := service.DB.Save(modelMethod).Error; err != nil {
 		return err
 	}
+
 	flatService := flatsvc.NewServiceShippingFlatRate(service.DB)
-	return flatService.Create(uint64(modelMethod.ID), req.Rates, modelRates)
+	if err := flatService.Create(uint64(modelMethod.ID), req.Rates, modelRates); err != nil {
+		return err
+	}
+
+	return err
 }
 
 func (service *Service) CreateShippingTableRate(storeID uint64, req *requests.RequestShippingTableRate, modelMethod *models.ShippingMethods, modelRates *[]models.ShippingTableRates) error {
 	err := service.DB.Where("title = ?", req.Title).First(modelMethod).Error
+
 	modelMethod.Method = utils.TableRate
 	modelMethod.StoreID = storeID
 	modelMethod.ZoneID = req.ZoneID
@@ -84,12 +100,18 @@ func (service *Service) CreateShippingTableRate(storeID uint64, req *requests.Re
 	modelMethod.TaxInMinMax = req.TaxInMinMax
 	modelMethod.Title = req.Title
 	modelMethod.Description = req.Description
+
 	if err != nil {
 		return service.DB.Create(modelMethod).Error
 	}
 	if err := service.DB.Save(modelMethod).Error; err != nil {
 		return err
 	}
+
 	tableService := tablesvc.NewServiceShippingTableRate(service.DB)
-	return tableService.CreateMany(uint64(modelMethod.ID), req.Rates, modelRates)
+	if err := tableService.CreateMany(uint64(modelMethod.ID), req.Rates, modelRates); err != nil {
+		return err
+	}
+
+	return nil
 }
