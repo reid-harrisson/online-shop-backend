@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	eh "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -44,12 +46,18 @@ func randomString(length int) string {
 // @Param params body requests.RequestCoupon true "Coupon"
 // @Success 201 {object} responses.ResponseCoupon
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/coupon [post]
 func (h *HandlersCoupons) Create(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	req := new(requests.RequestCoupon)
+
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	if req.CouponCode == "" {
@@ -58,12 +66,16 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code already exist.")
+	err = couRepo.ReadByCode(&modelCoupon, req.CouponCode)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	couService := cousvc.NewServiceCoupon(h.server.DB)
-	couService.Create(&modelCoupon, req, storeID)
+	err = couService.Create(&modelCoupon, req, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseCoupon(c, http.StatusCreated, modelCoupon)
 }
@@ -77,13 +89,21 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseCoupon
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/coupon [get]
 func (h *HandlersCoupons) Read(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	couRepo.ReadByStoreID(&modelCoupons, storeID)
+	err = couRepo.ReadByStoreID(&modelCoupons, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseCoupons(c, http.StatusOK, modelCoupons)
 }
@@ -98,25 +118,36 @@ func (h *HandlersCoupons) Read(c echo.Context) error {
 // @Param params body requests.RequestCoupon true "Coupon"
 // @Success 200 {object} responses.ResponseCoupon
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/coupon/{id} [put]
 func (h *HandlersCoupons) Update(c echo.Context) error {
-	couponID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestCoupon)
+
+	couponID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
+
 	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon doesn't exist.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponNotFound)
 	}
+
 	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon code already exist.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponDuplicated)
 	}
+
 	couService := cousvc.NewServiceCoupon(h.server.DB)
-	if err := couService.Update(&modelCoupon, req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Fail to delete coupon.")
+	err = couService.Update(&modelCoupon, req)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseCoupon(c, http.StatusOK, modelCoupon)
@@ -131,19 +162,26 @@ func (h *HandlersCoupons) Update(c echo.Context) error {
 // @Param id path int true "Coupon ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/coupon/{id} [delete]
 func (h *HandlersCoupons) Delete(c echo.Context) error {
-	couponID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	couponID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This coupon doesn't exist.")
-	}
-	couService := cousvc.NewServiceCoupon(h.server.DB)
-	if err := couService.Delete(couponID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Fail to delete coupon.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponNotFound)
 	}
 
-	return responses.MessageResponse(c, http.StatusOK, "Coupon successfully deleted.")
+	couService := cousvc.NewServiceCoupon(h.server.DB)
+	err = couService.Delete(couponID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.CouponDeleted)
 }
