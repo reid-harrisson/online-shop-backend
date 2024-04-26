@@ -104,6 +104,7 @@ func (service *Service) CreateShippingTableRate(storeID uint64, req *requests.Re
 	if err != nil {
 		return service.DB.Create(modelMethod).Error
 	}
+
 	if err := service.DB.Save(modelMethod).Error; err != nil {
 		return err
 	}
