@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	eh "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -32,22 +34,35 @@ func NewHandlersShippingOptions(server *s.Server) *HandlersShippingOptions {
 // @Param params body requests.RequestTableRate true "Class Info"
 // @Success 201 {object} responses.ResponseShippingTableRate
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/shipping/rate [post]
 func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	req := new(requests.RequestTableRate)
+
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelMethod := models.ShippingMethods{}
 	modelRate := models.ShippingTableRates{}
+
 	methService := methsvc.NewServiceShippingMethod(h.server.DB)
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
-	methService.Create(storeID, &modelMethod)
-	if err := tableService.Create(uint64(modelMethod.ID), req, &modelRate); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This condition already exist.")
+	err = methService.Create(storeID, &modelMethod)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
+
+	err = tableService.Create(uint64(modelMethod.ID), req, &modelRate)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseTableRate(c, http.StatusCreated, modelRate)
 }
 
@@ -60,12 +75,23 @@ func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseTableRate
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/shipping/rate [get]
 func (h *HandlersShippingOptions) ReadShippingRate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	modelRates := []models.ShippingTableRates{}
+
 	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
-	methRepo.ReadRates(&modelRates, storeID)
+	err = methRepo.ReadRates(&modelRates, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseTableRates(c, http.StatusOK, modelRates)
 }
 
@@ -79,19 +105,29 @@ func (h *HandlersShippingOptions) ReadShippingRate(c echo.Context) error {
 // @Param params body requests.RequestTableRate true "Class Info"
 // @Success 201 {object} responses.ResponseShippingTableRate
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/shipping/rate/{id} [put]
 func (h *HandlersShippingOptions) UpdateShippingRate(c echo.Context) error {
-	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestTableRate)
+
+	methodID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelRate := models.ShippingTableRates{}
+
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
-	if err := tableService.Update(methodID, req, &modelRate); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Failed to update shipping rate.")
+	err = tableService.Update(methodID, req, &modelRate)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
+
 	return responses.NewResponseTableRate(c, http.StatusOK, modelRate)
 }
 
@@ -104,13 +140,20 @@ func (h *HandlersShippingOptions) UpdateShippingRate(c echo.Context) error {
 // @Param id path int true "Rate ID"
 // @Success 201 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/shipping/rate/{id} [delete]
 func (h *HandlersShippingOptions) DeleteShippingRate(c echo.Context) error {
-	methodID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	methodID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
-	if err := tableService.Delete(methodID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Failed to delete rate.")
+	err = tableService.Delete(methodID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "Shipping rate successfullly deleted.")
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ShippingRateDeleted)
 }
