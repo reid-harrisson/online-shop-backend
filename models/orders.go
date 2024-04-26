@@ -87,3 +87,11 @@ func (Orders) TableName() string {
 func (OrderItems) TableName() string {
 	return "store_order_items"
 }
+
+func (model *Orders) AfterDelete(db *gorm.DB) (err error) {
+	var modelItems = []OrderItems{}
+	db.Where("order_id = ?", model.ID).Find(&modelItems)
+	db.Delete(&modelItems)
+
+	return
+}

@@ -22,6 +22,8 @@ func SqlErrorHandler(err error) (int, string) {
 			return http.StatusBadRequest, constants.InvalidData
 		case constants.ErrInvalidField:
 			return http.StatusInternalServerError, constants.InternalServerErrorMessage
+		case constants.ErrRecordNotFound:
+			return http.StatusNotFound, constants.NotFound
 		case constants.ErrMissingWhereClause:
 			return http.StatusInternalServerError, constants.InternalServerErrorMessage
 		}

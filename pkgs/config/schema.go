@@ -11,7 +11,7 @@ type Config struct {
 	Audit    AuditConfig    `koanf:"audit_config"`
 	Services ServicesConfig `koanf:"services_config"`
 
-	Log Log `koanf:"log"`
+	Log Log `koanf:"log_config"`
 }
 
 type Log struct {
@@ -19,6 +19,8 @@ type Log struct {
 
 	File    FileLog    `koanf:"file"`
 	Console ConsoleLog `koanf:"console"`
+	Server  FileLog    `koanf:"server"`
+	DB      FileLog    `koanf:"db"`
 }
 
 type FileLog struct {

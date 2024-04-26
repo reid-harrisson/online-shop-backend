@@ -54,7 +54,7 @@ func (service *Service) UpdateBackOrder(modelVar *models.Variations) {
 	service.DB.Save(modelVar)
 }
 
-func (service *Service) UpdateStockLevel(modelVar *models.Variations, stockLevel float64) {
+func (service *Service) UpdateStockLevel(modelVar *models.Variations, stockLevel float64) error {
 	modelVar.StockLevel = stockLevel
-	service.DB.Save(modelVar)
+	return service.DB.Save(modelVar).Error
 }

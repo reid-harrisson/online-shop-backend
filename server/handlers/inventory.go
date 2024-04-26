@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	prodsvc "OnlineStoreBackend/services/products"
-	stocksvc "OnlineStoreBackend/services/stock_tracks"
+	stocksvc "OnlineStoreBackend/services/stock_trails"
 	prodvarsvc "OnlineStoreBackend/services/variations"
 	"net/http"
 	"strconv"
@@ -32,15 +34,51 @@ func NewHandlersInventory(server *s.Server) *HandlersInventory {
 // @Param id path int true "Store ID"
 // @Success 200 {object} responses.ResponseInventory
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/inventory/{id} [get]
 func (h *HandlersInventory) ReadInventory(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelInventories := []models.Inventories{}
 	invenRepo := repositories.NewRepositoryInventory(h.server.DB)
-	invenRepo.ReadInventories(&modelInventories, storeID)
+	err = invenRepo.ReadInventories(&modelInventories, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseInventory(c, http.StatusBadRequest, modelInventories)
+}
+
+// Refresh godoc
+// @Summary Get minimum stock level of product
+// @Tags Inventory Actions
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Product ID"
+// @Success 200 {object} responses.ResponseMinimumStockLevel
+// @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
+// @Router /store/api/v1/inventory/min-stock-level/{id} [get]
+func (h *HandlersInventory) GetMinimumStockLevel(c echo.Context) error {
+	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	minimumStockLevel := float64(0)
+
+	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
+
+	err = prodRepo.GetMinimumStockLevel(&minimumStockLevel, productID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.NewResponseMinimumStockLevel(c, http.StatusOK, minimumStockLevel)
 }
 
 // Refresh godoc
@@ -51,23 +89,56 @@ func (h *HandlersInventory) ReadInventory(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Param minimum_stock_level query string true "Minimum Stock Level"
-// @Success 200 {object} responses.ResponseProduct
+// @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/inventory/min-stock-level/{id} [put]
-func (h *HandlersInventory) UpdateMinimumStockLevel(c echo.Context) error {
-	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	minimumStockLevel, _ := strconv.ParseFloat(c.QueryParam("minimum_stock_level"), 64)
+func (h *HandlersInventory) SetMinimumStockLevel(c echo.Context) error {
+	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
-	modelProduct := models.Products{}
-	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
+	minimumStockLevel, err := strconv.ParseFloat(c.QueryParam("minimum_stock_level"), 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	if err := prodService.UpdateMinimumStockLevel(productID, minimumStockLevel); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = prodService.UpdateMinimumStockLevel(productID, minimumStockLevel)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
-	modelProduct.MinimumStockLevel = minimumStockLevel
-	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
+
+	return responses.MessageResponse(c, http.StatusOK, "Successfully set minimum stock level!")
+}
+
+// Refresh godoc
+// @Summary Get stock level of variation
+// @Tags Inventory Actions
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "Variation ID"
+// @Param stock_level query string true "Stock Level"
+// @Success 200 {object} responses.Data
+// @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
+// @Router /store/api/v1/inventory/stock-level/{id} [get]
+func (h *HandlersInventory) GetStockLevel(c echo.Context) error {
+	variationID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	modelVar := models.Variations{}
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	err = varRepo.ReadByID(&modelVar, variationID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.NewResponseStockLevel(c, http.StatusOK, modelVar.StockLevel)
 }
 
 // Refresh godoc
@@ -80,34 +151,45 @@ func (h *HandlersInventory) UpdateMinimumStockLevel(c echo.Context) error {
 // @Param stock_level query string true "Stock Level"
 // @Success 200 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/inventory/stock-level/{id} [put]
-func (h *HandlersInventory) UpdateStockLevel(c echo.Context) error {
-	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	stockLevel, _ := strconv.ParseFloat(c.QueryParam("stock_level"), 64)
+func (h *HandlersInventory) SetStockLevel(c echo.Context) error {
+	variationID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
-	prevStockLevel := 0.0
+	stockLevel, err := strconv.ParseFloat(c.QueryParam("stock_level"), 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByID(&modelVar, variationID)
-
-	prevStockLevel = modelVar.StockLevel
-
-	if modelVar.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusNotFound, "No record found")
+	err = varRepo.ReadByID(&modelVar, variationID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	prevStockLevel := modelVar.StockLevel
+
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
-	varService.UpdateStockLevel(&modelVar, stockLevel)
+	err = varService.UpdateStockLevel(&modelVar, stockLevel)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	// Track Stock Level
-	stockService := stocksvc.NewServiceStockTrack(h.server.DB)
-	stockService.Create(models.StockTracks{
+	stockService := stocksvc.NewServiceStockTrail(h.server.DB)
+	err = stockService.Create(&models.StockTrails{
 		ProductID:   modelVar.ProductID,
 		VariationID: variationID,
 		Change:      stockLevel - prevStockLevel,
 		Event:       utils.ProductWarhousing,
 	})
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseVariation(c, http.StatusOK, modelVar)
 }

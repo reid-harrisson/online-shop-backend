@@ -24,7 +24,7 @@ func NewHealthHandler(server *s.Server) *HealthHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} responses.Data
-// @Router /store/health [get]
+// @Router /store/api/v1/health [get]
 func (healthHandler *HealthHandler) HealthCheck(c echo.Context) error {
 	return responses.MessageResponse(c, http.StatusOK, "Server is running!")
 }

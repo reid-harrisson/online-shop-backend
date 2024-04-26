@@ -24,10 +24,10 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone
 	zoneID := uint64(modelZone.ID)
 	places := []string{}
 	indices := map[string]int{}
-	modelPlaces := []models.ShippingPlaces{}
+	modelPlaces := []models.ShippingLocations{}
 	for index, place := range req.Places {
 		if indices[place] == 0 {
-			modelPlaces = append(modelPlaces, models.ShippingPlaces{
+			modelPlaces = append(modelPlaces, models.ShippingLocations{
 				ZoneID: zoneID,
 				Name:   place,
 			})
@@ -36,9 +36,9 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone
 		}
 	}
 
-	modelNewPlaces := []models.ShippingPlaces{}
+	modelNewPlaces := []models.ShippingLocations{}
 	service.DB.Where("zone_id = ? And name In (?)", zoneID, places).Find(&modelNewPlaces)
-	service.DB.Where("zone_id = ? And name Not In (?)", zoneID, places).Delete(&models.ShippingPlaces{})
+	service.DB.Where("zone_id = ? And name Not In (?)", zoneID, places).Delete(&models.ShippingLocations{})
 	for _, modelPlace := range modelNewPlaces {
 		index := indices[modelPlace.Name] - 1
 		(modelPlaces)[index].ID = modelPlace.ID

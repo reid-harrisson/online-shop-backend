@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
@@ -36,12 +38,12 @@ func NewHandlersUpload(server *s.Server) *HandlersUpload {
 	return &HandlersUpload{server: server}
 }
 
-func readCSV(file *multipart.File, modelCsvs *[]models.CSVs) {
+func readCSV(file *multipart.File, modelCsvs *[]models.CSVs) error {
 	reader := csv.NewReader(*file)
 
 	header, err := reader.Read()
 	if err != nil {
-		return
+		return err
 	}
 
 	for {
@@ -60,6 +62,7 @@ func readCSV(file *multipart.File, modelCsvs *[]models.CSVs) {
 			}
 		}
 	}
+	return nil
 }
 
 // @Summary Upload a CSV file
@@ -67,25 +70,34 @@ func readCSV(file *multipart.File, modelCsvs *[]models.CSVs) {
 // @Tags Upload Actions
 // @Accept multipart/form-data
 // @Produce json
+// @Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
 // @Param file formData file true "CSV file to upload"
-// @Success 200 {string} string "File uploaded successfully"
+// @Success 201 {object} []responses.ResponseProduct
+// @Success 400 {object} responses.Error
+// @Success 500 {object} responses.Error
 // @Router /store/api/v1/upload/csv [post]
 func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	userID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if userID == 0 || err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	file, err := c.FormFile("file")
 	if err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 	defer src.Close()
 
 	modelCsvs := make([]models.CSVs, 0)
-	readCSV(&src, &modelCsvs)
+	if err := readCSV(&src, &modelCsvs); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	// Category Informations
 	cateNames := []string{}
@@ -408,10 +420,16 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.CreateWithCSV(&modelCategories, cateNames, cateParents, cateIndices)
+	err = cateService.CreateWithCSV(&modelCategories, cateNames, cateParents, cateIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.CreateWithCSV(&modelTags, tagNames, tagIndices)
+	err = tagService.CreateWithCSV(&modelTags, tagNames, tagIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index := range modelProducts {
 		sku := modelProducts[index].Sku
@@ -424,7 +442,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
-	prodService.CreateWithCSV(&modelProducts, prodSkus, prodIndices)
+	err = prodService.CreateWithCSV(&modelProducts, prodSkus, prodIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	attrIndices = map[string]int{}
 	for index, match := range attrMatches {
@@ -439,7 +460,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	attrService := prodattrsvc.NewServiceAttribute(h.server.DB)
-	attrService.CreateWithCSV(&modelAttrs, attrMatches, attrIndices)
+	err = attrService.CreateWithCSV(&modelAttrs, attrMatches, attrIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index, match := range prodCateMatches {
 		prodIndex := 0
@@ -455,7 +479,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	prodCateService := prodcatesvc.NewServiceProductCategory(h.server.DB)
-	prodCateService.CreateWithCSV(&modelProdCates, prodCateMatches, prodCateIndices)
+	err = prodCateService.CreateWithCSV(&modelProdCates, prodCateMatches, prodCateIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index, match := range prodTagMatches {
 		prodIndex := 0
@@ -471,7 +498,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	prodTagService := prodtagsvc.NewServiceProductTag(h.server.DB)
-	prodTagService.CreateWithCSV(&modelProdTags, prodTagMatches, prodTagIndices)
+	err = prodTagService.CreateWithCSV(&modelProdTags, prodTagMatches, prodTagIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index, match := range valMatches {
 		name := ""
@@ -485,7 +515,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
-	valService.CreateWithCSV(&modelVals, valMatches, valIndices)
+	err = valService.CreateWithCSV(&modelVals, valMatches, valIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index, match := range varMatches {
 		sku := ""
@@ -502,7 +535,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
-	varService.CreateWithCSV(&modelVars, varMatches, varIndices)
+	err = varService.CreateWithCSV(&modelVars, varMatches, varIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index := range modelShips {
 		varIndex := modelShips[index].VariationID
@@ -513,7 +549,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	shipService := shipsvc.NewServiceShippingData(h.server.DB)
-	shipService.CreateWithCSV(&modelShips, shipVarIDs, shipIndices)
+	err = shipService.CreateWithCSV(&modelShips, shipVarIDs, shipIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index, match := range detMatches {
 		varIndex := 0
@@ -529,7 +568,10 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	detService := prodvardetsvc.NewServiceVariationDetail(h.server.DB)
-	detService.CreateWithCSV(&modelDets, detMatches, detIndices)
+	err = detService.CreateWithCSV(&modelDets, detMatches, detIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	for index, match := range linkMatches {
 		prodIndex := 0
@@ -546,7 +588,22 @@ func (h *HandlersUpload) UploadCSV(c echo.Context) error {
 	}
 
 	linkService := linksvc.NewServiceLink(h.server.DB)
-	linkService.CreateWithCSV(&modelLinks, linkMatches, linkIndices)
+	err = linkService.CreateWithCSV(&modelLinks, linkMatches, linkIndices)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
-	return responses.NewResponseProducts(c, http.StatusOK, modelProducts)
+	return responses.NewResponseProducts(c, http.StatusCreated, modelProducts)
+}
+
+// @Summary Get template of CSV file
+// @Description Get template of CSV file
+// @Tags Upload Actions
+// @Accept multipart/form-data
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} responses.Data
+// @Router /store/api/v1/upload/csv [get]
+func (h *HandlersUpload) GetTemplate(c echo.Context) error {
+	return responses.Response(c, http.StatusOK, []models.CSVs{{}})
 }

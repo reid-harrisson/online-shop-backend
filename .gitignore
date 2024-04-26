@@ -13,3 +13,6 @@ config.test.yaml
 
 # build
 main.exe
+
+# log
+*.log

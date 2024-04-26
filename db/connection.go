@@ -3,6 +3,9 @@ package db
 import (
 	"OnlineStoreBackend/pkgs/config"
 	"fmt"
+	"io"
+	"log"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,8 +22,27 @@ func Init(cfg *config.Config) *gorm.DB {
 
 	fmt.Println(dataSourceName)
 
+	var multipleWriter io.Writer
+	if cfg.Log.DB.Path != "" {
+		// Open a log file
+		logFile, err := os.OpenFile(cfg.Log.DB.Path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Write log both in file and console
+		multipleWriter = io.MultiWriter(logFile, os.Stdout)
+	} else {
+		// Write log in console
+		multipleWriter = io.MultiWriter(os.Stdout)
+	}
+
+	multipleLog := log.New(multipleWriter, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Error),
+		Logger: logger.New(multipleLog, logger.Config{
+			LogLevel: logger.Info,
+		}),
 	})
 	if err != nil {
 		panic(err.Error())

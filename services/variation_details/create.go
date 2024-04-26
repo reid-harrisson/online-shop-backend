@@ -16,13 +16,15 @@ func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) {
 	service.DB.Create(&modelDets)
 }
 
-func (service *Service) CreateWithCSV(modelNewDets *[]models.VariationDetails, detMatches []string, detIndices map[string]int) {
+func (service *Service) CreateWithCSV(modelNewDets *[]models.VariationDetails, detMatches []string, detIndices map[string]int) error {
 	modelCurDets := []models.VariationDetails{}
-	service.DB.Where("Concat(variation_id,':',attribute_value_id) In (?)", detMatches).Find(&modelCurDets)
+	if err := service.DB.Where("Concat(variation_id,':',attribute_value_id) In (?)", detMatches).Find(&modelCurDets).Error; err != nil {
+		return err
+	}
 	for _, modelDet := range modelCurDets {
 		match := fmt.Sprintf("%d:%d", modelDet.VariationID, modelDet.AttributeValueID)
 		index := detIndices[match]
 		(*modelNewDets)[index].ID = modelDet.ID
 	}
-	service.DB.Save(modelNewDets)
+	return service.DB.Save(modelNewDets).Error
 }

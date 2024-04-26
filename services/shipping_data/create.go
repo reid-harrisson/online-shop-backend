@@ -15,12 +15,14 @@ func (service *Service) Create(variationID uint64, req *requests.RequestShipping
 	return nil
 }
 
-func (service *Service) CreateWithCSV(modelNewShips *[]models.ShippingData, shipVarIDs []uint64, shipIndices map[uint64]int) {
+func (service *Service) CreateWithCSV(modelNewShips *[]models.ShippingData, shipVarIDs []uint64, shipIndices map[uint64]int) error {
 	modelCurShips := []models.ShippingData{}
-	service.DB.Where("variation_id In (?)", shipVarIDs).Find(&modelCurShips)
+	if err := service.DB.Where("variation_id In (?)", shipVarIDs).Find(&modelCurShips).Error; err != nil {
+		return err
+	}
 	for _, modelShip := range modelCurShips {
 		index := shipIndices[modelShip.VariationID]
 		(*modelNewShips)[index].ID = modelShip.ID
 	}
-	service.DB.Save(modelNewShips)
+	return service.DB.Save(modelNewShips).Error
 }

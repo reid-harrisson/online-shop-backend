@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type StockTracks struct {
+type StockTrails struct {
 	gorm.Model
 
 	ProductID   uint64            `gorm:"column:product_id; type:bigint(20) unsigned"`
@@ -15,6 +15,6 @@ type StockTracks struct {
 	Event       utils.TrackEvents `gorm:"column:event; type:tinyint(4)"`
 }
 
-func (StockTracks) TableName() string {
-	return "store_stock_tracks"
+func (StockTrails) TableName() string {
+	return "store_stock_trails"
 }

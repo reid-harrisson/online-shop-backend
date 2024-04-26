@@ -73,12 +73,14 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	return nil
 }
 
-func (service *Service) CreateWithCSV(modelNewProds *[]models.Products, prodSkus []string, prodIndices map[string]int) {
+func (service *Service) CreateWithCSV(modelNewProds *[]models.Products, prodSkus []string, prodIndices map[string]int) error {
 	modelCurProds := []models.Products{}
-	service.DB.Where("sku In (?)", prodSkus).Find(&modelCurProds)
+	if err := service.DB.Where("sku In (?)", prodSkus).Find(&modelCurProds).Error; err != nil {
+		return err
+	}
 	for _, modelProd := range modelCurProds {
 		index := prodIndices[modelProd.Sku] - 1
 		(*modelNewProds)[index].ID = modelProd.ID
 	}
-	service.DB.Save(modelNewProds)
+	return service.DB.Save(modelNewProds).Error
 }
