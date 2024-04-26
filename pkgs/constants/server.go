@@ -5,4 +5,5 @@ var (
 	InvalidData                = "Invalid Data"
 	NotFound                   = "No Data"
 	HealthCheck                = "Server is running!"
+	DateLayout                 = "2006-01-02"
 )
