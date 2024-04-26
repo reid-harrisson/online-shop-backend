@@ -32,6 +32,7 @@ func NewHandlersVariations(server *s.Server) *HandlersVariations {
 // @Param params body requests.RequestVariation true "Variation Info"
 // @Success 201 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/variation [post]
 func (h *HandlersVariations) Create(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
@@ -58,6 +59,8 @@ func (h *HandlersVariations) Create(c echo.Context) error {
 // @Param attribute_value_ids query string true "Attribute Value IDs"
 // @Success 200 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/variation [get]
 func (h *HandlersVariations) ReadByAttributeValues(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
@@ -85,6 +88,8 @@ func (h *HandlersVariations) ReadByAttributeValues(c echo.Context) error {
 // @Param product_id query int true "Product ID"
 // @Success 200 {object} []responses.ResponseVariationsInProduct
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/variation/product [get]
 func (h *HandlersVariations) ReadByProduct(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.QueryParam("product_id"), 10, 64)
@@ -105,6 +110,8 @@ func (h *HandlersVariations) ReadByProduct(c echo.Context) error {
 // @Param id path int true "Variation ID"
 // @Success 200 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/variation/back-order/{id} [put]
 func (h *HandlersVariations) UpdateBackOrder(c echo.Context) error {
 	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -132,6 +139,8 @@ func (h *HandlersVariations) UpdateBackOrder(c echo.Context) error {
 // @Param params body requests.RequestVariation true "Variation Info"
 // @Success 200 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/variation/{id} [put]
 func (h *HandlersVariations) Update(c echo.Context) error {
 	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -165,6 +174,8 @@ func (h *HandlersVariations) Update(c echo.Context) error {
 // @Param id path int true "Variation ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/variation/{id} [delete]
 func (h *HandlersVariations) Delete(c echo.Context) error {
 	variationID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
