@@ -50,6 +50,7 @@ func (h *HandlersCheckout) CreateAddress(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Create address
 	modelAddr := models.Addresses{}
 	addrService := addrsvc.NewServiceAddress(h.server.DB)
 	err = addrService.Create(&modelAddr, req, customerID)
@@ -77,6 +78,7 @@ func (h *HandlersCheckout) ReadAddresses(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read address by customer id
 	modelAddrs := make([]models.Addresses, 0)
 	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
 	err = addrRepo.ReadAddressesByCustomerID(&modelAddrs, customerID)
@@ -103,6 +105,8 @@ func (h *HandlersCheckout) ReadCoupon(c echo.Context) error {
 	code := c.QueryParam("code")
 
 	modelCoupon := models.Coupons{}
+
+	// Read by code
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	err := couRepo.ReadByCode(&modelCoupon, code)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
@@ -138,6 +142,8 @@ func (h *HandlersCheckout) UpdateAddress(c echo.Context) error {
 	}
 
 	modelAddr := models.Addresses{}
+
+	// Update address
 	addrService := addrsvc.NewServiceAddress(h.server.DB)
 	err = addrService.Update(&modelAddr, req, addressID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
@@ -168,6 +174,7 @@ func (h *HandlersCheckout) Read(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read detailed cart item
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	err = cartRepo.ReadDetail(&modelItems, customerID)
@@ -175,6 +182,7 @@ func (h *HandlersCheckout) Read(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Read address by id
 	modelAddr := models.Addresses{}
 	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
 	err = addrRepo.ReadByID(&modelAddr, req.ShippingAddressID, customerID)
@@ -182,6 +190,7 @@ func (h *HandlersCheckout) Read(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Read coupon by id
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	err = couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
@@ -225,6 +234,7 @@ func (h *HandlersCheckout) ReadCombo(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read combo by id
 	modelCombo := models.Combos{}
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
 	err = combRepo.ReadByID(&modelCombo, comboID)
@@ -232,12 +242,14 @@ func (h *HandlersCheckout) ReadCombo(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Read detailed cart item
 	modelItems := make([]models.CartItemsWithDetail, 0)
 	err = combRepo.ReadDetail(&modelItems, comboID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Read address by id
 	modelAddr := models.Addresses{}
 	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
 	err = addrRepo.ReadByID(&modelAddr, req.ShippingAddressID, customerID)
@@ -245,6 +257,7 @@ func (h *HandlersCheckout) ReadCombo(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Read coupon by id
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	err = couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)

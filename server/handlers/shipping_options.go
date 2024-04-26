@@ -51,6 +51,7 @@ func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
 	modelMethod := models.ShippingMethods{}
 	modelRate := models.ShippingTableRates{}
 
+	// Create shipping table method
 	methService := methsvc.NewServiceShippingMethod(h.server.DB)
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
 	err = methService.Create(storeID, &modelMethod)
@@ -58,6 +59,7 @@ func (h *HandlersShippingOptions) CreateShippingRate(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Create shipping table rate
 	err = tableService.Create(uint64(modelMethod.ID), req, &modelRate)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
@@ -86,6 +88,7 @@ func (h *HandlersShippingOptions) ReadShippingRate(c echo.Context) error {
 
 	modelRates := []models.ShippingTableRates{}
 
+	// Read shipping table rate
 	methRepo := repositories.NewRepositoryShippingMethod(h.server.DB)
 	err = methRepo.ReadRates(&modelRates, storeID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -122,6 +125,7 @@ func (h *HandlersShippingOptions) UpdateShippingRate(c echo.Context) error {
 
 	modelRate := models.ShippingTableRates{}
 
+	// Update shipping table rate
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
 	err = tableService.Update(methodID, req, &modelRate)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -149,6 +153,7 @@ func (h *HandlersShippingOptions) DeleteShippingRate(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Delete shipping table rate
 	tableService := tablesvc.NewServiceShippingTableRate(h.server.DB)
 	err = tableService.Delete(methodID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {

@@ -52,6 +52,7 @@ func (h *HandlersVariations) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Create variation
 	modelVar := models.Variations{}
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	err = varService.Create(&modelVar, req, productID)
@@ -91,6 +92,7 @@ func (h *HandlersVariations) ReadByAttributeValues(c echo.Context) error {
 		valueIDs = append(valueIDs, valueID)
 	}
 
+	// Read variatio nby attribute value id
 	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByAttributeValueIDs(&modelVar, valueIDs, productID)
@@ -119,6 +121,7 @@ func (h *HandlersVariations) ReadByProduct(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read variation by product
 	modelVars := make([]models.VariationsWithAttributeValue, 0)
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByProduct(&modelVars, productID)
@@ -149,12 +152,14 @@ func (h *HandlersVariations) UpdateBackOrder(c echo.Context) error {
 
 	modelVar := models.Variations{}
 
+	// Read variation by id
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByID(&modelVar, variationID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Update back-order
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	err = varService.UpdateBackOrder(&modelVar)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -193,6 +198,7 @@ func (h *HandlersVariations) Update(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read variation by id
 	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByID(&modelVar, variationID)
@@ -200,6 +206,7 @@ func (h *HandlersVariations) Update(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Update variation
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	err = varService.Update(&modelVar, req)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -227,6 +234,7 @@ func (h *HandlersVariations) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read variation by id
 	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByID(&modelVar, variationID)
@@ -234,6 +242,7 @@ func (h *HandlersVariations) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Delete variation
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	err = varService.Delete(variationID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {

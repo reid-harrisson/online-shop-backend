@@ -64,6 +64,7 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 		req.CouponCode = randomString(10)
 	}
 
+	// Read by code
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	err = couRepo.ReadByCode(&modelCoupon, req.CouponCode)
@@ -71,6 +72,7 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	// Create coupon
 	couService := cousvc.NewServiceCoupon(h.server.DB)
 	err = couService.Create(&modelCoupon, req, storeID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -98,6 +100,7 @@ func (h *HandlersCoupons) Read(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read coupon by id
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	err = couRepo.ReadByStoreID(&modelCoupons, storeID)
@@ -136,14 +139,17 @@ func (h *HandlersCoupons) Update(c echo.Context) error {
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 
+	// Read coupon by id
 	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponNotFound)
 	}
 
+	// Read code
 	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponDuplicated)
 	}
 
+	// Update coupon
 	couService := cousvc.NewServiceCoupon(h.server.DB)
 	err = couService.Update(&modelCoupon, req)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -171,12 +177,14 @@ func (h *HandlersCoupons) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read coupon by id
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponNotFound)
 	}
 
+	// Delete coupon by id
 	couService := cousvc.NewServiceCoupon(h.server.DB)
 	err = couService.Delete(couponID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
