@@ -219,3 +219,14 @@ func ResetVisitorsDB(db *gorm.DB) {
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
+
+func ResetStockTrailsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_stock_trails")
+
+	db.Exec("INSERT INTO `store_stock_trails` (`id`, `created_at`, `updated_at`, `deleted_at`, `product_id`, `variation_id`, `change`, `event`) VALUES (1, '2024-04-10 20:21:32.000', '2024-04-10 20:21:32.000', NULL, 1, 1, 10.000000, 0);")
+	db.Exec("INSERT INTO `store_stock_trails` (`id`, `created_at`, `updated_at`, `deleted_at`, `product_id`, `variation_id`, `change`, `event`) VALUES (2, '2024-04-10 20:21:42.000', '2024-04-10 20:21:42.000', NULL, 2, 2, 20.000000, 1);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}

@@ -5,7 +5,8 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelAddr *models.Addresses, req *requests.RequestAddress, customerID uint64) {
+func (service *Service) Create(modelAddr *models.Addresses, req *requests.RequestAddress, customerID uint64) error {
+	modelAddr.Name = req.Name
 	modelAddr.CountryID = req.CountryID
 	modelAddr.RegionID = req.RegionID
 	modelAddr.CityID = req.CityID
@@ -15,7 +16,7 @@ func (service *Service) Create(modelAddr *models.Addresses, req *requests.Reques
 	modelAddr.AddressLine2 = req.AddressLine2
 	modelAddr.SubUrb = req.SubUrb
 	modelAddr.Active = 1
-	service.DB.Create(modelAddr)
+	return service.DB.Create(modelAddr).Error
 }
 
 func (service *Service) CreateFromUser(modelAddr *models.Addresses, customerID uint64) {

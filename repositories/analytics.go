@@ -51,7 +51,7 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalytic(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -64,7 +64,7 @@ func (repository *RepositoryAnalytics) ReadStockAnalytic(modelLevels *[]models.S
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticWeekly(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -77,7 +77,7 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticWeekly(modelLevels *[]mo
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticMonthly(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -90,7 +90,7 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticMonthly(modelLevels *[]m
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticWeekDay(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -103,7 +103,7 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticWeekDay(modelLevels *[]m
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticHour(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -116,7 +116,7 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticHour(modelLevels *[]mode
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticMonth(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,

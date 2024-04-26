@@ -6,6 +6,6 @@ type Service struct {
 	DB *gorm.DB
 }
 
-func NewServiceStockTrack(db *gorm.DB) *Service {
+func NewServiceStockTrail(db *gorm.DB) *Service {
 	return &Service{DB: db}
 }

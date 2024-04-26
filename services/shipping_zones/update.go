@@ -16,9 +16,9 @@ func (service *Service) Update(req *requests.RequestShippingZone, modelZone *mod
 	zoneID := uint64(modelZone.ID)
 	places := []string{}
 	indices := map[string]int{}
-	modelPlaces := []models.ShippingPlaces{}
+	modelPlaces := []models.ShippingLocations{}
 	for index, place := range req.Places {
-		modelPlaces = append(modelPlaces, models.ShippingPlaces{
+		modelPlaces = append(modelPlaces, models.ShippingLocations{
 			ZoneID: zoneID,
 			Name:   place,
 		})
@@ -26,9 +26,9 @@ func (service *Service) Update(req *requests.RequestShippingZone, modelZone *mod
 		indices[place] = index
 	}
 
-	modelNewPlaces := []models.ShippingPlaces{}
+	modelNewPlaces := []models.ShippingLocations{}
 	service.DB.Where("Concat(zone_id, ':', name) In (?)", places).Find(&modelNewPlaces)
-	service.DB.Where("Concat(zone_id, ':', name) Not In (?)", places).Delete(&models.ShippingPlaces{})
+	service.DB.Where("Concat(zone_id, ':', name) Not In (?)", places).Delete(&models.ShippingLocations{})
 	for _, modelPlace := range modelNewPlaces {
 		index := indices[modelPlace.Name]
 		(modelPlaces)[index].ID = modelPlace.ID

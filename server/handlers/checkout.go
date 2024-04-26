@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
@@ -44,7 +45,10 @@ func (h *HandlersCheckout) CreateAddress(c echo.Context) error {
 
 	modelAddr := models.Addresses{}
 	addrService := addrsvc.NewServiceAddress(h.server.DB)
-	addrService.Create(&modelAddr, req, customerID)
+	err := addrService.Create(&modelAddr, req, customerID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseAddress(c, http.StatusCreated, modelAddr)
 }
@@ -57,13 +61,18 @@ func (h *HandlersCheckout) CreateAddress(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/checkout/address [get]
 func (h *HandlersCheckout) ReadAddresses(c echo.Context) error {
 	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 
 	modelAddrs := make([]models.Addresses, 0)
 	addrRepo := repositories.NewRepositoryAddresses(h.server.DB)
-	addrRepo.ReadAddressesByCustomerID(&modelAddrs, customerID)
+	err := addrRepo.ReadAddressesByCustomerID(&modelAddrs, customerID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseAddresses(c, http.StatusOK, modelAddrs)
 }
@@ -98,6 +107,8 @@ func (h *HandlersCheckout) ReadCoupon(c echo.Context) error {
 // @Param params body requests.RequestAddress true "Customer Address"
 // @Success 200 {object} []responses.ResponseAddress
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/checkout/address/{id} [put]
 func (h *HandlersCheckout) UpdateAddress(c echo.Context) error {
 	addressID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -108,7 +119,10 @@ func (h *HandlersCheckout) UpdateAddress(c echo.Context) error {
 
 	modelAddr := models.Addresses{}
 	addrService := addrsvc.NewServiceAddress(h.server.DB)
-	addrService.Update(&modelAddr, req, addressID)
+	err := addrService.Update(&modelAddr, req, addressID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseAddress(c, http.StatusOK, modelAddr)
 }
