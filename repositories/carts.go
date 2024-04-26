@@ -16,7 +16,8 @@ func NewRepositoryCart(db *gorm.DB) *RepositoryCart {
 
 func (repository *RepositoryCart) ReadByID(modelItem *models.CartItems, cartID uint64) error {
 	return repository.DB.
-		First(modelItem, cartID).
+		Where("id = ?", cartID).
+		First(modelItem).
 		Error
 }
 
