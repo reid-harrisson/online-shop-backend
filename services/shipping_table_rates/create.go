@@ -9,24 +9,27 @@ import (
 
 func (service *Service) Create(methodID uint64, req *requests.RequestTableRate, modelRate *models.ShippingTableRates) error {
 	condition := utils.ConditionFromString(req.Condition)
-	err := service.DB.Where("`condition` = ? And min = ? And max = ? And method_id = ?", condition, req.Min, req.Max, methodID).First(&modelRate).Error
-	modelRate.Condition = condition
-	modelRate.Min = req.Min
-	modelRate.Max = req.Max
-	modelRate.RowCost = req.RowCost
-	modelRate.ItemCost = req.ItemCost
-	modelRate.CostPerKg = req.CostPerKg
-	modelRate.PercentCost = req.PercentCost
-	modelRate.MethodID = methodID
-	if err != nil {
+
+	if err := service.DB.Where("`condition` = ? And min = ? And max = ? And method_id = ?", condition, req.Min, req.Max, methodID).First(&modelRate).Error; err != nil {
+		modelRate.Condition = condition
+		modelRate.Min = req.Min
+		modelRate.Max = req.Max
+		modelRate.RowCost = req.RowCost
+		modelRate.ItemCost = req.ItemCost
+		modelRate.CostPerKg = req.CostPerKg
+		modelRate.PercentCost = req.PercentCost
+		modelRate.MethodID = methodID
+
 		return service.DB.Create(modelRate).Error
 	}
+
 	return nil
 }
 
 func (service *Service) CreateMany(methodID uint64, req []requests.RequestTableRate, modelRates *[]models.ShippingTableRates) error {
 	matches := []string{}
 	indices := map[string]int{}
+
 	for index, rate := range req {
 		condition := utils.ConditionFromString(rate.Condition)
 		match := fmt.Sprintf("%d:%f:%f", condition, rate.Min, rate.Max)
@@ -47,12 +50,19 @@ func (service *Service) CreateMany(methodID uint64, req []requests.RequestTableR
 	}
 
 	modelNewRates := []models.ShippingTableRates{}
-	service.DB.Where(`Concat(class_id,':',"condition",':',min,':',max) In (?) And method_id = ?`, matches, methodID).Find(&modelNewRates)
-	service.DB.Where(`Concat(class_id,':',"condition",':',min,':',max) Not In (?) And method_id = ?`, matches, methodID).Delete(&models.ShippingTableRates{})
+	if err := service.DB.Where(`Concat(class_id,':',"condition",':',min,':',max) In (?) And method_id = ?`, matches, methodID).Find(&modelNewRates).Error; err != nil {
+		return err
+	}
+
+	if err := service.DB.Where(`Concat(class_id,':',"condition",':',min,':',max) Not In (?) And method_id = ?`, matches, methodID).Delete(&models.ShippingTableRates{}).Error; err != nil {
+		return err
+	}
+
 	for _, modelRate := range modelNewRates {
 		match := fmt.Sprint(modelRate.ClassID, ':', modelRate.Condition, ':', modelRate.Min, ':', modelRate.Max)
 		index := indices[match] - 1
 		(*modelRates)[index].ID = modelRate.ID
 	}
+
 	return service.DB.Save(&modelRates).Error
 }
