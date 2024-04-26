@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func (service *Service) Update(productID uint64, req *requests.RequestProductContent) {
+func (service *Service) Update(productID uint64, req *requests.RequestProductContent) error {
 	modelNewConts := []models.ProductContents{}
 	modelCurConts := []models.ProductContents{}
 	contIndices := map[string]int{}
@@ -27,5 +27,5 @@ func (service *Service) Update(productID uint64, req *requests.RequestProductCon
 		index := contIndices[match]
 		modelNewConts[index].ID = modelCont.ID
 	}
-	service.DB.Save(&modelNewConts)
+	return service.DB.Save(&modelNewConts).Error
 }

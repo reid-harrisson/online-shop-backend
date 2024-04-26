@@ -7,18 +7,26 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(tag string, modelProduct *models.Products) {
+func (service *Service) Create(tag string, modelProduct *models.Products) error {
 	modelTag := models.Tags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
-	tagRepo.ReadByName(&modelTag, tag, modelProduct.StoreID)
+	err := tagRepo.ReadByName(&modelTag, tag, modelProduct.StoreID)
+	if err != nil {
+		return err
+	}
+
 	if modelTag.ID == 0 {
 		tagService := tagsvc.NewServiceTag(service.DB)
-		tagService.Create(&modelTag, tag, modelProduct.StoreID)
+		err = tagService.Create(&modelTag, tag, modelProduct.StoreID)
+		if err != nil {
+			return err
+		}
 	}
-	service.DB.Create(&models.ProductTags{
+
+	return service.DB.Create(&models.ProductTags{
 		TagID:     uint64(modelTag.ID),
 		ProductID: uint64(modelProduct.ID),
-	})
+	}).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewTags *[]models.ProductTags, tagMatches []string, tagIndices map[string]int) error {
