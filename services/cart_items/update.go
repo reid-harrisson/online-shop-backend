@@ -20,5 +20,8 @@ func (service *Service) UpdateQuantity(cartID uint64, modelItem *models.CartItem
 		modelItem.Quantity = modelVariation.StockLevel
 	}
 
-	return service.DB.Where("id = ?", modelItem.ID).Update("quantity", modelItem.Quantity).Error
+	return service.DB.
+		Where("id = ?", modelItem.ID).
+		Update("quantity", modelItem.Quantity).
+		Error
 }
