@@ -159,8 +159,8 @@ func ResetCombosDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_combos")
 
-	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (1, '2024-04-10 19:33:25.000', '2024-04-10 19:33:22.000', NULL, 1, 10.000000, 1, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 'Combo of Kefir', 'Kefir Combo', NULL);")
-	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (2, '2024-04-10 19:33:14.000', '2024-04-10 19:33:18.000', NULL, 2, 15.000000, 0, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 'Combo of Kimchi', 'Kimchi Combo', NULL);")
+	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (1, '2024-04-10 19:33:25.000', '2024-04-10 19:33:22.000', NULL, 1, 10.000000, 1, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 'Combo of Kefir', 'Kefir Combo', '2');")
+	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (2, '2024-04-10 19:33:14.000', '2024-04-10 19:33:18.000', NULL, 2, 15.000000, 0, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 'Combo of Kimchi', 'Kimchi Combo', '2');")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
