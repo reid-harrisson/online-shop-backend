@@ -18,7 +18,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.StoreID = req.StoreID
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
-	modelProduct.LongDescription = req.LongDescirpiton
+	modelProduct.LongDescription = req.LongDescription
 	modelProduct.Sku = utils.CleanSpecialLetters(modelProduct.Title)
 
 	contService := contsvc.NewServiceProductContent(service.DB)

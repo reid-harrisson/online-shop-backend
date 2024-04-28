@@ -8,6 +8,7 @@ import (
 
 	// nolint
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
@@ -23,6 +24,9 @@ var (
 	}
 	readVars = []models.Variations{
 		{
+			Model: gorm.Model{
+				ID: 1,
+			},
 			ProductID:       1,
 			Sku:             "44-125G",
 			Price:           96,

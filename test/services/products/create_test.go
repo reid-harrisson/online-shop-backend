@@ -31,7 +31,7 @@ var (
 				StoreID:          1,
 				Title:            "1",
 				ShortDescription: "1",
-				LongDescirpiton:  "1",
+				LongDescription:  "1",
 				ImageUrls:        []string{"1", "1"},
 			},
 

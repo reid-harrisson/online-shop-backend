@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelTags *[]models.ProductTagsWithName, req *requests.RequestProductTag, modelProduct *models.Products) {
+func (service *Service) Update(modelTags *[]models.ProductTagsWithName, req *requests.RequestProductTag, modelProduct *models.Products) error {
 	filterKeys := make(map[string]int)
 	for _, modelTag := range *modelTags {
 		filterKeys[modelTag.TagName] = 1
@@ -21,12 +21,18 @@ func (service *Service) Update(modelTags *[]models.ProductTagsWithName, req *req
 
 	for tag, key := range filterKeys {
 		if key == 1 {
-			service.Delete(tag)
+			err := service.Delete(tag)
+			if err != nil {
+				return err
+			}
 		} else if key == 2 {
-			service.Create(tag, modelProduct)
+			err := service.Create(tag, modelProduct)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	tagRepo := repositories.NewRepositoryTag(service.DB)
-	tagRepo.ReadByProductID(modelTags, uint64(modelProduct.ID))
+	return tagRepo.ReadByProductID(modelTags, uint64(modelProduct.ID))
 }

@@ -6,18 +6,20 @@ import (
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/requests"
 	prodsvc "OnlineStoreBackend/services/products"
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
-	reqProduct = requests.RequestProduct{
+	updateProdInput = requests.RequestProduct{
 		StoreID:          1,
-		Title:            "1",
-		ShortDescription: "1",
-		LongDescirpiton:  "1",
-		ImageUrls:        []string{"1", "2"},
+		Title:            "Kefir",
+		ShortDescription: "Short description of Kefir",
+		LongDescription:  "Long description of Kefir",
+		ImageUrls:        []string{"https://kefir-front.jpg", "https://kefir-side.jpg"},
 	}
 )
 
@@ -46,8 +48,15 @@ func TestUpdate(t *testing.T) {
 
 	// Setup
 	var prodService = prodsvc.NewServiceProduct(db)
-	modelProduct := models.Products{}
+	var modelProduct = models.Products{Model: gorm.Model{ID: 1}}
 
 	// Assertions
-	assert.NoError(t, prodService.Update(&modelProduct, &reqProduct))
+	if assert.NoError(t, prodService.Update(&modelProduct, &updateProdInput)) {
+		assert.Equal(t, updateProdInput.StoreID, modelProduct.StoreID)
+		assert.Equal(t, updateProdInput.Title, modelProduct.Title)
+		assert.Equal(t, updateProdInput.ShortDescription, modelProduct.ShortDescription)
+		assert.Equal(t, updateProdInput.LongDescription, modelProduct.LongDescription)
+		imageUrls, _ := json.Marshal(updateProdInput.ImageUrls)
+		assert.Equal(t, string(imageUrls), modelProduct.ImageUrls)
+	}
 }
