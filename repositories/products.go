@@ -121,7 +121,7 @@ func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Prod
 		Scan(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products, storeID uint64, tags []string, keyword string) {
+func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products, storeID uint64, tags []string, keyword string) error {
 	modelTags := []models.Tags{}
 	repository.DB.Where("name Not In (?)", tags).Find(&modelTags)
 	keyword = "%" + keyword + "%"
@@ -129,7 +129,8 @@ func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products
 	for _, modelTag := range modelTags {
 		tagIDs = append(tagIDs, uint64(modelTag.ID))
 	}
-	repository.DB.Table("store_product_tags As tags").
+
+	return repository.DB.Table("store_product_tags As tags").
 		Select("prods.*").
 		Joins("Left Join store_products As prods On prods.id = tags.product_id").
 		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
@@ -137,7 +138,8 @@ func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products
 		Where("tags.tag_id Not In (?)", tagIDs).
 		Group("prods.id").
 		Having("Count(tags.tag_id) = ?", len(tags)).
-		Scan(modelProducts)
+		Scan(modelProducts).
+		Error
 }
 
 func (repository *RepositoryProduct) GetMinimumStockLevel(minimumStockLevel *float64, productID uint64) error {

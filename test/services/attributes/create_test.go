@@ -3,6 +3,7 @@ package test
 import (
 	"OnlineStoreBackend/models"
 	test_utils "OnlineStoreBackend/pkgs/test"
+	"OnlineStoreBackend/requests"
 	prodattrsvc "OnlineStoreBackend/services/attributes"
 	"testing"
 
@@ -10,6 +11,10 @@ import (
 )
 
 var (
+	reqAttr = requests.RequestAttribute{
+		Name: "color",
+	}
+
 	attrInputs = []models.Attributes{
 		{
 			ProductID:     1,
@@ -17,6 +22,23 @@ var (
 		},
 	}
 )
+
+func TestCreateAttributes(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoresDB(db)
+	test_utils.ResetProductsDB(db)
+	test_utils.ResetAttributesDB(db)
+
+	// Setup
+	var attrService = prodattrsvc.NewServiceAttribute(db)
+	modelAttrs := models.Attributes{}
+
+	// Assertions
+	assert.NoError(t, attrService.Create(1, &reqAttr, &modelAttrs))
+}
 
 func TestCreateAttributesWithCSV(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")

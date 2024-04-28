@@ -250,3 +250,14 @@ func ResetStoreCartItemDB(db *gorm.DB) {
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
+
+func ResetShippingData(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_shipping_data")
+
+	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (1, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 34, 5.100000, 11.000000, 27.500000, 16.500000);")
+	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (2, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 35, 2.000000, 8.500000, 26.000000, 12.500000);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}

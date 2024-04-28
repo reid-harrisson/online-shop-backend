@@ -18,6 +18,23 @@ var (
 	}
 )
 
+func TestCreateAttributeValues(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoresDB(db)
+	test_utils.ResetProductsDB(db)
+	test_utils.ResetAttributesDB(db)
+
+	// Setup
+
+	var valService = prodattrvalsvc.NewServiceAttributeValue(db)
+
+	// Assertions
+	assert.NoError(t, valService.Create(1, "100g"))
+}
+
 func TestCreateAttributeValuesWithCSV(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
 

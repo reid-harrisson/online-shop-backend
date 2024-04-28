@@ -6,7 +6,7 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelCategories *[]models.ProductCategoriesWithName, req *requests.RequestProductCategory, productID uint64) {
+func (service *Service) Update(modelCategories *[]models.ProductCategoriesWithName, req *requests.RequestProductCategory, productID uint64) error {
 	filterKeys := make(map[uint64]int)
 	for _, modelCategory := range *modelCategories {
 		filterKeys[modelCategory.CategoryID] = 1
@@ -28,5 +28,6 @@ func (service *Service) Update(modelCategories *[]models.ProductCategoriesWithNa
 	}
 
 	cateRepo := repositories.NewRepositoryCategory(service.DB)
-	cateRepo.ReadByProductID(modelCategories, productID)
+
+	return cateRepo.ReadByProductID(modelCategories, productID)
 }

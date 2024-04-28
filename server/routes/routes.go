@@ -167,7 +167,7 @@ func GroupAnalytics(server *s.Server, e *echo.Group) {
 func GroupProducts(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersProducts(server)
 	e.POST("", handler.Create, AuthMiddleware(server))
-	e.POST("/attribute/:id", handler.CreateAttributes, AuthMiddleware(server))
+	e.POST("/attribute/:id", handler.CreateAttribute, AuthMiddleware(server))
 	e.POST("/shipping/:id", handler.CreateShippingData, AuthMiddleware(server))
 	e.POST("/attribute-value/:id", handler.CreateAttributeValueByID, AuthMiddleware(server))
 	e.POST("/linked", handler.CreateLinkedProduct, AuthMiddleware(server))
