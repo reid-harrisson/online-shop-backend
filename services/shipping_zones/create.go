@@ -9,14 +9,17 @@ import (
 
 func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone, modelZone *models.ShippingZonesWithPlace) error {
 	err := service.DB.Where("name = ?", req.Name).First(&modelZone.ShippingZones).Error
+
 	modelZone.StoreID = storeID
 	modelZone.Name = req.Name
 	modelZone.Description = req.Description
+
 	if err != nil {
 		if err = service.DB.Create(modelZone).Error; err != nil {
 			return err
 		}
 	}
+
 	if err = service.DB.Save(modelZone).Error; err != nil {
 		return err
 	}
@@ -37,18 +40,31 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingZone
 	}
 
 	modelNewPlaces := []models.ShippingLocations{}
-	service.DB.Where("zone_id = ? And name In (?)", zoneID, places).Find(&modelNewPlaces)
-	service.DB.Where("zone_id = ? And name Not In (?)", zoneID, places).Delete(&models.ShippingLocations{})
+
+	if err := service.DB.Where("zone_id = ? And name In (?)", zoneID, places).Find(&modelNewPlaces).Error; err != nil {
+		return err
+	}
+
+	if err := service.DB.Where("zone_id = ? And name Not In (?)", zoneID, places).Delete(&models.ShippingLocations{}).Error; err != nil {
+		return err
+	}
+
 	for _, modelPlace := range modelNewPlaces {
 		index := indices[modelPlace.Name] - 1
 		(modelPlaces)[index].ID = modelPlace.ID
 	}
-	service.DB.Save(modelPlaces)
+
+	if err := service.DB.Save(modelPlaces).Error; err != nil {
+		return err
+	}
+
 	placeIDs := []string{}
 	for _, modelPlace := range modelPlaces {
 		placeIDs = append(placeIDs, strconv.FormatUint(uint64(modelPlace.ID), 10))
 	}
+
 	modelZone.PlaceIDs = strings.Join(placeIDs, ",")
 	modelZone.PlaceNames = strings.Join(req.Places, ",")
+
 	return nil
 }

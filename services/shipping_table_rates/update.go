@@ -10,6 +10,7 @@ func (service *Service) Update(rateID uint64, req *requests.RequestTableRate, mo
 	if err := service.DB.Where("id = ?", rateID).Find(&modelRates).Error; err != nil {
 		return err
 	}
+
 	modelRates.Condition = utils.ConditionFromString(req.Condition)
 	modelRates.Min = req.Min
 	modelRates.Max = req.Max
@@ -17,5 +18,6 @@ func (service *Service) Update(rateID uint64, req *requests.RequestTableRate, mo
 	modelRates.ItemCost = req.ItemCost
 	modelRates.CostPerKg = req.CostPerKg
 	modelRates.PercentCost = req.PercentCost
+
 	return service.DB.Save(modelRates).Error
 }

@@ -13,6 +13,7 @@ func (service *Service) UpdateShippingLocalPickup(req *requests.RequestShippingL
 	modelMethod.ZoneID = req.ZoneID
 	modelMethod.TaxStatus = req.TaxStatus
 	modelMethod.Cost = req.Cost
+
 	return service.DB.Save(modelMethod).Error
 }
 
@@ -22,6 +23,7 @@ func (service *Service) UpdateShippingFree(req *requests.RequestShippingFree, mo
 	modelMethod.ZoneID = req.ZoneID
 	modelMethod.Requirement = req.Requirement
 	modelMethod.MinimumOrderAmount = req.MinimumOrderAmount
+
 	return service.DB.Save(modelMethod).Error
 }
 
@@ -31,11 +33,17 @@ func (service *Service) UpdateShippingFlatRate(req *requests.RequestShippingFlat
 	modelMethod.ZoneID = req.ZoneID
 	modelMethod.TaxStatus = req.TaxStatus
 	modelMethod.Cost = req.Cost
+
 	if err := service.DB.Save(modelMethod).Error; err != nil {
 		return err
 	}
+
 	flatService := flatsvc.NewServiceShippingFlatRate(service.DB)
-	return flatService.Create(uint64(modelMethod.ID), req.Rates, modelRates)
+	if err := flatService.Create(uint64(modelMethod.ID), req.Rates, modelRates); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *Service) UpdateShippingTableRate(req *requests.RequestShippingTableRate, modelMethod *models.ShippingMethods, modelRates *[]models.ShippingTableRates) error {
@@ -52,9 +60,15 @@ func (service *Service) UpdateShippingTableRate(req *requests.RequestShippingTab
 	modelMethod.MaximumCostPerClass = req.MaximumCostPerClass
 	modelMethod.DiscountInMinMax = req.DiscountInMinMax
 	modelMethod.TaxInMinMax = req.TaxInMinMax
+
 	if err := service.DB.Save(modelMethod).Error; err != nil {
 		return err
 	}
+
 	tableService := tablesvc.NewServiceShippingTableRate(service.DB)
-	return tableService.CreateMany(uint64(modelMethod.ID), req.Rates, modelRates)
+	if err := tableService.CreateMany(uint64(modelMethod.ID), req.Rates, modelRates); err != nil {
+		return err
+	}
+
+	return nil
 }

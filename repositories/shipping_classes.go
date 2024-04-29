@@ -15,9 +15,15 @@ func NewRepositoryShippingClass(db *gorm.DB) *RepositoryShippingClass {
 }
 
 func (repository *RepositoryShippingClass) ReadByID(modelClass *models.ShippingClasses, classID uint64) error {
-	return repository.DB.First(modelClass, classID).Error
+	return repository.DB.
+		Where("id = ?", classID).
+		First(modelClass).
+		Error
 }
 
 func (repository *RepositoryShippingClass) ReadByIDs(modelClasses *[]models.ShippingClasses, classIDs []uint64) error {
-	return repository.DB.Where("id In (?)", classIDs).Find(modelClasses).Error
+	return repository.DB.
+		Where("id In (?)", classIDs).
+		Find(modelClasses).
+		Error
 }

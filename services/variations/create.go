@@ -10,14 +10,20 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(modelVar *models.Variations, req *requests.RequestVariation, productID uint64) {
+func (service *Service) Create(modelVar *models.Variations, req *requests.RequestVariation, productID uint64) error {
 	modelValues := make([]models.AttributeValuesWithDetail, 0)
+
 	valRepo := repositories.NewRepositoryAttributeValue(service.DB)
-	valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs)
+	if err := valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs); err != nil {
+		return err
+	}
 
 	modelProduct := models.Products{}
+
 	prodRepo := repositories.NewRepositoryProduct(service.DB)
-	prodRepo.ReadByID(&modelProduct, productID)
+	if err := prodRepo.ReadByID(&modelProduct, productID); err != nil {
+		return err
+	}
 
 	sku := modelProduct.Title
 	title := modelProduct.Title
@@ -34,7 +40,9 @@ func (service *Service) Create(modelVar *models.Variations, req *requests.Reques
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 
 	varRepo := repositories.NewRepositoryVariation(service.DB)
-	varRepo.ReadByAttributeValueIDs(modelVar, req.AttributeValueIDs, productID)
+	if err := varRepo.ReadByAttributeValueIDs(modelVar, req.AttributeValueIDs, productID); err != nil {
+		return err
+	}
 
 	if modelVar.ID == 0 {
 		modelVar.Sku = sku
@@ -48,21 +56,31 @@ func (service *Service) Create(modelVar *models.Variations, req *requests.Reques
 		modelVar.Description = req.Description
 		modelVar.BackOrderStatus = utils.SimpleStatuses(req.BackOrderAllowed)
 
-		service.DB.Create(&modelVar)
+		if err := service.DB.Create(&modelVar).Error; err != nil {
+			return err
+		}
+
 		detService := prodvardetsvc.NewServiceVariationDetail(service.DB)
-		detService.Create(uint64(modelVar.ID), req.AttributeValueIDs)
+		if err := detService.Create(uint64(modelVar.ID), req.AttributeValueIDs); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (service *Service) CreateWithCSV(modelNewVars *[]models.Variations, varMatches []string, varIndices map[string]int) error {
 	modelCurVars := []models.Variations{}
+
 	if err := service.DB.Where("Concat(product_id, ':', sku) In (?)", varMatches).Find(&modelCurVars).Error; err != nil {
 		return err
 	}
+
 	for _, modelVar := range modelCurVars {
 		match := fmt.Sprintf("%d:%s", modelVar.ProductID, modelVar.Sku)
 		index := varIndices[match]
 		(*modelNewVars)[index].ID = modelVar.ID
 	}
+
 	return service.DB.Save(modelNewVars).Error
 }
