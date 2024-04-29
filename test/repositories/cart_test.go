@@ -32,6 +32,13 @@ var (
 			Length:         0,
 		},
 	}
+	readCartItemsOutputs = []models.CartItems{
+		{
+			CustomerID:  1,
+			VariationID: 1,
+			Quantity:    0,
+		},
+	}
 )
 
 func TestReadDetailOrder(t *testing.T) {
@@ -52,5 +59,26 @@ func TestReadDetailOrder(t *testing.T) {
 		readCarts[0].UpdatedAt = cartItems[0].UpdatedAt
 
 		assert.Equal(t, readCarts[0], cartItems[0])
+	}
+}
+
+func TestCartReadByID(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoreCartItemDB(db)
+
+	// Setup
+	cartRepo := repositories.NewRepositoryCart(db)
+	var modelCartItem = models.CartItems{}
+
+	// Assertions
+	if assert.NoError(t, cartRepo.ReadByID(&modelCartItem, 1)) {
+		readCartItemsOutputs[0].Model.ID = modelCartItem.Model.ID
+		readCartItemsOutputs[0].CreatedAt = modelCartItem.CreatedAt
+		readCartItemsOutputs[0].UpdatedAt = modelCartItem.UpdatedAt
+
+		assert.Equal(t, readCartItemsOutputs[0], modelCartItem)
 	}
 }
