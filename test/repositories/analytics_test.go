@@ -339,3 +339,20 @@ func TestAnalyticsReadProductViewAnalytics(t *testing.T) {
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	assert.NoError(t, analRepo.ReadProductViewAnalytics(&modelReports, 1, startDate, endDate))
 }
+
+func TestAnalyticsReadRepeatCustomerRate(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = []models.RepeatCustomerRates{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	assert.NoError(t, analRepo.ReadRepeatCustomerRate(&modelReports, 1, startDate, endDate))
+}
