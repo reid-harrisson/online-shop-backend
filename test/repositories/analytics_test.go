@@ -49,6 +49,9 @@ var (
 	readConvenRateOutputs = models.ConventionRate{
 		Rate: 0,
 	}
+	readShoppingCartAbandonmentOutputs = models.ShoppingCartAbandonment{
+		Rate: 0,
+	}
 )
 
 func TestAnalyticsReadSalesReport(t *testing.T) {
@@ -264,5 +267,24 @@ func TestAnalyticsReadConventionRate(t *testing.T) {
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	if assert.NoError(t, analRepo.ReadConventionRate(&modelReports, 1, startDate, endDate)) {
 		assert.Equal(t, readConvenRateOutputs.Rate, modelReports.Rate)
+	}
+}
+
+func TestAnalyticsReadShoppingCartAbandonment(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = models.ShoppingCartAbandonment{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	if assert.NoError(t, analRepo.ReadShoppingCartAbandonment(&modelReports, 1, startDate, endDate)) {
+		assert.Equal(t, readShoppingCartAbandonmentOutputs.Rate, modelReports.Rate)
 	}
 }
