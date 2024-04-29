@@ -38,7 +38,9 @@ type ProductCategoriesWithName struct {
 func (model *Categories) AfterDelete(db *gorm.DB) (err error) {
 	var modelCates = []ProductCategories{}
 	db.Where("category_id = ?", model.ID).Find(&modelCates)
-	db.Delete(&modelCates)
+	if len(modelCates) > 0 {
+		db.Delete(&modelCates)
+	}
 
 	return
 }

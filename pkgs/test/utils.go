@@ -261,3 +261,25 @@ func ResetShippingData(db *gorm.DB) {
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
+
+func ResetRelatedChannelsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_product_related_channels")
+
+	db.Exec("INSERT INTO `store_product_related_channels` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `channel_id`) VALUES (1, NULL, '2024-04-29 03:26:49', '2024-04-29 03:26:49', 1, 1);")
+	db.Exec("INSERT INTO `store_product_related_channels` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `channel_id`) VALUES (2, NULL, '2024-04-29 03:26:51', '2024-04-29 03:26:51', 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetRelatedContentsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_product_related_contents")
+
+	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (1, NULL, '2024-04-29 03:28:39', '2024-04-29 03:28:39', 1, 1);")
+	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (2, NULL, '2024-04-29 03:28:50', '2024-04-29 03:28:50', 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}

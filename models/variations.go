@@ -36,23 +36,33 @@ type VariationsWithAttributeValue struct {
 func (model *Variations) AfterDelete(db *gorm.DB) (err error) {
 	var modelCartItems = []CartItems{}
 	db.Where("variation_id = ?", model.ID).Find(&modelCartItems)
-	db.Delete(&modelCartItems)
+	if len(modelCartItems) > 0 {
+		db.Delete(&modelCartItems)
+	}
 
 	var modelComboItems = []ComboItems{}
 	db.Where("variation_id = ?", model.ID).Find(&modelComboItems)
-	db.Delete(&modelComboItems)
+	if len(modelComboItems) > 0 {
+		db.Delete(&modelComboItems)
+	}
 
 	var modelOrderItems = []ComboItems{}
 	db.Where("variation_id = ?", model.ID).Find(&modelOrderItems)
-	db.Delete(&modelOrderItems)
+	if len(modelOrderItems) > 0 {
+		db.Delete(&modelOrderItems)
+	}
 
 	var modelDets = []VariationDetails{}
 	db.Where("variation_id = ?", model.ID).Find(&modelDets)
-	db.Delete(&modelDets)
+	if len(modelDets) > 0 {
+		db.Delete(&modelDets)
+	}
 
 	var modelShipData = []ShippingData{}
 	db.Where("variation_id = ?", model.ID).Find(&modelShipData)
-	db.Delete(&modelShipData)
+	if len(modelShipData) > 0 {
+		db.Delete(&modelShipData)
+	}
 
 	return
 }

@@ -91,7 +91,9 @@ func (OrderItems) TableName() string {
 func (model *Orders) AfterDelete(db *gorm.DB) (err error) {
 	var modelItems = []OrderItems{}
 	db.Where("order_id = ?", model.ID).Find(&modelItems)
-	db.Delete(&modelItems)
+	if len(modelItems) > 0 {
+		db.Delete(&modelItems)
+	}
 
 	return
 }
