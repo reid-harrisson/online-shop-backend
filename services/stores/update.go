@@ -6,7 +6,9 @@ import (
 )
 
 func (service *Service) UpdateOutOfStockStatus(storeID uint64, modelStore *models.Stores) error {
-	service.DB.First(modelStore, storeID)
+	if err := service.DB.First(modelStore, storeID).Error; err != nil {
+		return err
+	}
 
 	if modelStore.ShowOutOfStockStatus == 0 {
 		modelStore.ShowOutOfStockStatus = 1
@@ -17,7 +19,9 @@ func (service *Service) UpdateOutOfStockStatus(storeID uint64, modelStore *model
 }
 
 func (service *Service) UpdateStockLevelStatus(storeID uint64, modelStore *models.Stores) error {
-	service.DB.First(modelStore, storeID)
+	if err := service.DB.First(modelStore, storeID).Error; err != nil {
+		return err
+	}
 
 	if modelStore.ShowStockLevelStatus == 0 {
 		modelStore.ShowStockLevelStatus = 1
@@ -27,7 +31,11 @@ func (service *Service) UpdateStockLevelStatus(storeID uint64, modelStore *model
 	return service.DB.Save(modelStore).Error
 }
 
-func (service *Service) Update(modelStore *models.Stores, req *requests.RequestStore) error {
+func (service *Service) Update(modelStore *models.Stores, req *requests.RequestStore, storeID uint64) error {
+	if err := service.DB.First(modelStore, storeID).Error; err != nil {
+		return err
+	}
+
 	modelStore.CompanyID = req.CompanyID
 	modelStore.Name = req.Name
 	modelStore.ContactPhone = req.ContactPhone
