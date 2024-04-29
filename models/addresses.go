@@ -24,7 +24,9 @@ func (Addresses) TableName() string {
 func (model *Addresses) AfterDelete(db *gorm.DB) (err error) {
 	var modelOrders = []Orders{}
 	db.Where("billing_address_id = ? Or shipping_address_id = ?", model.ID, model.ID).Find(&modelOrders)
-	db.Delete(&modelOrders)
+	if len(modelOrders) > 0 {
+		db.Delete(&modelOrders)
+	}
 
 	return
 }

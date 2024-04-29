@@ -32,7 +32,9 @@ type ProductTagsWithName struct {
 func (model *Tags) AfterDelete(db *gorm.DB) (err error) {
 	var modelTags = []ProductTags{}
 	db.Where("tag_id = ?", model.ID).Find(&modelTags)
-	db.Delete(&modelTags)
+	if len(modelTags) > 0 {
+		db.Delete(&modelTags)
+	}
 
 	return
 }

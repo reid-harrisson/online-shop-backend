@@ -37,7 +37,9 @@ func (ComboItems) TableName() string {
 func (model *Combos) AfterDelete(db *gorm.DB) (err error) {
 	var modelItems = []ComboItems{}
 	db.Where("combo_id = ?", model.ID).Find(&modelItems)
-	db.Delete(&modelItems)
+	if len(modelItems) > 0 {
+		db.Delete(&modelItems)
+	}
 
 	return
 }

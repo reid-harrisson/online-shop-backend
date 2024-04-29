@@ -16,7 +16,9 @@ func (Attributes) TableName() string {
 func (model *Attributes) AfterDelete(db *gorm.DB) (err error) {
 	var modelVals = []AttributeValues{}
 	db.Where("attribute_id = ?", model.ID).Find(&modelVals)
-	db.Delete(&modelVals)
+	if len(modelVals) > 0 {
+		db.Delete(&modelVals)
+	}
 
 	return
 }
