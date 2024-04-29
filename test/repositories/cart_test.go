@@ -124,3 +124,20 @@ func TestCartReadByCustomerID(t *testing.T) {
 		assert.Equal(t, readCartItemsOutputs[0], modelCartItem[0])
 	}
 }
+
+func TestCartReadItemCount(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoreCartItemDB(db)
+
+	// Setup
+	cartRepo := repositories.NewRepositoryCart(db)
+	var count int64
+
+	// Assertions
+	if assert.NoError(t, cartRepo.ReadItemCount(&count, 1)) {
+		assert.Equal(t, int64(2), count)
+	}
+}
