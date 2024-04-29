@@ -103,3 +103,24 @@ func TestCartReadByInfo(t *testing.T) {
 		assert.Equal(t, readCartItemsOutputs[0], modelCartItem)
 	}
 }
+
+func TestCartReadByCustomerID(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoreCartItemDB(db)
+
+	// Setup
+	cartRepo := repositories.NewRepositoryCart(db)
+	var modelCartItem = []models.CartItems{}
+
+	// Assertions
+	if assert.NoError(t, cartRepo.ReadByCustomerID(&modelCartItem, 1)) {
+		readCartItemsOutputs[0].Model.ID = modelCartItem[0].Model.ID
+		readCartItemsOutputs[0].CreatedAt = modelCartItem[0].CreatedAt
+		readCartItemsOutputs[0].UpdatedAt = modelCartItem[0].UpdatedAt
+
+		assert.Equal(t, readCartItemsOutputs[0], modelCartItem[0])
+	}
+}
