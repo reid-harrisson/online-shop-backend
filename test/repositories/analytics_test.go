@@ -391,3 +391,20 @@ func TestAnalyticsReadTopSellingProducts(t *testing.T) {
 	var count int
 	assert.NoError(t, analRepo.ReadTopSellingProducts(&modelReports, 1, startDate, endDate, count))
 }
+
+func TestAnalyticsReadOrderTrend(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = []models.OrderTrendAnalytics{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	assert.NoError(t, analRepo.ReadOrderTrendAnalytics(&modelReports, 1, startDate, endDate))
+}
