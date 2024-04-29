@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
@@ -32,34 +34,51 @@ func NewHandlersOrders(server *s.Server) *HandlersOrder {
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order [post]
 func (h *HandlersOrder) Create(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	req := new(requests.RequestCheckout)
 
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+	err = couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCarts := make([]models.CartItemsWithDetail, 0)
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadDetail(&modelCarts, customerID)
+	err = cartRepo.ReadDetail(&modelCarts, customerID)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.DeleteAll(customerID)
+	err = cartService.DeleteAll(customerID)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelOrder := models.Orders{}
 	modelItems := []models.OrderItems{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, models.Combos{})
+	err = ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, models.Combos{})
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	totalAmount := 0.0
 
@@ -94,36 +113,56 @@ func (h *HandlersOrder) Create(c echo.Context) error {
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 201 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/combo [post]
 func (h *HandlersOrder) CreateCombo(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
-	comboID, _ := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	comboID, err := strconv.ParseUint(c.QueryParam("combo_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	req := new(requests.RequestCheckout)
 
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty!")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelCombo := models.Combos{}
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadByID(&modelCombo, comboID)
+	err = combRepo.ReadByID(&modelCombo, comboID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	modelCoupons := []models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+	err = couRepo.ReadByIDs(&modelCoupons, req.CouponIDs)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	modelCarts := make([]models.CartItemsWithDetail, 0)
-	combRepo.ReadDetail(&modelCarts, comboID)
+	err = combRepo.ReadDetail(&modelCarts, comboID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	modelOrder := models.Orders{}
 	modelItems := []models.OrderItems{}
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, modelCombo)
+	err = ordService.Create(&modelOrder, &modelItems, modelCarts, req.BillingAddressID, req.ShippingAddressID, modelCoupons, customerID, modelCombo)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	totalAmount := 0.0
 
@@ -157,13 +196,21 @@ func (h *HandlersOrder) CreateCombo(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/{id} [get]
 func (h *HandlersOrder) ReadByID(c echo.Context) error {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelOrders := models.CustomerOrdersWithAddress{}
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByOrderID(&modelOrders, id)
+	err = orderRepo.ReadByOrderID(&modelOrders, id)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCustomerOrdersWithDetail(c, http.StatusOK, modelOrders)
 }
 
@@ -176,13 +223,21 @@ func (h *HandlersOrder) ReadByID(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/store [get]
 func (h *HandlersOrder) ReadByStoreID(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelOrders := make([]models.StoreOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByStoreID(&modelOrders, storeID)
+	err = orderRepo.ReadByStoreID(&modelOrders, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseStoreOrders(c, http.StatusOK, modelOrders)
 }
 
@@ -194,13 +249,21 @@ func (h *HandlersOrder) ReadByStoreID(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCustomerOrderWithDetail
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/customer [get]
 func (h *HandlersOrder) ReadByCustomerID(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelOrders := make([]models.CustomerOrders, 0)
 	orderRepo := repositories.NewRepositoryOrder(h.server.DB)
-	orderRepo.ReadByCustomerID(&modelOrders, customerID)
+	err = orderRepo.ReadByCustomerID(&modelOrders, customerID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCustomerOrders(c, http.StatusOK, modelOrders)
 }
 
@@ -215,15 +278,27 @@ func (h *HandlersOrder) ReadByCustomerID(c echo.Context) error {
 // @Param status query string ture "Status"
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/status/{id} [put]
 func (h *HandlersOrder) UpdateStatus(c echo.Context) error {
-	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	status := c.QueryParam("status")
 
 	modelItems := make([]models.OrderItems, 0)
 	ordService := ordsvc.NewServiceOrder(h.server.DB)
-	ordService.UpdateStatus(&modelItems, storeID, orderID, status)
+	err = ordService.UpdateStatus(&modelItems, storeID, orderID, status)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	// mailData := utils.MailData{
 	// 	Name:                       "PockitTV Contact Centre",
@@ -261,13 +336,21 @@ func (h *HandlersOrder) UpdateStatus(c echo.Context) error {
 // @Param status query string ture "Status"
 // @Success 200 {object} responses.ResponseStoreOrder
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/status [put]
 func (h *HandlersOrder) UpdateOrderItemStatus(c echo.Context) error {
-	orderID, _ := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
+	orderID, err := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	status := c.QueryParam("status")
 
 	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	orderService.UpdateOrderItemStatus(orderID, status)
+	err = orderService.UpdateOrderItemStatus(orderID, status)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	mailData := utils.MailData{
 		Name:                       "PockitTV Contact Centre",

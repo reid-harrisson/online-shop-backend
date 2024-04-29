@@ -6,9 +6,12 @@ import (
 	stocksvc "OnlineStoreBackend/services/stock_trails"
 )
 
-func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) {
+func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) error {
 	status := utils.OrderStatusFromString(orderStatus)
-	service.DB.Where("order_id = ?", orderID).Find(&modelItems)
+	err := service.DB.Where("order_id = ?", orderID).Find(&modelItems).Error
+	if err != nil {
+		return err
+	}
 
 	modelVars := []models.Variations{}
 	varIDs := []uint64{}
@@ -20,7 +23,11 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 			varIndices[modelItem.VariationID] = len(varIDs)
 		}
 	}
-	service.DB.Where("id In (?)", varIDs).Find(&modelVars)
+
+	err = service.DB.Where("id In (?)", varIDs).Find(&modelVars).Error
+	if err != nil {
+		return err
+	}
 
 	modelStocks := []models.StockTrails{}
 	stockService := stocksvc.NewServiceStockTrail(service.DB)
@@ -58,9 +65,20 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 		}
 	}
 
-	service.DB.Save(modelItems)
-	service.DB.Save(&modelVars)
-	stockService.CreateStocks(&modelStocks)
+	err = service.DB.Save(modelItems).Error
+	if err != nil {
+		return err
+	}
+
+	err = service.DB.Save(&modelVars).Error
+	if err != nil {
+		return err
+	}
+
+	err = stockService.CreateStocks(&modelStocks)
+	if err != nil {
+		return err
+	}
 
 	if flagCompleted {
 		status = utils.StatusOrderCompleted
@@ -69,14 +87,17 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 	} else {
 		status = utils.StatusOrderProcessing
 	}
-	service.DB.Model(models.Orders{}).
+
+	return service.DB.Model(models.Orders{}).
 		Where("id = ?", orderID).
-		Update("status", status)
+		Update("status", status).
+		Error
 }
 
-func (service *Service) UpdateOrderItemStatus(orderID uint64, status string) {
-	service.DB.
+func (service *Service) UpdateOrderItemStatus(orderID uint64, status string) error {
+	return service.DB.
 		Model(models.OrderItems{}).
 		Where("order_id = ?", orderID).
-		Update("status", utils.OrderStatusFromString(status))
+		Update("status", utils.OrderStatusFromString(status)).
+		Error
 }

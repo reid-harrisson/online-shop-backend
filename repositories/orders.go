@@ -38,8 +38,8 @@ func (repository *RepositoryOrder) ReadByStoreAndOrderID(modelOrder *models.Stor
 		Scan(modelOrder)
 }
 
-func (repository *RepositoryOrder) ReadByStoreID(modelOrders *[]models.StoreOrders, storeID uint64) {
-	repository.DB.Table("store_orders As ords").
+func (repository *RepositoryOrder) ReadByStoreID(modelOrders *[]models.StoreOrders, storeID uint64) error {
+	return repository.DB.Table("store_orders As ords").
 		Select(`
 			oitms.order_id,
 			ords.customer_id,
@@ -59,10 +59,11 @@ func (repository *RepositoryOrder) ReadByStoreID(modelOrders *[]models.StoreOrde
 		Joins(`Right Join store_order_items As oitms On oitms.order_id = ords.id`).
 		Where("oitms.store_id = ?", storeID).
 		Where("ords.deleted_at Is Null And oitms.deleted_at Is Null").
-		Scan(modelOrders)
+		Scan(modelOrders).Error
 }
-func (repository *RepositoryOrder) ReadByCustomerID(modelOrders *[]models.CustomerOrders, customerID uint64) {
-	repository.DB.Table("store_orders As ords").
+
+func (repository *RepositoryOrder) ReadByCustomerID(modelOrders *[]models.CustomerOrders, customerID uint64) error {
+	return repository.DB.Table("store_orders As ords").
 		Select(`
 			ords.id AS order_id,
 			ords.status AS order_status,
@@ -74,12 +75,12 @@ func (repository *RepositoryOrder) ReadByCustomerID(modelOrders *[]models.Custom
 		Where("ords.customer_id = ?", customerID).
 		Where("ords.deleted_at Is Null And oitms.deleted_at Is Null").
 		Group("oitms.order_id").
-		Scan(modelOrders)
+		Scan(modelOrders).Error
 }
 
-func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrdersWithAddress, orderID uint64) {
+func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrdersWithAddress, orderID uint64) error {
 	modelOrder.Items = make([]models.CustomerOrderItems, 0)
-	repository.DB.Table("store_orders As ords").
+	err := repository.DB.Table("store_orders As ords").
 		Select(`
 			ords.status As order_status,
 			oitms.store_id,
@@ -99,12 +100,23 @@ func (repository *RepositoryOrder) ReadByOrderID(modelOrder *models.CustomerOrde
 		Joins(`Right Join store_order_items As oitms On oitms.order_id = ords.id`).
 		Where("ords.id = ?", orderID).
 		Where("ords.deleted_at Is Null And oitms.deleted_at Is Null").
-		Scan(&modelOrder.Items)
-	if len(modelOrder.Items) > 0 {
-		billingAdddressID := modelOrder.Items[0].BillingAddressID
-		shippingAdddressID := modelOrder.Items[0].ShippingAddressID
-		addrRepo := NewRepositoryAddresses(repository.DB)
-		addrRepo.ReadAddressByID(&modelOrder.BillingAddress, billingAdddressID)
-		addrRepo.ReadAddressByID(&modelOrder.ShippingAddress, shippingAdddressID)
+		Scan(&modelOrder.Items).Error
+
+	if err == nil {
+		if len(modelOrder.Items) > 0 {
+			billingAdddressID := modelOrder.Items[0].BillingAddressID
+			shippingAdddressID := modelOrder.Items[0].ShippingAddressID
+			addrRepo := NewRepositoryAddresses(repository.DB)
+			err := addrRepo.ReadAddressByID(&modelOrder.BillingAddress, billingAdddressID)
+			if err != nil {
+				return err
+			}
+			err = addrRepo.ReadAddressByID(&modelOrder.ShippingAddress, shippingAdddressID)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
+	return err
 }

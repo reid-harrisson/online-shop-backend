@@ -37,24 +37,35 @@ func (repository *RepositoryTax) ReadByCountryID(modelTax *models.Taxes, country
 		Error
 }
 
-func (repository *RepositoryTax) ReadCurrency(currencySymbol *string, exchangeRate *float64, customerID uint64) {
+func (repository *RepositoryTax) ReadCurrency(currencySymbol *string, exchangeRate *float64, customerID uint64) error {
 	currencyCode, temp := "", map[string]interface{}{}
-	repository.DB.Table("users").
+	err := repository.DB.Table("users").
 		Select("curs.code As code, curs.symbol As symbol").
 		Joins("Join countries As couns On couns.id = users.country_id").
 		Joins("Join currencies As curs On curs.code = couns.currency_code").
 		Where("users.id = ?", customerID).
-		Scan(&temp)
+		Scan(&temp).
+		Error
+	if err != nil {
+		return err
+	}
+
 	if temp["code"] != nil {
 		currencyCode = temp["code"].(string)
 	}
 	if temp["symbol"] != nil {
 		*currencySymbol = temp["symbol"].(string)
 	}
-	repository.DB.Table("exchange_rates").
+
+	err = repository.DB.Table("exchange_rates").
 		Order("id Desc").
 		Limit(1).
-		Scan(&temp)
+		Scan(&temp).
+		Error
+	if err != nil {
+		return err
+	}
+
 	if temp[currencyCode] != nil {
 		*exchangeRate, _ = strconv.ParseFloat(temp[currencyCode].(string), 64)
 	}
@@ -64,4 +75,6 @@ func (repository *RepositoryTax) ReadCurrency(currencySymbol *string, exchangeRa
 	if *currencySymbol == "" {
 		*currencySymbol = "$"
 	}
+
+	return nil
 }

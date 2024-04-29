@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(categoryID uint64, productID uint64) {
-	service.DB.Create(&models.ProductCategories{
+func (service *Service) Create(categoryID uint64, productID uint64) error {
+	return service.DB.Create(&models.ProductCategories{
 		CategoryID: categoryID,
 		ProductID:  productID,
-	})
+	}).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewCates *[]models.ProductCategories, cateMatches []string, cateIndices map[string]int) error {

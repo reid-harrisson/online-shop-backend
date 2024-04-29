@@ -11,7 +11,7 @@ func (service *Service) Update(modelProduct *models.Products, req *requests.Requ
 	modelProduct.StoreID = req.StoreID
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
-	modelProduct.LongDescription = req.LongDescirpiton
+	modelProduct.LongDescription = req.LongDescription
 
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)

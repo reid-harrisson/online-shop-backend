@@ -66,6 +66,26 @@ func ResetStoresDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
 
+func ResetStoreOrdersDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_orders")
+
+	db.Exec("INSERT INTO `store_orders` (`id`, `deleted_at`, `created_at`, `updated_at`, `customer_id`, `status`, `billing_address_id`, `shipping_address_id`) VALUES (23, NULL, '2024-04-26 16:29:54', '2024-04-26 16:29:54', 1, NULL, 1, 1);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetStoreCustomerAddressesDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_orders")
+
+	db.Exec("INSERT INTO `store_customer_addresses` (`id`, `deleted_at`, `created_at`, `updated_at`, `customer_id`, `country_id`, `region_id`, `city_id`, `postal_code`, `address_line1`, `address_line2`, `suburb`, `active`) VALUES (1, NULL, '2024-04-26 16:29:38', '2024-04-26 16:29:46', 1, 1, 1, 1, NULL, NULL, NULL, NULL, 1);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
 func ResetProductsDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 
@@ -73,6 +93,17 @@ func ResetProductsDB(db *gorm.DB) {
 
 	db.Exec("INSERT INTO `store_products` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `title`, `short_description`, `long_description`, `image_urls`, `minimum_stock_level`, `status`, `sku`, `type`, `shipping_class`) VALUES (1, NULL, '2024-04-08 09:59:09', '2024-04-08 10:13:28', 1, 'Gochujang - Korean Chilli Pepper Paste', 'Gochujang is a Sticky, Sweet, Savoury &amp; SPICY Chilli Paste.', 'Our AMAZING range of products are available nation wide in South Africa at select health stores.', 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 0.000000, 0, '44', 1, 'Courier Refrigerated');")
 	db.Exec("INSERT INTO `store_products` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `title`, `short_description`, `long_description`, `image_urls`, `minimum_stock_level`, `status`, `sku`, `type`, `shipping_class`) VALUES (2, NULL, '2024-04-08 09:59:15', '2024-04-08 10:13:50', 2, 'Kimchi Probiotic Tonic - 200ML', 'This Probiotic Rich Tincture packs a sour spicy Punch!', 'Pour over salads, add to savoury juices, smoothies &amp; cocktails or on its own as a healthy shot.', 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 0.000000, 0, '13', 1, 'Courier Refrigerated');")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetProductReviewDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_products")
+
+	db.Exec("INSERT INTO `store_product_reviews` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `customer_id`, `comment`, `rate`, `status`) VALUES (1, NULL, '2024-04-29 00:53:22', '2024-04-29 00:53:22', 1, 1, 'comment1', 0.000000, 0);")
+	db.Exec("INSERT INTO `store_product_reviews` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `customer_id`, `comment`, `rate`, `status`) VALUES (2, NULL, '2024-04-29 00:56:05', '2024-04-29 00:56:13', 1, 1, 'comment2', 0.000000, 0);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -216,6 +247,17 @@ func ResetVisitorsDB(db *gorm.DB) {
 
 	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (1, NULL, '2024-04-24 20:36:14', '2024-04-24 20:36:17', 1, 1, '111.111.111.111', 1, 1);")
 	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (2, NULL, '2024-04-24 20:36:35', '2024-04-24 20:36:35', 2, 2, '111.111.111.112', 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetStoreCartItemDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_cart_items")
+
+	db.Exec("INSERT INTO `store_cart_items` (`id`, `created_at`, `updated_at`, `deleted_at`, `customer_id`, `variation_id`, `quantity`) VALUES (1, NULL, NULL, NULL, 1, 1, NULL);")
+	db.Exec("INSERT INTO `store_cart_items` (`id`, `created_at`, `updated_at`, `deleted_at`, `customer_id`, `variation_id`, `quantity`) VALUES (2, NULL, NULL, NULL, 2, 2, NULL);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }

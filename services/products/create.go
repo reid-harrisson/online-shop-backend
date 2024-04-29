@@ -18,7 +18,7 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 	modelProduct.StoreID = req.StoreID
 	modelProduct.Title = req.Title
 	modelProduct.ShortDescription = req.ShortDescription
-	modelProduct.LongDescription = req.LongDescirpiton
+	modelProduct.LongDescription = req.LongDescription
 	modelProduct.Sku = utils.CleanSpecialLetters(modelProduct.Title)
 
 	contService := contsvc.NewServiceProductContent(service.DB)
@@ -31,41 +31,69 @@ func (service *Service) Create(modelProduct *models.Products, req *requests.Requ
 
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelProduct.ImageUrls = string(imageUrls)
-	service.DB.Create(modelProduct)
+	err := service.DB.Create(modelProduct).Error
+	if err != nil {
+		return err
+	}
 
 	productID := uint64(modelProduct.ID)
 
-	chanService.Update(productID, &requests.RequestProductChannel{
+	err = chanService.Update(productID, &requests.RequestProductChannel{
 		ChannelIDs: req.RelatedChannels,
 	})
+	if err != nil {
+		return err
+	}
 
-	contService.Update(productID, &requests.RequestProductContent{
+	err = contService.Update(productID, &requests.RequestProductContent{
 		ContentIDs: req.RelatedContents,
 	})
+	if err != nil {
+		return err
+	}
 
 	for _, categoryID := range req.Categories {
-		cateService.Create(categoryID, productID)
+		err = cateService.Create(categoryID, productID)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, tag := range req.Tags {
-		tagService.Create(tag, modelProduct)
+		err = tagService.Create(tag, modelProduct)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, linkID := range req.CrossSell {
-		linkService.Create(productID, linkID, utils.CrossSell)
+		err = linkService.Create(productID, linkID, utils.CrossSell)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, linkID := range req.UpSell {
-		linkService.Create(productID, linkID, utils.UpSell)
+		err = linkService.Create(productID, linkID, utils.UpSell)
+		if err != nil {
+			return err
+		}
 	}
 
 	for name, values := range req.Attributes {
 		if len(values) > 0 {
 			modelAttr := models.Attributes{}
-			attrService.Create(productID, &requests.RequestAttribute{Name: name}, &modelAttr)
+			err = attrService.Create(productID, &requests.RequestAttribute{Name: name}, &modelAttr)
+			if err != nil {
+				return err
+			}
+
 			attributeID := modelAttr.ID
 			for _, value := range values {
-				valService.Create(uint64(attributeID), value)
+				err = valService.Create(uint64(attributeID), value)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
