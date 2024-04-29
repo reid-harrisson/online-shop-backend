@@ -12,6 +12,7 @@ func (service *Service) Update(modelCombo *models.Combos, modelItems *[]models.C
 	if err := service.DB.Where("id = ? And store_id = ?", comboID, storeID).First(modelCombo).Error; err != nil {
 		return err
 	}
+
 	imageUrls, _ := json.Marshal(req.ImageUrls)
 	modelCombo.StoreID = storeID
 	modelCombo.DiscountAmount = req.DiscountAmount
@@ -20,7 +21,11 @@ func (service *Service) Update(modelCombo *models.Combos, modelItems *[]models.C
 	modelCombo.Description = req.Description
 	modelCombo.Title = req.Title
 	modelCombo.Status = utils.Draft
-	service.DB.Save(modelCombo)
+
+	if err := service.DB.Save(modelCombo).Error; err != nil {
+		return err
+	}
+
 	itemService := coitmsvc.NewServiceComboItem(service.DB)
 	return itemService.Create(modelItems, req.Items, uint64(modelCombo.ID))
 }

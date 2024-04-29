@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	eh "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
@@ -31,50 +33,68 @@ func NewHandlersCart(server *s.Server) *HandlersCart {
 // @Param params body requests.RequestCartItem true "Variation Info"
 // @Success 201 {object} responses.ResponseCartItem
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart [post]
 func (h *HandlersCart) Create(c echo.Context) error {
 	req := new(requests.RequestCartItem)
 
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read product by id
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	if err := prodRepo.ReadByID(&modelProduct, req.ProductID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "Product doesn't exist at this ID.")
-	}
-	if modelProduct.Status != utils.Approved {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This product isn't approved.")
+	err := prodRepo.ReadByID(&modelProduct, req.ProductID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
+	if modelProduct.Status != utils.Approved {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ProductNotApproved)
+	}
+
+	// Read variations by id
 	modelVar := models.Variations{}
 	modelVals := []models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
-	valRepo.ReadByIDs(&modelVals, req.ValueIDs)
+	err = valRepo.ReadByIDs(&modelVals, req.ValueIDs)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	mapVal := map[uint64]string{}
 	for _, modelVal := range modelVals {
 		if mapVal[modelVal.AttributeID] == "" {
 			mapVal[modelVal.AttributeID] = modelVal.AttributeValue
 		} else {
-			return responses.ErrorResponse(c, http.StatusBadRequest, "Attribute value's duplicated.")
+			return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicateAttribute)
 		}
 	}
-	varRepo := repositories.NewRepositoryVariation(h.server.DB)
-	varRepo.ReadByAttributeValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 
-	if modelVar.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This variation doesn't exist in product.")
+	// Read attribute value ids
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	err = varRepo.ReadByAttributeValueIDs(&modelVar, req.ValueIDs, req.ProductID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	variationID := uint64(modelVar.ID)
 
+	// Read cart item by info
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
+	err = cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
+	// Create cart
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
+	err = cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseCartItem(c, http.StatusCreated, modelItem)
 }
@@ -87,13 +107,24 @@ func (h *HandlersCart) Create(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.ResponseCartCount
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // /@Router /store/api/v1/cart/count [get]
 func (h *HandlersCart) ReadCount(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
-	count := int64(0)
+	var count = int64(0)
+
+	// Read item count
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadItemCount(&count, customerID)
+	err = cartRepo.ReadItemCount(&count, customerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCartCount(c, http.StatusOK, count)
 }
 
@@ -105,13 +136,23 @@ func (h *HandlersCart) ReadCount(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseCart
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart [get]
 func (h *HandlersCart) Read(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
+	// Read cart detail
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
 	modelItems := make([]models.CartItemsWithDetail, 0)
-	cartRepo.ReadDetail(&modelItems, customerID)
+	err = cartRepo.ReadDetail(&modelItems, customerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCart(c, http.StatusOK, modelItems)
 }
 
@@ -125,24 +166,27 @@ func (h *HandlersCart) Read(c echo.Context) error {
 // @Param quantity query string true "Quantity"
 // @Success 200 {object} responses.ResponseCart
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart/{id} [put]
 func (h *HandlersCart) UpdateQuantity(c echo.Context) error {
-	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	quantity, _ := strconv.ParseFloat(c.QueryParam("quantity"), 64)
-
-	modelItem := models.CartItems{}
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByID(&modelItem, cartID)
-	if modelItem.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No cart item exist at this ID.")
+	cartID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+	quantity, err := strconv.ParseFloat(c.QueryParam("quantity"), 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelVar := models.Variations{}
-	prodRepo := repositories.NewRepositoryVariation(h.server.DB)
-	prodRepo.ReadByID(&modelVar, modelItem.VariationID)
+	var modelItem = models.CartItems{}
 
+	// Update quqntity
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.UpdateQuantity(&modelItem, modelVar, quantity)
+	err = cartService.UpdateQuantity(cartID, &modelItem, quantity)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseCartItem(c, http.StatusOK, modelItem)
 }
@@ -156,22 +200,31 @@ func (h *HandlersCart) UpdateQuantity(c echo.Context) error {
 // @Param id path int true "Cart ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart/{id} [delete]
 func (h *HandlersCart) Delete(c echo.Context) error {
-	cartID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelItem := models.CartItems{}
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByID(&modelItem, cartID)
-
-	if modelItem.ID == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No cart item exists at this ID.")
+	cartID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.Delete(cartID)
+	// Read cart by id
+	modelItem := models.CartItems{}
+	cartRepo := repositories.NewRepositoryCart(h.server.DB)
+	err = cartRepo.ReadByID(&modelItem, cartID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
-	return responses.MessageResponse(c, http.StatusOK, "This cart item successfullly deleted.")
+	// Delete cart
+	cartService := cartsvc.NewServiceCartItem(h.server.DB)
+	err = cartService.Delete(cartID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.DeleteCart)
 }
 
 // Refresh godoc
@@ -182,19 +235,29 @@ func (h *HandlersCart) Delete(c echo.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart [delete]
 func (h *HandlersCart) DeleteAll(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
-
-	modelItems := make([]models.CartItems, 0)
-	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	cartRepo.ReadByCustomerID(&modelItems, customerID)
-
-	if len(modelItems) == 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "There is no items in cart.")
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Read cart by customer id
+	modelItems := make([]models.CartItems, 0)
+	cartRepo := repositories.NewRepositoryCart(h.server.DB)
+	err = cartRepo.ReadByCustomerID(&modelItems, customerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	// Delete all carts
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	cartService.DeleteAll(customerID)
-	return responses.MessageResponse(c, http.StatusOK, "All cart items successfully deleted.")
+	err = cartService.DeleteAll(customerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.DeleteAllCart)
 }

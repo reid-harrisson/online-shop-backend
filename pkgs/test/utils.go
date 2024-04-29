@@ -159,8 +159,8 @@ func ResetCombosDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_combos")
 
-	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (1, '2024-04-10 19:33:25.000', '2024-04-10 19:33:22.000', NULL, 1, 10.000000, 1, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 'Combo of Kefir', 'Kefir Combo', NULL);")
-	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (2, '2024-04-10 19:33:14.000', '2024-04-10 19:33:18.000', NULL, 2, 15.000000, 0, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 'Combo of Kimchi', 'Kimchi Combo', NULL);")
+	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (1, '2024-04-10 19:33:25.000', '2024-04-10 19:33:22.000', NULL, 1, 10.000000, 1, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 'Combo of Kefir', 'Kefir Combo', '2');")
+	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (2, '2024-04-10 19:33:14.000', '2024-04-10 19:33:18.000', NULL, 2, 15.000000, 0, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 'Combo of Kimchi', 'Kimchi Combo', '1');")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -227,6 +227,17 @@ func ResetStockTrailsDB(db *gorm.DB) {
 
 	db.Exec("INSERT INTO `store_stock_trails` (`id`, `created_at`, `updated_at`, `deleted_at`, `product_id`, `variation_id`, `change`, `event`) VALUES (1, '2024-04-10 20:21:32.000', '2024-04-10 20:21:32.000', NULL, 1, 1, 10.000000, 0);")
 	db.Exec("INSERT INTO `store_stock_trails` (`id`, `created_at`, `updated_at`, `deleted_at`, `product_id`, `variation_id`, `change`, `event`) VALUES (2, '2024-04-10 20:21:42.000', '2024-04-10 20:21:42.000', NULL, 2, 2, 20.000000, 1);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetShippingData(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_shipping_data")
+
+	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (1, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 34, 5.100000, 11.000000, 27.500000, 16.500000);")
+	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (2, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 35, 2.000000, 8.500000, 26.000000, 12.500000);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
