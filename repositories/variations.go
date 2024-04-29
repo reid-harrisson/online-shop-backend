@@ -60,9 +60,11 @@ func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.Variati
 			vars.*,
 			vals.id As attribute_value_id,
 			vals.attribute_value,
-			attrs.attribute_name,
+			attrs.attribute_name
 		`).
 		Joins("Left Join store_product_variation_details As dets On dets.variation_id = vars.id").
+		Joins("Left Join store_product_attributes As attrs On attrs.product_id = vars.product_id").
+		Joins("Left Join store_product_attribute_values As vals On vals.id = dets.attribute_value_id").
 		Where("vars.product_id = ?", productID).
 		Where("vars.deleted_at Is Null And dets.deleted_at Is Null And vals.deleted_at Is Null And attrs.deleted_at Is Null").
 		Scan(&modelVars).

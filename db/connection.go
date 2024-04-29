@@ -13,7 +13,7 @@ import (
 )
 
 func Init(cfg *config.Config) *gorm.DB {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local&sql_mode='STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'",
 		cfg.DB.User,
 		cfg.DB.Password,
 		cfg.DB.Host,
@@ -42,6 +42,7 @@ func Init(cfg *config.Config) *gorm.DB {
 	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{
 		Logger: logger.New(multipleLog, logger.Config{
 			LogLevel: logger.Info,
+			Colorful: true,
 		}),
 	})
 	if err != nil {

@@ -6,10 +6,10 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(productID uint64, req *requests.RequestAttribute, modelAttr *models.Attributes) {
+func (service *Service) Create(productID uint64, req *requests.RequestAttribute, modelAttr *models.Attributes) error {
 	modelAttr.AttributeName = req.Name
 	modelAttr.ProductID = productID
-	service.DB.Create(modelAttr)
+	return service.DB.Create(modelAttr).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewAttrs *[]models.Attributes, attrMatches []string, attrIndices map[string]int) error {

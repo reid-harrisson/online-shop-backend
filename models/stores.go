@@ -28,23 +28,33 @@ func (Stores) TableName() string {
 func (model *Stores) AfterDelete(db *gorm.DB) (err error) {
 	var modelAttrs = []Categories{}
 	db.Where("store_id = ?", model.ID).Find(&modelAttrs)
-	db.Delete(&modelAttrs)
+	if len(modelAttrs) > 0 {
+		db.Delete(&modelAttrs)
+	}
 
 	var modelCombos = []Combos{}
 	db.Where("store_id = ?", model.ID).Find(&modelCombos)
-	db.Delete(&modelCombos)
+	if len(modelCombos) > 0 {
+		db.Delete(&modelCombos)
+	}
 
 	var modelTemps = []EmailTemplates{}
 	db.Where("store_id = ? And link_id = ?", model.ID, model.ID).Find(&modelTemps)
-	db.Delete(&modelTemps)
+	if len(modelTemps) > 0 {
+		db.Delete(&modelTemps)
+	}
 
 	var modelItems = []OrderItems{}
 	db.Where("store_id = ?", model.ID).Find(&modelItems)
-	db.Delete(&modelItems)
+	if len(modelItems) > 0 {
+		db.Delete(&modelItems)
+	}
 
 	var modelProds = []Products{}
 	db.Where("product_id = ?", model.ID).Find(&modelProds)
-	db.Delete(&modelProds)
+	if len(modelProds) > 0 {
+		db.Delete(&modelProds)
+	}
 
 	db.Where("badge_id = ?", model.ID).Delete("invoice_item")
 

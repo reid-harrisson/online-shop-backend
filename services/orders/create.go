@@ -38,7 +38,7 @@ func GetShippingPrice(modelRates []models.ShippingTableRates, totalPrice float64
 	return shippingPrice
 }
 
-func (service *Service) Create(modelOrder *models.Orders, modelItems *[]models.OrderItems, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64, modelCombo models.Combos) {
+func (service *Service) Create(modelOrder *models.Orders, modelItems *[]models.OrderItems, modelCartItems []models.CartItemsWithDetail, billingAddressID uint64, shippingAddressID uint64, modelCoupons []models.Coupons, customerID uint64, modelCombo models.Combos) error {
 	mapCoupon := map[uint64]int{}
 	for index, modelCoupon := range modelCoupons {
 		mapCoupon[modelCoupon.StoreID] = index
@@ -46,11 +46,17 @@ func (service *Service) Create(modelOrder *models.Orders, modelItems *[]models.O
 
 	modelAddr := models.Addresses{}
 	addrRepo := repositories.NewRepositoryAddresses(service.DB)
-	addrRepo.ReadAddressByID(&modelAddr, shippingAddressID)
+	err := addrRepo.ReadAddressByID(&modelAddr, shippingAddressID)
+	if err != nil {
+		return err
+	}
 
 	modelTax := models.Taxes{}
 	taxRepo := repositories.NewRepositoryTax(service.DB)
-	taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
+	err = taxRepo.ReadByCountryID(&modelTax, modelAddr.CountryID)
+	if err != nil {
+		return err
+	}
 
 	methRepo := repositories.NewRepositoryShippingMethod(service.DB)
 	orderService := orditmsvc.NewServiceOrderItem(service.DB)
@@ -67,7 +73,10 @@ func (service *Service) Create(modelOrder *models.Orders, modelItems *[]models.O
 	}
 	mapRates := map[uint64][]models.ShippingTableRates{}
 	mapMeth := map[uint64]models.ShippingMethods{}
-	methRepo.ReadMethodAndTableRatesByStoreIDs(&mapRates, &mapMeth, storeIDs)
+	err = methRepo.ReadMethodAndTableRatesByStoreIDs(&mapRates, &mapMeth, storeIDs)
+	if err != nil {
+		return err
+	}
 
 	for _, modelItem := range modelCartItems {
 		price := GetSalePrice(modelItem)
@@ -131,5 +140,6 @@ func (service *Service) Create(modelOrder *models.Orders, modelItems *[]models.O
 	for index := range *modelItems {
 		(*modelItems)[index].OrderID = uint64(modelOrder.ID)
 	}
-	orderService.Create(modelItems)
+
+	return orderService.Create(modelItems)
 }
