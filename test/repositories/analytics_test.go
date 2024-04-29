@@ -373,3 +373,21 @@ func TestAnalyticsReadCustomerChurnRate(t *testing.T) {
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	assert.NoError(t, analRepo.ReadCustomerChurnRate(&modelReports, 1, startDate, endDate))
 }
+
+func TestAnalyticsReadTopSellingProducts(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = []models.TopSellingProducts{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	var count int
+	assert.NoError(t, analRepo.ReadTopSellingProducts(&modelReports, 1, startDate, endDate, count))
+}
