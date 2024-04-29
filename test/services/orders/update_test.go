@@ -58,8 +58,6 @@ func TestGeneratePDF(t *testing.T) {
 	modelOrders := models.CustomerOrdersWithAddress{}
 	ordRepo.ReadByOrderID(&modelOrders, 1)
 
-	// assert.Equal(t, modelOrders.Items, []string{})
-
 	err := ordService.GeneratePDF(modelOrders)
 	assert.NoError(t, err)
 

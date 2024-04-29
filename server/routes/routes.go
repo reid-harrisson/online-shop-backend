@@ -222,7 +222,7 @@ func GroupOrders(server *s.Server, e *echo.Group) {
 	e.GET("/store", handler.ReadByStoreID, AuthMiddleware(server))
 	e.PUT("/status/:id", handler.UpdateStatus, AuthMiddleware(server))
 	e.PUT("/status", handler.UpdateOrderItemStatus, AuthMiddleware(server))
-	e.POST("/generate-pdf", handler.GeneratePDF, AuthMiddleware(server))
+	e.PUT("/generate-pdf", handler.GeneratePDF, AuthMiddleware(server))
 }
 
 func GroupInventory(server *s.Server, e *echo.Group) {

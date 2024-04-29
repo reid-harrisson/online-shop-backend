@@ -140,7 +140,7 @@ func (service *Service) GeneratePDF(modelOrders models.CustomerOrdersWithAddress
 	utils.BuildHeading(m)
 	utils.BuildFruitList(m, orderItems)
 
-	err := m.OutputFileAndClose("div_rhino_fruit.pdf")
+	err := m.OutputFileAndClose("invoice.pdf")
 	if err != nil {
 		fmt.Println("⚠️  Could not save PDF:", err)
 		os.Exit(1)

@@ -42,7 +42,7 @@ func FruitList(length int) [][]string {
 
 func BuildHeading(m pdf.Maroto) {
 	m.RegisterHeader(func() {
-		m.Row(50, func() {
+		m.Row(10, func() {
 			m.Col(12, func() {
 				// err := m.FileImage("images/logo_div_rhino.jpg", props.Rect{
 				// 	Center:  true,
@@ -58,7 +58,7 @@ func BuildHeading(m pdf.Maroto) {
 
 	m.Row(10, func() {
 		m.Col(12, func() {
-			m.Text("Prepared for you by the Div Rhino Fruit Company", props.Text{
+			m.Text("Invoice", props.Text{
 				Top:   3,
 				Style: consts.Bold,
 				Align: consts.Center,
