@@ -172,3 +172,24 @@ func TestAnalyticsReadStockAnalyticWeekDay(t *testing.T) {
 		assert.Equal(t, readStockOutputs[0].StockOut, modelReports[0].StockOut)
 	}
 }
+
+func TestAnalyticsReadStockAnalyticHour(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStockTrailsDB(db)
+	test_utils.ResetProductsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = []models.StockAnalytics{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	if assert.NoError(t, analRepo.ReadStockAnalyticHour(&modelReports, 1, startDate, endDate)) {
+		assert.Equal(t, readStockOutputs[0].StockIn, modelReports[0].StockIn)
+		assert.Equal(t, readStockOutputs[0].StockOut, modelReports[0].StockOut)
+	}
+}
