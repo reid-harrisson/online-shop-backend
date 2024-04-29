@@ -33,27 +33,6 @@ var (
 			Status:         2,
 		},
 	}
-	comboItemsWithDetail = []models.CartItemsWithDetail{
-		{
-			CartItems: models.CartItems{
-				CustomerID:  1,
-				VariationID: 1,
-				Quantity:    1,
-			},
-			StoreID:        1,
-			VariationName:  "Gochujang - Korean Chilli Pepper Paste - 125G",
-			ImageUrls:      "",
-			Price:          96.000000,
-			Categories:     "",
-			DiscountAmount: 20.000000,
-			DiscountType:   1,
-			StockLevel:     10.000000,
-			Weight:         1.0,
-			Width:          1.0,
-			Height:         1.0,
-			Length:         1.0,
-		},
-	}
 )
 
 func TestComboReadByStoreID(t *testing.T) {

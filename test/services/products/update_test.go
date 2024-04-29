@@ -8,6 +8,7 @@ import (
 	prodsvc "OnlineStoreBackend/services/products"
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -48,7 +49,7 @@ func TestUpdate(t *testing.T) {
 
 	// Setup
 	var prodService = prodsvc.NewServiceProduct(db)
-	var modelProduct = models.Products{Model: gorm.Model{ID: 1}}
+	var modelProduct = models.Products{Model: gorm.Model{ID: 1, CreatedAt: time.Now()}}
 
 	// Assertions
 	if assert.NoError(t, prodService.Update(&modelProduct, &updateProdInput)) {

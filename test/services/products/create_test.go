@@ -35,17 +35,17 @@ var (
 				ImageUrls:        []string{"1", "1"},
 			},
 
-			RelatedChannels: []uint64{173, 174, 175},
-			RelatedContents: []uint64{252, 253, 254},
-			Categories:      []uint64{4, 3},
-			Tags:            []string{"fruit", "food"},
+			RelatedChannels: []uint64{1, 2},
+			RelatedContents: []uint64{1, 2},
+			Categories:      []uint64{1, 2},
+			Tags:            []string{"kefir"},
 			Attributes: map[string][]string{
 				"additionalProp1": {"string"},
 				"additionalProp2": {"string"},
 				"additionalProp3": {"string"},
 			},
-			UpSell:    []uint64{2, 5, 7},
-			CrossSell: []uint64{3, 6, 8},
+			UpSell:    []uint64{1, 2},
+			CrossSell: []uint64{1, 2},
 		},
 	}
 )

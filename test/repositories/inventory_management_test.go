@@ -47,6 +47,7 @@ func TestReadInventoriesInventoryManagement(t *testing.T) {
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetVariationsDB(db)
+	test_utils.ResetProductsDB(db)
 
 	// Setup
 	modelInventories := []models.Inventories{}

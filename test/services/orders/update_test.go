@@ -17,13 +17,13 @@ func TestUpdateStatus(t *testing.T) {
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetProductsDB(db)
+	test_utils.ResetStoreOrdersDB(db)
 
 	// Setup
 	ordService := ordsvc.NewServiceOrder(db)
-	modelItems := make([]models.OrderItems, 1)
+	modelItems := []models.OrderItems{}
 
-	err := ordService.UpdateStatus(&modelItems, 1, 1, "1")
-	assert.NoError(t, err)
+	assert.NoError(t, ordService.UpdateStatus(&modelItems, 1, 1, "Processing"))
 
 }
 

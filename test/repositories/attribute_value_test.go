@@ -15,7 +15,7 @@ var (
 		{
 			AttributeValues: models.AttributeValues{
 				AttributeID:    1,
-				AttributeValue: "100g",
+				AttributeValue: "125g",
 			},
 			AttributeName: "weight",
 		},
@@ -27,7 +27,9 @@ func TestReadByProductIDAttributeValue(t *testing.T) {
 
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetProductsDB(db)
 	test_utils.ResetAttributesDB(db)
+	test_utils.ResetAttributeValuesDB(db)
 
 	// Setup
 	modelAttr := []models.AttributeValuesWithDetail{}
@@ -35,10 +37,12 @@ func TestReadByProductIDAttributeValue(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, attrValueRepo.ReadByProductID(&modelAttr, 1)) {
-		readAttributeValue[0].Model.ID = modelAttr[0].Model.ID
-		readAttributeValue[0].CreatedAt = modelAttr[0].CreatedAt
-		readAttributeValue[0].UpdatedAt = modelAttr[0].UpdatedAt
+		if assert.Equal(t, len(readAttributeValue), len(modelAttr)) {
+			readAttributeValue[0].Model.ID = modelAttr[0].Model.ID
+			readAttributeValue[0].CreatedAt = modelAttr[0].CreatedAt
+			readAttributeValue[0].UpdatedAt = modelAttr[0].UpdatedAt
 
-		assert.Equal(t, readAttributeValue[0], modelAttr[0])
+			assert.Equal(t, readAttributeValue[0], modelAttr[0])
+		}
 	}
 }

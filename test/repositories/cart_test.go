@@ -22,7 +22,7 @@ var (
 			VariationName:  "Gochujang - Korean Chilli Pepper Paste - 125G",
 			ImageUrls:      "",
 			Price:          96,
-			Categories:     "",
+			Categories:     "\"Kimchi\"",
 			DiscountAmount: 20,
 			DiscountType:   1,
 			StockLevel:     10,

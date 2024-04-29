@@ -39,7 +39,7 @@ func TestCreateStore(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, storeService.Create(&modelStore, &storeInput, 1)) {
-		assert.Equal(t, 3, modelStore.ID)
+		assert.Equal(t, uint(3), modelStore.ID)
 		assert.Equal(t, storeInput.CompanyID, modelStore.CompanyID)
 		assert.Equal(t, storeInput.Name, modelStore.Name)
 		assert.Equal(t, storeInput.ContactPhone, modelStore.ContactPhone)

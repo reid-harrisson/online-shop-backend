@@ -38,8 +38,8 @@ func ResetCompaniesDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table companies")
 
-	db.Exec("INSERT INTO `companies` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `city_id`, `region_id`, `country_id`, `active`, `company_type_id`, `theme_layout`, `theme_color_1`, `theme_color_2`, `theme_color_3`, `theme_color_4`, `theme_color_5`, `theme_color_6`, `theme_color_7`, `theme_color_8`, `theme_color_9`, `theme_color_10`, `theme_color_mode`, `logo_1`, `logo_2`, `logo_3`, `logo_4`, `logo_5`, `logo_6`, `logo_7`, `logo_8`, `logo_9`, `logo_10`, `system_mode`, `subdomain`, `domain`, `brand_logo_text`, `workflow_status`, `ad_rotation_setting`, `api_key`, `api_secret`, `api_domain`, `default_currency`, `brand_slogan`, `domain_status`, `trial_start_date`, `trial_duration_days`, `theme_background`, `theme_bg_color_1`, `theme_bg_color_2`, `use_bg_image`, `crm_company_id`, `video_bg_1`, `video_bg_2`, `video_bg_3`, `video_bg_4`, `video_bg_5`, `video_bg_6`, `video_bg_7`, `video_bg_8`, `video_bg_9`, `video_bg_10`, `play_pause_ads`, `ad_budget_amount`, `ad_budget_used`, `ad_budget_available`, `ad_price_per_view`, `ad_price_per_clickthrough`, `ad_budget_currency_code`, `rev_share_ad_server`, `rev_share_ad_server_min`, `rev_share_tx_server`, `rev_share_tx_server_min`, `force_single_currency`) VALUES (1, NULL, '2023-11-13 22:53:18', '2023-11-13 22:53:18', 'POCKIT TV Global', 1, 2, 1, 1, 2, 0, '#e4fe20', '#d8ff2c', '#ff1493', '#cb11e4', '#2eb9ff', '#fbc80e', '#7e2ae5', '#da2bc2', '#2eb9ff', 'dark', 'https://app.pockittv.com/images/companies/2/h', 'https://app.pockittv.com/images/companies/2/footer/logo140x34.png', 'https://app.pockittv.com/images/companies/2/favicon/Pockit Icon.png', 'https://www.pockittv.com/images/mail/companies/2/pockittv_logo_chrome_glow_260x64.png', 'https://app.pockittv.com/images/mail/companies/2/pockittv_logo_chrome_glow_260x64.png', NULL, NULL, NULL, NULL, NULL, 'live', 'app', 'pockittv.com', '', 'Complete', 'Randomize', 'e61d32dc2a872e8c8f302d2ce7fab6f43d18b16e61614', '', 'www.pockittv.com,biz.pockittv.com,app.pockittv.com,southafrica.pockittv.com,app.pockittv.dev', 'USD', 'You', '1', 0, '0000-00-00 00:00:00', NULL, '#333333', '#000000', '0', NULL, 0, '', '', '', '', '', '', '', '', '', '0', 0, 0.00, 0.00, 0.00, 0.00000, 0.00000, '0.0000', 0.0000, 0.0000, 0.0000, NULL, NULL);")
-	db.Exec("INSERT INTO `companies` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `city_id`, `region_id`, `country_id`, `active`, `company_type_id`, `theme_layout`, `theme_color_1`, `theme_color_2`, `theme_color_3`, `theme_color_4`, `theme_color_5`, `theme_color_6`, `theme_color_7`, `theme_color_8`, `theme_color_9`, `theme_color_10`, `theme_color_mode`, `logo_1`, `logo_2`, `logo_3`, `logo_4`, `logo_5`, `logo_6`, `logo_7`, `logo_8`, `logo_9`, `logo_10`, `system_mode`, `subdomain`, `domain`, `brand_logo_text`, `workflow_status`, `ad_rotation_setting`, `api_key`, `api_secret`, `api_domain`, `default_currency`, `brand_slogan`, `domain_status`, `trial_start_date`, `trial_duration_days`, `theme_background`, `theme_bg_color_1`, `theme_bg_color_2`, `use_bg_image`, `crm_company_id`, `video_bg_1`, `video_bg_2`, `video_bg_3`, `video_bg_4`, `video_bg_5`, `video_bg_6`, `video_bg_7`, `video_bg_8`, `video_bg_9`, `video_bg_10`, `play_pause_ads`, `ad_budget_amount`, `ad_budget_used`, `ad_budget_available`, `ad_price_per_view`, `ad_price_per_clickthrough`, `ad_budget_currency_code`, `rev_share_ad_server`, `rev_share_ad_server_min`, `rev_share_tx_server`, `rev_share_tx_server_min`, `force_single_currency`) VALUES (2, NULL, '2023-11-13 22:53:18', '2023-11-13 22:53:18', 'AFDA', 2, 1, 2, 5, 1, 0, '#efb538', '', '', '#c61d23', '#efb538', '#f5d184', '#efb538', '#c61d23', '#610005', 'dark', 'images/companies/60/header/download.png', 'images/companies/60/footer/download.png', 'images/companies/60/favicon/cropped-favicon-1-192x192.png', '', '', '', '', '', '', '', 'live', 'afda', 'pockittv.com', '', 'Complete', 'Randomize', 'e61d32dc2a872e8c8f302d2ce7fab6f43d18b16e61614', '', 'afda.pockittv.com', 'USD', 'The', '1', 0, '0000-00-00 00:00:00', 0, '#5c5c5c', '#262626', '1', 127, 0, '', '', '', '', '', '', '', '', '', '0', 0, 0.00, 0.00, 0.00, 0.00000, 0.00000, '0.0000', 0.0000, 0.0000, 0.0000, NULL, NULL);")
+	db.Exec("INSERT INTO `companies` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `city_id`, `region_id`, `country_id`, `active`, `company_type_id`, `theme_layout`, `theme_color_1`, `theme_color_2`, `theme_color_3`, `theme_color_4`, `theme_color_5`, `theme_color_6`, `theme_color_7`, `theme_color_8`, `theme_color_9`, `theme_color_10`, `theme_color_mode`, `logo_1`, `logo_2`, `logo_3`, `logo_4`, `logo_5`, `logo_6`, `logo_7`, `logo_8`, `logo_9`, `logo_10`, `system_mode`, `subdomain`, `domain`, `brand_logo_text`, `workflow_status`, `ad_rotation_setting`, `api_key`, `api_secret`, `api_domain`, `default_currency`, `brand_slogan`, `domain_status`, `trial_start_date`, `trial_duration_days`, `theme_background`, `theme_bg_color_1`, `theme_bg_color_2`, `use_bg_image`, `crm_company_id`, `video_bg_1`, `video_bg_2`, `video_bg_3`, `video_bg_4`, `video_bg_5`, `video_bg_6`, `video_bg_7`, `video_bg_8`, `video_bg_9`, `video_bg_10`, `play_pause_ads`, `ad_budget_amount`, `ad_budget_used`, `ad_budget_available`, `ad_price_per_view`, `ad_price_per_clickthrough`, `ad_budget_currency_code`, `rev_share_ad_server`, `rev_share_ad_server_min`, `rev_share_tx_server`, `rev_share_tx_server_min`, `force_single_currency`) VALUES (1, NULL, '2023-11-13 22:53:18', '2023-11-13 22:53:18', 'POCKIT TV Global', 1, 2, 1, 1, 2, 0, '#e4fe20', '#d8ff2c', '#ff1493', '#cb11e4', '#2eb9ff', '#fbc80e', '#7e2ae5', '#da2bc2', '#2eb9ff', 'dark', 'https://app.pockittv.com/images/companies/2/h', 'https://app.pockittv.com/images/companies/2/footer/logo140x34.png', 'https://app.pockittv.com/images/companies/2/favicon/Pockit Icon.png', 'https://www.pockittv.com/images/mail/companies/2/pockittv_logo_chrome_glow_260x64.png', 'https://app.pockittv.com/images/mail/companies/2/pockittv_logo_chrome_glow_260x64.png', NULL, NULL, NULL, NULL, NULL, 'live', 'app', 'pockittv.com', '', 'Complete', 'Randomize', 'e61d32dc2a872e8c8f302d2ce7fab6f43d18b16e61614', '', 'www.pockittv.com,biz.pockittv.com,app.pockittv.com,southafrica.pockittv.com,app.pockittv.dev', 'USD', 'You', '1', 0, NULL, NULL, '#333333', '#000000', '0', NULL, 0, '', '', '', '', '', '', '', '', '', '0', 0, 0.00, 0.00, 0.00, 0.00000, 0.00000, '0.0000', 0.0000, 0.0000, 0.0000, NULL, NULL);")
+	db.Exec("INSERT INTO `companies` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `city_id`, `region_id`, `country_id`, `active`, `company_type_id`, `theme_layout`, `theme_color_1`, `theme_color_2`, `theme_color_3`, `theme_color_4`, `theme_color_5`, `theme_color_6`, `theme_color_7`, `theme_color_8`, `theme_color_9`, `theme_color_10`, `theme_color_mode`, `logo_1`, `logo_2`, `logo_3`, `logo_4`, `logo_5`, `logo_6`, `logo_7`, `logo_8`, `logo_9`, `logo_10`, `system_mode`, `subdomain`, `domain`, `brand_logo_text`, `workflow_status`, `ad_rotation_setting`, `api_key`, `api_secret`, `api_domain`, `default_currency`, `brand_slogan`, `domain_status`, `trial_start_date`, `trial_duration_days`, `theme_background`, `theme_bg_color_1`, `theme_bg_color_2`, `use_bg_image`, `crm_company_id`, `video_bg_1`, `video_bg_2`, `video_bg_3`, `video_bg_4`, `video_bg_5`, `video_bg_6`, `video_bg_7`, `video_bg_8`, `video_bg_9`, `video_bg_10`, `play_pause_ads`, `ad_budget_amount`, `ad_budget_used`, `ad_budget_available`, `ad_price_per_view`, `ad_price_per_clickthrough`, `ad_budget_currency_code`, `rev_share_ad_server`, `rev_share_ad_server_min`, `rev_share_tx_server`, `rev_share_tx_server_min`, `force_single_currency`) VALUES (2, NULL, '2023-11-13 22:53:18', '2023-11-13 22:53:18', 'AFDA', 2, 1, 2, 5, 1, 0, '#efb538', '', '', '#c61d23', '#efb538', '#f5d184', '#efb538', '#c61d23', '#610005', 'dark', 'images/companies/60/header/download.png', 'images/companies/60/footer/download.png', 'images/companies/60/favicon/cropped-favicon-1-192x192.png', '', '', '', '', '', '', '', 'live', 'afda', 'pockittv.com', '', 'Complete', 'Randomize', 'e61d32dc2a872e8c8f302d2ce7fab6f43d18b16e61614', '', 'afda.pockittv.com', 'USD', 'The', '1', 0, NULL, 0, '#5c5c5c', '#262626', '1', 127, 0, '', '', '', '', '', '', '', '', '', '0', 0, 0.00, 0.00, 0.00, 0.00000, 0.00000, '0.0000', 0.0000, 0.0000, 0.0000, NULL, NULL);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -71,7 +71,19 @@ func ResetStoreOrdersDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_orders")
 
-	db.Exec("INSERT INTO `store_orders` (`id`, `deleted_at`, `created_at`, `updated_at`, `customer_id`, `status`, `billing_address_id`, `shipping_address_id`) VALUES (23, NULL, '2024-04-26 16:29:54', '2024-04-26 16:29:54', 1, NULL, 1, 1);")
+	db.Exec("INSERT INTO `store_orders` (`id`, `deleted_at`, `created_at`, `updated_at`, `customer_id`, `status`, `billing_address_id`, `shipping_address_id`) VALUES (1, NULL, '2024-04-26 16:29:54', '2024-04-29 09:16:01', 1, 0, 1, 1);")
+	db.Exec("INSERT INTO `store_orders` (`id`, `deleted_at`, `created_at`, `updated_at`, `customer_id`, `status`, `billing_address_id`, `shipping_address_id`) VALUES (2, NULL, '2024-04-29 09:15:58', '2024-04-29 09:16:02', 2, 0, 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetStoreOrderItemsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_order_items")
+
+	db.Exec("INSERT INTO `store_order_items` (`id`, `deleted_at`, `created_at`, `updated_at`, `order_id`, `store_id`, `variation_id`, `price`, `quantity`, `sub_total_price`, `tax_rate`, `tax_amount`, `shipping_method_id`, `shipping_price`, `total_price`, `status`) VALUES (1, NULL, '2024-04-29 09:02:26', '2024-04-29 09:16:41', 1, 1, 1, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1, 0.000000, 0.000000, 0);")
+	db.Exec("INSERT INTO `store_order_items` (`id`, `deleted_at`, `created_at`, `updated_at`, `order_id`, `store_id`, `variation_id`, `price`, `quantity`, `sub_total_price`, `tax_rate`, `tax_amount`, `shipping_method_id`, `shipping_price`, `total_price`, `status`) VALUES (2, NULL, '2024-04-29 09:02:40', '2024-04-29 09:02:40', 2, 2, 2, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 2, 0.000000, 0.000000, 0);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -100,7 +112,7 @@ func ResetProductsDB(db *gorm.DB) {
 func ResetProductReviewDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 
-	db.Exec("TRUNCATE Table store_products")
+	db.Exec("TRUNCATE Table store_product_reviews")
 
 	db.Exec("INSERT INTO `store_product_reviews` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `customer_id`, `comment`, `rate`, `status`) VALUES (1, NULL, '2024-04-29 00:53:22', '2024-04-29 00:53:22', 1, 1, 'comment1', 0.000000, 0);")
 	db.Exec("INSERT INTO `store_product_reviews` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `customer_id`, `comment`, `rate`, `status`) VALUES (2, NULL, '2024-04-29 00:56:05', '2024-04-29 00:56:13', 1, 1, 'comment2', 0.000000, 0);")
@@ -243,7 +255,7 @@ func ResetCouponsDB(db *gorm.DB) {
 func ResetVisitorsDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 
-	db.Exec("TRUNCATE Table store_vistors")
+	db.Exec("TRUNCATE Table store_visitors")
 
 	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (1, NULL, '2024-04-24 20:36:14', '2024-04-24 20:36:17', 1, 1, '111.111.111.111', 1, 1);")
 	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (2, NULL, '2024-04-24 20:36:35', '2024-04-24 20:36:35', 2, 2, '111.111.111.112', 2, 2);")
@@ -300,8 +312,19 @@ func ResetRelatedContentsDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_product_related_contents")
 
-	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (1, NULL, '2024-04-29 03:28:39', '2024-04-29 03:28:39', 1, 1);")
+	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (1, NULL, '2024-04-29 03:28:39', '2024-04-29 08:40:15', 1, 1);")
 	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (2, NULL, '2024-04-29 03:28:50', '2024-04-29 03:28:50', 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetProductLinksDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_product_links")
+
+	db.Exec("INSERT INTO `store_product_links` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `link_id`, `is_up_cross`) VALUES (1, NULL, '2024-04-29 04:49:34', '2024-04-29 04:49:34', 1, 1, 0);")
+	db.Exec("INSERT INTO `store_product_links` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `link_id`, `is_up_cross`) VALUES (2, NULL, '2024-04-29 04:49:38', '2024-04-29 04:49:38', 2, 2, 1);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }

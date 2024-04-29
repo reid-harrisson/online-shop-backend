@@ -62,9 +62,9 @@ var (
 	}
 	readStores = []models.StoreOrders{
 		{
-			OrderID:           0,
+			OrderID:           1,
 			CustomerID:        0,
-			VariationID:       0,
+			VariationID:       1,
 			Price:             0,
 			Quantity:          0,
 			SubTotalPrice:     0,
@@ -72,7 +72,7 @@ var (
 			ShippingAddressID: 0,
 			TaxRate:           0,
 			TaxAmount:         0,
-			ShippingMethodID:  0,
+			ShippingMethodID:  1,
 			ShippingPrice:     0,
 			TotalPrice:        0,
 			ProductStatus:     0,
@@ -130,6 +130,9 @@ func TestReadByStoreIDOrder(t *testing.T) {
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetStoreOrdersDB(db)
 	test_utils.ResetStoreCustomerAddressesDB(db)
+	test_utils.ResetStoreOrderItemsDB(db)
+	test_utils.ResetVariationsDB(db)
+	test_utils.ResetProductsDB(db)
 	test_utils.ResetUsersDB(db)
 
 	// Setup
