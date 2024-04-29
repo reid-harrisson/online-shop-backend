@@ -97,6 +97,17 @@ func ResetProductsDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
 
+func ResetProductReviewDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_products")
+
+	db.Exec("INSERT INTO `store_product_reviews` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `customer_id`, `comment`, `rate`, `status`) VALUES (1, NULL, '2024-04-29 00:53:22', '2024-04-29 00:53:22', 1, 1, 'comment1', 0.000000, 0);")
+	db.Exec("INSERT INTO `store_product_reviews` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `customer_id`, `comment`, `rate`, `status`) VALUES (2, NULL, '2024-04-29 00:56:05', '2024-04-29 00:56:13', 1, 1, 'comment2', 0.000000, 0);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
 func ResetVariationsDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 
