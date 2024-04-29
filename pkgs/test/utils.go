@@ -243,7 +243,7 @@ func ResetCouponsDB(db *gorm.DB) {
 func ResetVisitorsDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 
-	db.Exec("TRUNCATE Table store_vistors")
+	db.Exec("TRUNCATE Table store_visitors")
 
 	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (1, NULL, '2024-04-24 20:36:14', '2024-04-24 20:36:17', 1, 1, '111.111.111.111', 1, 1);")
 	db.Exec("INSERT INTO `store_visitors` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `product_id`, `ip_address`, `page`, `bounce`) VALUES (2, NULL, '2024-04-24 20:36:35', '2024-04-24 20:36:35', 2, 2, '111.111.111.112', 2, 2);")
@@ -302,6 +302,17 @@ func ResetRelatedContentsDB(db *gorm.DB) {
 
 	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (1, NULL, '2024-04-29 03:28:39', '2024-04-29 03:28:39', 1, 1);")
 	db.Exec("INSERT INTO `store_product_related_contents` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `content_id`) VALUES (2, NULL, '2024-04-29 03:28:50', '2024-04-29 03:28:50', 2, 2);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetStoreOrderItemsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_order_items")
+
+	db.Exec("INSERT INTO `store_order_items` (`id`, `deleted_at`, `created_at`, `updated_at`, `order_id`, `store_id`, `variation_id`, `price`, `quantity`, `sub_total_price`, `tax_rate`, `tax_amount`, `shipping_method_id`, `shipping_price`, `total_price`, `status`) VALUES (1, NULL, '2024-04-29 09:02:26', '2024-04-29 09:16:41', 1, 1, 1, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1, 0.000000, 0.000000, 0);")
+	db.Exec("INSERT INTO `store_order_items` (`id`, `deleted_at`, `created_at`, `updated_at`, `order_id`, `store_id`, `variation_id`, `price`, `quantity`, `sub_total_price`, `tax_rate`, `tax_amount`, `shipping_method_id`, `shipping_price`, `total_price`, `status`) VALUES (2, NULL, '2024-04-29 09:02:40', '2024-04-29 09:02:40', 2, 2, 2, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 2, 0.000000, 0.000000, 0);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
