@@ -115,3 +115,30 @@ func TestReadVariationsBySku(t *testing.T) {
 		assert.Equal(t, readVariationsOutputs[0], modelVars)
 	}
 }
+
+func TestReadByAttributeValueIDs(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoresDB(db)
+	test_utils.ResetAttributeValuesDB(db)
+	test_utils.ResetProductsDB(db)
+	test_utils.ResetVariationsDB(db)
+	test_utils.ResetVariationDetailsDB(db)
+	test_utils.ResetAttributesDB(db)
+
+	// Setup
+	varRepo := repositories.NewRepositoryVariation(db)
+	modelVars := models.Variations{}
+
+	// Assertions
+	var valueIDs = []uint64{1}
+	if assert.NoError(t, varRepo.ReadByAttributeValueIDs(&modelVars, valueIDs, 1)) {
+		readVariationsOutputs[0].ID = modelVars.ID
+		readVariationsOutputs[0].CreatedAt = modelVars.CreatedAt
+		readVariationsOutputs[0].UpdatedAt = modelVars.UpdatedAt
+
+		assert.Equal(t, readVariationsOutputs[0], modelVars)
+	}
+}
