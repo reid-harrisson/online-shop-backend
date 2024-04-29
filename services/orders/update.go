@@ -3,9 +3,11 @@ package ordsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
+	"OnlineStoreBackend/repositories"
 	stocksvc "OnlineStoreBackend/services/stock_trails"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/johnfercher/maroto/pkg/consts"
 	"github.com/johnfercher/maroto/pkg/pdf"
@@ -107,12 +109,36 @@ func (service *Service) UpdateOrderItemStatus(orderID uint64, status string) err
 		Error
 }
 
-func (service *Service) GeneratePDF(orderID uint64) error {
+func (service *Service) GeneratePDF(modelOrders models.CustomerOrdersWithAddress) error {
+	varRepo := repositories.NewRepositoryVariation(service.DB)
+	orderItems := [][]string{}
+	for _, modelItem := range modelOrders.Items {
+		modelVar := models.Variations{}
+		varRepo.ReadByID(&modelVar, modelItem.VariationID)
+		discount := ""
+		if modelVar.DiscountAmount > 0 {
+			discount = fmt.Sprintf("%.2f", modelVar.DiscountAmount)
+			if modelVar.DiscountType == utils.PercentageOff {
+				discount += "%"
+			}
+		}
+		temp := []string{
+			modelVar.Title,
+			strconv.FormatFloat(modelVar.Price, 'f', 2, 64),
+			discount,
+			strconv.FormatFloat(modelItem.Quantity, 'f', 2, 64),
+			strconv.FormatFloat(modelItem.SubTotalPrice, 'f', 2, 64),
+			strconv.FormatFloat(modelItem.TaxAmount, 'f', 2, 64),
+			strconv.FormatFloat(modelItem.TotalPrice, 'f', 2, 64),
+		}
+		orderItems = append(orderItems, temp)
+	}
+
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 	m.SetPageMargins(20, 10, 20)
 
 	utils.BuildHeading(m)
-	utils.BuildFruitList(m)
+	utils.BuildFruitList(m, orderItems)
 
 	err := m.OutputFileAndClose("div_rhino_fruit.pdf")
 	if err != nil {

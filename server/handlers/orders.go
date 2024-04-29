@@ -390,13 +390,13 @@ func (h *HandlersOrder) UpdateOrderItemStatus(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/generate-pdf [put]
 func (h *HandlersOrder) GeneratePDF(c echo.Context) error {
-	orderID, err := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
+	_, err := strconv.ParseUint(c.QueryParam("order_id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	orderService := ordsvc.NewServiceOrder(h.server.DB)
-	err = orderService.GeneratePDF(orderID)
+	// orderService := ordsvc.NewServiceOrder(h.server.DB)
+	// err = orderService.GeneratePDF(orderID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}

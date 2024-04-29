@@ -68,9 +68,9 @@ func BuildHeading(m pdf.Maroto) {
 	})
 }
 
-func BuildFruitList(m pdf.Maroto) {
-	tableHeadings := []string{"Fruit", "Description", "Price"}
-	contents := FruitList(20)
+func BuildFruitList(m pdf.Maroto, orderItems [][]string) {
+	tableHeadings := []string{"Name", "Price", "Discount", "Quantity", "SubTotal", "Tax", "Total"}
+	contents := orderItems
 	lightPurpleColor := getLightPurpleColor()
 
 	m.SetBackgroundColor(getTealColor())
@@ -92,18 +92,17 @@ func BuildFruitList(m pdf.Maroto) {
 	m.TableList(tableHeadings, contents, props.TableList{
 		HeaderProp: props.TableListContent{
 			Size:      9,
-			GridSizes: []uint{3, 7, 2},
+			GridSizes: []uint{6, 1, 1, 1, 1, 1, 1},
 		},
 		ContentProp: props.TableListContent{
 			Size:      8,
-			GridSizes: []uint{3, 7, 2},
+			GridSizes: []uint{6, 1, 1, 1, 1, 1, 1},
 		},
 		Align:                consts.Left,
 		AlternatedBackground: &lightPurpleColor,
 		HeaderContentSpace:   1,
 		Line:                 false,
 	})
-
 }
 
 func getDarkPurpleColor() color.Color {
