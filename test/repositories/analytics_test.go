@@ -442,3 +442,20 @@ func TestAnalyticsReadCustomerSatisfaction(t *testing.T) {
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	assert.NoError(t, analRepo.ReadCustomerSatisfaction(&modelReports, 1, startDate, endDate))
 }
+
+func TestAnalyticsReadPageLoadingTime(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelTimes = []models.PageLoadingTime{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	assert.NoError(t, analRepo.ReadPageLoadingTime(&modelTimes, 1, startDate, endDate))
+}
