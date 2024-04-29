@@ -41,3 +41,17 @@ func TestUpdateOrderItemStatus(t *testing.T) {
 	assert.NoError(t, err)
 
 }
+
+func TestGeneratePDF(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+
+	// Setup
+	ordService := ordsvc.NewServiceOrder(db)
+
+	err := ordService.GeneratePDF(1)
+	assert.NoError(t, err)
+
+}

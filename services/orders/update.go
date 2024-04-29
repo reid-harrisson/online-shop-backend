@@ -4,6 +4,11 @@ import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
 	stocksvc "OnlineStoreBackend/services/stock_trails"
+	"fmt"
+	"os"
+
+	"github.com/johnfercher/maroto/pkg/consts"
+	"github.com/johnfercher/maroto/pkg/pdf"
 )
 
 func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) error {
@@ -100,4 +105,23 @@ func (service *Service) UpdateOrderItemStatus(orderID uint64, status string) err
 		Where("order_id = ?", orderID).
 		Update("status", utils.OrderStatusFromString(status)).
 		Error
+}
+
+func (service *Service) GeneratePDF(orderID uint64) error {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+	m.SetPageMargins(20, 10, 20)
+
+	utils.BuildHeading(m)
+	utils.BuildFruitList(m)
+
+	err := m.OutputFileAndClose("div_rhino_fruit.pdf")
+	if err != nil {
+		fmt.Println("⚠️  Could not save PDF:", err)
+		os.Exit(1)
+		return err
+	}
+
+	fmt.Println("PDF saved successfully")
+
+	return nil
 }
