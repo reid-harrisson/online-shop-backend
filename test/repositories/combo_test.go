@@ -39,20 +39,20 @@ var (
 			CartItems: models.CartItems{
 				CustomerID:  1,
 				VariationID: 1,
-				Quantity:    1,
+				Quantity:    2,
 			},
 			StoreID:        1,
 			VariationName:  "Gochujang - Korean Chilli Pepper Paste - 125G",
 			ImageUrls:      "",
 			Price:          96.000000,
-			Categories:     "",
+			Categories:     "\"Kefir\"",
 			DiscountAmount: 20.000000,
 			DiscountType:   1,
 			StockLevel:     10.000000,
-			Weight:         1.0,
-			Width:          1.0,
-			Height:         1.0,
-			Length:         1.0,
+			Weight:         0,
+			Width:          0,
+			Height:         0,
+			Length:         0,
 		},
 	}
 )
@@ -170,17 +170,23 @@ func TestComboReadDetail(t *testing.T) {
 	// Setup
 	var comboRepo = repositories.NewRepositoryCombo(db)
 
-	var modelCombos = models.Combos{}
+	var modelCombos = []models.CartItemsWithDetail{}
 
 	// Assertions
-	if assert.NoError(t, comboRepo.ReadByID(&modelCombos, 1)) {
-		assert.Equal(t, comboOutputs[0].StoreID, modelCombos.StoreID)
-		assert.Equal(t, comboOutputs[0].DiscountAmount, modelCombos.DiscountAmount)
-		assert.Equal(t, comboOutputs[0].DiscountType, modelCombos.DiscountType)
-		assert.Equal(t, comboOutputs[0].ImageUrls, modelCombos.ImageUrls)
-		assert.Equal(t, comboOutputs[0].Description, modelCombos.Description)
-		assert.Equal(t, comboOutputs[0].Title, modelCombos.Title)
-		assert.Equal(t, comboOutputs[0].Status, modelCombos.Status)
+	if assert.NoError(t, comboRepo.ReadDetail(&modelCombos, 1)) {
+		assert.Equal(t, comboItemsWithDetail[0].VariationID, modelCombos[0].VariationID)
+		assert.Equal(t, comboItemsWithDetail[0].Quantity, modelCombos[0].Quantity)
+		assert.Equal(t, comboItemsWithDetail[0].StoreID, modelCombos[0].StoreID)
+		assert.Equal(t, comboItemsWithDetail[0].Price, modelCombos[0].Price)
+		assert.Equal(t, comboItemsWithDetail[0].DiscountAmount, modelCombos[0].DiscountAmount)
+		assert.Equal(t, comboItemsWithDetail[0].DiscountType, modelCombos[0].DiscountType)
+		assert.Equal(t, comboItemsWithDetail[0].ImageUrls, modelCombos[0].ImageUrls)
+		assert.Equal(t, comboItemsWithDetail[0].StockLevel, modelCombos[0].StockLevel)
+		assert.Equal(t, comboItemsWithDetail[0].VariationName, modelCombos[0].VariationName)
+		assert.Equal(t, comboItemsWithDetail[0].Weight, modelCombos[0].Weight)
+		assert.Equal(t, comboItemsWithDetail[0].Width, modelCombos[0].Width)
+		assert.Equal(t, comboItemsWithDetail[0].Height, modelCombos[0].Height)
+		assert.Equal(t, comboItemsWithDetail[0].Categories, modelCombos[0].Categories)
 	}
 }
 
