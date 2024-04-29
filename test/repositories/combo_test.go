@@ -3,6 +3,7 @@ package test
 import (
 	"OnlineStoreBackend/models"
 	test_utils "OnlineStoreBackend/pkgs/test"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"testing"
 
@@ -180,5 +181,26 @@ func TestComboReadDetail(t *testing.T) {
 		assert.Equal(t, comboOutputs[0].Description, modelCombos.Description)
 		assert.Equal(t, comboOutputs[0].Title, modelCombos.Title)
 		assert.Equal(t, comboOutputs[0].Status, modelCombos.Status)
+	}
+}
+
+func TestComboReadStatus(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetCombosDB(db)
+	test_utils.ResetComboItemsDB(db)
+	test_utils.ResetStoresDB(db)
+	test_utils.ResetVariationsDB(db)
+	test_utils.ResetShippingData(db)
+
+	// Setup
+	var comboRepo = repositories.NewRepositoryCombo(db)
+
+	// Assertions
+	status := utils.Approved
+	if assert.NoError(t, comboRepo.ReadStatus(&status, 1)) {
+		assert.Equal(t, comboOutputs[0].Status, status)
 	}
 }
