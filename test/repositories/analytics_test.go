@@ -46,6 +46,9 @@ var (
 			BounceRate:    1,
 		},
 	}
+	readConvenRateOutputs = models.ConventionRate{
+		Rate: 0,
+	}
 )
 
 func TestAnalyticsReadSalesReport(t *testing.T) {
@@ -242,5 +245,24 @@ func TestAnalyticsReadVisitor(t *testing.T) {
 		assert.Equal(t, readVisitorsOutputs[0].UniqueVisitor, modelReports.UniqueVisitor)
 		assert.Equal(t, readVisitorsOutputs[0].PageView, modelReports.PageView)
 		assert.Equal(t, readVisitorsOutputs[0].BounceRate, modelReports.BounceRate)
+	}
+}
+
+func TestAnalyticsReadConventionRate(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = models.ConventionRate{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	if assert.NoError(t, analRepo.ReadConventionRate(&modelReports, 1, startDate, endDate)) {
+		assert.Equal(t, readConvenRateOutputs.Rate, modelReports.Rate)
 	}
 }
