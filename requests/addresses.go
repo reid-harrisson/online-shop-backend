@@ -1,6 +1,7 @@
 package requests
 
 type RequestAddress struct {
+	Name         string `json:"name" example:"Address 1"`
 	AddressLine1 string `json:"address_line1" example:"2334 Devenish St"`
 	AddressLine2 string `json:"address_line2" example:""`
 	CityID       uint64 `json:"city_id" example:"2750264"`

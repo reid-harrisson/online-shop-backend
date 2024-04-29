@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 type Addresses struct {
 	gorm.Model
 
+	Name         string `gorm:"column:name; type:varchar(255)"`
 	AddressLine1 string `gorm:"column:address_line1; type:varchar(100)"`
 	AddressLine2 string `gorm:"column:address_line2; type:varchar(100)"`
 	SubUrb       string `gorm:"column:suburb; type:varchar(50)"`

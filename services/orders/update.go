@@ -3,7 +3,7 @@ package ordsvc
 import (
 	"OnlineStoreBackend/models"
 	"OnlineStoreBackend/pkgs/utils"
-	stocksvc "OnlineStoreBackend/services/stock_tracks"
+	stocksvc "OnlineStoreBackend/services/stock_trails"
 )
 
 func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID uint64, orderID uint64, orderStatus string) error {
@@ -29,8 +29,8 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 		return err
 	}
 
-	modelStocks := []models.StockTracks{}
-	stockService := stocksvc.NewServiceStockTrack(service.DB)
+	modelStocks := []models.StockTrails{}
+	stockService := stocksvc.NewServiceStockTrail(service.DB)
 
 	flagCompleted := true
 	flagPending := true
@@ -41,7 +41,7 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 			modelItem.Status = status
 			if status == utils.StatusOrderProcessing {
 				modelVars[varIndex].StockLevel -= modelItem.Quantity
-				modelStocks = append(modelStocks, models.StockTracks{
+				modelStocks = append(modelStocks, models.StockTrails{
 					VariationID: uint64(modelVars[varIndex].ID),
 					ProductID:   modelVars[varIndex].ProductID,
 					Change:      -modelItem.Quantity,
@@ -49,7 +49,7 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 				})
 			} else if status == utils.StatusOrderCancelled {
 				modelVars[varIndex].StockLevel += modelItem.Quantity
-				modelStocks = append(modelStocks, models.StockTracks{
+				modelStocks = append(modelStocks, models.StockTrails{
 					VariationID: uint64(modelVars[varIndex].ID),
 					ProductID:   modelVars[varIndex].ProductID,
 					Change:      modelItem.Quantity,

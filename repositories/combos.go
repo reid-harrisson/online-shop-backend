@@ -15,31 +15,45 @@ func NewRepositoryCombo(db *gorm.DB) *RepositoryCombo {
 	return &RepositoryCombo{DB: db}
 }
 
-func (repository *RepositoryCombo) ReadByStoreID(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) {
-	repository.DB.Where("store_id = ?", storeID).Find(modelCombos)
+func (repository *RepositoryCombo) ReadByStoreID(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) error {
+	if err := repository.DB.Where("store_id = ?", storeID).First(modelCombos).Error; err != nil {
+		return err
+	}
+
 	comboIDs := []uint64{}
+
 	for _, modelCombo := range *modelCombos {
 		comboIDs = append(comboIDs, uint64(modelCombo.ID))
 	}
-	repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems)
+
+	return repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems).Error
 }
 
-func (repository *RepositoryCombo) ReadApproved(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) {
-	repository.DB.Where("store_id = ? And status = ?", storeID, utils.Approved).Find(modelCombos)
+func (repository *RepositoryCombo) ReadApproved(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) error {
+	if err := repository.DB.Where("store_id = ? And status = ?", storeID, utils.Approved).First(modelCombos).Error; err != nil {
+		return err
+	}
+
 	comboIDs := []uint64{}
 	for _, modelCombo := range *modelCombos {
 		comboIDs = append(comboIDs, uint64(modelCombo.ID))
 	}
-	repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems)
+
+	return repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems).Error
 }
 
-func (repository *RepositoryCombo) ReadPublished(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) {
-	repository.DB.Where("store_id = ? And status = ?", storeID, utils.Pending).Find(modelCombos)
+func (repository *RepositoryCombo) ReadPublished(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) error {
+	if err := repository.DB.Where("store_id = ? And status = ?", storeID, utils.Pending).First(modelCombos).Error; err != nil {
+		return err
+	}
+
 	comboIDs := []uint64{}
+
 	for _, modelCombo := range *modelCombos {
 		comboIDs = append(comboIDs, uint64(modelCombo.ID))
 	}
-	repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems)
+
+	return repository.DB.Where("combo_id In (?)", comboIDs).Find(modelItems).Error
 }
 
 func (repository *RepositoryCombo) ReadByID(modelCombo *models.Combos, comboID uint64) error {

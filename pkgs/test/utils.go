@@ -60,8 +60,8 @@ func ResetStoresDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table stores")
 
-	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (1, NULL, '2024-04-08 09:57:59', '2024-04-08 09:58:51', 1, 1, '+27.79.326.7663', 'steve@pockittv.com', 0, 0, '', '', '', 'Steve');")
-	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (2, NULL, '2024-04-08 09:58:05', '2024-04-08 09:58:59', 2, 2, '0824721073', 'jade@pockittv.com', 0, 0, '', '', '', 'Tade');")
+	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (1, NULL, '2024-04-08 09:57:59', '2024-04-08 09:58:51', 1, 1, '+27793267663', 'steve@pockittv.com', 0, 0, '', '', '', 'Steve');")
+	db.Exec("INSERT INTO `stores` (`id`, `deleted_at`, `created_at`, `updated_at`, `company_id`, `owner_id`, `contact_phone`, `contact_email`, `show_stock_level_status`, `show_out_of_stock_status`, `delivery_policy`, `returns_policy`, `terms`, `name`) VALUES (2, NULL, '2024-04-08 09:58:05', '2024-04-08 09:58:59', 2, 2, '+0824721073', 'jade@pockittv.com', 0, 0, '', '', '', 'Tade');")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -190,8 +190,8 @@ func ResetCombosDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_combos")
 
-	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (1, '2024-04-10 19:33:25.000', '2024-04-10 19:33:22.000', NULL, 1, 10.000000, 1, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 'Combo of Kefir', 'Kefir Combo', NULL);")
-	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (2, '2024-04-10 19:33:14.000', '2024-04-10 19:33:18.000', NULL, 2, 15.000000, 0, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 'Combo of Kimchi', 'Kimchi Combo', NULL);")
+	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (1, '2024-04-10 19:33:25.000', '2024-04-10 19:33:22.000', NULL, 1, 10.000000, 1, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Gochujang-Front-scaled.jpg', 'Combo of Kefir', 'Kefir Combo', '2');")
+	db.Exec("INSERT INTO `store_combos` (`id`, `created_at`, `updated_at`, `deleted_at`, `store_id`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `status`) VALUES (2, '2024-04-10 19:33:14.000', '2024-04-10 19:33:18.000', NULL, 2, 15.000000, 0, 'https://www.chegourmet.co.za/wp-content/uploads/2019/09/Kimchi-Tonic-Front-2-scaled.jpg', 'Combo of Kimchi', 'Kimchi Combo', '1');")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -258,6 +258,17 @@ func ResetStoreCartItemDB(db *gorm.DB) {
 
 	db.Exec("INSERT INTO `store_cart_items` (`id`, `created_at`, `updated_at`, `deleted_at`, `customer_id`, `variation_id`, `quantity`) VALUES (1, NULL, NULL, NULL, 1, 1, NULL);")
 	db.Exec("INSERT INTO `store_cart_items` (`id`, `created_at`, `updated_at`, `deleted_at`, `customer_id`, `variation_id`, `quantity`) VALUES (2, NULL, NULL, NULL, 2, 2, NULL);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetStockTrailsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_stock_trails")
+
+	db.Exec("INSERT INTO `store_stock_trails` (`id`, `created_at`, `updated_at`, `deleted_at`, `product_id`, `variation_id`, `change`, `event`) VALUES (1, '2024-04-10 20:21:32.000', '2024-04-10 20:21:32.000', NULL, 1, 1, 10.000000, 0);")
+	db.Exec("INSERT INTO `store_stock_trails` (`id`, `created_at`, `updated_at`, `deleted_at`, `product_id`, `variation_id`, `change`, `event`) VALUES (2, '2024-04-10 20:21:42.000', '2024-04-10 20:21:42.000', NULL, 2, 2, 20.000000, 1);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }

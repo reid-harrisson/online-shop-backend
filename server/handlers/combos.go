@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	eh "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	combsvc "OnlineStoreBackend/services/combos"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -32,19 +35,39 @@ func NewHandlersCombos(server *s.Server) *HandlersCombos {
 // @Param params body requests.RequestCombo true "Combo"
 // @Success 201 {object} responses.ResponseCombo
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo [post]
 func (h *HandlersCombos) Create(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	req := new(requests.RequestCombo)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelCombo := models.Combos{}
-	modelItems := []models.ComboItems{}
+	if err := c.Bind(req); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	var modelCombo = models.Combos{}
+	var modelItems = make([]models.ComboItems, 0)
+
+	// Initialize combo
+	imageUrls, _ := json.Marshal(req.ImageUrls)
+
+	modelCombo.StoreID = storeID
+	modelCombo.DiscountAmount = req.DiscountAmount
+	modelCombo.DiscountType = utils.DiscountTypeFromString(req.DiscountType)
+	modelCombo.ImageUrls = string(imageUrls)
+	modelCombo.Description = req.Description
+	modelCombo.Title = req.Title
+	modelCombo.Status = utils.Draft
+
+	// Create combo
 	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.Create(&modelCombo, &modelItems, req, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This store doesn't exist.")
+	err = combService.Create(&modelCombo, &modelItems, req, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseCombo(c, http.StatusCreated, modelCombo, modelItems)
@@ -59,14 +82,25 @@ func (h *HandlersCombos) Create(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 201 {object} []responses.ResponseCombo
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo [get]
 func (h *HandlersCombos) ReadAll(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
-	modelCombos := []models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombos = []models.Combos{}
+	var modelItems = []models.ComboItems{}
+
+	// Read all combos
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadByStoreID(&modelCombos, &modelItems, storeID)
+	err = combRepo.ReadByStoreID(&modelCombos, &modelItems, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCombos(c, http.StatusOK, modelCombos, modelItems)
 }
 
@@ -79,14 +113,25 @@ func (h *HandlersCombos) ReadAll(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 201 {object} []responses.ResponseCombo
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/approved [get]
 func (h *HandlersCombos) ReadApproved(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
-	modelCombos := []models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombos = []models.Combos{}
+	var modelItems = []models.ComboItems{}
+
+	// Read approved combo
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadApproved(&modelCombos, &modelItems, storeID)
+	err = combRepo.ReadApproved(&modelCombos, &modelItems, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCombos(c, http.StatusOK, modelCombos, modelItems)
 }
 
@@ -99,14 +144,25 @@ func (h *HandlersCombos) ReadApproved(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 201 {object} []responses.ResponseCombo
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/publish [get]
 func (h *HandlersCombos) ReadPublished(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
-	modelCombos := []models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelCombos = []models.Combos{}
+	var modelItems = []models.ComboItems{}
+
+	// Read published combo
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	combRepo.ReadPublished(&modelCombos, &modelItems, storeID)
+	err = combRepo.ReadPublished(&modelCombos, &modelItems, storeID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCombos(c, http.StatusOK, modelCombos, modelItems)
 }
 
@@ -121,29 +177,47 @@ func (h *HandlersCombos) ReadPublished(c echo.Context) error {
 // @Param params body requests.RequestCombo true "Combo"
 // @Success 200 {object} responses.ResponseCombo
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/{id} [put]
 func (h *HandlersCombos) Update(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	req := new(requests.RequestCombo)
+
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
+
 	if status == utils.Pending {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo is in pending status.")
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboPending)
 	}
 
 	modelCombo := models.Combos{}
-	modelItems := []models.ComboItems{}
+	var modelItems = []models.ComboItems{}
+
+	// Update combo
 	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.Update(&modelCombo, &modelItems, req, storeID, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
+	err = combService.Update(&modelCombo, &modelItems, req, storeID, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseCombo(c, http.StatusOK, modelCombo, modelItems)
@@ -158,24 +232,36 @@ func (h *HandlersCombos) Update(c echo.Context) error {
 // @Param id path int true "Combo ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/approve/{id} [put]
 func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
-	}
-	if status != utils.Pending {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo isn't published.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.UpdateStatus(utils.Approved, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	if status != utils.Pending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboNotPublished)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "This combo is successfully approved.")
+
+	// Update status
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.UpdateStatus(utils.Approved, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboApproved)
 }
 
 // Refresh godoc
@@ -187,24 +273,36 @@ func (h *HandlersCombos) UpdateApprove(c echo.Context) error {
 // @Param id path int true "Combo ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/reject/{id} [put]
 func (h *HandlersCombos) UpdateReject(c echo.Context) error {
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
-	}
-	if status != utils.Pending {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo isn't published.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.UpdateStatus(utils.Rejected, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	if status != utils.Pending {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboNotPublished)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "This combo is rejected.")
+
+	// Update status
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.UpdateStatus(utils.Rejected, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboRejected)
 }
 
 // Refresh godoc
@@ -216,24 +314,36 @@ func (h *HandlersCombos) UpdateReject(c echo.Context) error {
 // @Param id path int true "Combo ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/publish/{id} [put]
 func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	status := utils.Draft
+
+	// Read status
 	combRepo := repositories.NewRepositoryCombo(h.server.DB)
-	if err := combRepo.ReadStatus(&status, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
-	}
-	if status != utils.Draft {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo isn't changed.")
+	err = combRepo.ReadStatus(&status, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.UpdateStatus(utils.Pending, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	if status != utils.Draft {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ComboNotChanged)
 	}
-	return responses.MessageResponse(c, http.StatusOK, "This combo is successfully published.")
+
+	// Update status
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.UpdateStatus(utils.Pending, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboPublished)
 }
 
 // Refresh godoc
@@ -246,15 +356,26 @@ func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
 // @Param id path int true "Combo ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/combo/{id} [delete]
 func (h *HandlersCombos) Delete(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
-	comboID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	combService := combsvc.NewServiceCombo(h.server.DB)
-	if err := combService.Delete(storeID, comboID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This combo doesn't exist.")
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	return responses.MessageResponse(c, http.StatusOK, "Combo succesfully deleted.")
+	comboID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	// Delete combo
+	combService := combsvc.NewServiceCombo(h.server.DB)
+	err = combService.Delete(storeID, comboID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboDeleted)
 }

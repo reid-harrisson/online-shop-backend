@@ -5,15 +5,17 @@ import (
 	"fmt"
 )
 
-func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) {
+func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) error {
 	modelDets := []models.VariationDetails{}
+
 	for _, attributeValueID := range attributeValueIDs {
 		modelDets = append(modelDets, models.VariationDetails{
 			VariationID:      variationID,
 			AttributeValueID: attributeValueID,
 		})
 	}
-	service.DB.Create(&modelDets)
+
+	return service.DB.Create(&modelDets).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewDets *[]models.VariationDetails, detMatches []string, detIndices map[string]int) error {

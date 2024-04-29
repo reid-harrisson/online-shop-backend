@@ -8,6 +8,7 @@ import (
 
 type ResponseAddress struct {
 	ID           uint64 `json:"id"`
+	Name         string `json:"name"`
 	AddressLine1 string `json:"address_line1"`
 	AddressLine2 string `json:"address_line2"`
 	SubUrb       string `json:"suburb"`
@@ -20,6 +21,7 @@ type ResponseAddress struct {
 func NewResponseAddress(c echo.Context, statusCode int, modelAddr models.Addresses) error {
 	return Response(c, statusCode, ResponseAddress{
 		ID:           uint64(modelAddr.ID),
+		Name:         modelAddr.Name,
 		AddressLine1: modelAddr.AddressLine1,
 		AddressLine2: modelAddr.AddressLine2,
 		SubUrb:       modelAddr.SubUrb,
@@ -35,6 +37,7 @@ func NewResponseAddresses(c echo.Context, statusCode int, modelAddrs []models.Ad
 	for _, modelAddr := range modelAddrs {
 		responseAddrs = append(responseAddrs, ResponseAddress{
 			ID:           uint64(modelAddr.ID),
+			Name:         modelAddr.Name,
 			AddressLine1: modelAddr.AddressLine1,
 			AddressLine2: modelAddr.AddressLine2,
 			SubUrb:       modelAddr.SubUrb,

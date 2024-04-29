@@ -98,7 +98,7 @@ vm-deploy:
     - echo "$SSH_PRIVATE_KEY" > /tmp/id_rsa
     - echo "$SSH_PUBLIC_KEY" > /tmp/id_rsa.pub
     - chmod 600 /tmp/id_rsa
-    - gcloud compute ssh --zone=us-central1-a $VM_INSTANCE_NAME --ssh-key-file=/tmp/id_rsa --quiet --ssh-flag="-l araki" --command "gcloud auth activate-service-account --key-file=/home/araki/service_account_key.json; docker stop store-server; docker rm store-server; docker rmi -f $(docker images -q store:server); cat /home/araki/service_account_key.json | docker login -u _json_key --password-stdin https://gcr.io; docker pull $DOCKER_IMAGE; docker image tag $DOCKER_IMAGE store:server; docker run -p 8014:8080 -d --name store-server store:server;"
+    - gcloud compute ssh --zone=us-central1-a $VM_INSTANCE_NAME --ssh-key-file=/tmp/id_rsa --quiet --ssh-flag="-l developer" --command "gcloud auth activate-service-account --key-file=/home/carlos/service_account_key.json; docker stop store-server; docker rm store-server; docker rmi -f $(docker images -q store:server); cat /home/carlos/service_account_key.json | docker login -u _json_key --password-stdin https://gcr.io; docker pull $DOCKER_IMAGE; docker image tag $DOCKER_IMAGE store:server; docker run -p 8014:8080 -d --name store-server store:server;"
 
   rules:
     - if: $CI_COMMIT_BRANCH == "stg"

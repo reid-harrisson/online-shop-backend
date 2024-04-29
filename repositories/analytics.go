@@ -17,7 +17,8 @@ func NewRepositoryAnalytics(db *gorm.DB) *RepositoryAnalytics {
 }
 
 func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.SalesReports, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Where("items.store_id = ?", storeID).
 		Select(`
 			items.variation_id,
@@ -30,11 +31,13 @@ func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.Sa
 		Joins("Left Join store_product_variations As vars On vars.id = items.variation_id").
 		Where("vars.deleted_at Is Null And items.deleted_at Is Null").
 		Where("items.created_at Between ? And ?", startDate, endDate).
-		Scan(modelReports).Error
+		Scan(modelReports).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.CustomerInsights, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 		  Min(users.age) As youngest_age,
     	Max(users.age) As oldest_age,
@@ -47,11 +50,13 @@ func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.
 		Where("items.store_id = ?", storeID).
 		Where("users.deleted_at Is Null And ords.deleted_at Is Null And items.deleted_at Is Null").
 		Where("items.created_at Between ? And ?", startDate, endDate).
-		Scan(modelReport).Error
+		Scan(modelReport).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalytic(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.
+		Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -60,11 +65,13 @@ func (repository *RepositoryAnalytics) ReadStockAnalytic(modelLevels *[]models.S
 		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
 		Group("Date(tracks.created_at)").
 		Where("tracks.created_at Between ? And ?", startDate, endDate).
-		Scan(modelLevels).Error
+		Scan(modelLevels).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticWeekly(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.
+		Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -73,11 +80,13 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticWeekly(modelLevels *[]mo
 		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
 		Group("YearWeek(tracks.created_at)").
 		Where("tracks.created_at Between ? And ?", startDate, endDate).
-		Scan(modelLevels).Error
+		Scan(modelLevels).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticMonthly(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.
+		Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -86,11 +95,13 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticMonthly(modelLevels *[]m
 		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
 		Group("Extract(Year_Month From tracks.created_at)").
 		Where("tracks.created_at Between ? And ?", startDate, endDate).
-		Scan(modelLevels).Error
+		Scan(modelLevels).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticWeekDay(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.
+		Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -99,11 +110,13 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticWeekDay(modelLevels *[]m
 		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
 		Group("Weekday(tracks.created_at)").
 		Where("tracks.created_at Between ? And ?", startDate, endDate).
-		Scan(modelLevels).Error
+		Scan(modelLevels).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticHour(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.
+		Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -112,11 +125,13 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticHour(modelLevels *[]mode
 		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
 		Group("Hour(tracks.created_at)").
 		Where("tracks.created_at Between ? And ?", startDate, endDate).
-		Scan(modelLevels).Error
+		Scan(modelLevels).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadStockAnalyticMonth(modelLevels *[]models.StockAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_stock_tracks As tracks").
+	return repository.DB.
+		Table("store_stock_trails As tracks").
 		Select(`
 			Sum((Case When tracks.change > 0 Then tracks.change Else 0 End)) As stock_in,
 			Sum((Case When tracks.change < 0 Then tracks.change Else 0 End)) As stock_out,
@@ -125,11 +140,13 @@ func (repository *RepositoryAnalytics) ReadStockAnalyticMonth(modelLevels *[]mod
 		Joins("Left Join store_products As prods On prods.id = tracks.product_id").
 		Group("Month(tracks.created_at)").
 		Where("tracks.created_at Between ? And ?", startDate, endDate).
-		Scan(modelLevels).Error
+		Scan(modelLevels).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadVisitor(modelVisitor *models.VisitorAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.
+		Model(models.Visitors{}).
 		Select(`
 			Sum(Case When bounce = 1 Then 1 Else 0 End) As visitors,
 			Count(Distinct ip_address) As unique_visitors,
@@ -138,31 +155,37 @@ func (repository *RepositoryAnalytics) ReadVisitor(modelVisitor *models.VisitorA
 		`).
 		Where("store_id = ?", storeID).
 		Where("created_at > ? And created_at < ?", startDate, endDate).
-		Scan(modelVisitor).Error
+		Scan(modelVisitor).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadConventionRate(modelRate *models.ConventionRate, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.
+		Model(models.Visitors{}).
 		Select(`
 			Sum(Case When page = ? Or page = ? Then 1 Else 0 End) / Sum(Case When bounce = 1 Then 1 Else 0 End) As rate
 		`, utils.RegisterPage, utils.PaymentConfirmPage).
 		Where("store_id = ?", storeID).
 		Where("created_at Between ? And ?", startDate, endDate).
-		Scan(modelRate).Error
+		Scan(modelRate).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadShoppingCartAbandonment(modelRate *models.ShoppingCartAbandonment, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.
+		Model(models.Visitors{}).
 		Select(`
 			Sum(Case When page = ? Then 1 Else 0 End) / Sum(Case When page = ? Then 1 Else 0 End) As rate
 		`, utils.PaymentPage, utils.CartPage).
 		Where("store_id = ?", storeID).
 		Where("created_at Between ? And ?", startDate, endDate).
-		Scan(modelRate).Error
+		Scan(modelRate).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadCheckoutFunnelAnalytics(modelSteps *[]models.CheckoutFunnelAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.
+		Model(models.Visitors{}).
 		Select(`
 			page,
 			Count(id) As page_views
@@ -171,11 +194,13 @@ func (repository *RepositoryAnalytics) ReadCheckoutFunnelAnalytics(modelSteps *[
 		Where("store_id = ?", storeID).
 		Where("page In (?)", []utils.PageTypes{utils.CartPage, utils.PaymentPage, utils.PaymentConfirmPage}).
 		Where("created_at Between ? And ?", startDate, endDate).
-		Scan(modelSteps).Error
+		Scan(modelSteps).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]models.FullFunnelAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.
+		Model(models.Visitors{}).
 		Select(`
 			page,
 			Count(id) As page_views
@@ -183,11 +208,13 @@ func (repository *RepositoryAnalytics) ReadFullFunnelAnalytics(modelSteps *[]mod
 		Group("page").
 		Where("store_id = ?", storeID).
 		Where("created_at Between ? And ?", startDate, endDate).
-		Scan(modelSteps).Error
+		Scan(modelSteps).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]models.ProductViewAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_visitors As visits").
+	return repository.DB.
+		Table("store_visitors As visits").
 		Select(`
 			visits.product_id,
 			Sum(Case When visits.page = 2 Then 1 Else 0 End) As page_views,
@@ -197,11 +224,13 @@ func (repository *RepositoryAnalytics) ReadProductViewAnalytics(modelViews *[]mo
 		Joins("Left Join store_products prods On prods.id = visits.product_id").
 		Group("visits.product_id").
 		Where("visits.created_at Between ? And ?", startDate, endDate).
-		Scan(modelViews).Error
+		Scan(modelViews).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]models.RepeatCustomerRates, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 			vars.product_id,
 			ords.customer_id
@@ -218,20 +247,26 @@ func (repository *RepositoryAnalytics) ReadRepeatCustomerRate(modelRate *[]model
 func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.CustomerChurnRates, storeID uint64, startDate time.Time, endDate time.Time) error {
 	activeUser := int64(0)
 	churnUser := int64(0)
-	err := repository.DB.Model(models.Orders{}).
+
+	if err := repository.DB.Model(models.Orders{}).
 		Select(`
 			Distinct customer_id
 		`).
 		Count(&activeUser).
 		Where("created_at > ? And created_at < ?", startDate, endDate).
 		Count(&churnUser).
-		Error
+		Error; err != nil {
+		return err
+	}
+
 	modelRate.Rate = float64(churnUser) / float64(activeUser)
-	return err
+
+	return nil
 }
 
 func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]models.TopSellingProducts, storeID uint64, startDate time.Time, endDate time.Time, count int) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 			prods.id As product_id,
 			prods.title As product_name,
@@ -245,11 +280,13 @@ func (repository *RepositoryAnalytics) ReadTopSellingProducts(modelProducts *[]m
 		Where("items.created_at > ? And items.created_at < ?", startDate, endDate).
 		Where("items.deleted_at Is Null And prods.deleted_at Is Null And vars.deleted_at Is Null").
 		Limit(count).
-		Scan(modelProducts).Error
+		Scan(modelProducts).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]models.OrderTrendAnalytics, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.OrderItems{}).
+	return repository.DB.
+		Model(models.OrderItems{}).
 		Select(`
 			Date(created_at) As date,
 			Count(Distinct order_id) As count,
@@ -257,11 +294,13 @@ func (repository *RepositoryAnalytics) ReadOrderTrendAnalytics(modelTrends *[]mo
 		`).
 		Where("created_at Between ? And ?", startDate, endDate).
 		Group("Date(created_at)").
-		Scan(modelTrends).Error
+		Scan(modelTrends).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations *[]models.CustomerDataByLocation, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 			couns.name As location,
 			Count(Distinct users.id) As customers
@@ -273,11 +312,13 @@ func (repository *RepositoryAnalytics) ReadCustomerDataByLocation(modelLocations
 		Where("items.created_at Between ? And ?", startDate, endDate).
 		Where("ords.deleted_at Is Null And users.deleted_at Is Null And couns.deleted_at Is Null And items.deleted_at Is Null").
 		Group("couns.id").
-		Scan(modelLocations).Error
+		Scan(modelLocations).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadCustomerSatisfaction(modelRates *[]models.CustomerSatisfaction, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_product_reviews As revs").
+	return repository.DB.
+		Table("store_product_reviews As revs").
 		Select(`
 			prods.id As product_id,
 			Avg(revs.rate) As average_rating,
@@ -293,11 +334,13 @@ func (repository *RepositoryAnalytics) ReadCustomerSatisfaction(modelRates *[]mo
 		Where("revs.created_at Between ? And ?", startDate, endDate).
 		Where("revs.deleted_at Is Null And prods.deleted_at Is Null").
 		Group("prods.id").
-		Scan(modelRates).Error
+		Scan(modelRates).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadPageLoadingTime(modelTimes *[]models.PageLoadingTime, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.Visitors{}).
+	return repository.DB.
+		Model(models.Visitors{}).
 		Select(`
 			page,
 			Avg(loading_time) As average_time,
@@ -307,11 +350,13 @@ func (repository *RepositoryAnalytics) ReadPageLoadingTime(modelTimes *[]models.
 		Where("store_id = ?", storeID).
 		Where("created_at Between ? And ?", startDate, endDate).
 		Group("page").
-		Scan(modelTimes).Error
+		Scan(modelTimes).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadSalesByProduct(modelSales *[]models.ProductSales, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 			vars.product_id As product_id,
 			Sum(items.quantity) As quantity,
@@ -321,11 +366,13 @@ func (repository *RepositoryAnalytics) ReadSalesByProduct(modelSales *[]models.P
 		Group("product_id").Order("total Desc").
 		Where("items.store_id = ? And items.created_at Between ? And ?", storeID, startDate, endDate).
 		Where("items.deleted_at Is Null And vars.deleted_at Is Null").
-		Scan(modelSales).Error
+		Scan(modelSales).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadSalesByCategory(modelSales *[]models.CategorySales, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 			cates.name As category,
 			Sum(items.quantity) As quantity,
@@ -337,11 +384,13 @@ func (repository *RepositoryAnalytics) ReadSalesByCategory(modelSales *[]models.
 		Group("cates.name").Order("total Desc").
 		Where("items.store_id = ? And items.created_at Between ? And ?", storeID, startDate, endDate).
 		Where("items.deleted_at Is Null And vars.deleted_at Is Null And cates.deleted_at Is Null And pcates.deleted_at Is Null").
-		Scan(modelSales).Error
+		Scan(modelSales).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadCLV(modelSales *[]models.CustomerSales, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Table("store_order_items As items").
+	return repository.DB.
+		Table("store_order_items As items").
 		Select(`
 			ords.customer_id,
 			Sum(items.quantity) As quantity,
@@ -351,19 +400,24 @@ func (repository *RepositoryAnalytics) ReadCLV(modelSales *[]models.CustomerSale
 		Group("ords.customer_id").Order("total Desc").
 		Where("items.store_id = ? And items.created_at Between ? And ?", storeID, startDate, endDate).
 		Where("items.deleted_at Is Null And ords.deleted_at Is Null").
-		Scan(modelSales).Error
+		Scan(modelSales).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadRevenue(modelSale *models.StoreSales, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.OrderItems{}).
+	return repository.DB.
+		Model(models.OrderItems{}).
 		Select("store_id,	Sum(total_price) As price").
 		Where("store_id = ? And created_at Between ? And ?", storeID, startDate, endDate).
-		Scan(modelSale).Error
+		Scan(modelSale).
+		Error
 }
 
 func (repository *RepositoryAnalytics) ReadAOV(modelSale *models.StoreSales, storeID uint64, startDate time.Time, endDate time.Time) error {
-	return repository.DB.Model(models.OrderItems{}).
+	return repository.DB.
+		Model(models.OrderItems{}).
 		Select("store_id,	Avg(total_price) As price").
 		Where("store_id = ? And created_at Between ? And ?", storeID, startDate, endDate).
-		Scan(modelSale).Error
+		Scan(modelSale).
+		Error
 }

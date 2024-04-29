@@ -6,4 +6,5 @@ var (
 	DuplicatedProductShippingData = "Shipping data already exists in this product."
 	SuccessDeleteProduct          = "Product successfully deleted."
 	SuccessDeleteShippingData     = "Shipping data is successfully deleted"
+	ProductNotApproved            = "This product isn't approved."
 )

@@ -14,8 +14,8 @@ func NewRepositoryAddresses(db *gorm.DB) *RepositoryAddresses {
 	return &RepositoryAddresses{DB: db}
 }
 
-func (repository *RepositoryAddresses) ReadAddressesByCustomerID(modelAddrs *[]models.Addresses, customerID uint64) {
-	repository.DB.Where("customer_id = ? And active = 1", customerID).Find(modelAddrs)
+func (repository *RepositoryAddresses) ReadAddressesByCustomerID(modelAddrs *[]models.Addresses, customerID uint64) error {
+	return repository.DB.Where("customer_id = ? And active = 1", customerID).Find(modelAddrs).Error
 }
 
 func (repository *RepositoryAddresses) ReadAddressByCustomerID(modelAddr *models.Addresses, customerID uint64) error {
@@ -26,6 +26,6 @@ func (repository *RepositoryAddresses) ReadAddressByID(modelAddr *models.Address
 	return repository.DB.First(modelAddr, addressID).Error
 }
 
-func (repository *RepositoryAddresses) ReadByID(modelAddr *models.Addresses, addressID uint64, customerID uint64) {
-	repository.DB.Where("id = ? And customer_id = ?", addressID, customerID).First(modelAddr)
+func (repository *RepositoryAddresses) ReadByID(modelAddr *models.Addresses, addressID uint64, customerID uint64) error {
+	return repository.DB.Where("id = ? And customer_id = ?", addressID, customerID).First(modelAddr).Error
 }

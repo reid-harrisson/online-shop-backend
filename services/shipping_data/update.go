@@ -11,6 +11,6 @@ func (service *Service) Update(productID uint64, req *requests.RequestShippingDa
 	modelShipData.Height = req.Height
 	modelShipData.Length = req.Length
 	modelShipData.VariationID = productID
-	service.DB.Save(&modelShipData)
-	return nil
+
+	return service.DB.Save(&modelShipData).Error
 }
