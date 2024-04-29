@@ -52,12 +52,6 @@ var (
 	readShoppingCartAbandonmentOutputs = models.ShoppingCartAbandonment{
 		Rate: 0,
 	}
-	readCheckoutFunnelOutputs = []models.CheckoutFunnelAnalytics{
-		{
-			Page:     1,
-			PageView: 2,
-		},
-	}
 )
 
 func TestAnalyticsReadSalesReport(t *testing.T) {
@@ -310,4 +304,21 @@ func TestAnalyticsReadCheckoutFunnelAnalytics(t *testing.T) {
 	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	assert.NoError(t, analRepo.ReadCheckoutFunnelAnalytics(&modelReports, 1, startDate, endDate))
+}
+
+func TestAnalyticsReadFullFunnelAnalytics(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetVisitorsDB(db)
+
+	// Setup
+	analRepo := repositories.NewRepositoryAnalytics(db)
+	var modelReports = []models.FullFunnelAnalytics{}
+
+	// Assert
+	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
+	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
+	assert.NoError(t, analRepo.ReadFullFunnelAnalytics(&modelReports, 1, startDate, endDate))
 }
