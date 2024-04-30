@@ -18,7 +18,7 @@ func NewRepositoryAnalytics(db *gorm.DB) *RepositoryAnalytics {
 
 func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.SalesReports, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.
-		Table("store_order_items As items").
+		Table("store_order_items AS items").
 		Where("items.store_id = ?", storeID).
 		Select(`
 			items.variation_id,
@@ -26,30 +26,30 @@ func (repository *RepositoryAnalytics) ReadSalesReport(modelReports *[]models.Sa
 			vars.product_id,
 			items.price,
 			items.quantity,
-			items.sub_total_price As total_price
+			items.sub_total_price AS total_price
 		`).
-		Joins("Left Join store_product_variations As vars On vars.id = items.variation_id").
-		Where("vars.deleted_at Is Null And items.deleted_at Is Null").
-		Where("items.created_at Between ? And ?", startDate, endDate).
+		Joins("Left Join store_product_variations AS vars On vars.id = items.variation_id").
+		Where("vars.deleted_at Is Null AND items.deleted_at Is Null").
+		Where("items.created_at Between ? AND ?", startDate, endDate).
 		Scan(modelReports).
 		Error
 }
 
 func (repository *RepositoryAnalytics) ReadCustomerInsights(modelReport *models.CustomerInsights, storeID uint64, startDate time.Time, endDate time.Time) error {
 	return repository.DB.
-		Table("store_order_items As items").
+		Table("store_order_items AS items").
 		Select(`
-		  Min(users.age) As youngest_age,
-    	Max(users.age) As oldest_age,
-			Count(Distinct Case When Lower(users.gender) = 'male' Then users.id End) As male_count,
-			Count(Distinct Case When Lower(users.gender) = 'female' Then users.id End) As female_count,
+		  Min(users.age) AS youngest_age,
+    	Max(users.age) AS oldest_age,
+			Count(Distinct Case When Lower(users.gender) = 'male' Then users.id End) AS male_count,
+			Count(Distinct Case When Lower(users.gender) = 'female' Then users.id End) AS female_count,
     	Avg(Distinct users.age) AS average_age
 		`).
-		Joins("Left Join store_orders As ords On items.order_id = ords.id").
+		Joins("Left Join store_orders AS ords On items.order_id = ords.id").
 		Joins("Left Join users On ords.customer_id = users.id").
 		Where("items.store_id = ?", storeID).
-		Where("users.deleted_at Is Null And ords.deleted_at Is Null And items.deleted_at Is Null").
-		Where("items.created_at Between ? And ?", startDate, endDate).
+		Where("users.deleted_at Is Null AND ords.deleted_at Is Null AND items.deleted_at Is Null").
+		Where("items.created_at Between ? AND ?", startDate, endDate).
 		Scan(modelReport).
 		Error
 }
