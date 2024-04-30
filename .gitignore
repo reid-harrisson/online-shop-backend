@@ -16,3 +16,6 @@ main.exe
 
 # log
 *.log
+
+# pdf
+*.pdf
