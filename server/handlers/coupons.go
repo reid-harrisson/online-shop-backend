@@ -67,9 +67,8 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 	// Read by code
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	err = couRepo.ReadByCode(&modelCoupon, req.CouponCode)
-	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
-		return responses.ErrorResponse(c, statusCode, message)
+	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicateCoupon)
 	}
 
 	// Create coupon
