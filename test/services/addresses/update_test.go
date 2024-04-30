@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUpdateAttributeValuesWithCSV(t *testing.T) {
+func TestUpdateAddress(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
 
 	// DB Connection
@@ -19,7 +19,6 @@ func TestUpdateAttributeValuesWithCSV(t *testing.T) {
 	test_utils.ResetAddressesDB(db)
 
 	// Setup
-
 	var addrService = addrsvc.NewServiceAddress(db)
 	var modelAddr = models.Addresses{}
 

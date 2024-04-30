@@ -41,7 +41,7 @@ var (
 	}
 )
 
-func TestReadDetailOrder(t *testing.T) {
+func TestCartReadDetail(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
 
 	// DB Connection

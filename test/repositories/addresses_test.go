@@ -52,3 +52,45 @@ func TestCreateAttributeValuesWithCSV(t *testing.T) {
 		}
 	}
 }
+
+func TestAddrReadByID(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoreCartItemDB(db)
+
+	// Setup
+	addrRepo := repositories.NewRepositoryAddresses(db)
+	var modelAddress = models.Addresses{}
+
+	// Assertions
+	if assert.NoError(t, addrRepo.ReadByID(&modelAddress, 1, 1)) {
+		addrOutputs[0].Model.ID = modelAddress.Model.ID
+		addrOutputs[0].CreatedAt = modelAddress.CreatedAt
+		addrOutputs[0].UpdatedAt = modelAddress.UpdatedAt
+
+		assert.Equal(t, addrOutputs[0], modelAddress)
+	}
+}
+
+func TestAddrReadAddressesByCustomerID(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoreCartItemDB(db)
+
+	// Setup
+	addrRepo := repositories.NewRepositoryAddresses(db)
+	var modelAddrs = []models.Addresses{}
+
+	// Assertions
+	if assert.NoError(t, addrRepo.ReadAddressesByCustomerID(&modelAddrs, 1)) {
+		addrOutputs[0].Model.ID = modelAddrs[0].Model.ID
+		addrOutputs[0].CreatedAt = modelAddrs[0].CreatedAt
+		addrOutputs[0].UpdatedAt = modelAddrs[0].UpdatedAt
+
+		assert.Equal(t, addrOutputs[0], modelAddrs[0])
+	}
+}

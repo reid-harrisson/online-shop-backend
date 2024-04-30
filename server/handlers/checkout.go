@@ -162,6 +162,7 @@ func (h *HandlersCheckout) UpdateAddress(c echo.Context) error {
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/checkout [post]
 func (h *HandlersCheckout) Read(c echo.Context) error {
 	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
@@ -216,6 +217,7 @@ func (h *HandlersCheckout) Read(c echo.Context) error {
 // @Param params body requests.RequestCheckout true "Address and coupon"
 // @Success 200 {object} []responses.ResponseCheckout
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/checkout/combo [post]
 func (h *HandlersCheckout) ReadCombo(c echo.Context) error {
 	req := new(requests.RequestCheckout)
