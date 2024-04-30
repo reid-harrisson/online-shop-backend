@@ -45,7 +45,7 @@ var (
 			VariationName:  "Gochujang - Korean Chilli Pepper Paste - 125G",
 			ImageUrls:      "",
 			Price:          96.000000,
-			Categories:     "\"Kefir\"",
+			Categories:     "",
 			DiscountAmount: 20.000000,
 			DiscountType:   1,
 			StockLevel:     10.000000,
@@ -146,13 +146,11 @@ func TestComboReadByID(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, comboRepo.ReadByID(&modelCombos, 1)) {
-		assert.Equal(t, comboOutputs[0].StoreID, modelCombos.StoreID)
-		assert.Equal(t, comboOutputs[0].DiscountAmount, modelCombos.DiscountAmount)
-		assert.Equal(t, comboOutputs[0].DiscountType, modelCombos.DiscountType)
-		assert.Equal(t, comboOutputs[0].ImageUrls, modelCombos.ImageUrls)
-		assert.Equal(t, comboOutputs[0].Description, modelCombos.Description)
-		assert.Equal(t, comboOutputs[0].Title, modelCombos.Title)
-		assert.Equal(t, comboOutputs[0].Status, modelCombos.Status)
+		comboOutputs[0].ID = modelCombos.ID
+		comboOutputs[0].CreatedAt = modelCombos.CreatedAt
+		comboOutputs[0].UpdatedAt = modelCombos.UpdatedAt
+
+		assert.Equal(t, comboOutputs[0], modelCombos)
 	}
 }
 

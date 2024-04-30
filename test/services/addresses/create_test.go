@@ -23,7 +23,7 @@ var (
 	}
 )
 
-func TestCreateAttributeValuesWithCSV(t *testing.T) {
+func TestCreateAddress(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
 
 	// DB Connection
