@@ -2,8 +2,6 @@ module OnlineStoreBackend
 
 go 1.21
 
-toolchain go1.22.1
-
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
