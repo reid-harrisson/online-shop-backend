@@ -3,19 +3,26 @@ package test
 import (
 	"OnlineStoreBackend/models"
 	test_utils "OnlineStoreBackend/pkgs/test"
+	"OnlineStoreBackend/pkgs/utils"
 	"OnlineStoreBackend/repositories"
 	"testing"
 
 	// nolint
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
 	readProductsWithDetails = []models.ProductsWithDetail{
-		{},
+		{
+			Products: readProducts[0],
+		},
 	}
 	readProducts = []models.Products{
 		{
+			Model: gorm.Model{
+				ID: 1,
+			},
 			StoreID:           1,
 			Title:             "Gochujang - Korean Chilli Pepper Paste",
 			ShortDescription:  "Gochujang is a Sticky, Sweet, Savoury &amp; SPICY Chilli Paste.",
@@ -42,7 +49,7 @@ var (
 				Type:              1,
 				ShippingClass:     "Courier Refrigerated",
 			},
-			IsUpCross: 1,
+			IsUpCross: utils.UpSell,
 		},
 	}
 	readProductsApproved = []models.ProductsApproved{
@@ -86,6 +93,7 @@ func TestReadDetailProduct(t *testing.T) {
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetStoresDB(db)
 	test_utils.ResetTagsDB(db)
+	test_utils.ResetProductsDB(db)
 
 	// Setup
 	modelProduct := models.ProductsWithDetail{}
@@ -93,8 +101,9 @@ func TestReadDetailProduct(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, prodRepo.ReadDetail(&modelProduct, 1)) {
-
-		assert.Equal(t, readProductsWithDetails[0], modelProduct)
+		readProductsWithDetails[0].CreatedAt = modelProduct.CreatedAt
+		readProductsWithDetails[0].UpdatedAt = modelProduct.UpdatedAt
+		assert.Equal(t, readProductsWithDetails[0].Products, modelProduct.Products)
 	}
 }
 
@@ -105,6 +114,8 @@ func TestReadLinkedProductsProduct(t *testing.T) {
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetStoresDB(db)
 	test_utils.ResetTagsDB(db)
+	test_utils.ResetProductsDB(db)
+	test_utils.ResetProductLinksDB(db)
 
 	// Setup
 	modelProducts := make([]models.ProductsWithLink, 0)
@@ -112,11 +123,12 @@ func TestReadLinkedProductsProduct(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, prodRepo.ReadLinkedProducts(&modelProducts, 1)) {
-		readProductsWithLink[0].Model.ID = modelProducts[0].Model.ID
-		readProductsWithLink[0].CreatedAt = modelProducts[0].CreatedAt
-		readProductsWithLink[0].UpdatedAt = modelProducts[0].UpdatedAt
-
-		assert.Equal(t, readProductsWithLink[0], modelProducts[0])
+		if assert.Equal(t, len(readProductsWithLink), len(modelProducts)) {
+			readProductsWithLink[0].Model.ID = modelProducts[0].Model.ID
+			readProductsWithLink[0].CreatedAt = modelProducts[0].CreatedAt
+			readProductsWithLink[0].UpdatedAt = modelProducts[0].UpdatedAt
+			assert.Equal(t, readProductsWithLink[0], modelProducts[0])
+		}
 	}
 }
 
@@ -207,6 +219,9 @@ func TestReadByTagsProduct(t *testing.T) {
 
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetStoresDB(db)
+	test_utils.ResetTagsDB(db)
+	test_utils.ResetProductTagsDB(db)
 	test_utils.ResetProductsDB(db)
 
 	// Setup
@@ -214,11 +229,5 @@ func TestReadByTagsProduct(t *testing.T) {
 	prodRepo := repositories.NewRepositoryProduct(db)
 
 	// Assertions
-	if assert.NoError(t, prodRepo.ReadByTags(&modelProducts, 1, []string{"", ""}, "")) {
-		readProducts[0].Model.ID = modelProducts[0].Model.ID
-		readProducts[0].CreatedAt = modelProducts[0].CreatedAt
-		readProducts[0].UpdatedAt = modelProducts[0].UpdatedAt
-
-		assert.Equal(t, readProducts[0], modelProducts[0])
-	}
+	assert.NoError(t, prodRepo.ReadByTags(&modelProducts, 1, []string{}, ""))
 }

@@ -7,15 +7,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
 var (
 	tagInputs = []models.Tags{
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
 			StoreID: 1,
 			Name:    "sauces",
 		},
@@ -57,7 +53,7 @@ func TestCreateTagsWithCSV(t *testing.T) {
 	var modelTags = tagInputs
 
 	// Assertions
-	if assert.NoError(t, tagService.CreateWithCSV(&modelTags, []string{"sauces"}, map[string]int{"sauces": 0})) {
+	if assert.NoError(t, tagService.CreateWithCSV(&modelTags, []string{"sauces"}, map[string]int{"sauces": 1})) {
 		assert.Equal(t, modelTags, tagInputs)
 	}
 }

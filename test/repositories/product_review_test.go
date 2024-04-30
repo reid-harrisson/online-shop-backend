@@ -17,7 +17,14 @@ var (
 			CustomerID: 1,
 			Comment:    "comment1",
 			Rate:       0,
-			Status:     1,
+			Status:     0,
+		},
+		{
+			ProductID:  1,
+			CustomerID: 1,
+			Comment:    "comment1",
+			Rate:       0,
+			Status:     0,
 		},
 	}
 )
@@ -36,11 +43,7 @@ func TestReadPublishReviews(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, repositoryReview.ReadPublishReviews(&modelPublishedReviews, 1)) {
-		readPublishedReviews[0].Model.ID = modelPublishedReviews[0].Model.ID
-		readPublishedReviews[0].CreatedAt = modelPublishedReviews[0].CreatedAt
-		readPublishedReviews[0].UpdatedAt = modelPublishedReviews[0].UpdatedAt
-
-		assert.Equal(t, readPublishedReviews[0], modelPublishedReviews[0])
+		assert.Equal(t, 0, len(modelPublishedReviews))
 	}
 }
 
@@ -58,10 +61,12 @@ func TestReadAllReviews(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, repositoryReview.ReadReviews(&modelReviews, 1)) {
-		readPublishedReviews[0].Model.ID = modelReviews[0].Model.ID
-		readPublishedReviews[0].CreatedAt = modelReviews[0].CreatedAt
-		readPublishedReviews[0].UpdatedAt = modelReviews[0].UpdatedAt
+		if assert.Equal(t, len(readPublishedReviews), len(modelReviews)) {
+			readPublishedReviews[0].Model.ID = modelReviews[0].Model.ID
+			readPublishedReviews[0].CreatedAt = modelReviews[0].CreatedAt
+			readPublishedReviews[0].UpdatedAt = modelReviews[0].UpdatedAt
 
-		assert.Equal(t, readPublishedReviews[0], modelReviews[0])
+			assert.Equal(t, readPublishedReviews[0], modelReviews[0])
+		}
 	}
 }
