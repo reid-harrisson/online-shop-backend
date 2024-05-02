@@ -5,8 +5,13 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelCategory *models.Categories, req *requests.RequestCategory) {
+func (service *Service) Update(id uint64, modelCategory *models.Categories, req *requests.RequestCategory) error {
+	err := service.DB.Where("id = ?", id).First(&modelCategory).Error
+	if err != nil {
+		return nil
+	}
+
 	modelCategory.Name = req.Name
 	modelCategory.ParentID = req.ParentID
-	service.DB.Save(modelCategory)
+	return service.DB.Save(modelCategory).Error
 }

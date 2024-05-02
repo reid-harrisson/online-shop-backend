@@ -29,6 +29,7 @@ func NewHandlersTaxs(server *s.Server) *HandlersTaxs {
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseTaxSetting
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/tax [get]
 func (h *HandlersTaxs) ReadTaxSetting(c echo.Context) error {
