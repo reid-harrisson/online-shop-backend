@@ -50,7 +50,7 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 	modelCategory := models.Categories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 	if err := cateRepo.ReadByName(&modelCategory, req.Name, storeID); err == nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicateCoupon)
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CategoryDuplicated)
 	}
 
 	cateService := catesvc.NewServiceCategory(h.server.DB)

@@ -68,7 +68,7 @@ func (h *HandlersCoupons) Create(c echo.Context) error {
 	modelCoupon := models.Coupons{}
 	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
 	if err := couRepo.ReadByCode(&modelCoupon, req.CouponCode); err == nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicateCoupon)
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponDuplicated)
 	}
 
 	// Create coupon
@@ -174,13 +174,6 @@ func (h *HandlersCoupons) Delete(c echo.Context) error {
 	couponID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
-	}
-
-	// Read coupon by id
-	modelCoupon := models.Coupons{}
-	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponNotFound)
 	}
 
 	// Delete coupon by id

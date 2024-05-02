@@ -1,6 +1,10 @@
 package catesvc
 
-import "OnlineStoreBackend/models"
+import (
+	"OnlineStoreBackend/models"
+
+	"gorm.io/gorm"
+)
 
 func (service *Service) Delete(categoryID uint64) error {
 	err := service.DB.Where("category_id = ?", categoryID).Delete(&models.ProductCategories{}).Error
@@ -14,5 +18,15 @@ func (service *Service) Delete(categoryID uint64) error {
 		service.Delete(uint64(modelCategory.ID))
 	}
 
-	return service.DB.Where("id = ?", categoryID).Delete(&models.Categories{}).Error
+	query := service.DB.Delete(&models.Categories{
+		Model: gorm.Model{
+			ID: uint(categoryID),
+		},
+	})
+	if query.Error != nil {
+		return query.Error
+	} else if query.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

@@ -5,7 +5,12 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Update(modelTag *models.Tags, req *requests.RequestTag) {
+func (service *Service) Update(id uint64, modelTag *models.Tags, req *requests.RequestTag) error {
+	err := service.DB.Where("id = ?", id).First(modelTag).Error
+	if err != nil {
+		return err
+	}
+
 	modelTag.Name = req.Name
-	service.DB.Save(modelTag)
+	return service.DB.Save(modelTag).Error
 }

@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -31,25 +33,38 @@ func NewHandlersTags(server *s.Server) *HandlersTags {
 // @Param params body requests.RequestTag true "Tag"
 // @Success 201 {object} []responses.ResponseTag
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/tag [post]
 func (h *HandlersTags) CreateTag(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	req := new(requests.RequestTag)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelTag := models.Tags{}
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	tagRepo.ReadByName(&modelTag, req.Name, storeID)
-	if modelTag.ID != 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag already exist in the store.")
+	if err := tagRepo.ReadByName(&modelTag, req.Name, storeID); err == nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.TagDuplicated)
 	}
+
 	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Create(&modelTag, req.Name, storeID)
+	err = tagService.Create(&modelTag, req.Name, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	modelTags := make([]models.Tags, 0)
-	tagRepo.ReadByStoreID(&modelTags, storeID)
+	err = tagRepo.ReadByStoreID(&modelTags, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseTags(c, http.StatusCreated, modelTags)
 }
 
@@ -61,13 +76,21 @@ func (h *HandlersTags) CreateTag(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseTag
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/tag [get]
 func (h *HandlersTags) ReadTag(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelTags := make([]models.Tags, 0)
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	tagRepo.ReadByStoreID(&modelTags, storeID)
+	err = tagRepo.ReadByStoreID(&modelTags, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseTags(c, http.StatusOK, modelTags)
 }
 
@@ -82,22 +105,28 @@ func (h *HandlersTags) ReadTag(c echo.Context) error {
 // @Param params body requests.RequestTag true "Tag"
 // @Success 200 {object} responses.ResponseTag
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/tag/{id} [put]
 func (h *HandlersTags) UpdateTag(c echo.Context) error {
-	tagID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	tagID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	req := new(requests.RequestTag)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelTag := models.Tags{}
-	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
-	}
 
 	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Update(&modelTag, req)
+	err = tagService.Update(tagID, &modelTag, req)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseTag(c, http.StatusOK, modelTag)
 }
@@ -112,18 +141,20 @@ func (h *HandlersTags) UpdateTag(c echo.Context) error {
 // @Param id path int true "Tag ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/tag/{id} [delete]
 func (h *HandlersTags) DeleteTag(c echo.Context) error {
-	tagID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	modelTag := models.Tags{}
-	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByID(&modelTag, tagID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This tag doesn't exist.")
+	tagID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	tagService := tagsvc.NewServiceTag(h.server.DB)
-	tagService.Delete(tagID)
+	err = tagService.Delete(tagID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.MessageResponse(c, http.StatusOK, "Tag succesfully deleted")
 }
