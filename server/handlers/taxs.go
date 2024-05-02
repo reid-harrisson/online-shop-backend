@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
@@ -27,14 +29,20 @@ func NewHandlersTaxs(server *s.Server) *HandlersTaxs {
 // @Security ApiKeyAuth
 // @Success 200 {object} []responses.ResponseTaxSetting
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/tax [get]
 func (h *HandlersTaxs) ReadTaxSetting(c echo.Context) error {
-	customerID, _ := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	taxRepo := repositories.NewRepositoryTax(h.server.DB)
 	modelTax := models.Taxes{}
-	if err := taxRepo.ReadByCustomerID(&modelTax, customerID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = taxRepo.ReadByCustomerID(&modelTax, customerID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
+
 	return responses.NewResponseTax(c, http.StatusOK, modelTax)
 }
