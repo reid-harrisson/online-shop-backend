@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -31,21 +33,31 @@ func NewHandlersTemplates(server *s.Server) *HandlersTemplates {
 // @Param params body requests.RequestEmailTemplate true "Email Template Data"
 // @Success 200 {object} responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/template [post]
 func (h *HandlersTemplates) CreateTemplate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	req := new(requests.RequestEmailTemplate)
 
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	err = req.Validate()
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelTemplate := models.EmailTemplates{}
 	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := temService.Create(&modelTemplate, req, storeID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No store exist at this ID.")
+	err = temService.Create(&modelTemplate, req, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseEmailTemplate(c, http.StatusCreated, &modelTemplate)
@@ -60,14 +72,21 @@ func (h *HandlersTemplates) CreateTemplate(c echo.Context) error {
 // @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/template [get]
 func (h *HandlersTemplates) ReadTemplate(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelTemplates := make([]models.EmailTemplates, 0)
 
 	temRepo := repositories.NewRepositoryEmailTemplate(h.server.DB)
-	temRepo.ReadByStoreID(&modelTemplates, storeID)
+	err = temRepo.ReadByStoreID(&modelTemplates, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseEmailTemplates(c, http.StatusOK, modelTemplates)
 }
@@ -83,23 +102,33 @@ func (h *HandlersTemplates) ReadTemplate(c echo.Context) error {
 // @Param params body requests.RequestEmailTemplate true "Email Template Data"
 // @Success 200 {object} responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/template/{id} [put]
 func (h *HandlersTemplates) UpdateTemplate(c echo.Context) error {
-	templateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	templateID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	req := new(requests.RequestEmailTemplate)
 
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	} else if err := req.Validate(); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	err = req.Validate()
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelTemplate := models.EmailTemplates{}
 
 	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := temService.Update(templateID, &modelTemplate, req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No template exist at this ID.")
+	err = temService.Update(templateID, &modelTemplate, req)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.NewResponseEmailTemplate(c, http.StatusOK, &modelTemplate)
@@ -115,13 +144,18 @@ func (h *HandlersTemplates) UpdateTemplate(c echo.Context) error {
 // @Param id path int true "Template ID"
 // @Success 200 {object} []responses.ResponseEmailTemplate
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/template/{id} [delete]
 func (h *HandlersTemplates) DeleteTemplate(c echo.Context) error {
-	templateID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	templateID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	temService := etsvc.NewServiceEmailTemplate(h.server.DB)
-	if err := temService.Delete(templateID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "No template exist at this ID.")
+	err = temService.Delete(templateID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	return responses.MessageResponse(c, http.StatusOK, "Successfully deleted")
