@@ -176,13 +176,6 @@ func (h *HandlersCoupons) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	// Read coupon by id
-	modelCoupon := models.Coupons{}
-	couRepo := repositories.NewRepositoryCoupon(h.server.DB)
-	if err := couRepo.ReadByID(&modelCoupon, couponID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CouponNotFound)
-	}
-
 	// Delete coupon by id
 	couService := cousvc.NewServiceCoupon(h.server.DB)
 	err = couService.Delete(couponID)
