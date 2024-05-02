@@ -24,17 +24,21 @@ func (repository *RepositoryCategory) ReadByProductID(modelCategories *[]models.
 		Error
 }
 
-func (repository *RepositoryCategory) ReadByName(modelCategory *models.Categories, name string, storeID uint64) {
-	repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelCategory)
+func (repository *RepositoryCategory) ReadByName(modelCategory *models.Categories, name string, storeID uint64) error {
+	return repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelCategory).Error
 }
 
 func (repository *RepositoryCategory) ReadByID(modelCategory *models.Categories, categoryID uint64) error {
-	return repository.DB.Where("id = ?", categoryID).Error
+	return repository.DB.Where("id = ?", categoryID).First(&modelCategory).Error
 }
 
-func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.CategoriesWithChildren, storeID uint64) {
+func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.CategoriesWithChildren, storeID uint64) error {
 	modelCategories := make([]models.Categories, 0)
-	repository.DB.Where("store_id = ?", storeID).Find(&modelCategories)
+	err := repository.DB.Where("store_id = ?", storeID).Find(&modelCategories).Error
+	if err != nil {
+		return err
+	}
+
 	allChildrenIDs := make(map[uint64][]uint64)
 	for _, modelCategory := range modelCategories {
 		parentID := modelCategory.ParentID
@@ -48,4 +52,6 @@ func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]mode
 			ChildrenIDs: childrenIDs,
 		})
 	}
+
+	return nil
 }

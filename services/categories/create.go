@@ -5,11 +5,11 @@ import (
 	"OnlineStoreBackend/requests"
 )
 
-func (service *Service) Create(modelCategory *models.Categories, req *requests.RequestCategory, storeID uint64) {
+func (service *Service) Create(modelCategory *models.Categories, req *requests.RequestCategory, storeID uint64) error {
 	modelCategory.Name = req.Name
 	modelCategory.StoreID = storeID
 	modelCategory.ParentID = req.ParentID
-	service.DB.Create(modelCategory)
+	return service.DB.Create(modelCategory).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewCates *[]models.Categories, cateNames []string, cateParents map[string]string, cateIndices map[string]int) error {

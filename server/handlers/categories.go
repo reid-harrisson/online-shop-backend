@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/constants"
+	errhandle "OnlineStoreBackend/pkgs/error"
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	"OnlineStoreBackend/responses"
@@ -31,25 +33,38 @@ func NewHandlersCategories(server *s.Server) *HandlersCategories {
 // @Param params body requests.RequestCategory true "Category"
 // @Success 201 {object} []responses.ResponseCategoryWithChildren
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/category [post]
 func (h *HandlersCategories) CreateCategory(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	req := new(requests.RequestCategory)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelCategory := models.Categories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByName(&modelCategory, req.Name, storeID)
-	if modelCategory.ID != 0 {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This category already exist in the store.")
+	if err := cateRepo.ReadByName(&modelCategory, req.Name, storeID); err == nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicateCoupon)
 	}
+
 	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.Create(&modelCategory, req, storeID)
+	err = cateService.Create(&modelCategory, req, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	modelCategories := make([]models.CategoriesWithChildren, 0)
-	cateRepo.ReadByStoreID(&modelCategories, storeID)
+	err = cateRepo.ReadByStoreID(&modelCategories, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCategories(c, http.StatusCreated, modelCategories)
 }
 
@@ -61,13 +76,21 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 // @Param store_id path int true "Store ID"
 // @Success 200 {object} []responses.ResponseCategoryWithChildren
 // @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/category [get]
 func (h *HandlersCategories) ReadCategory(c echo.Context) error {
-	storeID, _ := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCategories := make([]models.CategoriesWithChildren, 0)
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	cateRepo.ReadByStoreID(&modelCategories, storeID)
+	err = cateRepo.ReadByStoreID(&modelCategories, storeID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
+
 	return responses.NewResponseCategories(c, http.StatusOK, modelCategories)
 }
 
@@ -81,22 +104,28 @@ func (h *HandlersCategories) ReadCategory(c echo.Context) error {
 // @Param params body requests.RequestCategory true "Category"
 // @Success 200 {object} responses.ResponseCategory
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/category/{id} [put]
 func (h *HandlersCategories) UpdateCategory(c echo.Context) error {
-	categoryID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	req := new(requests.RequestCategory)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	err = c.Bind(req)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	modelCategory := models.Categories{}
-	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	if err := cateRepo.ReadByID(&modelCategory, categoryID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
-	}
+
 	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.Update(&modelCategory, req)
+	err = cateService.Update(categoryID, &modelCategory, req)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.NewResponseCategory(c, http.StatusOK, modelCategory)
 }
@@ -110,17 +139,27 @@ func (h *HandlersCategories) UpdateCategory(c echo.Context) error {
 // @Param id path int true "Category ID"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
+// @Failure 404 {object} responses.Error
+// @Failure 500 {object} responses.Error
 // @Router /store/api/v1/category/{id} [delete]
 func (h *HandlersCategories) DeleteCategory(c echo.Context) error {
-	categoryID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	modelCategory := models.Categories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	if err := cateRepo.ReadByID(&modelCategory, categoryID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, "This category doesn't exist in the store.")
+	err = cateRepo.ReadByID(&modelCategory, categoryID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
+
 	cateService := catesvc.NewServiceCategory(h.server.DB)
-	cateService.Delete(categoryID)
+	err = cateService.Delete(categoryID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	}
 
 	return responses.MessageResponse(c, http.StatusOK, "Category successfully deleted")
 }
