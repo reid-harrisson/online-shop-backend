@@ -328,3 +328,14 @@ func ResetProductLinksDB(db *gorm.DB) {
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
+
+func ResetTemplatesDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_email_templates")
+
+	db.Exec("INSERT INTO `store_email_templates` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `order_status`, `company_name`, `company_link`, `company_logo_url`, `company_primary_color`, `email_pretext`, `header_poster_slogan_title`, `header_poster_slogan_subtitle`, `body_greeting`, `first_name`, `body_message`, `body_cta_btn_link`, `body_cta_btn_label`, `body_secondary_message`, `unsubscribe_link`, `unsubscribe_safe_link`) VALUES (1, NULL, '2024-05-03 04:29:10', '2024-05-03 04:29:14', 1, 1, 'company1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);")
+	db.Exec("INSERT INTO `store_email_templates` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `order_status`, `company_name`, `company_link`, `company_logo_url`, `company_primary_color`, `email_pretext`, `header_poster_slogan_title`, `header_poster_slogan_subtitle`, `body_greeting`, `first_name`, `body_message`, `body_cta_btn_link`, `body_cta_btn_label`, `body_secondary_message`, `unsubscribe_link`, `unsubscribe_safe_link`) VALUES (2, NULL, '2024-05-03 04:29:24', '2024-05-03 04:29:29', 2, 2, 'company2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
