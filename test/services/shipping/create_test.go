@@ -17,6 +17,27 @@ var (
 		Height: 27.5,
 		Length: 16.5,
 	}
+	shippinDataInputs = []models.ShippingData{
+		{
+			VariationID: 1,
+			Weight:      5.100000,
+			Width:       11.000000,
+			Height:      27.500000,
+			Length:      16.500000,
+		},
+		{
+			VariationID: 2,
+			Weight:      5.100000,
+			Width:       11.000000,
+			Height:      27.500000,
+			Length:      16.500000,
+		},
+	}
+	shipVarIDs  = []uint64{1, 2}
+	shipIndices = map[uint64]int{
+		1: 0,
+		2: 1,
+	}
 )
 
 func TestCreateShipping(t *testing.T) {
@@ -34,4 +55,24 @@ func TestCreateShipping(t *testing.T) {
 
 	// Assertions
 	assert.NoError(t, shipService.Create(1, &reqShippingData, &modelShipData))
+}
+
+func TestCreateShippingDataWithCSV(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetProductsDB(db)
+	test_utils.ResetVariationsDB(db)
+	test_utils.ResetShippingData(db)
+
+	// Setup
+	shipServie := shipsvc.NewServiceShippingData(db)
+	modelNewShips := shippinDataInputs
+
+	// Assertions
+	if assert.NoError(t, shipServie.CreateWithCSV(&modelNewShips, shipVarIDs, shipIndices)) {
+		assert.Equal(t, modelNewShips[0].ID, uint(1))
+		assert.Equal(t, modelNewShips[1].ID, uint(2))
+	}
 }

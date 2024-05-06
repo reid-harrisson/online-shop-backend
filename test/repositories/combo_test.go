@@ -43,16 +43,16 @@ var (
 			},
 			StoreID:        1,
 			VariationName:  "Gochujang - Korean Chilli Pepper Paste - 125G",
-			ImageUrls:      "",
+			ImageUrls:      "[]",
 			Price:          96.000000,
-			Categories:     "",
+			Categories:     "\"Kefir\"",
 			DiscountAmount: 20.000000,
 			DiscountType:   1,
 			StockLevel:     10.000000,
-			Weight:         0,
-			Width:          0,
-			Height:         0,
-			Length:         0,
+			Weight:         5.1,
+			Width:          11,
+			Height:         27.5,
+			Length:         16.5,
 		},
 	}
 )
@@ -184,6 +184,7 @@ func TestComboReadDetail(t *testing.T) {
 		assert.Equal(t, comboItemsWithDetail[0].Weight, modelCombos[0].Weight)
 		assert.Equal(t, comboItemsWithDetail[0].Width, modelCombos[0].Width)
 		assert.Equal(t, comboItemsWithDetail[0].Height, modelCombos[0].Height)
+		assert.Equal(t, comboItemsWithDetail[0].Length, modelCombos[0].Length)
 		assert.Equal(t, comboItemsWithDetail[0].Categories, modelCombos[0].Categories)
 	}
 }

@@ -114,8 +114,8 @@ func ResetVariationsDB(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_product_variations")
 
-	db.Exec("INSERT INTO `store_product_variations` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `sku`, `price`, `stock_level`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `back_order_status`) VALUES (1, NULL, '2024-04-08 09:59:09.000', '2024-04-08 10:00:43.000', 1, '44-125G', 96.000000, 10.000000, 20.000000, 1, NULL, 'Full cream milk kefir made using live kefir grains/cultures, fermented traditionally for maximum probiotic diversity.', 'Gochujang - Korean Chilli Pepper Paste - 125G', 0);")
-	db.Exec("INSERT INTO `store_product_variations` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `sku`, `price`, `stock_level`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `back_order_status`) VALUES (2, NULL, '2024-04-08 09:59:15.000', '2024-04-08 10:00:49.000', 2, '13-200ML', 45.000000, 10.000000, 0.000000, 0, NULL, 'NuMe Kombucha - 350ml, Buchu, Hibiscus & Hawthorne', 'Kimchi Probiotic Tonic - 200ML - 200ML', 0);")
+	db.Exec("INSERT INTO `store_product_variations` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `sku`, `price`, `stock_level`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `back_order_status`) VALUES (1, NULL, '2024-04-08 09:59:09.000', '2024-04-08 10:00:43.000', 1, '44-125G', 96.000000, 10.000000, 20.000000, 1, '[]', 'Full cream milk kefir made using live kefir grains/cultures, fermented traditionally for maximum probiotic diversity.', 'Gochujang - Korean Chilli Pepper Paste - 125G', 0);")
+	db.Exec("INSERT INTO `store_product_variations` (`id`, `deleted_at`, `created_at`, `updated_at`, `product_id`, `sku`, `price`, `stock_level`, `discount_amount`, `discount_type`, `image_urls`, `description`, `title`, `back_order_status`) VALUES (2, NULL, '2024-04-08 09:59:15.000', '2024-04-08 10:00:49.000', 2, '13-200ML', 45.000000, 10.000000, 0.000000, 0, '[]', 'NuMe Kombucha - 350ml, Buchu, Hibiscus & Hawthorne', 'Kimchi Probiotic Tonic - 200ML - 200ML', 0);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -211,7 +211,7 @@ func ResetComboItemsDB(db *gorm.DB) {
 func ResetTagsDB(db *gorm.DB) {
 	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 
-	db.Exec("TRUNCATE Table store_product_variation_details")
+	db.Exec("TRUNCATE Table store_tags")
 
 	db.Exec("INSERT INTO `store_tags` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `store_id`) VALUES (1, NULL, '2024-04-10 20:21:32', '2024-04-10 20:21:32', 'kefir', 1);")
 	db.Exec("INSERT INTO `store_tags` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `store_id`) VALUES (2, NULL, '2024-04-10 20:21:42', '2024-04-10 20:21:42', 'kimchi', 2);")
@@ -279,8 +279,8 @@ func ResetShippingData(db *gorm.DB) {
 
 	db.Exec("TRUNCATE Table store_shipping_data")
 
-	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (1, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 34, 5.100000, 11.000000, 27.500000, 16.500000);")
-	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (2, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 35, 2.000000, 8.500000, 26.000000, 12.500000);")
+	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (1, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 1, 5.100000, 11.000000, 27.500000, 16.500000);")
+	db.Exec("INSERT INTO `store_shipping_data` (`id`, `deleted_at`, `created_at`, `updated_at`, `variation_id`, `weight`, `width`, `height`, `length`) VALUES (2, NULL, '2024-04-27 02:13:42', '2024-04-27 02:13:42', 2, 2.000000, 8.500000, 26.000000, 12.500000);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
@@ -336,6 +336,39 @@ func ResetTemplatesDB(db *gorm.DB) {
 
 	db.Exec("INSERT INTO `store_email_templates` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `order_status`, `company_name`, `company_link`, `company_logo_url`, `company_primary_color`, `email_pretext`, `header_poster_slogan_title`, `header_poster_slogan_subtitle`, `body_greeting`, `first_name`, `body_message`, `body_cta_btn_link`, `body_cta_btn_label`, `body_secondary_message`, `unsubscribe_link`, `unsubscribe_safe_link`) VALUES (1, NULL, '2024-05-03 04:29:10', '2024-05-03 04:29:14', 1, 1, 'company1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);")
 	db.Exec("INSERT INTO `store_email_templates` (`id`, `deleted_at`, `created_at`, `updated_at`, `store_id`, `order_status`, `company_name`, `company_link`, `company_logo_url`, `company_primary_color`, `email_pretext`, `header_poster_slogan_title`, `header_poster_slogan_subtitle`, `body_greeting`, `first_name`, `body_message`, `body_cta_btn_link`, `body_cta_btn_label`, `body_secondary_message`, `unsubscribe_link`, `unsubscribe_safe_link`) VALUES (2, NULL, '2024-05-03 04:29:24', '2024-05-03 04:29:29', 2, 2, 'company2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetShippingMethodsDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_shipping_methods")
+
+	db.Exec("INSERT INTO `store_shipping_methods` (`id`, `created_at`, `updated_at`, `deleted_at`, `zone_id`, `store_id`, `method`, `requirement`, `minimum_order_amount`, `tax_status`, `cost`, `tax_included`, `handling_fee`, `maximum_shipping_cost`, `calculation_type`, `handling_fee_per_class`, `minimum_cost_per_class`, `maximum_cost_per_class`, `discount_in_min_max`, `tax_in_min_max`, `title`, `description`) VALUES (1, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);")
+	db.Exec("INSERT INTO `store_shipping_methods` (`id`, `created_at`, `updated_at`, `deleted_at`, `zone_id`, `store_id`, `method`, `requirement`, `minimum_order_amount`, `tax_status`, `cost`, `tax_included`, `handling_fee`, `maximum_shipping_cost`, `calculation_type`, `handling_fee_per_class`, `minimum_cost_per_class`, `maximum_cost_per_class`, `discount_in_min_max`, `tax_in_min_max`, `title`, `description`) VALUES (2, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetShippingTableRatesDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table store_shipping_table_rates")
+
+	db.Exec("INSERT INTO `store_shipping_table_rates` (`id`, `created_at`, `updated_at`, `deleted_at`, `method_id`, `class_id`, `condition`, `min`, `max`, `break`, `abort`, `row_cost`, `item_cost`, `cost_per_kg`, `percent_cost`) VALUES (1, NULL, NULL, NULL, 1, NULL, 0, NULL, NULL, NULL, NULL, 2.000000, 1.000000, 0.200000, 1.000000);")
+	db.Exec("INSERT INTO `store_shipping_table_rates` (`id`, `created_at`, `updated_at`, `deleted_at`, `method_id`, `class_id`, `condition`, `min`, `max`, `break`, `abort`, `row_cost`, `item_cost`, `cost_per_kg`, `percent_cost`) VALUES (2, NULL, NULL, NULL, 2, NULL, 1, NULL, NULL, NULL, NULL, 3.000000, 2.000000, 0.100000, 1.100000);")
+
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+}
+
+func ResetCountriesDB(db *gorm.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+
+	db.Exec("TRUNCATE Table countries")
+
+	db.Exec("INSERT INTO `countries` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `code`, `active`, `dial_code`, `currency_code`, `usd_ad_view_fee`, `usd_ad_click_fee`, `affordability_index_id`, `sim_ip`, `tax_rate`, `apply_tax`) VALUES (1, NULL, '2023-11-28 22:46:32', '2024-04-26 06:58:43', 'Andorra', 'ad', 1, '+376', 'EUR', 1.00, 2.00, 1, '46.172.224.0', 4.500000, 0);")
+	db.Exec("INSERT INTO `countries` (`id`, `deleted_at`, `created_at`, `updated_at`, `name`, `code`, `active`, `dial_code`, `currency_code`, `usd_ad_view_fee`, `usd_ad_click_fee`, `affordability_index_id`, `sim_ip`, `tax_rate`, `apply_tax`) VALUES (2, NULL, '2023-11-28 22:46:32', '2024-05-02 15:02:26', 'Polska', 'pl', 1, '+48', 'PLN', 1.00, 2.00, 2, '5.57.128.0', 23.000000, 0);")
 
 	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }

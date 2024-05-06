@@ -14,7 +14,7 @@ var (
 	readTags = []models.Tags{
 		{
 			StoreID: 1,
-			Name:    "sauces",
+			Name:    "kefir",
 		},
 	}
 )
@@ -32,7 +32,7 @@ func TestReadByNameTag(t *testing.T) {
 	tagRepo := repositories.NewRepositoryTag(db)
 
 	// Assertions
-	if assert.NoError(t, tagRepo.ReadByName(&modelTag, "sauces", 1)) {
+	if assert.NoError(t, tagRepo.ReadByName(&modelTag, "kefir", 1)) {
 		readTags[0].Model.ID = modelTag.Model.ID
 		readTags[0].CreatedAt = modelTag.CreatedAt
 		readTags[0].UpdatedAt = modelTag.UpdatedAt
