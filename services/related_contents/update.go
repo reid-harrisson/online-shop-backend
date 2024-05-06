@@ -7,6 +7,10 @@ import (
 )
 
 func (service *Service) Update(productID uint64, req *requests.RequestProductContent) error {
+	if len(req.ContentIDs) <= 0 {
+		return nil
+	}
+
 	modelNewConts := []models.ProductContents{}
 	modelCurConts := []models.ProductContents{}
 	contIndices := map[string]int{}

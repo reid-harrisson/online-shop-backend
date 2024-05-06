@@ -11,8 +11,8 @@ type RequestProduct struct {
 }
 type RequestProductWithDetail struct {
 	RequestProduct
-	RelatedChannels []uint64            `json:"channels" example:"173,174,175"`
-	RelatedContents []uint64            `json:"contents" example:"252,253,254"`
+	RelatedChannels []uint64            `json:"channels" example:"241,249"`
+	RelatedContents []uint64            `json:"contents" example:"549,552,558"`
 	Categories      []uint64            `json:"categories" example:"4,3"`
 	Tags            []string            `json:"tags" example:"fruit,food"`
 	Attributes      map[string][]string `json:"attributes"`
