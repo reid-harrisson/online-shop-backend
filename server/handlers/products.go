@@ -48,7 +48,7 @@ func CheckProduct(db *gorm.DB, modelProduct *models.Products, productID uint64) 
 	prodRepo := repositories.NewRepositoryProduct(db)
 	err := prodRepo.ReadByID(modelProduct, productID)
 
-	if err != gorm.ErrRecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		return constants.NotFound
 	}
 	if modelProduct.Status == utils.Pending {
