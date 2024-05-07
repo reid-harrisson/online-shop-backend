@@ -36,7 +36,6 @@ func (service *Service) Update(modelStore *models.Stores, req *requests.RequestS
 		return err
 	}
 
-	modelStore.CompanyID = req.CompanyID
 	modelStore.Name = req.Name
 	modelStore.ContactPhone = req.ContactPhone
 	modelStore.ContactEmail = req.ContactEmail
@@ -45,8 +44,6 @@ func (service *Service) Update(modelStore *models.Stores, req *requests.RequestS
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms
-	modelStore.ContactEmail = req.ContactEmail
-	modelStore.ContactPhone = req.ContactPhone
 
 	return service.DB.Save(modelStore).Error
 }
