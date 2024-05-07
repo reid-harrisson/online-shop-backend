@@ -63,7 +63,7 @@ func TestCategoryReadByStoreID(t *testing.T) {
 	}
 }
 
-func TestCategoryReadByName(t *testing.T) {
+func TestCategoryReadByNameAndStoreID(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
 
 	// DB Connection
@@ -75,7 +75,7 @@ func TestCategoryReadByName(t *testing.T) {
 	modelCategory := models.Categories{}
 
 	// Assertions
-	if assert.NoError(t, cateRepo.ReadByName(&modelCategory, "Kefir", uint64(1))) {
+	if assert.NoError(t, cateRepo.ReadByNameAndStoreIDAndParentID(&modelCategory, "Kefir", 1, 0)) {
 		categoryOutputs[0].ID = modelCategory.ID
 		categoryOutputs[0].CreatedAt = modelCategory.CreatedAt
 		categoryOutputs[0].UpdatedAt = modelCategory.UpdatedAt

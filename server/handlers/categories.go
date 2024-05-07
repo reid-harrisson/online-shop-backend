@@ -47,25 +47,37 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	modelCategory := models.Categories{}
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
-	if err := cateRepo.ReadByName(&modelCategory, req.Name, storeID); err == nil {
+
+	// check match between input store_id and parent_id's store_id(same store)
+	modelCategory := models.Categories{}
+	if err := cateRepo.ReadByID(&modelCategory, req.ParentID); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	if modelCategory.StoreID != storeID {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	// check duplicate
+	if err := cateRepo.ReadByNameAndStoreIDAndParentID(&modelCategory, req.Name, storeID, req.ParentID); err == nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CategoryDuplicated)
 	}
 
+	modelCategoryCreate := models.Categories{}
 	cateService := catesvc.NewServiceCategory(h.server.DB)
-	err = cateService.Create(&modelCategory, req, storeID)
+	err = cateService.Create(&modelCategoryCreate, req, storeID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	modelCategories := make([]models.CategoriesWithChildren, 0)
-	err = cateRepo.ReadByStoreID(&modelCategories, storeID)
+	modelCategoriesWithChildren := make([]models.CategoriesWithChildren, 0)
+	err = cateRepo.ReadByStoreID(&modelCategoriesWithChildren, storeID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	return responses.NewResponseCategories(c, http.StatusCreated, modelCategories)
+	return responses.NewResponseCategories(c, http.StatusCreated, modelCategoriesWithChildren)
 }
 
 // Refresh godoc

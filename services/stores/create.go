@@ -2,11 +2,20 @@ package storesvc
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 )
 
 func (service *Service) Create(modelStore *models.Stores, req *requests.RequestStore, userID uint64) error {
-	modelStore.CompanyID = req.CompanyID
+	modelAddr := models.Users{}
+	addrRepo := repositories.NewRepositoryUser(service.DB)
+	err := addrRepo.ReadByID(&modelAddr, userID)
+	if err != nil {
+		return err
+	}
+
+	modelStore.CompanyID = modelAddr.CompanyID
+
 	modelStore.OwnerID = userID
 	modelStore.Name = req.Name
 	modelStore.ContactPhone = req.ContactPhone
@@ -16,8 +25,6 @@ func (service *Service) Create(modelStore *models.Stores, req *requests.RequestS
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms
-	modelStore.ContactEmail = req.ContactEmail
-	modelStore.ContactPhone = req.ContactPhone
 
 	return service.DB.Create(&modelStore).Error
 }
