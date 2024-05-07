@@ -136,6 +136,14 @@ func (h *HandlersStores) Update(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	if !utils.ValidateEmailAddress(req.ContactEmail) {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidEmailAddress)
+	}
+
+	if !utils.ValidateEmailAddress(req.ContactEmail) {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidPhoneNumber)
+	}
+
 	// Update store by ID
 	modelStore := models.Stores{}
 	storeService := storesvc.NewServiceStore(h.server.DB)

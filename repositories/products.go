@@ -89,7 +89,7 @@ func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, s
 		Find(modelProducts).Error
 }
 
-func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.ProductsApproved, storeID uint64, customerID uint64, page int, count int, totalCount *int64) error {
+func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.ProductsApproved, storeID uint64, page int, count int, totalCount *int64) error {
 	query := repository.DB.Table("store_product_variations As vars").
 		Select(`
 			prods.id,
@@ -122,6 +122,10 @@ func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Prod
 }
 
 func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products, storeID uint64, tags []string, keyword string) error {
+	if len(tags) == 1 && tags[0] == "" {
+		tags = []string{}
+	}
+
 	modelTags := []models.Tags{}
 	repository.DB.Where("name Not In (?)", tags).Find(&modelTags)
 	keyword = "%" + keyword + "%"
@@ -130,14 +134,14 @@ func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products
 		tagIDs = append(tagIDs, uint64(modelTag.ID))
 	}
 
-	return repository.DB.Table("store_product_tags As tags").
+	return repository.DB.Table("store_products As prods").
 		Select("prods.*").
-		Joins("Left Join store_products As prods On prods.id = tags.product_id").
+		Joins("Left Join store_product_tags As tags On prods.id = tags.product_id").
 		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
 		Where("? = '%%' Or prods.title Like ?", keyword, keyword).
-		Where("tags.tag_id Not In (?)", tagIDs).
+		Where("? = 0 Or tags.tag_id Not In (?)", len(tags), tagIDs).
 		Group("prods.id").
-		Having("Count(tags.tag_id) = ?", len(tags)).
+		Having("? = 0 Or Count(tags.tag_id) = ?", len(tags), len(tags)).
 		Scan(modelProducts).
 		Error
 }

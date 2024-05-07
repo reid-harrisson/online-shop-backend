@@ -57,15 +57,15 @@ func TestReadAttributeValuesByID(t *testing.T) {
 	test_utils.ResetAttributeValuesDB(db)
 
 	// Setup
-	modelVals := []models.AttributeValuesWithDetail{}
+	modelVal := models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(db)
 
 	// Assertions
-	if assert.NoError(t, valRepo.ReadByID(&modelVals, 1)) {
-		readAttributeValue[0].CreatedAt = modelVals[0].CreatedAt
-		readAttributeValue[0].UpdatedAt = modelVals[0].UpdatedAt
+	if assert.NoError(t, valRepo.ReadByAttrValID(&modelVal, 1)) {
+		readAttributeValue[0].CreatedAt = modelVal.CreatedAt
+		readAttributeValue[0].UpdatedAt = modelVal.UpdatedAt
 		readAttributeValue[0].ID = 1
-		assert.Equal(t, readAttributeValue, modelVals)
+		assert.Equal(t, readAttributeValue[0], modelVal)
 	}
 }
 
@@ -79,15 +79,15 @@ func TestReadAttributeValueByAttrID(t *testing.T) {
 	test_utils.ResetAttributeValuesDB(db)
 
 	// Setup
-	modelVal := models.AttributeValuesWithDetail{}
+	modelVals := []models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(db)
 
 	// Assertions
-	if assert.NoError(t, valRepo.ReadByAttrID(&modelVal, 1)) {
-		readAttributeValue[0].CreatedAt = modelVal.CreatedAt
-		readAttributeValue[0].UpdatedAt = modelVal.UpdatedAt
+	if assert.NoError(t, valRepo.ReadByAttrID(&modelVals, 1)) {
+		readAttributeValue[0].CreatedAt = modelVals[0].CreatedAt
+		readAttributeValue[0].UpdatedAt = modelVals[0].UpdatedAt
 		readAttributeValue[0].ID = 1
-		assert.Equal(t, readAttributeValue[0], modelVal)
+		assert.Equal(t, readAttributeValue[0], modelVals[0])
 	}
 }
 
