@@ -32,6 +32,6 @@ func (service *Service) Update(attributeID uint64, req *requests.RequestAttribut
 
 func (service *Service) UpdateByID(attributeValueID uint64, value string) error {
 	return service.DB.Model(&models.AttributeValues{}).
-		Where("id = ?", attributeValueID).
+		Where("attribute_id = ?", attributeValueID).
 		Update("attribute_value", value).Error
 }

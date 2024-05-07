@@ -783,7 +783,7 @@ func (h *HandlersProducts) CreateAttribute(c echo.Context) error {
 
 	modelAttr := models.Attributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
-	err = attrRepo.ReadByName(&modelAttr, req.Name)
+	err = attrRepo.ReadByProductIDAndName(&modelAttr, productID, req.Name)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != 404 {
 		return responses.ErrorResponse(c, statusCode, message)
 	} else if statusCode == 0 {
@@ -948,7 +948,7 @@ func (h *HandlersProducts) UpdateAttributeValues(c echo.Context) error {
 
 	modelVals := make([]models.AttributeValuesWithDetail, 0)
 	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
-	valRepo.ReadByID(&modelVals, attributeID)
+	valRepo.ReadByAttrID(&modelVals, attributeID)
 	valRepo.ReadByProductID(&modelVals, productID)
 
 	ChangeToDraft(h.server.DB, &modelProduct)
@@ -986,6 +986,15 @@ func (h *HandlersProducts) CreateAttributeValueByID(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
+	modelValue := models.AttributeValuesWithDetail{}
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
+	err = valRepo.ReadByAttrIDAndValue(&modelValue, attributeID, value)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != 404 {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if statusCode == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicatedProductAttribute)
+	}
+
 	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	err = valService.Create(attributeID, value)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
@@ -993,7 +1002,6 @@ func (h *HandlersProducts) CreateAttributeValueByID(c echo.Context) error {
 	}
 
 	modelValues := make([]models.AttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	err = valRepo.ReadByProductID(&modelValues, productID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
