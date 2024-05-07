@@ -8,6 +8,10 @@ import (
 func (service *Service) Create(variationID uint64, attributeValueIDs []uint64) error {
 	modelDets := []models.VariationDetails{}
 
+	if len(attributeValueIDs) == 0 {
+		return nil
+	}
+
 	for _, attributeValueID := range attributeValueIDs {
 		modelDets = append(modelDets, models.VariationDetails{
 			VariationID:      variationID,

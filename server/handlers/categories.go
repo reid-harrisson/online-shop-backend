@@ -85,7 +85,7 @@ func (h *HandlersCategories) CreateCategory(c echo.Context) error {
 // @Tags Category Actions
 // @Accept json
 // @Produce json
-// @Param store_id path int true "Store ID"
+// @Param store_id query int true "Store ID"
 // @Success 200 {object} []responses.ResponseCategoryWithChildren
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error

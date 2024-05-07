@@ -189,7 +189,7 @@ func TestReadApprovedProduct(t *testing.T) {
 	totalCount := int64(0)
 
 	// Assertions
-	if assert.NoError(t, prodRepo.ReadApproved(&modelProductsApproved, 1, 1, 0, 1, &totalCount)) {
+	if assert.NoError(t, prodRepo.ReadApproved(&modelProductsApproved, 1, 0, 1, &totalCount)) {
 		assert.Equal(t, readProductsApproved[0], modelProductsApproved[0])
 	}
 }
