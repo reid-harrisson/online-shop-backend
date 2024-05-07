@@ -177,10 +177,10 @@ func (h *HandlersProducts) ReadAll(c echo.Context) error {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/product/approved  [get]
 func (h *HandlersProducts) ReadApproved(c echo.Context) error {
-	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
-	if err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
-	}
+	// customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	// if err != nil {
+	// 	return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	// }
 
 	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	if err != nil {
@@ -197,22 +197,22 @@ func (h *HandlersProducts) ReadApproved(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	exchangeRate, currencyCode := 0.0, "$"
+	exchangeRate, currencyCode := 1.0, "$"
 	modelProducts := make([]models.ProductsApproved, 0)
 
 	totalCount := int64(0)
 
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	err = prodRepo.ReadApproved(&modelProducts, storeID, customerID, page, count, &totalCount)
+	err = prodRepo.ReadApproved(&modelProducts, storeID, page, count, &totalCount)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	taxRepo := repositories.NewRepositoryTax(h.server.DB)
-	err = taxRepo.ReadCurrency(&currencyCode, &exchangeRate, customerID)
-	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
-		return responses.ErrorResponse(c, statusCode, message)
-	}
+	// taxRepo := repositories.NewRepositoryTax(h.server.DB)
+	// err = taxRepo.ReadCurrency(&currencyCode, &exchangeRate, customerID)
+	// if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
+	// 	return responses.ErrorResponse(c, statusCode, message)
+	// }
 
 	return responses.NewResponseProductsApprovedPaging(c, http.StatusOK, modelProducts, exchangeRate, currencyCode, totalCount)
 }
@@ -533,11 +533,6 @@ func (h *HandlersProducts) Delete(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	// Change product status to draft
-	err = ChangeToDraft(h.server.DB, &modelProduct)
-	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
-		return responses.ErrorResponse(c, statusCode, message)
-	}
 	return responses.MessageResponse(c, http.StatusOK, constants.SuccessDeleteProduct)
 }
 
