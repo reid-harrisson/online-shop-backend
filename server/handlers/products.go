@@ -137,7 +137,7 @@ func (h *HandlersProducts) ReadByID(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param store_id query int false "Store ID"
+// @Param store_id query int true "Store ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
 // @Failure 400 {object} responses.Error
@@ -169,8 +169,8 @@ func (h *HandlersProducts) ReadAll(c echo.Context) error {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param page query int false "Page"
-// @Param count query int false "Count"
+// @Param page query int true "Page"
+// @Param count query int true "Count"
 // @Success 200 {object} responses.ResponseProductApprovedPaging
 // @Failure 400 {object} responses.Error
 // @Failure 404 {object} responses.Error
@@ -413,6 +413,8 @@ func (h *HandlersProducts) Approve(c echo.Context) error {
 	if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
 		responses.ErrorResponse(c, statusCoede, message)
 	}
+
+	modelProduct.Status = utils.Approved
 
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
