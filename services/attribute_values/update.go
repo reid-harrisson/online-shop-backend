@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func (service *Service) Update(attributeID uint64, req *requests.RequestAttributeValue) {
+func (service *Service) Update(attributeID uint64, req *requests.RequestAttributeValue) error {
 	modelNewVals := []models.AttributeValues{}
 	modelCurVals := []models.AttributeValues{}
 	valIndices := map[string]int{}
@@ -20,14 +20,24 @@ func (service *Service) Update(attributeID uint64, req *requests.RequestAttribut
 			AttributeValue: val,
 		})
 	}
-	service.DB.Where("Concat(attribute_id, ':', attribute_value) In (?)", valMatches).Find(&modelCurVals)
-	service.DB.Where("Concat(attribute_id, ':', attribute_value) Not In (?) And attribute_id = ?", valMatches, attributeID).Delete(&models.AttributeValues{})
+
+	err := service.DB.Where("Concat(attribute_id, ':', attribute_value) In (?)", valMatches).Find(&modelCurVals).Error
+	if err != nil {
+		return err
+	}
+
+	err = service.DB.Where("Concat(attribute_id, ':', attribute_value) Not In (?) And attribute_id = ?", valMatches, attributeID).Delete(&models.AttributeValues{}).Error
+	if err != nil {
+		return err
+	}
+
 	for _, modelVal := range modelCurVals {
 		match := fmt.Sprintf("%d:%s", modelVal.AttributeID, modelVal.AttributeValue)
 		index := valIndices[match]
 		modelNewVals[index].ID = modelVal.ID
 	}
-	service.DB.Save(&modelNewVals)
+
+	return service.DB.Save(&modelNewVals).Error
 }
 
 func (service *Service) UpdateByID(attributeValueID uint64, value string) error {
