@@ -26,39 +26,15 @@ var (
 	}
 )
 
-func TestCreateAttributeValuesWithCSV(t *testing.T) {
+func TestReadAddressByID(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
 
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetAddressesDB(db)
+	test_utils.ResetCitiesDB(db)
 	test_utils.ResetCompaniesDB(db)
 	test_utils.ResetUsersDB(db)
-	test_utils.ResetAddressesDB(db)
-
-	// Setup
-
-	var addrRepo = repositories.NewRepositoryAddresses(db)
-	var modelAddrs = []models.Addresses{}
-
-	// Assertions
-	if assert.NoError(t, addrRepo.ReadAddressesByCustomerID(&modelAddrs, 1)) {
-		if assert.Equal(t, len(addrOutputs), len(modelAddrs)) {
-			for index := range modelAddrs {
-				addrOutputs[index].CreatedAt = modelAddrs[index].CreatedAt
-				addrOutputs[index].UpdatedAt = modelAddrs[index].UpdatedAt
-				addrOutputs[index].ID = modelAddrs[index].ID
-				assert.Equal(t, addrOutputs[index], modelAddrs[index])
-			}
-		}
-	}
-}
-
-func TestAddrReadByID(t *testing.T) {
-	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
-
-	// DB Connection
-	db := test_utils.InitTestDB(cfg)
-	test_utils.ResetStoreCartItemDB(db)
 
 	// Setup
 	addrRepo := repositories.NewRepositoryAddresses(db)
@@ -74,12 +50,15 @@ func TestAddrReadByID(t *testing.T) {
 	}
 }
 
-func TestAddrReadAddressesByCustomerID(t *testing.T) {
+func TestReadAddressesByCustomerID(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
 
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
-	test_utils.ResetStoreCartItemDB(db)
+	test_utils.ResetAddressesDB(db)
+	test_utils.ResetCitiesDB(db)
+	test_utils.ResetCompaniesDB(db)
+	test_utils.ResetUsersDB(db)
 
 	// Setup
 	addrRepo := repositories.NewRepositoryAddresses(db)

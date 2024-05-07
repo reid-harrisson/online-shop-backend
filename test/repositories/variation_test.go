@@ -28,7 +28,7 @@ var (
 			StockLevel:      10.00,
 			DiscountAmount:  20.00,
 			DiscountType:    1,
-			ImageUrls:       "",
+			ImageUrls:       "[]",
 			Description:     "Full cream milk kefir made using live kefir grains/cultures, fermented traditionally for maximum probiotic diversity.",
 			Title:           "Gochujang - Korean Chilli Pepper Paste - 125G",
 			BackOrderStatus: 0,

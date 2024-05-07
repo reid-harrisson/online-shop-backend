@@ -181,6 +181,7 @@ func TestReadApprovedProduct(t *testing.T) {
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetProductsDB(db)
+	test_utils.ResetProductReviewDB(db)
 
 	// Setup
 	modelProductsApproved := []models.ProductsApproved{}

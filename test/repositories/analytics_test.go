@@ -17,20 +17,18 @@ var (
 			VariationID: 1,
 			ProductID:   1,
 			StoreID:     1,
-			Price:       1,
-			Quantity:    0,
-			TotalPrice:  0,
+			Price:       76,
+			Quantity:    1,
+			TotalPrice:  76,
 		},
 	}
-	readCustomerInsightsOutputs = []models.CustomerInsights{
-		{
-			MaleCount:   0,
-			FemaleCount: 0,
-			AverageAge:  0,
-			YoungestAge: 0,
-			OldestAge:   0,
-			Location:    "",
-		},
+	readCustomerInsightsOutputs = models.CustomerInsights{
+		MaleCount:   1,
+		FemaleCount: 0,
+		AverageAge:  39,
+		YoungestAge: 39,
+		OldestAge:   39,
+		Location:    "",
 	}
 	readStockOutputs = []models.StockAnalytics{
 		{
@@ -72,7 +70,7 @@ func TestAnalyticsReadSalesReport(t *testing.T) {
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	if assert.NoError(t, analRepo.ReadSalesReport(&modelReports, 1, startDate, endDate)) {
 		if assert.Equal(t, len(readSaleReportOutputs), len(modelReports)) {
-			assert.Equal(t, readSaleReportOutputs[0].StoreID, modelReports[0].StoreID)
+			assert.Equal(t, readSaleReportOutputs[0], modelReports[0])
 		}
 	}
 }
@@ -94,12 +92,7 @@ func TestAnalyticsReadCustomerInsights(t *testing.T) {
 	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	if assert.NoError(t, analRepo.ReadCustomerInsights(&modelReports, 1, startDate, endDate)) {
-		assert.Equal(t, readCustomerInsightsOutputs[0].MaleCount, modelReports.MaleCount)
-		assert.Equal(t, readCustomerInsightsOutputs[0].FemaleCount, modelReports.FemaleCount)
-		assert.Equal(t, readCustomerInsightsOutputs[0].AverageAge, modelReports.AverageAge)
-		assert.Equal(t, readCustomerInsightsOutputs[0].YoungestAge, modelReports.YoungestAge)
-		assert.Equal(t, readCustomerInsightsOutputs[0].OldestAge, modelReports.OldestAge)
-		assert.Equal(t, readCustomerInsightsOutputs[0].Location, modelReports.Location)
+		assert.Equal(t, readCustomerInsightsOutputs, modelReports)
 	}
 }
 
@@ -266,7 +259,7 @@ func TestAnalyticsReadConventionRate(t *testing.T) {
 	var startDate = time.Date(1, 1, 1, 0, 0, 0, 0, time.Local)
 	var endDate = time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)
 	if assert.NoError(t, analRepo.ReadConventionRate(&modelReports, 1, startDate, endDate)) {
-		assert.Equal(t, readConvenRateOutputs.Rate, modelReports.Rate)
+		assert.Equal(t, readConvenRateOutputs, modelReports)
 	}
 }
 

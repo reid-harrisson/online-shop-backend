@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
@@ -25,6 +26,18 @@ var (
 				Name:     "Kefir",
 			},
 			ChildrenIDs: []uint64{},
+		},
+	}
+	prodcateWithNameOutputs = []models.ProductCategoriesWithName{
+		{
+			ProductCategories: models.ProductCategories{
+				Model: gorm.Model{
+					ID: 1,
+				},
+				ProductID:  1,
+				CategoryID: 1,
+			},
+			CategoryName: "Kefir",
 		},
 	}
 )
@@ -89,5 +102,25 @@ func TestCategoryReadByID(t *testing.T) {
 		categoryOutputs[0].UpdatedAt = modelCategory.UpdatedAt
 
 		assert.Equal(t, categoryOutputs[0], modelCategory)
+	}
+}
+
+func TestReadCategoriesByProductID(t *testing.T) {
+	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
+
+	// DB Connection
+	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetCategoriesDB(db)
+	test_utils.ResetProductCategoriesDB(db)
+
+	// Setup
+	cateRepo := repositories.NewRepositoryCategory(db)
+	modelCategories := []models.ProductCategoriesWithName{}
+
+	// Assertions
+	if assert.NoError(t, cateRepo.ReadByProductID(&modelCategories, 1)) {
+		prodcateWithNameOutputs[0].CreatedAt = modelCategories[0].CreatedAt
+		prodcateWithNameOutputs[0].UpdatedAt = modelCategories[0].UpdatedAt
+		assert.Equal(t, prodcateWithNameOutputs, modelCategories)
 	}
 }

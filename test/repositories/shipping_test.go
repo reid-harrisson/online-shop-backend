@@ -13,7 +13,7 @@ import (
 var (
 	readShipping = []models.ShippingData{
 		{
-			VariationID: 34,
+			VariationID: 1,
 			Weight:      5.1,
 			Width:       11,
 			Height:      27.5,
@@ -28,13 +28,14 @@ func TestReadByVariationIDShipping(t *testing.T) {
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
 	test_utils.ResetShippingData(db)
+	test_utils.ResetVariationsDB(db)
 
 	// Setup
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShippingData(db)
 
 	// Assertions
-	if assert.NoError(t, shipRepo.ReadByVariationID(&modelShipData, 34)) {
+	if assert.NoError(t, shipRepo.ReadByVariationID(&modelShipData, 1)) {
 		readShipping[0].Model.ID = modelShipData.Model.ID
 		readShipping[0].CreatedAt = modelShipData.CreatedAt
 		readShipping[0].UpdatedAt = modelShipData.UpdatedAt

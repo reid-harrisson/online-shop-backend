@@ -13,7 +13,7 @@ import (
 var (
 	readTaxes = []models.Taxes{
 		{
-			TaxRate:    10,
+			TaxRate:    4.5,
 			CountryID:  1,
 			CustomerID: 1,
 		},
@@ -40,6 +40,7 @@ func TestReadByCountryIDTax(t *testing.T) {
 
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetCountriesDB(db)
 
 	// Setup
 	taxRepo := repositories.NewRepositoryTax(db)
@@ -57,6 +58,7 @@ func TestReadByCustomerIDTax(t *testing.T) {
 
 	// DB Connection
 	db := test_utils.InitTestDB(cfg)
+	test_utils.ResetCountriesDB(db)
 
 	// Setup
 	taxRepo := repositories.NewRepositoryTax(db)

@@ -33,7 +33,7 @@ func (service *Service) Update(modelVar *models.Variations, req *requests.Reques
 		} else {
 			title += ", "
 		}
-		modelVar.Title += modelValue.AttributeValue
+		title += modelValue.AttributeValue
 	}
 
 	modelVar.Title = title
