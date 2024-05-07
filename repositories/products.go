@@ -101,6 +101,7 @@ func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.Produc
 			prods.image_urls
 		`).
 		Joins("Left Join store_products As prods On prods.id = vars.product_id").
+		Where("prods.store_id = ?", storeID).
 		Group("prods.id").
 		Count(totalCount)
 	if page != 0 || count != 0 {

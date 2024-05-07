@@ -842,6 +842,14 @@ func (h *HandlersProducts) UpdateAttributes(c echo.Context) error {
 
 	modelAttr := models.Attributes{}
 	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
+
+	err = attrRepo.ReadByProductIDAndName(&modelAttr, productID, req.Name)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if statusCode == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicatedProductAttribute)
+	}
+
 	err = attrRepo.ReadByID(&modelAttr, attributeID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
@@ -919,35 +927,6 @@ func (h *HandlersProducts) DeleteAttributes(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 	return responses.NewResponseAttribute(c, http.StatusOK, modelAttr)
-}
-
-func (h *HandlersProducts) UpdateAttributeValues(c echo.Context) error {
-	productID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	attributeID, _ := strconv.ParseUint(c.QueryParam("attribute_id"), 10, 64)
-	req := new(requests.RequestAttributeValue)
-	if err := c.Bind(req); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-
-	modelProduct := models.Products{}
-	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
-		return responses.ErrorResponse(c, http.StatusBadRequest, message)
-	}
-
-	modelAttr := models.Attributes{}
-	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
-	attrRepo.ReadByID(&modelAttr, attributeID)
-
-	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
-	valService.Update(attributeID, req)
-
-	modelVals := make([]models.AttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
-	valRepo.ReadByAttrID(&modelVals, attributeID)
-	valRepo.ReadByProductID(&modelVals, productID)
-
-	ChangeToDraft(h.server.DB, &modelProduct)
-	return responses.NewResponseAttributeValueByProduct(c, http.StatusOK, modelVals)
 }
 
 // Refresh godoc
@@ -1042,6 +1021,32 @@ func (h *HandlersProducts) UpdateAttributeValueByID(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
+	modelVal := models.AttributeValuesWithDetail{}
+	err = valRepo.ReadByAttrValID(&modelVal, attributeValueID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if modelVal.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
+	modelAttr := models.Attributes{}
+	err = attrRepo.ReadByID(&modelAttr, uint64(modelVal.AttributeID))
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if modelAttr.ProductID != productID {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	modelVal.ID = 0
+	err = valRepo.ReadByAttrIDAndValue(&modelVal, modelVal.AttributeID, value)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if statusCode == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicatedProductAttributeValue)
+	}
+
 	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	err = valService.UpdateByID(attributeValueID, value)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
@@ -1049,7 +1054,7 @@ func (h *HandlersProducts) UpdateAttributeValueByID(c echo.Context) error {
 	}
 
 	modelValues := make([]models.AttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
+	repositories.NewRepositoryAttributeValue(h.server.DB)
 	err = valRepo.ReadByProductID(&modelValues, productID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
@@ -1095,16 +1100,33 @@ func (h *HandlersProducts) DeleteAttributeValueByID(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
 	}
 
-	// Delete attribute value by ID
+	// Check if attribute value exist in product.
+	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
+	modelVal := models.AttributeValuesWithDetail{}
+	err = valRepo.ReadByAttrValID(&modelVal, attributeValueID)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if modelVal.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	attrRepo := repositories.NewRepositoryAttribute(h.server.DB)
+	modelAttr := models.Attributes{}
+	err = attrRepo.ReadByID(&modelAttr, uint64(modelVal.AttributeID))
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if modelAttr.ProductID != productID {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	valService := prodattrvalsvc.NewServiceAttributeValue(h.server.DB)
 	err = valService.DeleteByID(attributeValueID)
-	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode == 0 {
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	// Get attribute values in the product
 	modelValues := make([]models.AttributeValuesWithDetail, 0)
-	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	err = valRepo.ReadByProductID(&modelValues, productID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode == 0 {
 		return responses.ErrorResponse(c, statusCode, message)
