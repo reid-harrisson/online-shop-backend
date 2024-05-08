@@ -16,7 +16,7 @@ func NewRepositoryCombo(db *gorm.DB) *RepositoryCombo {
 }
 
 func (repository *RepositoryCombo) ReadByStoreID(modelCombos *[]models.Combos, modelItems *[]models.ComboItems, storeID uint64) error {
-	if err := repository.DB.Where("store_id = ?", storeID).First(modelCombos).Error; err != nil {
+	if err := repository.DB.Where("store_id = ?", storeID).Find(modelCombos).Error; err != nil {
 		return err
 	}
 
@@ -95,4 +95,8 @@ func (repository *RepositoryCombo) ReadDetail(modelItems *[]models.CartItemsWith
 
 func (repository *RepositoryCombo) ReadStatus(status *utils.ProductStatus, comboID uint64) error {
 	return repository.DB.Model(&models.Combos{}).Select("status").Where("id = ?", comboID).Scan(status).Error
+}
+
+func (repository *RepositoryCombo) ReadByTitleAndStoreID(modelCombo *models.Combos, title string, storeID uint64) error {
+	return repository.DB.Where("title = ? And store_id = ?", title, storeID).First(modelCombo).Error
 }

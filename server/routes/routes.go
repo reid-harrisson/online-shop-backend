@@ -108,11 +108,10 @@ func GroupCombos(server *s.Server, e *echo.Group) {
 	e.POST("", handler.Create, AuthMiddleware(server))
 	e.GET("", handler.ReadAll, AuthMiddleware(server))
 	e.GET("/approved", handler.ReadApproved, AuthMiddleware(server))
-	e.GET("/publish", handler.ReadPublished, AuthMiddleware(server))
 	e.PUT("/:id", handler.Update, AuthMiddleware(server))
 	e.PUT("/approve/:id", handler.UpdateApprove, AuthMiddleware(server))
-	e.PUT("/reject/:id", handler.UpdateReject, AuthMiddleware(server))
 	e.PUT("/publish/:id", handler.UpdatePublish, AuthMiddleware(server))
+	e.PUT("/reject/:id", handler.UpdateReject, AuthMiddleware(server))
 	e.DELETE("/:id", handler.Delete, AuthMiddleware(server))
 }
 
