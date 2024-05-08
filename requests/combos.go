@@ -10,6 +10,6 @@ type RequestCombo struct {
 }
 
 type RequestComboItem struct {
-	VariationID uint64  `json:"variation_id" example:"10"`
+	VariationID uint64  `json:"variation_id" example:"60"`
 	Quantity    float64 `json:"quantity" example:"1"`
 }
