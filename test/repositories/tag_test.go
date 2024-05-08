@@ -19,7 +19,7 @@ var (
 	}
 )
 
-func TestReadByNameTag(t *testing.T) {
+func TestReadByNameAndStoreID(t *testing.T) {
 	cfg := test_utils.PrepareAllConfiguration("./../../config.test.yaml")
 
 	// DB Connection
@@ -32,7 +32,7 @@ func TestReadByNameTag(t *testing.T) {
 	tagRepo := repositories.NewRepositoryTag(db)
 
 	// Assertions
-	if assert.NoError(t, tagRepo.ReadByName(&modelTag, "kefir", 1)) {
+	if assert.NoError(t, tagRepo.ReadByNameAndStoreID(&modelTag, "kefir", 1)) {
 		readTags[0].Model.ID = modelTag.Model.ID
 		readTags[0].CreatedAt = modelTag.CreatedAt
 		readTags[0].UpdatedAt = modelTag.UpdatedAt

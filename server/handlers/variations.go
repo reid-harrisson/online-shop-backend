@@ -108,7 +108,7 @@ func (h *HandlersVariations) ReadByAttributeValues(c echo.Context) error {
 // @Tags Variation Actions
 // @Accept json
 // @Produce json
-// /@Security ApiKeyAuth
+// @Security ApiKeyAuth
 // @Param product_id query int true "Product ID"
 // @Success 200 {object} []responses.ResponseVariationsInProduct
 // @Failure 400 {object} responses.Error
