@@ -5,10 +5,15 @@ import (
 )
 
 func (service *Service) Create(modelTag *models.Tags, tag string, storeID uint64) error {
+	err := service.DB.Where("name = ? And store_id = ?", tag, storeID).First(modelTag).Error
+	if err != nil {
+		return err
+	}
+
 	modelTag.Name = tag
 	modelTag.StoreID = storeID
-	service.DB.Where("name = ?", tag).First(modelTag)
-	return service.DB.Save(modelTag).Error
+
+	return service.DB.Create(modelTag).Error
 }
 
 func (service *Service) CreateWithCSV(modelNewTags *[]models.Tags, tagNames []string, tagIndices map[string]int) error {

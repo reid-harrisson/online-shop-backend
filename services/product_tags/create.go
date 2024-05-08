@@ -10,7 +10,7 @@ import (
 func (service *Service) Create(tag string, modelProduct *models.Products) error {
 	modelTag := models.Tags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
-	err := tagRepo.ReadByName(&modelTag, tag, modelProduct.StoreID)
+	err := tagRepo.ReadByNameAndStoreID(&modelTag, tag, modelProduct.StoreID)
 	if err != nil {
 		return err
 	}

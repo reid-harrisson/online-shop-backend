@@ -8,7 +8,7 @@ import (
 func (service *Service) Delete(tag string) error {
 	modelTag := models.Tags{}
 	tagRepo := repositories.NewRepositoryTag(service.DB)
-	err := tagRepo.ReadByName(&modelTag, tag, modelTag.StoreID)
+	err := tagRepo.ReadByNameAndStoreID(&modelTag, tag, modelTag.StoreID)
 	if err != nil {
 		return err
 	}

@@ -7,8 +7,8 @@ import (
 )
 
 type RequestVariation struct {
-	AttributeValueIDs []uint64            `json:"attribute_value_ids" example:"1,2,3"`
-	Price             float64             `json:"price" example:"1.23"`
+	AttributeValueIDs []uint64            `json:"attribute_value_ids" example:"270,275"`
+	Price             float64             `json:"price" example:"100.23"`
 	StockLevel        float64             `json:"stock_level" example:"30"`
 	DiscountAmount    float64             `json:"discount_amount" example:"10"`
 	DiscountType      utils.DiscountTypes `json:"discount_type" example:"1"`
