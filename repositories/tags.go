@@ -24,7 +24,7 @@ func (repository *RepositoryTag) ReadByProductID(modelTags *[]models.ProductTags
 		Error
 }
 
-func (repository *RepositoryTag) ReadByName(modelTag *models.Tags, name string, storeID uint64) error {
+func (repository *RepositoryTag) ReadByNameAndStoreID(modelTag *models.Tags, name string, storeID uint64) error {
 	return repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelTag).Error
 }
 

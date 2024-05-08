@@ -24,12 +24,16 @@ func (repository *RepositoryCategory) ReadByProductID(modelCategories *[]models.
 		Error
 }
 
-func (repository *RepositoryCategory) ReadByName(modelCategory *models.Categories, name string, storeID uint64) error {
-	return repository.DB.Where("name = ? And store_id = ?", name, storeID).First(modelCategory).Error
+func (repository *RepositoryCategory) ReadByNameAndStoreIDAndParentID(modelCategory *models.Categories, name string, storeID uint64, parentID uint64) error {
+	return repository.DB.Where("name = ? And store_id = ? And parent_id = ?", name, storeID, parentID).First(modelCategory).Error
 }
 
 func (repository *RepositoryCategory) ReadByID(modelCategory *models.Categories, categoryID uint64) error {
 	return repository.DB.Where("id = ?", categoryID).First(&modelCategory).Error
+}
+
+func (repository *RepositoryCategory) ReadByParentID(modelCategory *[]models.Categories, parentID uint64) error {
+	return repository.DB.Where("parent_id = ?", parentID).Find(&modelCategory).Error
 }
 
 func (repository *RepositoryCategory) ReadByStoreID(modelStoreCategories *[]models.CategoriesWithChildren, storeID uint64) error {

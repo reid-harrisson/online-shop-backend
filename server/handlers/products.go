@@ -135,7 +135,7 @@ func (h *HandlersProducts) ReadByID(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param store_id query int false "Store ID"
+// @Param store_id query int true "Store ID"
 // @Param keyword query string false "Keyword"
 // @Success 200 {object} []responses.ResponseProduct
 // @Failure 400 {object} responses.Error
@@ -167,8 +167,8 @@ func (h *HandlersProducts) ReadAll(c echo.Context) error {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param page query int false "Page"
-// @Param count query int false "Count"
+// @Param page query int true "Page"
+// @Param count query int true "Count"
 // @Success 200 {object} responses.ResponseProductApprovedPaging
 // @Failure 400 {object} responses.Error
 // @Failure 404 {object} responses.Error
@@ -411,6 +411,8 @@ func (h *HandlersProducts) Approve(c echo.Context) error {
 	if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
 		responses.ErrorResponse(c, statusCoede, message)
 	}
+
+	modelProduct.Status = utils.Approved
 
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }
@@ -1194,6 +1196,7 @@ func (h *HandlersProducts) DeleteAttributeValueByID(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
+// @Param variation_id query int true "Variation ID"
 // @Param params body requests.RequestShippingData true "Shipping Data"
 // @Success 201 {object} responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
@@ -1201,6 +1204,11 @@ func (h *HandlersProducts) DeleteAttributeValueByID(c echo.Context) error {
 // @Router /store/api/v1/product/shipping/{id} [post]
 func (h *HandlersProducts) CreateShippingData(c echo.Context) error {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	variationID, err := strconv.ParseUint(c.QueryParam("variation_id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
@@ -1217,7 +1225,7 @@ func (h *HandlersProducts) CreateShippingData(c echo.Context) error {
 
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
-	err = shipRepo.ReadByVariationID(&modelShipData, productID)
+	err = shipRepo.ReadByVariationID(&modelShipData, variationID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != 404 {
 		return responses.ErrorResponse(c, statusCode, message)
 	} else if statusCode == 0 {
@@ -1225,7 +1233,7 @@ func (h *HandlersProducts) CreateShippingData(c echo.Context) error {
 	}
 
 	shipService := shipsvc.NewServiceShippingData(h.server.DB)
-	if err := shipService.Create(productID, req, &modelShipData); err != nil {
+	if err := shipService.Create(variationID, req, &modelShipData); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
@@ -1244,6 +1252,7 @@ func (h *HandlersProducts) CreateShippingData(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
+// @Param variation_id query int true "Variation ID"
 // @Param params body requests.RequestShippingData true "Review"
 // @Success 200 {object} responses.ResponseShippingData
 // @Failure 400 {object} responses.Error
@@ -1252,6 +1261,11 @@ func (h *HandlersProducts) CreateShippingData(c echo.Context) error {
 // @Router /store/api/v1/product/shipping/{id} [put]
 func (h *HandlersProducts) UpdateShippingData(c echo.Context) error {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
+	variationID, err := strconv.ParseUint(c.QueryParam("variation_id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
@@ -1268,13 +1282,13 @@ func (h *HandlersProducts) UpdateShippingData(c echo.Context) error {
 
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
-	err = shipRepo.ReadByVariationID(&modelShipData, productID)
+	err = shipRepo.ReadByVariationID(&modelShipData, variationID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != 404 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	shipService := shipsvc.NewServiceShippingData(h.server.DB)
-	err = shipService.Update(productID, req, &modelShipData)
+	err = shipService.Update(variationID, req, &modelShipData)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 && statusCode != 404 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
@@ -1293,6 +1307,7 @@ func (h *HandlersProducts) UpdateShippingData(c echo.Context) error {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "Product ID"
+// @Param variation_id query int true "Product ID"
 // @Param params body requests.RequestShippingData true "Review"
 // @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
@@ -1305,6 +1320,11 @@ func (h *HandlersProducts) DeleteShippingData(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	variationID, err := strconv.ParseUint(c.QueryParam("variation_id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	modelProduct := models.Products{}
 	if message := CheckProduct(h.server.DB, &modelProduct, productID); message != "" {
 		return responses.ErrorResponse(c, http.StatusBadRequest, message)
@@ -1312,13 +1332,13 @@ func (h *HandlersProducts) DeleteShippingData(c echo.Context) error {
 
 	modelShipData := models.ShippingData{}
 	shipRepo := repositories.NewRepositoryShippingData(h.server.DB)
-	err = shipRepo.ReadByVariationID(&modelShipData, productID)
+	err = shipRepo.ReadByVariationID(&modelShipData, variationID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	shipService := shipsvc.NewServiceShippingData(h.server.DB)
-	err = shipService.Delete(productID)
+	err = shipService.Delete(variationID)
 	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}

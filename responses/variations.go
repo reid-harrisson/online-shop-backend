@@ -33,20 +33,13 @@ type ResponseVariationsInProduct struct {
 }
 
 func NewResponseVariation(c echo.Context, statusCode int, modelVar models.Variations) error {
-	price := modelVar.Price
-	switch modelVar.DiscountType {
-	case utils.PercentageOff:
-		price = price - price*modelVar.DiscountAmount/100
-	case utils.FixedAmountOff:
-		price = price - modelVar.DiscountAmount
-	}
 	imageUrls := make([]string, 0)
 	json.Unmarshal([]byte(modelVar.ImageUrls), &imageUrls)
 	return Response(c, statusCode, ResponseVariation{
 		ID:               uint64(modelVar.ID),
 		Sku:              modelVar.Sku,
 		ProductID:        modelVar.ProductID,
-		Price:            price,
+		Price:            modelVar.Price,
 		StockLevel:       modelVar.StockLevel,
 		Title:            modelVar.Title,
 		Description:      modelVar.Description,

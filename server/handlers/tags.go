@@ -49,7 +49,7 @@ func (h *HandlersTags) CreateTag(c echo.Context) error {
 
 	modelTag := models.Tags{}
 	tagRepo := repositories.NewRepositoryTag(h.server.DB)
-	if err := tagRepo.ReadByName(&modelTag, req.Name, storeID); err == nil {
+	if err := tagRepo.ReadByNameAndStoreID(&modelTag, req.Name, storeID); err == nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.TagDuplicated)
 	}
 

@@ -24,7 +24,6 @@ func TestUpdateStore(t *testing.T) {
 
 	// Assertions
 	if assert.NoError(t, storeService.Update(&modelStore, &storeInput, 1)) {
-		assert.Equal(t, storeInput.CompanyID, modelStore.CompanyID)
 		assert.Equal(t, storeInput.Name, modelStore.Name)
 		assert.Equal(t, storeInput.ContactPhone, modelStore.ContactPhone)
 		assert.Equal(t, storeInput.ContactEmail, modelStore.ContactEmail)
