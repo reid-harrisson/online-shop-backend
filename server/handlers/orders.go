@@ -382,10 +382,10 @@ func (h *HandlersOrder) UpdateOrderItemStatus(c echo.Context) error {
 // @Summary Generate PDF
 // @Tags Order Actions
 // @Accept json
-// @Produce json
+// @Produce application/json
 // @Security ApiKeyAuth
 // @Param order_id query int true "Order Item ID"
-// @Success 200 {object} responses.ResponseStoreOrder
+// @Success 200 {object} responses.Data
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/order/generate-pdf [put]
@@ -409,5 +409,5 @@ func (h *HandlersOrder) GeneratePDF(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	return responses.MessageResponse(c, http.StatusCreated, "Successfly created pdf file.")
+	return c.Attachment("invoice.pdf", "invoice.pdf")
 }
