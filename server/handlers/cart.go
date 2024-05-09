@@ -37,12 +37,11 @@ func NewHandlersCart(server *s.Server) *HandlersCart {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart [post]
 func (h *HandlersCart) Create(c echo.Context) error {
-	userID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	req := new(requests.RequestCartItem)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
-
-	req := new(requests.RequestCartItem)
 
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
@@ -60,15 +59,17 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ProductNotApproved)
 	}
 
-	// Read variations by id
-	modelVar := models.Variations{}
+	// Read attribute value by ids
 	modelVals := []models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	err = valRepo.ReadByIDs(&modelVals, req.ValueIDs, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
+	} else if len(modelVals) != len(req.ValueIDs) {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Check if attribute values use same attribute
 	mapVal := map[uint64]string{}
 	for _, modelVal := range modelVals {
 		if mapVal[modelVal.AttributeID] == "" {
@@ -78,7 +79,8 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		}
 	}
 
-	// Read attribute value ids
+	// Read variation using attribute value IDs
+	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByAttributeValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -92,14 +94,14 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	// Check duplicated cart
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	err = cartRepo.ReadByInfo(&modelItem, variationID, userID)
-	if statusCode, message := eh.SqlErrorHandler(err); statusCode == 0 && message == "" {
-		return responses.ErrorResponse(c, statusCode, constants.DuplicateCart)
+	err = cartRepo.ReadByInfo(&modelItem, variationID, customerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
+		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	// Create cart
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	err = cartService.Create(&modelItem, userID, &modelVar, float64(req.Quantity))
+	err = cartService.Create(&modelItem, customerID, &modelVar, float64(req.Quantity))
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
