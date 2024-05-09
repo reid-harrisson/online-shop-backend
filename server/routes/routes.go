@@ -39,13 +39,13 @@ func ConfigureRoutes(server *s.Server) {
 
 	storeServer.GET("/docs/*", echoSwagger.WrapHandler)
 
-	healthHandler := handlers.NewHealthHandler(server)
-	storeServer.GET("/health", healthHandler.HealthCheck)
-
 	apiV1 := storeServer.Group("/api/v1")
 
 	apiV1.Use(middleware.Logger())
 	apiV1.Use(middleware.Recover())
+
+	healthHandler := handlers.NewHealthHandler(server)
+	apiV1.GET("/health", healthHandler.HealthCheck)
 
 	groupStores := apiV1.Group("/store")
 	GroupStores(server, groupStores)
