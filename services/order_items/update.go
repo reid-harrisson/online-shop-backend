@@ -8,7 +8,7 @@ import (
 
 func (service *Service) UpdateStatus(storeID uint64, orderID uint64, orderStatus string) {
 	status := utils.OrderStatusFromString(orderStatus)
-	service.DB.Model(models.OrderItems{}).Where("id = ? And store_id = ?", orderID, storeID).
+	service.DB.Model(&models.OrderItems{}).Where("id = ? And store_id = ?", orderID, storeID).
 		Update("status", status)
 }
 

@@ -10,6 +10,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	cartsvc "OnlineStoreBackend/services/cart_items"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -36,6 +37,11 @@ func NewHandlersCart(server *s.Server) *HandlersCart {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/cart [post]
 func (h *HandlersCart) Create(c echo.Context) error {
+	userID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
+
 	req := new(requests.RequestCartItem)
 
 	if err := c.Bind(req); err != nil {
@@ -45,7 +51,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	// Read product by id
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	err := prodRepo.ReadByID(&modelProduct, req.ProductID)
+	err = prodRepo.ReadByID(&modelProduct, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
@@ -80,18 +86,20 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	}
 
 	variationID := uint64(modelVar.ID)
+	log.Println("variationID = ", variationID)
 
 	// Read cart item by info
+	// Check duplicated cart
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	err = cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
-	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
-		return responses.ErrorResponse(c, statusCode, message)
+	err = cartRepo.ReadByInfo(&modelItem, variationID, userID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode == 0 && message == "" {
+		return responses.ErrorResponse(c, statusCode, constants.DuplicateCart)
 	}
 
 	// Create cart
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	err = cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
+	err = cartService.Create(&modelItem, userID, &modelVar, float64(req.Quantity))
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}

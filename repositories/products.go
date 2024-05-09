@@ -76,7 +76,7 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 
 func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page int, count int, storeID uint64, keyword string, totalCount *int64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
-	return repository.DB.Model(models.Products{}).
+	return repository.DB.Model(&models.Products{}).
 		Where("? = 0 Or store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
 		Count(totalCount).Offset(page).Limit(count).Find(modelProducts).Error
