@@ -6,14 +6,19 @@ import (
 	"OnlineStoreBackend/repositories"
 	"OnlineStoreBackend/requests"
 	prodvardetsvc "OnlineStoreBackend/services/variation_details"
+	"encoding/json"
+
+	"gorm.io/gorm"
 )
 
 func (service *Service) Update(modelVar *models.Variations, req *requests.RequestVariation) error {
 	modelValues := make([]models.AttributeValuesWithDetail, 0)
 
 	valRepo := repositories.NewRepositoryAttributeValue(service.DB)
-	if err := valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs); err != nil {
+	if err := valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs, modelVar.ProductID); err != nil {
 		return err
+	} else if len(modelValues) != len(req.AttributeValueIDs) {
+		return gorm.ErrForeignKeyViolated
 	}
 
 	modelProduct := models.Products{}
@@ -36,6 +41,8 @@ func (service *Service) Update(modelVar *models.Variations, req *requests.Reques
 		title += modelValue.AttributeValue
 	}
 
+	imageUrls, _ := json.Marshal(req.ImageUrls)
+
 	modelVar.Title = title
 	modelVar.Sku = utils.CleanSpecialLetters(sku)
 	modelVar.Price = req.Price
@@ -43,6 +50,7 @@ func (service *Service) Update(modelVar *models.Variations, req *requests.Reques
 	modelVar.DiscountAmount = req.DiscountAmount
 	modelVar.DiscountType = req.DiscountType
 	modelVar.Description = req.Description
+	modelVar.ImageUrls = string(imageUrls)
 	modelVar.BackOrderStatus = utils.SimpleStatuses(req.BackOrderAllowed)
 
 	if err := service.DB.Save(modelVar).Error; err != nil {

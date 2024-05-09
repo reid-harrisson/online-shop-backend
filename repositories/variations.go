@@ -33,7 +33,7 @@ func (repository *RepositoryVariation) ReadBySku(modelVar *models.Variations, sk
 
 func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.Variations, valueIDs []uint64, productID uint64) error {
 	ids := make([]string, 0)
-	sort.Slice(valueIDs, func(i, j int) bool { return valueIDs[i] > valueIDs[j] })
+	sort.Slice(valueIDs, func(i, j int) bool { return valueIDs[i] < valueIDs[j] })
 
 	for _, valueID := range valueIDs {
 		ids = append(ids, strconv.FormatUint(uint64(valueID), 10))
@@ -41,16 +41,21 @@ func (repository *RepositoryVariation) ReadByAttributeValueIDs(modelVar *models.
 
 	temp := strings.Join(ids, ",")
 
-	return repository.DB.
+	query := repository.DB.
 		Table("store_product_variations As vars").
-		Select("vars.*, Group_Concat(dets.attribute_value_id) As ids").
+		Select("vars.*, Group_Concat(dets.attribute_value_id ORDER BY dets.attribute_value_id ASC) As ids").
 		Joins("Left Join store_product_variation_details As dets ON dets.variation_id = vars.id").
 		Group("vars.id").
 		Where("vars.product_id = ? And vars.deleted_at Is Null And dets.deleted_at Is Null", productID).
 		Having("(ids Is Null And ? = '') Or ids = ?", temp, temp).
 		Limit(1).
-		Scan(modelVar).
-		Error
+		Scan(modelVar)
+	if query.Error != nil {
+		return query.Error
+	} else if query.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.VariationsWithAttributeValue, productID uint64) error {
@@ -63,8 +68,8 @@ func (repository *RepositoryVariation) ReadByProduct(modelVars *[]models.Variati
 			attrs.attribute_name
 		`).
 		Joins("Left Join store_product_variation_details As dets On dets.variation_id = vars.id").
-		Joins("Left Join store_product_attributes As attrs On attrs.product_id = vars.product_id").
 		Joins("Left Join store_product_attribute_values As vals On vals.id = dets.attribute_value_id").
+		Joins("Left Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
 		Where("vars.product_id = ?", productID).
 		Where("vars.deleted_at Is Null And dets.deleted_at Is Null And vals.deleted_at Is Null And attrs.deleted_at Is Null").
 		Scan(&modelVars).

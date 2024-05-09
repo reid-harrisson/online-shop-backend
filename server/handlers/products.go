@@ -167,8 +167,8 @@ func (h *HandlersProducts) ReadAll(c echo.Context) error {
 // @Produce json
 // /@Security ApiKeyAuth
 // @Param store_id query int true "Store ID"
-// @Param page query int true "Page"
-// @Param count query int true "Count"
+// @Param page query int true "Page" default(0)
+// @Param count query int true "Count" default(100)
 // @Success 200 {object} responses.ResponseProductApprovedPaging
 // @Failure 400 {object} responses.Error
 // @Failure 404 {object} responses.Error
@@ -401,15 +401,17 @@ func (h *HandlersProducts) Approve(c echo.Context) error {
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
 	err = prodRepo.ReadByID(&modelProduct, productID)
-	if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
-		responses.ErrorResponse(c, statusCoede, message)
+	if statusCode, message := errhandle.SqlErrorHandler(err); statusCode != 0 {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if modelProduct.Status != utils.Pending {
+		return responses.ErrorResponse(c, statusCode, constants.ProductNotPublished)
 	}
 
 	// Approve status
 	prodService := prodsvc.NewServiceProduct(h.server.DB)
 	err = prodService.UpdateStatus(uint64(modelProduct.ID), utils.Approved)
 	if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
-		responses.ErrorResponse(c, statusCoede, message)
+		return responses.ErrorResponse(c, statusCoede, message)
 	}
 
 	modelProduct.Status = utils.Approved
@@ -455,7 +457,7 @@ func (h *HandlersProducts) Reject(c echo.Context) error {
 }
 
 // Refresh godoc
-// @Summary Submit product
+// @Summary Publish product
 // @Tags Product Actions
 // @Accept json
 // @Produce json
@@ -466,7 +468,7 @@ func (h *HandlersProducts) Reject(c echo.Context) error {
 // @Failure 404 {object} responses.Error
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/product/publish/{id} [put]
-func (h *HandlersProducts) Submit(c echo.Context) error {
+func (h *HandlersProducts) Publish(c echo.Context) error {
 	// Get product ID
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -486,17 +488,19 @@ func (h *HandlersProducts) Submit(c echo.Context) error {
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByProduct(&modelVars, productID)
 	if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
-		responses.ErrorResponse(c, statusCoede, message)
+		return responses.ErrorResponse(c, statusCoede, message)
+	} else if len(modelVars) == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.NoVariationExist)
 	}
 
 	// Submit changes when any variations exist.
-	if len(modelVars) > 0 {
-		prodService := prodsvc.NewServiceProduct(h.server.DB)
-		err = prodService.UpdateStatus(uint64(modelProduct.ID), utils.Pending)
-		if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
-			responses.ErrorResponse(c, statusCoede, message)
-		}
+	prodService := prodsvc.NewServiceProduct(h.server.DB)
+	err = prodService.UpdateStatus(uint64(modelProduct.ID), utils.Pending)
+	if statusCoede, message := errhandle.SqlErrorHandler(err); statusCoede != 0 {
+		return responses.ErrorResponse(c, statusCoede, message)
 	}
+
+	modelProduct.Status = utils.Pending
 
 	return responses.NewResponseProduct(c, http.StatusOK, modelProduct)
 }

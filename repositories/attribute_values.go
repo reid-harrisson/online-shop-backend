@@ -59,13 +59,13 @@ func (repository *RepositoryAttributeValue) ReadByProductID(modelVars *[]models.
 		Error
 }
 
-func (repository *RepositoryAttributeValue) ReadByIDs(modelValues *[]models.AttributeValuesWithDetail, attributeValueIDs []uint64) error {
+func (repository *RepositoryAttributeValue) ReadByIDs(modelValues *[]models.AttributeValuesWithDetail, attributeValueIDs []uint64, productID uint64) error {
 	return repository.DB.
 		Table("store_product_attribute_values As vals").
 		Select("vals.*, attrs.attribute_name As attribute_name").
 		Joins("Join store_product_attributes As attrs On attrs.id = vals.attribute_id").
 		Where("attrs.deleted_at Is Null And vals.deleted_at Is Null").
-		Where("vals.id In (?)", attributeValueIDs).
+		Where("vals.id In (?) And attrs.product_id = ?", attributeValueIDs, productID).
 		Scan(modelValues).
 		Error
 }

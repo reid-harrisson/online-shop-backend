@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"OnlineStoreBackend/models"
+	"OnlineStoreBackend/pkgs/utils"
 	"strings"
 
 	"gorm.io/gorm"
@@ -101,7 +102,7 @@ func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.Produc
 			prods.image_urls
 		`).
 		Joins("Left Join store_products As prods On prods.id = vars.product_id").
-		Where("prods.store_id = ?", storeID).
+		Where("prods.store_id = ? And prods.status = ?", storeID, utils.Approved).
 		Group("prods.id").
 		Count(totalCount)
 	if page != 0 || count != 0 {

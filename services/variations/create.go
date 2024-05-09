@@ -8,14 +8,18 @@ import (
 	prodvardetsvc "OnlineStoreBackend/services/variation_details"
 	"encoding/json"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 func (service *Service) Create(modelVar *models.Variations, req *requests.RequestVariation, productID uint64) error {
 	modelValues := make([]models.AttributeValuesWithDetail, 0)
 
 	valRepo := repositories.NewRepositoryAttributeValue(service.DB)
-	if err := valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs); err != nil {
+	if err := valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs, productID); err != nil {
 		return err
+	} else if len(modelValues) == len(req.AttributeValueIDs) {
+		return gorm.ErrForeignKeyViolated
 	}
 
 	modelProduct := models.Products{}
@@ -38,11 +42,6 @@ func (service *Service) Create(modelVar *models.Variations, req *requests.Reques
 	}
 	sku = utils.CleanSpecialLetters(sku)
 	imageUrls, _ := json.Marshal(req.ImageUrls)
-
-	varRepo := repositories.NewRepositoryVariation(service.DB)
-	if err := varRepo.ReadByAttributeValueIDs(modelVar, req.AttributeValueIDs, productID); err != nil {
-		return err
-	}
 
 	if modelVar.ID == 0 {
 		modelVar.Sku = sku

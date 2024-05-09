@@ -6,7 +6,10 @@ var (
 	DuplicatedProductAttributeValue = "This value already exists in the attribute."
 	DuplicatedProductShippingData   = "Shipping data already exists in this product."
 	DuplicatedCombo                 = "A combo with this title already exists."
+	DuplicatedVariation             = "This variation already exists in the product."
 	SuccessDeleteProduct            = "Product successfully deleted."
 	SuccessDeleteShippingData       = "Shipping data is successfully deleted"
 	ProductNotApproved              = "This product isn't approved."
+	ProductNotPublished             = "This product doesn't published."
+	NoVariationExist                = "No variation exist in this product."
 )

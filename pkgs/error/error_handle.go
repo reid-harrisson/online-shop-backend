@@ -33,6 +33,8 @@ func SqlErrorHandler(err error) (int, string) {
 			return http.StatusInternalServerError, constants.InternalServerErrorMessage
 		case gorm.ErrRecordNotFound:
 			return http.StatusNotFound, constants.NotFound
+		case gorm.ErrForeignKeyViolated:
+			return http.StatusBadRequest, constants.InvalidData
 		}
 	}
 	if err != nil {
