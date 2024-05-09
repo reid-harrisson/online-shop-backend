@@ -18,7 +18,7 @@ func (service *Service) Create(modelVar *models.Variations, req *requests.Reques
 	valRepo := repositories.NewRepositoryAttributeValue(service.DB)
 	if err := valRepo.ReadByIDs(&modelValues, req.AttributeValueIDs, productID); err != nil {
 		return err
-	} else if len(modelValues) == len(req.AttributeValueIDs) {
+	} else if len(modelValues) != len(req.AttributeValueIDs) {
 		return gorm.ErrForeignKeyViolated
 	}
 

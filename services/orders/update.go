@@ -95,7 +95,7 @@ func (service *Service) UpdateStatus(modelItems *[]models.OrderItems, storeID ui
 		status = utils.StatusOrderProcessing
 	}
 
-	return service.DB.Model(models.Orders{}).
+	return service.DB.Model(&models.Orders{}).
 		Where("id = ?", orderID).
 		Update("status", status).
 		Error

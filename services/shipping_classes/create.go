@@ -16,10 +16,10 @@ func (service *Service) Create(storeID uint64, req *requests.RequestShippingClas
 	}
 
 	if modelClass.Description != req.Description {
-		return service.DB.Model(models.ShippingClasses{}).Update("description", req.Description).Error
+		return service.DB.Model(&models.ShippingClasses{}).Update("description", req.Description).Error
 	}
 	if modelClass.Priority != req.Priority {
-		return service.DB.Model(models.ShippingClasses{}).Update("priority", req.Priority).Error
+		return service.DB.Model(&models.ShippingClasses{}).Update("priority", req.Priority).Error
 	}
 
 	return nil

@@ -10,6 +10,7 @@ import (
 	"OnlineStoreBackend/responses"
 	s "OnlineStoreBackend/server"
 	cartsvc "OnlineStoreBackend/services/cart_items"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -37,6 +38,10 @@ func NewHandlersCart(server *s.Server) *HandlersCart {
 // @Router /store/api/v1/cart [post]
 func (h *HandlersCart) Create(c echo.Context) error {
 	req := new(requests.RequestCartItem)
+	customerID, err := strconv.ParseUint(c.Request().Header.Get("id"), 10, 64)
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+	}
 
 	if err := c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
@@ -45,7 +50,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	// Read product by id
 	modelProduct := models.Products{}
 	prodRepo := repositories.NewRepositoryProduct(h.server.DB)
-	err := prodRepo.ReadByID(&modelProduct, req.ProductID)
+	err = prodRepo.ReadByID(&modelProduct, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
@@ -54,15 +59,17 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.ProductNotApproved)
 	}
 
-	// Read variations by id
-	modelVar := models.Variations{}
+	// Read attribute value by ids
 	modelVals := []models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
 	err = valRepo.ReadByIDs(&modelVals, req.ValueIDs, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
+	} else if len(modelVals) != len(req.ValueIDs) {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
+	// Check if attribute values use same attribute
 	mapVal := map[uint64]string{}
 	for _, modelVal := range modelVals {
 		if mapVal[modelVal.AttributeID] == "" {
@@ -72,7 +79,8 @@ func (h *HandlersCart) Create(c echo.Context) error {
 		}
 	}
 
-	// Read attribute value ids
+	// Read variation using attribute value IDs
+	modelVar := models.Variations{}
 	varRepo := repositories.NewRepositoryVariation(h.server.DB)
 	err = varRepo.ReadByAttributeValueIDs(&modelVar, req.ValueIDs, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -80,18 +88,20 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	}
 
 	variationID := uint64(modelVar.ID)
+	log.Println("variationID = ", variationID)
 
 	// Read cart item by info
+	// Check duplicated cart
 	modelItem := models.CartItems{}
 	cartRepo := repositories.NewRepositoryCart(h.server.DB)
-	err = cartRepo.ReadByInfo(&modelItem, variationID, req.CustomerID)
-	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
+	err = cartRepo.ReadByInfo(&modelItem, variationID, customerID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
 	// Create cart
 	cartService := cartsvc.NewServiceCartItem(h.server.DB)
-	err = cartService.Create(&modelItem, req.CustomerID, &modelVar, float64(req.Quantity))
+	err = cartService.Create(&modelItem, customerID, &modelVar, float64(req.Quantity))
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}

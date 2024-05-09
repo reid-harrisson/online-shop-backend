@@ -103,7 +103,7 @@ func (h *HandlersReviews) ReadPublishedReviews(c echo.Context) error {
 // @Tags Review Actions
 // @Accept json
 // @Produce json
-// /@Security ApiKeyAuth
+// @Security ApiKeyAuth
 // @Param id path int true "Product ID"
 // @Success 200 {object} []responses.ResponseReview
 // @Failure 400 {object} responses.Error
@@ -131,7 +131,7 @@ func (h *HandlersReviews) ReadAll(c echo.Context) error {
 // @Tags Review Actions
 // @Accept json
 // @Produce json
-// /@Security ApiKeyAuth
+// @Security ApiKeyAuth
 // @Param id path int true "Product Review ID"
 // @Param status query string true "Status" default(Approved)
 // @Success 200 {object} responses.ResponseReview

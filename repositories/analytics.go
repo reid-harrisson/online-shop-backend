@@ -248,7 +248,7 @@ func (repository *RepositoryAnalytics) ReadCustomerChurnRate(modelRate *models.C
 	activeUser := int64(0)
 	churnUser := int64(0)
 
-	if err := repository.DB.Model(models.Orders{}).
+	if err := repository.DB.Model(&models.Orders{}).
 		Select(`
 			Distinct customer_id
 		`).

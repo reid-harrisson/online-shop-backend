@@ -206,8 +206,8 @@ func GroupCart(server *s.Server, e *echo.Group) {
 
 func GroupReviews(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersReviews(server)
-	e.POST("", handler.CreateReview, AuthMiddleware(server))
-	e.GET("/publish/:id", handler.ReadPublishedReviews, AuthMiddleware(server))
+	e.POST("", handler.CreateReview)
+	e.GET("/publish/:id", handler.ReadPublishedReviews)
 	e.GET("/:id", handler.ReadAll, AuthMiddleware(server))
 	e.PUT("/moderate/:id", handler.ModerateReview, AuthMiddleware(server))
 }
