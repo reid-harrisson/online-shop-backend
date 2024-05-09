@@ -58,7 +58,7 @@ func (h *HandlersCart) Create(c echo.Context) error {
 	modelVar := models.Variations{}
 	modelVals := []models.AttributeValuesWithDetail{}
 	valRepo := repositories.NewRepositoryAttributeValue(h.server.DB)
-	err = valRepo.ReadByIDs(&modelVals, req.ValueIDs)
+	err = valRepo.ReadByIDs(&modelVals, req.ValueIDs, req.ProductID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
 	}

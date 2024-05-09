@@ -105,7 +105,7 @@ func TestReadAttributeValuesByIDs(t *testing.T) {
 	valRepo := repositories.NewRepositoryAttributeValue(db)
 
 	// Assertions
-	if assert.NoError(t, valRepo.ReadByIDs(&modelVals, []uint64{1})) {
+	if assert.NoError(t, valRepo.ReadByIDs(&modelVals, []uint64{1}, 1)) {
 		readAttributeValue[0].CreatedAt = modelVals[0].CreatedAt
 		readAttributeValue[0].UpdatedAt = modelVals[0].UpdatedAt
 		readAttributeValue[0].ID = 1

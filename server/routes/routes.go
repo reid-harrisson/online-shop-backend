@@ -184,7 +184,7 @@ func GroupProducts(server *s.Server, e *echo.Group) {
 	e.PUT("/category/:id", handler.UpdateCategories, AuthMiddleware(server))
 	e.PUT("/channel/:id", handler.UpdateRelatedChannels, AuthMiddleware(server))
 	e.PUT("/content/:id", handler.UpdateRelatedContents, AuthMiddleware(server))
-	e.PUT("/publish/:id", handler.Submit, AuthMiddleware(server))
+	e.PUT("/publish/:id", handler.Publish, AuthMiddleware(server))
 	e.PUT("/reject/:id", handler.Reject, AuthMiddleware(server))
 	e.PUT("/shipping/:id", handler.UpdateShippingData, AuthMiddleware(server))
 	e.PUT("/tag/:id", handler.UpdateTags, AuthMiddleware(server))

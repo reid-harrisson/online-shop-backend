@@ -59,11 +59,13 @@ func NewResponseVariationsInProduct(c echo.Context, statusCode int, modelVars []
 	for _, indexes := range mapVars {
 		responseAttrs := make([]ResponseVariationWithAttribute, 0)
 		for _, index := range indexes {
-			responseAttrs = append(responseAttrs, ResponseVariationWithAttribute{
-				AttributeValueID: modelVars[index].AttributeValueID,
-				AttributeName:    modelVars[index].AttributeName,
-				AttributeValue:   modelVars[index].AttributeValue + modelVars[index].Unit,
-			})
+			if modelVars[index].AttributeValueID != 0 {
+				responseAttrs = append(responseAttrs, ResponseVariationWithAttribute{
+					AttributeValueID: modelVars[index].AttributeValueID,
+					AttributeName:    modelVars[index].AttributeName,
+					AttributeValue:   modelVars[index].AttributeValue + modelVars[index].Unit,
+				})
+			}
 		}
 		index := 0
 		if len(indexes) > 0 {

@@ -52,8 +52,18 @@ func (h *HandlersVariations) Create(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	// Create variation
+	// Check duplicate variation
 	modelVar := models.Variations{}
+	varRepo := repositories.NewRepositoryVariation(h.server.DB)
+	err = varRepo.ReadByAttributeValueIDs(&modelVar, req.AttributeValueIDs, productID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if statusCode == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicatedVariation)
+	}
+
+	// Create variation
+	modelVar = models.Variations{}
 	varService := prodvarsvc.NewServiceVariation(h.server.DB)
 	err = varService.Create(&modelVar, req, productID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
@@ -69,7 +79,7 @@ func (h *HandlersVariations) Create(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param product_id query int true "Product ID"
-// @Param attribute_value_ids query string true "Attribute Value IDs"
+// @Param attribute_value_ids query string false "Attribute Value IDs"
 // @Success 200 {object} responses.ResponseVariation
 // @Failure 400 {object} responses.Error
 // @Failure 404 {object} responses.Error
@@ -85,11 +95,13 @@ func (h *HandlersVariations) ReadByAttributeValues(c echo.Context) error {
 	valueIDs := []uint64{}
 
 	for _, value := range values {
-		valueID, err := strconv.ParseUint(value, 10, 64)
-		if err != nil {
-			return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+		if value != "" {
+			valueID, err := strconv.ParseUint(value, 10, 64)
+			if err != nil {
+				return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
+			}
+			valueIDs = append(valueIDs, valueID)
 		}
-		valueIDs = append(valueIDs, valueID)
 	}
 
 	// Read variatio nby attribute value id
@@ -204,6 +216,14 @@ func (h *HandlersVariations) Update(c echo.Context) error {
 	err = varRepo.ReadByID(&modelVar, variationID)
 	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 {
 		return responses.ErrorResponse(c, statusCode, message)
+	}
+
+	// Check duplicate variation
+	err = varRepo.ReadByAttributeValueIDs(&models.Variations{}, req.AttributeValueIDs, modelVar.ProductID)
+	if statusCode, message := eh.SqlErrorHandler(err); statusCode != 0 && statusCode != http.StatusNotFound {
+		return responses.ErrorResponse(c, statusCode, message)
+	} else if statusCode == 0 {
+		return responses.ErrorResponse(c, http.StatusBadRequest, constants.DuplicatedVariation)
 	}
 
 	// Update variation
