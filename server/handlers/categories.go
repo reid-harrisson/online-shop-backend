@@ -36,30 +36,20 @@ func NewHandlersCategories(server *s.Server) *HandlersCategories {
 // @Failure 500 {object} responses.Error
 // @Router /store/api/v1/category [post]
 func (h *HandlersCategories) CreateCategory(c echo.Context) error {
+	req := new(requests.RequestCategory)
 	storeID, err := strconv.ParseUint(c.QueryParam("store_id"), 10, 64)
 	if err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
-	req := new(requests.RequestCategory)
-	err = c.Bind(req)
-	if err != nil {
+	if err = c.Bind(req); err != nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
 	}
 
 	cateRepo := repositories.NewRepositoryCategory(h.server.DB)
 
-	// check match between input store_id and parent_id's store_id(same store)
-	modelCategory := models.Categories{}
-	if err := cateRepo.ReadByID(&modelCategory, req.ParentID); err != nil {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
-	}
-
-	if modelCategory.StoreID != storeID {
-		return responses.ErrorResponse(c, http.StatusBadRequest, constants.InvalidData)
-	}
-
 	// check duplicate
+	modelCategory := models.Categories{}
 	if err := cateRepo.ReadByNameAndStoreIDAndParentID(&modelCategory, req.Name, storeID, req.ParentID); err == nil {
 		return responses.ErrorResponse(c, http.StatusBadRequest, constants.CategoryDuplicated)
 	}
