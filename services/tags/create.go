@@ -5,11 +5,6 @@ import (
 )
 
 func (service *Service) Create(modelTag *models.Tags, tag string, storeID uint64) error {
-	err := service.DB.Where("name = ? And store_id = ?", tag, storeID).First(modelTag).Error
-	if err != nil {
-		return err
-	}
-
 	modelTag.Name = tag
 	modelTag.StoreID = storeID
 
