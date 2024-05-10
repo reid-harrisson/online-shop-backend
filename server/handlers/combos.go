@@ -288,7 +288,7 @@ func (h *HandlersCombos) UpdatePublish(c echo.Context) error {
 		return responses.ErrorResponse(c, statusCode, message)
 	}
 
-	return responses.MessageResponse(c, http.StatusOK, constants.ComboApproved)
+	return responses.MessageResponse(c, http.StatusOK, constants.ComboPublished)
 }
 
 // Refresh godoc
