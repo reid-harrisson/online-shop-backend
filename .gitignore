@@ -19,3 +19,6 @@ main.exe
 
 # pdf
 *.pdf
+
+# csv
+*.csv

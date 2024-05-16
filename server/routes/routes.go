@@ -101,6 +101,8 @@ func ConfigureRoutes(server *s.Server) {
 	groupTemplates := apiV1.Group("/template")
 	GroupTemplates(server, groupTemplates)
 
+	groupExport := apiV1.Group("/export")
+	GroupExport(server, groupExport)
 }
 
 func GroupCombos(server *s.Server, e *echo.Group) {
@@ -293,4 +295,9 @@ func GroupUpload(server *s.Server, e *echo.Group) {
 	handler := handlers.NewHandlersUpload(server)
 	e.POST("/csv", handler.UploadCSV, AuthMiddleware(server))
 	e.GET("/csv", handler.GetTemplate, AuthMiddleware(server))
+}
+
+func GroupExport(server *s.Server, e *echo.Group) {
+	handler := handlers.NewHandlersExport(server)
+	e.GET("/csv", handler.ExportCSV, AuthMiddleware(server))
 }
