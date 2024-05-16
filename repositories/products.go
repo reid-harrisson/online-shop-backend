@@ -17,7 +17,9 @@ func NewRepositoryProduct(db *gorm.DB) *RepositoryProduct {
 }
 
 func (repository *RepositoryProduct) ReadByID(modelProduct *models.Products, productID uint64) error {
-	return repository.DB.First(modelProduct, productID).Error
+	return repository.DB.
+		First(modelProduct, productID).
+		Error
 }
 
 func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.ProductsWithLink, productID uint64) error {
@@ -26,7 +28,8 @@ func (repository *RepositoryProduct) ReadLinkedProducts(modelProducts *[]models.
 		Joins("Join store_product_links As links On links.link_id = prods.id").
 		Where("links.product_id = ?", productID).
 		Where("links.deleted_at Is Null And prods.deleted_at Is Null").
-		Scan(modelProducts).Error
+		Scan(modelProducts).
+		Error
 }
 
 func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWithDetail, productID uint64) error {
@@ -76,18 +79,26 @@ func (repository *RepositoryProduct) ReadDetail(modelDetail *models.ProductsWith
 
 func (repository *RepositoryProduct) ReadPaging(modelProducts *[]models.Products, page int, count int, storeID uint64, keyword string, totalCount *int64) error {
 	keyword = strings.ToLower("%" + keyword + "%")
-	return repository.DB.Model(&models.Products{}).
+
+	return repository.DB.
+		Model(&models.Products{}).
 		Where("? = 0 Or store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
-		Count(totalCount).Offset(page).Limit(count).Find(modelProducts).Error
+		Count(totalCount).
+		Offset((page - 1) * count).
+		Limit(count).
+		Find(modelProducts).
+		Error
 }
 
 func (repository *RepositoryProduct) ReadAll(modelProducts *[]models.Products, storeID uint64, keyword string) error {
 	keyword = strings.ToLower("%" + keyword + "%")
+
 	return repository.DB.
 		Where("? = 0 Or store_id = ?", storeID, storeID).
 		Where("Lower(title) Like ?", keyword).
-		Find(modelProducts).Error
+		Find(modelProducts).
+		Error
 }
 
 func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.ProductsApproved, storeID uint64, page int, count int, totalCount *int64) error {
@@ -106,11 +117,15 @@ func (repository *RepositoryProduct) ReadApproved(modelProducts *[]models.Produc
 		Group("prods.id").
 		Count(totalCount)
 	if page != 0 || count != 0 {
-		return query.Offset(page).
+		return query.
+			Offset((page - 1) * count).
 			Limit(count).
 			Find(modelProducts).Error
 	}
-	return query.Find(modelProducts).Error
+
+	return query.
+		Find(modelProducts).
+		Error
 }
 
 func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Products, storeID uint64, cateID uint64) error {
@@ -120,7 +135,8 @@ func (repository *RepositoryProduct) ReadByCategory(modelProducts *[]models.Prod
 		Where("cates.category_id = ?", cateID).
 		Where("? = 0 Or prods.store_id = ?", storeID, storeID).
 		Group("prods.id").
-		Scan(modelProducts).Error
+		Scan(modelProducts).
+		Error
 }
 
 func (repository *RepositoryProduct) ReadByTags(modelProducts *[]models.Products, storeID uint64, tags []string, keyword string) error {
