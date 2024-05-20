@@ -8,25 +8,25 @@ import (
 )
 
 type ResponseStore struct {
-	ID                   uint64 `json:"id"`
-	CompanyID            uint64 `json:"company_id"`
-	OwnerID              uint64 `json:"owner_id"`
-	Name                 string `json:"name"`
-	ContactPhone         string `json:"contact_phone"`
-	ContactEmail         string `json:"contact_email"`
-	ShowStockLevelStatus string `json:"show_stock_level_status"`
-	ShowOutOfStockStatus string `json:"show_out_of_stock_status"`
-	DeliveryPolicy       string `json:"delivery_policy"`
-	ReturnsPolicy        string `json:"returns_policy"`
-	Terms                string `json:"terms"`
+	ID                   uint64               `json:"id" example:"2"`
+	CompanyID            uint64               `json:"company_id" example:"2"`
+	OwnerID              uint64               `json:"owner_id" example:"1607"`
+	Name                 string               `json:"name" example:"The Che Gourmet Shop"`
+	ContactPhone         string               `json:"contact_phone" example:"7184756027"`
+	ContactEmail         string               `json:"contact_email" example:"example@sample.com"`
+	ShowStockLevelStatus utils.SimpleStatuses `json:"show_stock_level_status" example:"0"`
+	ShowOutOfStockStatus utils.SimpleStatuses `json:"show_out_of_stock_status" example:"0"`
+	DeliveryPolicy       string               `json:"delivery_policy" example:"example delivery policy"`
+	ReturnsPolicy        string               `json:"returns_policy" example:"example return policy"`
+	Terms                string               `json:"terms" example:"example terms"`
 }
 
 type ResponseOutOfStockStatus struct {
-	ShowOutOfStockStatus string `json:"show_out_of_stock_status"`
+	ShowOutOfStockStatus utils.SimpleStatuses `json:"show_out_of_stock_status" example:"0"`
 }
 
 type ResponseStockLevelStatus struct {
-	ShowStockLevelStatus string `json:"show_stock_level_status"`
+	ShowStockLevelStatus utils.SimpleStatuses `json:"show_stock_level_status" example:"0"`
 }
 
 type ResponseBackOrderStatus struct {
@@ -49,8 +49,8 @@ func NewResponseStore(c echo.Context, statusCode int, modelStore models.Stores) 
 		Name:                 modelStore.Name,
 		ContactPhone:         modelStore.ContactPhone,
 		ContactEmail:         modelStore.ContactEmail,
-		ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),
-		ShowOutOfStockStatus: utils.SimpleStatusToString(modelStore.ShowOutOfStockStatus),
+		ShowStockLevelStatus: modelStore.ShowStockLevelStatus,
+		ShowOutOfStockStatus: modelStore.ShowOutOfStockStatus,
 		DeliveryPolicy:       modelStore.DeliveryPolicy,
 		ReturnsPolicy:        modelStore.ReturnsPolicy,
 		Terms:                modelStore.Terms,
@@ -68,8 +68,8 @@ func NewResponseStores(c echo.Context, statusCode int, modelStores []models.Stor
 			Name:                 modelStore.Name,
 			ContactPhone:         modelStore.ContactPhone,
 			ContactEmail:         modelStore.ContactEmail,
-			ShowStockLevelStatus: utils.SimpleStatusToString(modelStore.ShowStockLevelStatus),
-			ShowOutOfStockStatus: utils.SimpleStatusToString(modelStore.ShowOutOfStockStatus),
+			ShowStockLevelStatus: modelStore.ShowStockLevelStatus,
+			ShowOutOfStockStatus: modelStore.ShowOutOfStockStatus,
 			DeliveryPolicy:       modelStore.DeliveryPolicy,
 			ReturnsPolicy:        modelStore.ReturnsPolicy,
 			Terms:                modelStore.Terms,
@@ -80,13 +80,13 @@ func NewResponseStores(c echo.Context, statusCode int, modelStores []models.Stor
 
 func NewResponseOutOfStockStatus(c echo.Context, statusCode int, outOfStockStatus utils.SimpleStatuses) error {
 	return Response(c, statusCode, ResponseOutOfStockStatus{
-		ShowOutOfStockStatus: utils.SimpleStatusToString(outOfStockStatus),
+		ShowOutOfStockStatus: outOfStockStatus,
 	})
 }
 
 func NewResponseStockLevelStatus(c echo.Context, statusCode int, stockLevelStatus utils.SimpleStatuses) error {
 	return Response(c, statusCode, ResponseStockLevelStatus{
-		ShowStockLevelStatus: utils.SimpleStatusToString(stockLevelStatus),
+		ShowStockLevelStatus: stockLevelStatus,
 	})
 }
 
