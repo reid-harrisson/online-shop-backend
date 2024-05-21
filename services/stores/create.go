@@ -25,6 +25,17 @@ func (service *Service) Create(modelStore *models.Stores, req *requests.RequestS
 	modelStore.DeliveryPolicy = req.DeliveryPolicy
 	modelStore.ReturnsPolicy = req.ReturnsPolicy
 	modelStore.Terms = req.Terms
+	modelStore.Active = req.Active
+	modelStore.BackgroundColor1 = req.BackgroundColor1
+	modelStore.BackgroundColor2 = req.BackgroundColor2
+	modelStore.StoreBackground = req.StoreBackground
+	modelStore.StoreLogo = req.StoreLogo
+	modelStore.Description = req.Description
+	modelStore.HeaderLayoutStyle = req.HeaderLayoutStyle
+	modelStore.ShowStoreLogo = req.ShowStoreLogo
+	modelStore.ShowStoreTitleText = req.ShowStoreTitleText
+	modelStore.Website = req.Website
+	modelStore.WebsiteButtonColor = req.WebsiteButtonColor
 
 	return service.DB.Create(&modelStore).Error
 }
