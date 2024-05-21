@@ -19,6 +19,17 @@ type Stores struct {
 	DeliveryPolicy       string               `gorm:"column:delivery_policy; type:text"`
 	ReturnsPolicy        string               `gorm:"column:returns_policy; type:text"`
 	Terms                string               `gorm:"column:terms; type:text"`
+	Active               int8                 `gorm:"column:active; type:tinyint(8)"`
+	BackgroundColor1     string               `gorm:"column:background_color_1; type:varchar(25)"`
+	BackgroundColor2     string               `gorm:"column:background_color_2; type:varchar(25)"`
+	StoreBackground      string               `gorm:"column:store_background; type:varchar(255)"`
+	StoreLogo            string               `gorm:"column:store_logo; type:varchar(255)"`
+	Description          string               `gorm:"column:description; type:text"`
+	HeaderLayoutStyle    int8                 `gorm:"column:header_layout_style; type:tinyint(8)"`
+	ShowStoreLogo        int8                 `gorm:"column:show_store_logo; type:tinyint(8)"`
+	ShowStoreTitleText   int8                 `gorm:"column:show_store_title_text; type:tinyint(8)"`
+	Website              string               `gorm:"column:website; type:varchar(150)"`
+	WebsiteButtonColor   string               `gorm:"column:website_button_color; type:varchar(25)"`
 }
 
 func (Stores) TableName() string {
