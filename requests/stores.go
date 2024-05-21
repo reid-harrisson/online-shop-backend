@@ -14,15 +14,15 @@ type RequestStore struct {
 	DeliveryPolicy       string               `json:"delivery_policy" example:"example delivery policy"`
 	ReturnsPolicy        string               `json:"returns_policy" example:"example return policy"`
 	Terms                string               `json:"terms" example:"example terms"`
-	Active               int8                 `gorm:"column:active; example:0"`
-	BackgroundColor1     string               `gorm:"column:background_color_1; example:#3b3939"`
-	BackgroundColor2     string               `gorm:"column:background_color_2; example:#F2F2EE"`
-	StoreBackground      string               `gorm:"column:store_background; example:/bg/background.png"`
-	StoreLogo            string               `gorm:"column:store_logo; example:/logo/logo.png"`
-	Description          string               `gorm:"column:description; example:This is example store for test."`
-	HeaderLayoutStyle    int8                 `gorm:"column:header_layout_style; example:1"`
-	ShowStoreLogo        int8                 `gorm:"column:show_store_logo; example:2"`
-	ShowStoreTitleText   int8                 `gorm:"column:show_store_title_text; example:1"`
-	Website              string               `gorm:"column:website; example:https://google.com/"`
-	WebsiteButtonColor   string               `gorm:"column:website_button_color; example:#D3E2F1"`
+	Active               int8                 `json:"active" example:"0"`
+	BackgroundColor1     string               `json:"background_color_1" example:"#3B3939"`
+	BackgroundColor2     string               `json:"background_color_2" example:"#F2F2EE"`
+	StoreBackground      string               `json:"store_background" example:"/bg/background.png"`
+	StoreLogo            string               `json:"store_logo" example:"/logo/logo.png"`
+	Description          string               `json:"description" example:"This is example store for test."`
+	HeaderLayoutStyle    int8                 `json:"header_layout_style" example:"1"`
+	ShowStoreLogo        int8                 `json:"show_store_logo" example:"2"`
+	ShowStoreTitleText   int8                 `json:"show_store_title_text" example:"1"`
+	Website              string               `json:"website" example:"https://google.com/"`
+	WebsiteButtonColor   string               `json:"website_button_color" example:"#D3E2F1"`
 }
